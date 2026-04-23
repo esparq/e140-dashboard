@@ -2800,25 +2800,75 @@ function renderRKpis(d, dPrev){
 
   // Construir series históricas con todas las semanas disponibles (orden cronológico)
   const chron = [...WEEKS_ORDER].reverse();   // de más antigua a más reciente
-  const series = {
-    contratacionPct: chron.map(w=>DATA.weeks[w]?.kpis?.contratacionPct),
-    moPct:           chron.map(w=>DATA.weeks[w]?.kpis?.moPct),
-    utilRentPct:     chron.map(w=>DATA.weeks[w]?.kpis?.utilRentPct),
-    personal:        chron.map(w=>DATA.weeks[w]?.kpis?.personal),
-    adicionales:     chron.map(w=>DATA.weeks[w]?.kpis?.adicionales),
-    rentMOPct:       chron.map(w=>DATA.weeks[w]?.kpis?.rentMOPct)
+
+  // Helper: extraer un KPI del panelEjecutivo o del fallback kpis legacy
+  const getKpi = (weekKey, field) => {
+    const w = DATA.weeks[weekKey];
+    if(!w) return null;
+    // Prioridad: panelEjecutivo (datos nuevos) → kpis legacy (datos viejos)
+    const pe = w.panelEjecutivo || {};
+    const kp = w.kpis || {};
+    switch(field){
+      case 'avance':         return pe.avance != null ? pe.avance : kp.avanceObra;
+      case 'cpi':            return pe.cpi != null ? pe.cpi : kp.cpi;
+      case 'spiMeta':        return pe.spiMeta != null ? pe.spiMeta : kp.spiMeta;
+      case 'spiContractual': {
+        const v = pe.spiContractual != null ? pe.spiContractual : kp.spiContractual;
+        if(typeof v === 'string' && v === '—') return null;
+        return v;
+      }
+      case 'moConsumida':    return pe.moConsumida != null ? pe.moConsumida : kp.moConsumida;
+      case 'personal':       return pe.personal != null ? pe.personal : kp.personal;
+    }
+    return null;
   };
 
-  const prev = dPrev ? dPrev.kpis : null;
-  const fmtPersonal = v => (v===null||v===undefined||isNaN(v)) ? '—' : String(v);
-  const fmtRent = v => (v===null||v===undefined||isNaN(v)) ? '—' : (v>=0?'+':'')+v.toFixed(1)+'%';
+  const series = {
+    avance:         chron.map(w => getKpi(w, 'avance')),
+    cpi:            chron.map(w => getKpi(w, 'cpi')),
+    spiMeta:        chron.map(w => getKpi(w, 'spiMeta')),
+    spiContractual: chron.map(w => getKpi(w, 'spiContractual')),
+    moConsumida:    chron.map(w => getKpi(w, 'moConsumida')),
+    personal:       chron.map(w => getKpi(w, 'personal')),
+  };
+
+  // Valores semana actual y semana anterior
+  const cur = {
+    avance:         getKpi(DATA.currentWeek, 'avance'),
+    cpi:            getKpi(DATA.currentWeek, 'cpi'),
+    spiMeta:        getKpi(DATA.currentWeek, 'spiMeta'),
+    spiContractual: getKpi(DATA.currentWeek, 'spiContractual'),
+    moConsumida:    getKpi(DATA.currentWeek, 'moConsumida'),
+    personal:       getKpi(DATA.currentWeek, 'personal'),
+  };
+  const prev = dPrev ? {
+    avance:         getKpi(getPrevWeek(DATA.currentWeek), 'avance'),
+    cpi:            getKpi(getPrevWeek(DATA.currentWeek), 'cpi'),
+    spiMeta:        getKpi(getPrevWeek(DATA.currentWeek), 'spiMeta'),
+    spiContractual: getKpi(getPrevWeek(DATA.currentWeek), 'spiContractual'),
+    moConsumida:    getKpi(getPrevWeek(DATA.currentWeek), 'moConsumida'),
+    personal:       getKpi(getPrevWeek(DATA.currentWeek), 'personal'),
+  } : null;
+
+  // Formateadores específicos
+  const fmtPersonal = v => (v==null||isNaN(v)) ? '—' : String(Math.round(v))+' pax';
+  const fmtMO       = v => (v==null||isNaN(v)) ? '—' : 'S/ '+Math.round(v).toLocaleString('es-PE');
+  const fmtCPI      = v => (v==null||isNaN(v)) ? '—' : v.toFixed(2);
+  const fmtSPI      = v => (v==null||isNaN(v)) ? '—' : v.toFixed(2);
+  const fmtAv       = v => (v==null||isNaN(v)) ? '—' : v.toFixed(1)+'%';
+
+  // Colores según criterio: verde si saludable, naranja si intermedio, rojo si alerta
+  const clsCPI      = v => v == null ? '' : (v >= 1 ? 'rk-green' : v >= 0.9 ? 'rk-orange' : 'rk-red');
+  const clsSPI      = v => v == null ? '' : (v >= 0.95 ? 'rk-green' : v >= 0.85 ? 'rk-orange' : 'rk-red');
+  const clsAv       = v => v == null ? '' : (v >= 50 ? 'rk-green' : '');
+
   const kpis = [
-    {k:'contratacionPct', label:'% Avance Contratación', value:fmtPct(d.kpis.contratacionPct), raw:d.kpis.contratacionPct, prevRaw:prev?prev.contratacionPct:null, esPct:true, cls:'', color:COLORS.blue, spark:series.contratacionPct},
-    {k:'moPct',           label:'MO Acumulada (%)',     value:fmtPct(d.kpis.moPct),          raw:d.kpis.moPct, prevRaw:prev?prev.moPct:null, esPct:true, cls:'', color:COLORS.blueMid, spark:series.moPct},
-    {k:'utilRentPct',     label:'Util. + Rent. Total',  value:fmtPct(d.kpis.utilRentPct),    raw:d.kpis.utilRentPct, prevRaw:prev?prev.utilRentPct:null, esPct:true, cls:'rk-green', color:COLORS.green, spark:series.utilRentPct},
-    {k:'personal',        label:'Personal en obra',     value:fmtPersonal(d.kpis.personal), raw:d.kpis.personal, prevRaw:prev?prev.personal:null, esPct:false, cls:'rk-orange', color:COLORS.orange, spark:series.personal},
-    {k:'adicionales',     label:'Adicionales Aprob.',   value:fmtSMon(d.kpis.adicionales),  raw:d.kpis.adicionales, prevRaw:prev?prev.adicionales:null, esPct:false, cls:'', color:COLORS.blue, spark:series.adicionales},
-    {k:'rentMOPct',       label:'Rent. Proyect. MO',    value:fmtRent(d.kpis.rentMOPct), raw:d.kpis.rentMOPct, prevRaw:prev?prev.rentMOPct:null, esPct:true, cls:'rk-green', color:COLORS.green, spark:series.rentMOPct}
+    {k:'avance',         label:'Avance de Obra',    value:fmtAv(cur.avance),            raw:cur.avance,         prevRaw:prev?prev.avance:null,         esPct:false, cls:clsAv(cur.avance),    color:COLORS.orange, spark:series.avance,      subLabel:'Ponderado físico'},
+    {k:'cpi',            label:'CPI Mano Obra',     value:fmtCPI(cur.cpi),              raw:cur.cpi,            prevRaw:prev?prev.cpi:null,            esPct:false, cls:clsCPI(cur.cpi),      color:COLORS.green,  spark:series.cpi,         subLabel:'MO Proy. / MO Real'},
+    {k:'spiMeta',        label:'SPI Meta',          value:fmtSPI(cur.spiMeta),          raw:cur.spiMeta,        prevRaw:prev?prev.spiMeta:null,        esPct:false, cls:clsSPI(cur.spiMeta),  color:COLORS.blueMid,spark:series.spiMeta,     subLabel:'Sec ejec / prog acum.'},
+    {k:'spiContractual', label:'SPI Contractual',   value:fmtSPI(cur.spiContractual),   raw:cur.spiContractual, prevRaw:prev?prev.spiContractual:null, esPct:false, cls:clsSPI(cur.spiContractual), color:COLORS.blue, spark:series.spiContractual, subLabel:'Pendiente fuente'},
+    {k:'moConsumida',    label:'MO Consumida',      value:fmtMO(cur.moConsumida),       raw:cur.moConsumida,    prevRaw:prev?prev.moConsumida:null,    esPct:false, cls:'',                   color:COLORS.blue,   spark:series.moConsumida, subLabel:'S/ · Acum. real'},
+    {k:'personal',       label:'Personal en Obra',  value:fmtPersonal(cur.personal),    raw:cur.personal,       prevRaw:prev?prev.personal:null,       esPct:false, cls:'rk-orange',          color:COLORS.orange, spark:series.personal,    subLabel:'Dotación actual'},
   ];
 
   kpis.forEach((kpi,i)=>{
@@ -2838,12 +2888,15 @@ function renderRKpis(d, dPrev){
     const cid = 'rSpark_'+i;
     const ctx = document.getElementById(cid);
     if(!ctx) return;
+    // Filtrar nulls para sparkline limpia
+    const cleanSpark = kpi.spark.map(v => (v==null||isNaN(v)) ? null : v);
     CHART_INSTANCES[cid] = new Chart(ctx,{
       type:'line',
       data:{
-        labels:kpi.spark.map((_,j)=>j),
-        datasets:[{data:kpi.spark, borderColor:kpi.color, backgroundColor:kpi.color+'22',
-          fill:true, tension:.35, pointRadius:0, pointHoverRadius:4, borderWidth:2}]
+        labels:cleanSpark.map((_,j)=>j),
+        datasets:[{data:cleanSpark, borderColor:kpi.color, backgroundColor:kpi.color+'22',
+          fill:true, tension:.35, pointRadius:0, pointHoverRadius:4, borderWidth:2,
+          spanGaps:true}]
       },
       options:{responsive:true,maintainAspectRatio:false,
         plugins:{legend:{display:false},tooltip:{enabled:false}},
