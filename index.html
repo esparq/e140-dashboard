@@ -7,13 +7,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
   --twitter-blue:#0070B4;--twitter-blue-dk:#005A91;--blue-bell-dk:#3A91C5;--blue-bell:#509BC9;--baby-blue:#97C5E0;--alice-blue:#EEF5FA;
   --white:#FFFFFF;--red:#D64045;--orange:#E07B39;--yellow:#F2C94C;--green:#2D936C;
   --bg:var(--alice-blue);--bg-card:var(--white);--accent:var(--twitter-blue);--accent-mid:var(--blue-bell);--accent-lt:var(--baby-blue);
   --text:#1A2B3C;--text-muted:#5A7A96;--border:#D4E5F2;--border-mid:#B0CFEA;
-  --sidebar-bg:#003A66;--sidebar-bg-hover:#0A4E81;--sidebar-text:#BFD6E8;
+  --sidebar-bg:#004A7C;--sidebar-bg-hover:#0A5B92;--sidebar-text:#BFD6E8;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;}
@@ -341,6 +342,87 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .hdr-btn:hover{background:rgba(255,255,255,0.22);}
 .hdr-btn:disabled{opacity:.5;cursor:not-allowed;}
 .hdr-btn.spinning .ico{animation:spin 1s linear infinite;display:inline-block;}
+.hdr-btn-primary{background:var(--white);color:var(--twitter-blue);border-color:var(--white);}
+.hdr-btn-primary:hover{background:var(--alice-blue);}
+
+/* ═════════ MODAL CARGA SEMANA ═════════ */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,40,80,.55);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;}
+.modal-backdrop.show{display:flex;}
+.modal-card{background:var(--white);border-radius:10px;width:100%;max-width:960px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(0,0,0,.25);}
+.modal-head{background:var(--twitter-blue);color:var(--white);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;}
+.modal-head h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;font-weight:400;}
+.modal-head p{font-size:11px;color:var(--baby-blue);margin-top:2px;letter-spacing:.05em;text-transform:uppercase;}
+.modal-close{background:rgba(255,255,255,.15);border:none;color:var(--white);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:inline-flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:rgba(255,255,255,.28);}
+.modal-body{padding:24px;overflow-y:auto;flex:1;}
+.modal-foot{background:var(--alice-blue);border-top:1px solid var(--border);padding:14px 24px;display:flex;gap:10px;justify-content:flex-end;align-items:center;}
+
+/* Drop zone */
+.dropzone{border:3px dashed var(--border-mid);border-radius:10px;padding:40px 30px;text-align:center;transition:all .2s;background:var(--alice-blue);cursor:pointer;}
+.dropzone:hover{border-color:var(--twitter-blue);background:#DFEAF2;}
+.dropzone.drag{border-color:var(--twitter-blue);background:#C9DCE9;}
+.dropzone-icon{font-size:42px;margin-bottom:12px;}
+.dropzone-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--twitter-blue);margin-bottom:6px;}
+.dropzone-subtitle{font-size:13px;color:var(--text-muted);margin-bottom:14px;}
+.dropzone-btn{background:var(--twitter-blue);color:var(--white);border:none;border-radius:6px;padding:10px 20px;font-family:inherit;font-size:12px;font-weight:600;letter-spacing:.05em;cursor:pointer;}
+.dropzone-btn:hover{background:var(--twitter-blue-dk);}
+
+/* Semana input */
+.sem-input-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0;}
+.sem-input{display:flex;flex-direction:column;gap:6px;}
+.sem-input label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:600;}
+.sem-input input{padding:8px 12px;border:1px solid var(--border-mid);border-radius:5px;font-family:inherit;font-size:14px;font-weight:600;color:var(--text);}
+.sem-input input:focus{outline:none;border-color:var(--twitter-blue);}
+
+/* File list */
+.file-list{margin-top:18px;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.file-list-head{background:var(--alice-blue);padding:10px 14px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;display:grid;grid-template-columns:40px 1fr 140px 80px;gap:10px;align-items:center;}
+.file-row{padding:8px 14px;display:grid;grid-template-columns:40px 1fr 140px 80px;gap:10px;align-items:center;border-top:1px solid var(--border);font-size:12px;}
+.file-row:hover{background:var(--alice-blue);}
+.file-icon{font-size:18px;}
+.file-icon.ok{color:var(--green);}
+.file-icon.warn{color:var(--orange);}
+.file-icon.err{color:var(--red);}
+.file-name{font-family:'DM Mono',monospace;font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.file-type{background:var(--alice-blue);padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;color:var(--twitter-blue);text-align:center;letter-spacing:.05em;}
+.file-type.unknown{color:var(--orange);background:#FEF3E8;}
+.file-remove{background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:3px;}
+.file-remove:hover{background:var(--red);color:var(--white);}
+
+/* Preview cards */
+.preview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px;}
+.preview-card{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;}
+.preview-card.highlight{border-color:var(--twitter-blue);background:var(--alice-blue);}
+.preview-card .pc-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin-bottom:4px;}
+.preview-card .pc-val{font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--twitter-blue);}
+.preview-card .pc-val.green{color:var(--green);}
+.preview-card .pc-val.orange{color:var(--orange);}
+.preview-card .pc-val.red{color:var(--red);}
+.preview-card .pc-sub{font-size:10px;color:var(--text-muted);margin-top:2px;}
+
+/* Message area */
+.modal-msg{padding:10px 14px;border-radius:6px;font-size:12px;margin-top:14px;}
+.modal-msg.info{background:#E6F0FA;color:var(--twitter-blue-dk);border-left:4px solid var(--twitter-blue);}
+.modal-msg.warn{background:#FEF3E8;color:#8B4A0E;border-left:4px solid var(--orange);}
+.modal-msg.err{background:#FDE8E8;color:#8B2020;border-left:4px solid var(--red);}
+.modal-msg.ok{background:#E8F4ED;color:#0E5D3B;border-left:4px solid var(--green);}
+
+/* Código JSON */
+.json-box{background:#1E293B;color:#E2E8F0;padding:14px;border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;line-height:1.6;max-height:240px;overflow:auto;margin-top:10px;white-space:pre-wrap;word-break:break-all;}
+
+/* Instrucciones GitHub */
+.gh-steps{background:var(--alice-blue);border-radius:8px;padding:14px 18px;margin-top:14px;}
+.gh-steps h4{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1.5px;color:var(--twitter-blue);margin-bottom:8px;}
+.gh-steps ol{margin-left:18px;}
+.gh-steps li{font-size:12px;margin-bottom:4px;color:var(--text);}
+.gh-steps code{background:var(--white);padding:1px 5px;border-radius:3px;font-family:'DM Mono',monospace;font-size:11px;color:var(--twitter-blue-dk);}
+
+/* Stepper */
+.stepper{display:flex;gap:4px;margin-bottom:20px;}
+.step{flex:1;padding:10px 8px;background:var(--alice-blue);border-radius:5px;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;position:relative;}
+.step.active{background:var(--twitter-blue);color:var(--white);}
+.step.done{background:var(--green);color:var(--white);}
+.step .step-num{display:inline-block;margin-right:5px;opacity:.7;}
 
 /* ═════════ FOOTER SYNC ═════════ */
 .sync-footer{background:var(--white);border-top:1px solid var(--border);padding:6px 28px;font-size:10px;color:var(--text-muted);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
@@ -410,6 +492,75 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="useDemoData()">Usar datos demo</button>
       <button class="btn btn-primary" onclick="retryFetch()">🔄 Reintentar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL CARGAR SEMANA DESDE EXCEL
+     ═══════════════════════════════════════════ -->
+<div class="modal-backdrop" id="cargaModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <h2>📂 CARGAR SEMANA DESDE EXCEL</h2>
+        <p>Parseá los 11 archivos de cierre · previsualizá · publicá</p>
+      </div>
+      <button class="modal-close" onclick="closeCargaModal()" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="modal-body" id="cargaModalBody">
+      <div class="stepper" id="cargaStepper">
+        <div class="step active" data-step="1"><span class="step-num">1</span>Archivos</div>
+        <div class="step" data-step="2"><span class="step-num">2</span>Preview</div>
+        <div class="step" data-step="3"><span class="step-num">3</span>Publicar</div>
+      </div>
+
+      <!-- PASO 1: DROPZONE -->
+      <div id="step1">
+        <div class="sem-input-row">
+          <div class="sem-input">
+            <label>Código semana (ej. S37)</label>
+            <input type="text" id="inSemanaCod" placeholder="S37" autocomplete="off">
+          </div>
+          <div class="sem-input">
+            <label>Fecha de corte</label>
+            <input type="date" id="inSemanaFecha">
+          </div>
+        </div>
+
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+          <div class="dropzone-icon">📂</div>
+          <div class="dropzone-title">ARRASTRÁ LOS 11 ARCHIVOS ACÁ</div>
+          <div class="dropzone-subtitle">O hacé click para seleccionarlos manualmente. Los archivos se procesan en tu navegador — nada se sube a internet.</div>
+          <button class="dropzone-btn" type="button">Seleccionar archivos</button>
+          <input type="file" id="fileInput" multiple accept=".xlsx,.xlsb,.xls" style="display:none">
+        </div>
+
+        <div id="fileListContainer"></div>
+
+        <div class="modal-msg info" style="margin-top:14px">
+          <b>💡 Archivos esperados (puede faltar alguno — usará la semana previa):</b><br>
+          01 Histograma · 02.01 SOT · 02.02 SUP · 02.03 Albañilería · 03 Adquisiciones · 05 Cronograma · 06 MO · 07 Acero · 08 Arrendamiento · 09 Kardex · 10 Adicionales
+        </div>
+      </div>
+
+      <!-- PASO 2: PREVIEW -->
+      <div id="step2" style="display:none">
+        <div id="previewContent"></div>
+      </div>
+
+      <!-- PASO 3: PUBLICAR -->
+      <div id="step3" style="display:none">
+        <div id="publishContent"></div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="hdr-btn" id="cargaBackBtn" onclick="cargaStepBack()" style="display:none">← Atrás</button>
+      <div style="flex:1"></div>
+      <button class="hdr-btn" onclick="closeCargaModal()">Cancelar</button>
+      <button class="hdr-btn hdr-btn-primary" id="cargaNextBtn" onclick="cargaStepNext()" disabled>Siguiente →</button>
     </div>
   </div>
 </div>
@@ -567,6 +718,9 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
         </div>
         <button class="hdr-btn" id="refreshBtn" onclick="refreshData()" title="Vuelve a leer el Google Sheet sin recargar la página">
           <span class="ico">🔄</span> Actualizar
+        </button>
+        <button class="hdr-btn hdr-btn-primary" id="cargarSemBtn" onclick="openCargaModal()" title="Cargar una nueva semana parseando los Excel de obra">
+          <span class="ico">📂</span> Cargar Semana
         </button>
         <div class="th-date">
           <div class="dl">Semana</div>
@@ -1140,9 +1294,12 @@ function buildDataFromSheets(raw){
   });
   data.config = config;
 
-  // Actualizar constantes si vienen
+  // Actualizar constantes si vienen desde CONFIG
   if(config.plazo_dias) CONSTANTES.plazoDias = toNum(config.plazo_dias) ?? CONSTANTES.plazoDias;
   if(config.inicio) CONSTANTES.fechaInicio = fmtFecha(config.inicio);
+  if(config.costo_directo_base) CONSTANTES.costoDirecto = toNum(config.costo_directo_base) ?? CONSTANTES.costoDirecto;
+  if(config.ppto_obra) CONSTANTES.presupuestoObra = toNum(config.ppto_obra);
+  if(config.mo_presupuesto_total) CONSTANTES.moBaseTotal = toNum(config.mo_presupuesto_total) ?? CONSTANTES.moBaseTotal;
 
   // ── SEMANAS ────────────────────────────────────────
   const semanas = (raw.SEMANAS || []).filter(r => r.semana);
@@ -1264,6 +1421,11 @@ function buildDataFromSheets(raw){
         {n:"Actual (obra)", actual: w.personal.dotacion ?? 0, warn:(w.personal.dotacion ?? 0)-(40+metaCampo)}
       ];
     }
+    // HH Préstamo total (acumulado semanal)
+    const hhTot = toNum(r.hh_prestamo_total);
+    if(hhTot !== null){
+      w.personal.hhPrestamo.TOTAL = hhTot;
+    }
     // Meta dimensionamiento (para comparativo) toma el campo si existe
     if(metaCampo) CONSTANTES.metaDimensionamiento = metaCampo;
   });
@@ -1283,14 +1445,22 @@ function buildDataFromSheets(raw){
       saldo: toNum0(r.saldo),
       rent: toNum0(r.rent_pct),
       ahorro: toNum0(r.mo_base) - toNum0(r.mo_meta),
-      incid: 0  // se calcula luego
+      // Si viene incid_pct del Sheet se usa; si no, se calcula después
+      incid: toNum(r.incid_pct),
+      _hasIncid: toNum(r.incid_pct) !== null
     });
   });
   Object.keys(moBySem).forEach(sem=>{
     const lista = moBySem[sem];
     const w = data.weeks[sem];
     const totReal = lista.reduce((s,c)=>s+c.real,0);
-    lista.forEach(c=>{ c.incid = totReal>0 ? (c.real/totReal*100) : 0; });
+    // Calcular incid solo para cuadrillas que no lo traen
+    lista.forEach(c=>{
+      if(!c._hasIncid){
+        c.incid = totReal>0 ? (c.real/totReal*100) : 0;
+      }
+      delete c._hasIncid;
+    });
     w.mo.cuadrillas = lista;
     w.mo.acumulado = totReal;
     w.mo.saldo = lista.reduce((s,c)=>s+c.saldo,0);
@@ -1408,6 +1578,17 @@ function buildDataFromSheets(raw){
   });
 
   // ── FOTOS ──────────────────────────────────────────
+  // Helper: convierte URL de Google Drive a formato directo servible como <img>
+  function normalizeFotoUrl(url){
+    if(!url) return "";
+    const s = String(url).trim();
+    if(!s) return "";
+    // Google Drive: extraer el ID del formato https://drive.google.com/file/d/{ID}/view
+    const m = s.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if(m) return `https://drive.google.com/uc?id=${m[1]}`;
+    // Si ya viene en formato "open?id=" o "uc?id=", respetar
+    return s;
+  }
   (raw.FOTOS || []).forEach(r=>{
     if(!r.semana || !r.titulo) return;
     const sem = String(r.semana).trim();
@@ -1415,7 +1596,7 @@ function buildDataFromSheets(raw){
     data.weeks[sem].fotos.push({
       n: toNum(r.orden) ?? (data.weeks[sem].fotos.length+1),
       desc: String(r.titulo).trim(),
-      url: r.url_foto || "",
+      url: normalizeFotoUrl(r.url_foto),
       color: "#509BC9"
     });
   });
@@ -2989,13 +3170,26 @@ function renderFotos(){
   const d = wk();
   const g = document.getElementById('fotoGrid');
   g.innerHTML = '';
+  if(!d.fotos.length){
+    g.innerHTML = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--text-muted);font-size:12px">No hay fotos cargadas para esta semana.</div>';
+    return;
+  }
   d.fotos.forEach(f=>{
     const el = document.createElement('div');
     el.style.cssText = 'border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--alice-blue)';
     const gradEnd = f.color === '#2D936C' ? '#1A6B4A' : (f.color === '#E07B39' ? '#D64045' : '#0070B4');
     const badge = f.badge ? `<span class="badge badge-meta" style="margin-left:4px">${f.badge}</span>` : '';
+    // Si hay URL → <img>, si no → placeholder con gradiente
+    let media;
+    if(f.url && f.url.trim()){
+      // onerror → reemplazar por placeholder si la foto no carga (Drive privado, 404, etc.)
+      const fallback = `this.outerHTML='<div style=&quot;height:120px;background:linear-gradient(135deg,${f.color},${gradEnd});display:flex;align-items:center;justify-content:center;color:white;font-family:Bebas Neue;font-size:22px;letter-spacing:2px&quot;>FOTO ${String(f.n).padStart(2,'0')}</div>'`;
+      media = `<img src="${f.url}" alt="${f.desc.replace(/"/g,'&quot;')}" style="display:block;width:100%;height:160px;object-fit:cover;background:#EEF5FA" onerror="${fallback}">`;
+    } else {
+      media = `<div style="height:160px;background:linear-gradient(135deg,${f.color},${gradEnd});display:flex;align-items:center;justify-content:center;color:var(--white);font-family:'Bebas Neue';font-size:26px;letter-spacing:2px">FOTO ${String(f.n).padStart(2,'0')}</div>`;
+    }
     el.innerHTML = `
-      <div style="height:120px;background:linear-gradient(135deg,${f.color},${gradEnd});display:flex;align-items:center;justify-content:center;color:var(--white);font-family:'Bebas Neue';font-size:22px;letter-spacing:2px">FOTO ${String(f.n).padStart(2,'0')}</div>
+      ${media}
       <div style="padding:8px 10px;font-size:11px"><b>${f.desc}</b>${badge}</div>`;
     g.appendChild(el);
   });
@@ -3008,6 +3202,19 @@ function renderFotos(){
 
 // Dispara la carga (Google Sheets → DATA). Si no hay URLs, cae a DEMO.
 initDashboard();
+
+/* ═══════════════════════════════════════════════════════════════════
+   AUTO-REFRESCO DURO CADA 15 MINUTOS
+   ───────────────────────────────────────────────────────────────────
+   Recarga completa de la página cada 15 min. Justificación:
+   - Limpia memory leaks acumulados de Chart.js durante proyección de
+     8+ horas desatendida en la TV de obra.
+   - Garantiza que el dashboard esté sincronizado aun si el usuario
+     olvidó presionar el botón de Actualizar.
+   Si necesitas desactivarlo (ej. en monitor personal), comenta la línea.
+   ═══════════════════════════════════════════════════════════════════ */
+
+setInterval(() => location.reload(), 15 * 60 * 1000); // 15 minutos
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -3212,6 +3419,728 @@ initDashboard();
    FIN PLANTILLA. Luego de pegar, agregar también la clave al array
    WEEKS_ORDER al inicio (línea que dice: const WEEKS_ORDER = [...];)
    ─────────────────────────────────────────────────────────────────────────── */
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ═  MÓDULO CARGA DE SEMANA DESDE EXCEL                                      ═
+   ═                                                                          ═
+   ═  Permite al usuario arrastrar los 11 archivos Excel de cierre,          ═
+   ═  parsearlos con SheetJS (leyendo la hoja RESUMEN de cada uno),          ═
+   ═  y generar un archivo JSON `data-SEMXX.json` que se sube a GitHub       ═
+   ═  para que el dashboard lo lea automáticamente.                          ═
+   ═                                                                          ═
+   ═  No hay publicación automática — el usuario descarga el JSON,           ═
+   ═  lo commitea manualmente al repo de GitHub (3 clicks).                  ═
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+// Archivos esperados con su identificador y la hoja a leer
+const ARCHIVOS_ESPERADOS = [
+  {prefijo:'01',    key:'histograma',    label:'Histograma',    hoja:'RESUMEN'},
+  {prefijo:'02_01', key:'casco_sot',     label:'Casco SOT',     hoja:'RESUMEN'},
+  {prefijo:'02_02', key:'casco_sup',     label:'Casco SUP',     hoja:'RESUMEN'},
+  {prefijo:'02_03', key:'albanileria',   label:'Albañilería',   hoja:'RESUMEN'},
+  {prefijo:'03',    key:'adquisiciones', label:'Adquisiciones', hoja:'RESUMEN'},
+  {prefijo:'05',    key:'cronograma',    label:'Cronograma',    hoja:'RESUMEN'},
+  {prefijo:'06',    key:'mo',            label:'MO',            hoja:'RESUMEN_DASH'},
+  {prefijo:'07',    key:'acero',         label:'Acero',         hoja:'RESUMEN'},
+  {prefijo:'08',    key:'arrendamiento', label:'Arrendamiento', hoja:'RESUMEN'},
+  {prefijo:'09',    key:'kardex',        label:'Kardex',        hoja:'RESUMEN'},
+  {prefijo:'10',    key:'adicionales',   label:'Adicionales',   hoja:'RESUMEN'},
+];
+
+// Estado del modal
+let cargaState = {
+  step: 1,
+  archivos: {},   // key → {file, parsed, status}
+  datos: null,    // resultado del parsing
+};
+
+// ────────────────────────────────────────
+// ABRIR / CERRAR MODAL
+// ────────────────────────────────────────
+function openCargaModal(){
+  // Prefill con semana siguiente a la actual
+  const weekSelect = document.getElementById('weekSelect');
+  const currentSem = weekSelect ? weekSelect.value : 'S36';
+  const numAct = parseInt(currentSem.replace(/\D/g,''), 10) || 36;
+  const nextSem = 'S' + (numAct + 1);
+  document.getElementById('inSemanaCod').value = nextSem;
+  // Fecha: siguiente sábado
+  const today = new Date();
+  const dow = today.getDay();
+  const daysToSat = (6 - dow + 7) % 7 || 7;
+  const nextSat = new Date(today.getTime() + daysToSat*24*60*60*1000);
+  document.getElementById('inSemanaFecha').value = nextSat.toISOString().split('T')[0];
+
+  cargaState = {step:1, archivos:{}, datos:null};
+  document.getElementById('cargaModal').classList.add('show');
+  renderCargaStep();
+  setupDropzone();
+}
+
+function closeCargaModal(){
+  document.getElementById('cargaModal').classList.remove('show');
+}
+
+// ────────────────────────────────────────
+// STEPPER
+// ────────────────────────────────────────
+function cargaStepNext(){
+  if(cargaState.step === 1){
+    if(!validarPaso1()) return;
+    procesarArchivos().then(()=>{
+      cargaState.step = 2;
+      renderCargaStep();
+    });
+  } else if(cargaState.step === 2){
+    cargaState.step = 3;
+    renderCargaStep();
+  }
+}
+
+function cargaStepBack(){
+  if(cargaState.step > 1){
+    cargaState.step -= 1;
+    renderCargaStep();
+  }
+}
+
+function renderCargaStep(){
+  // Stepper visual
+  document.querySelectorAll('#cargaStepper .step').forEach(el => {
+    const s = parseInt(el.dataset.step);
+    el.classList.remove('active', 'done');
+    if(s < cargaState.step) el.classList.add('done');
+    else if(s === cargaState.step) el.classList.add('active');
+  });
+  // Paneles
+  document.getElementById('step1').style.display = cargaState.step === 1 ? 'block' : 'none';
+  document.getElementById('step2').style.display = cargaState.step === 2 ? 'block' : 'none';
+  document.getElementById('step3').style.display = cargaState.step === 3 ? 'block' : 'none';
+  // Botones footer
+  const back = document.getElementById('cargaBackBtn');
+  const next = document.getElementById('cargaNextBtn');
+  back.style.display = cargaState.step > 1 ? 'inline-flex' : 'none';
+  if(cargaState.step === 1){
+    next.textContent = 'Procesar archivos →';
+    next.disabled = Object.keys(cargaState.archivos).length === 0;
+  } else if(cargaState.step === 2){
+    next.textContent = 'Publicar →';
+    next.disabled = false;
+  } else {
+    next.textContent = 'Cerrar';
+    next.disabled = false;
+    next.onclick = closeCargaModal;
+    return;
+  }
+  next.onclick = cargaStepNext;
+  // Renderizar contenido del paso
+  if(cargaState.step === 2) renderPreview();
+  if(cargaState.step === 3) renderPublish();
+}
+
+// ────────────────────────────────────────
+// DROPZONE
+// ────────────────────────────────────────
+function setupDropzone(){
+  const dz = document.getElementById('dropzone');
+  const input = document.getElementById('fileInput');
+
+  ['dragenter','dragover'].forEach(ev => {
+    dz.addEventListener(ev, e => {
+      e.preventDefault();
+      dz.classList.add('drag');
+    });
+  });
+  ['dragleave','drop'].forEach(ev => {
+    dz.addEventListener(ev, e => {
+      e.preventDefault();
+      dz.classList.remove('drag');
+    });
+  });
+  dz.addEventListener('drop', e => {
+    handleFiles(e.dataTransfer.files);
+  });
+  input.onchange = e => handleFiles(e.target.files);
+}
+
+function handleFiles(files){
+  for(const f of files){
+    const info = identificarArchivo(f);
+    cargaState.archivos[info.key] = {
+      file: f,
+      info: info,
+      status: info.key === 'unknown' ? 'warn' : 'ok',
+    };
+  }
+  renderFileList();
+  const next = document.getElementById('cargaNextBtn');
+  next.disabled = Object.keys(cargaState.archivos).filter(k => k !== 'unknown').length === 0;
+}
+
+function identificarArchivo(file){
+  const name = file.name.toLowerCase();
+  for(const a of ARCHIVOS_ESPERADOS){
+    const pref = a.prefijo.toLowerCase();
+    // Detectar por inicio "01", "02_01.", etc.
+    if(name.startsWith(pref + '_') || name.startsWith(pref + '.') || name.startsWith(pref + '__')){
+      return a;
+    }
+  }
+  return {prefijo:'?', key:'unknown_' + Date.now() + '_' + Math.random().toString(36).substring(7), label:'No reconocido', hoja:''};
+}
+
+function renderFileList(){
+  const container = document.getElementById('fileListContainer');
+  const keys = Object.keys(cargaState.archivos);
+  if(keys.length === 0){ container.innerHTML = ''; return; }
+
+  let html = `
+    <div class="file-list">
+      <div class="file-list-head">
+        <span></span>
+        <span>Archivo</span>
+        <span>Tipo detectado</span>
+        <span style="text-align:center">Acción</span>
+      </div>`;
+  for(const k of keys){
+    const a = cargaState.archivos[k];
+    const iconClass = a.status === 'ok' ? 'ok' : a.status === 'err' ? 'err' : 'warn';
+    const icon = a.status === 'ok' ? '✓' : a.status === 'err' ? '✕' : '!';
+    const typeClass = a.info.prefijo === '?' ? 'unknown' : '';
+    html += `
+      <div class="file-row">
+        <span class="file-icon ${iconClass}">${icon}</span>
+        <span class="file-name" title="${a.file.name}">${a.file.name}</span>
+        <span class="file-type ${typeClass}">${a.info.prefijo === '?' ? 'No reconocido' : a.info.prefijo + ' · ' + a.info.label}</span>
+        <button class="file-remove" onclick="quitarArchivo('${k}')" title="Quitar">✕</button>
+      </div>`;
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function quitarArchivo(key){
+  delete cargaState.archivos[key];
+  renderFileList();
+  document.getElementById('cargaNextBtn').disabled = Object.keys(cargaState.archivos).filter(k => k !== 'unknown').length === 0;
+}
+
+// ────────────────────────────────────────
+// VALIDACIÓN PASO 1
+// ────────────────────────────────────────
+function validarPaso1(){
+  const sem = document.getElementById('inSemanaCod').value.trim().toUpperCase();
+  const fecha = document.getElementById('inSemanaFecha').value;
+  if(!sem || !/^S\d{1,3}$/.test(sem)){
+    alert('Código de semana inválido. Formato esperado: S37');
+    return false;
+  }
+  if(!fecha){
+    alert('Fecha de corte requerida');
+    return false;
+  }
+  return true;
+}
+
+// ────────────────────────────────────────
+// PARSEO DE ARCHIVOS (SheetJS)
+// ────────────────────────────────────────
+async function procesarArchivos(){
+  const body = document.getElementById('cargaModalBody');
+  body.style.opacity = '.5';
+  body.style.pointerEvents = 'none';
+
+  const resultado = {
+    semana: document.getElementById('inSemanaCod').value.trim().toUpperCase(),
+    corte_fecha: document.getElementById('inSemanaFecha').value,
+    archivos: {},
+    errores: [],
+    advertencias: [],
+  };
+
+  for(const k of Object.keys(cargaState.archivos)){
+    const a = cargaState.archivos[k];
+    if(a.info.key === 'unknown' || a.info.prefijo === '?') continue;
+    try {
+      const datos = await parsearArchivo(a.file, a.info);
+      resultado.archivos[a.info.key] = datos;
+      a.status = 'ok';
+      a.parsed = datos;
+    } catch(err){
+      resultado.errores.push(`${a.info.label}: ${err.message}`);
+      a.status = 'err';
+      a.error = err.message;
+    }
+  }
+
+  // Verificar archivos faltantes
+  for(const exp of ARCHIVOS_ESPERADOS){
+    if(!resultado.archivos[exp.key]){
+      resultado.advertencias.push(`Falta: ${exp.label} (se usará la semana anterior)`);
+    }
+  }
+
+  cargaState.datos = resultado;
+  body.style.opacity = '1';
+  body.style.pointerEvents = '';
+}
+
+async function parsearArchivo(file, info){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type:'array'});
+        if(!workbook.Sheets[info.hoja]){
+          reject(new Error(`No se encontró la hoja "${info.hoja}". Hojas disponibles: ${workbook.SheetNames.join(', ')}`));
+          return;
+        }
+        const sheet = workbook.Sheets[info.hoja];
+        const extractor = EXTRACTORES[info.key];
+        if(!extractor){
+          reject(new Error(`No hay extractor para ${info.key}`));
+          return;
+        }
+        const datos = extractor(sheet);
+        resolve(datos);
+      } catch(err){
+        reject(err);
+      }
+    };
+    reader.onerror = () => reject(new Error('Error leyendo archivo'));
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+// Helper: leer celda con fallback
+function getCell(sheet, ref){
+  const cell = sheet[ref];
+  if(!cell) return null;
+  return cell.v;
+}
+
+// ────────────────────────────────────────
+// EXTRACTORES POR ARCHIVO
+// Cada función recibe la hoja RESUMEN y devuelve los datos estructurados
+// ────────────────────────────────────────
+const EXTRACTORES = {
+  // 01 Histograma: Panel Ejecutivo (C29-C41 en INPUTS, B7=avance, C7=CPI, etc.)
+  histograma: (sheet) => {
+    return {
+      avance_obra_pct:    getCell(sheet, 'B7'),
+      cpi_mo:             getCell(sheet, 'C7'),
+      spi_meta:           getCell(sheet, 'D7'),
+      spi_contractual:    getCell(sheet, 'E7'),
+      mo_consumida:       getCell(sheet, 'F7'),
+      personal_obra:      getCell(sheet, 'G7'),
+      // Inputs (por si se quieren verificar)
+      costo_directo:      getCell(sheet, 'C29'),
+      pct_mo:             getCell(sheet, 'C30'),
+      mo_real_acum:       getCell(sheet, 'C32'),
+      sectores_prog_sem:  getCell(sheet, 'C37'),
+      sectores_ejec_sem:  getCell(sheet, 'C38'),
+      sectores_prog_acum: getCell(sheet, 'C39'),
+      sectores_ejec_acum: getCell(sheet, 'C40'),
+    };
+  },
+
+  // 02.01 SOT, 02.02 SUP, 02.03 ALB: bloque DATOS PARA DASHBOARD
+  casco_sot:   (sheet) => extraerAvance(sheet),
+  casco_sup:   (sheet) => extraerAvance(sheet),
+  albanileria: (sheet) => extraerAvance(sheet),
+
+  // 03 Adquisiciones: KPIs económicos
+  adquisiciones: (sheet) => {
+    // Primero intento leer del bloque DATOS PARA DASHBOARD (clave-valor)
+    const datos = {};
+    for(let r = 20; r <= 50; r++){
+      const key = getCell(sheet, 'B'+r);
+      const val = getCell(sheet, 'C'+r);
+      if(key && typeof key === 'string'){
+        const k = key.toLowerCase().trim();
+        if(['costo_directo','avance_contratacion_pct','contratado_total','margen_total','items_total'].includes(k)){
+          datos[k] = val;
+        }
+      }
+    }
+    return datos;
+  },
+
+  // 05 Cronograma: plazos
+  cronograma: (sheet) => {
+    const datos = {};
+    for(let r = 10; r <= 40; r++){
+      const key = getCell(sheet, 'B'+r);
+      const val = getCell(sheet, 'C'+r);
+      if(key && typeof key === 'string'){
+        const k = key.toLowerCase().trim();
+        if(['fecha_inicio','plazo_dias','fecha_fin_programada','dias_transcurridos','dias_restantes','semana_actual','avance_plazo_pct'].includes(k)){
+          datos[k] = val;
+        }
+      }
+    }
+    return datos;
+  },
+
+  // 06 MO: cuadrillas
+  mo: (sheet) => {
+    const datos = {cuadrillas: []};
+    // Buscar bloque "cuadrilla | mo_base | mo_meta | mo_real | saldo | rent_pct"
+    for(let r = 15; r <= 45; r++){
+      const h = getCell(sheet, 'B'+r);
+      if(h && typeof h === 'string' && h.toLowerCase() === 'cuadrilla'){
+        // Encontramos el header, leer 11 filas abajo
+        for(let i = 1; i <= 11; i++){
+          const cuadrilla = getCell(sheet, 'B'+(r+i));
+          if(!cuadrilla) break;
+          datos.cuadrillas.push({
+            cuadrilla: cuadrilla,
+            mo_base:   getCell(sheet, 'C'+(r+i)),
+            mo_meta:   getCell(sheet, 'D'+(r+i)),
+            mo_real:   getCell(sheet, 'E'+(r+i)),
+            saldo:     getCell(sheet, 'F'+(r+i)),
+            rent_pct:  getCell(sheet, 'G'+(r+i)),
+          });
+        }
+        break;
+      }
+    }
+    return datos;
+  },
+
+  // 07 Acero
+  acero: (sheet) => {
+    const datos = {};
+    for(let r = 15; r <= 40; r++){
+      const key = getCell(sheet, 'B'+r);
+      const val = getCell(sheet, 'C'+r);
+      if(key && typeof key === 'string'){
+        const k = key.toLowerCase().trim();
+        if(['acero_ppto_kg','acero_consumido_kg','acero_saldo_kg','acero_avance_pct',
+            'acero_valor_ppto','acero_valor_consumido','acero_valor_saldo'].includes(k)){
+          datos[k] = val;
+        }
+      }
+    }
+    return datos;
+  },
+
+  // 08 Arrendamiento
+  arrendamiento: (sheet) => {
+    const datos = {};
+    for(let r = 15; r <= 40; r++){
+      const key = getCell(sheet, 'B'+r);
+      const val = getCell(sheet, 'C'+r);
+      if(key && typeof key === 'string'){
+        const k = key.toLowerCase().trim();
+        if(k.startsWith('tipo_cambio') || k.startsWith('f1_')){
+          datos[k] = val;
+        }
+      }
+    }
+    return datos;
+  },
+
+  // 09 Kardex
+  kardex: (sheet) => {
+    const datos = {};
+    for(let r = 15; r <= 50; r++){
+      const key = getCell(sheet, 'B'+r);
+      const val = getCell(sheet, 'C'+r);
+      if(key && typeof key === 'string'){
+        const k = key.toLowerCase().trim();
+        if(k.includes('unispan') || k.includes('casa') || k.includes('consumibles') || k === 'total_encofrado_sol'){
+          datos[k] = val;
+        }
+      }
+    }
+    return datos;
+  },
+
+  // 10 Adicionales: KPIs + lista
+  adicionales: (sheet) => {
+    const datos = {items: []};
+    // KPIs clave-valor
+    for(let r = 40; r <= 55; r++){
+      const key = getCell(sheet, 'B'+r);
+      const val = getCell(sheet, 'C'+r);
+      if(key && typeof key === 'string'){
+        const k = key.toLowerCase().trim();
+        if(['adicionales_sol','adicionales_usd','deductivos_sol','deductivos_usd',
+            'neto_sol','neto_usd','cantidad_items'].includes(k)){
+          datos[k] = val;
+        }
+      }
+    }
+    // Items - buscar header 'n' 'descripcion' 'especialidad' 'monto_sol'...
+    for(let r = 45; r <= 65; r++){
+      const h = getCell(sheet, 'B'+r);
+      if(h && typeof h === 'string' && h.toLowerCase().trim() === 'n'){
+        for(let i = 1; i <= 30; i++){
+          const n = getCell(sheet, 'B'+(r+i));
+          if(n === null || n === '' || n === undefined) break;
+          datos.items.push({
+            n: n,
+            descripcion:  getCell(sheet, 'C'+(r+i)),
+            especialidad: getCell(sheet, 'D'+(r+i)),
+            monto_sol:    getCell(sheet, 'E'+(r+i)),
+            monto_usd:    getCell(sheet, 'F'+(r+i)),
+            tipo:         getCell(sheet, 'G'+(r+i)),
+          });
+        }
+        break;
+      }
+    }
+    return datos;
+  },
+};
+
+// Extractor común para archivos 02
+function extraerAvance(sheet){
+  const datos = {partidas: []};
+  // KPIs clave-valor
+  for(let r = 17; r <= 35; r++){
+    const key = getCell(sheet, 'B'+r);
+    const val = getCell(sheet, 'C'+r);
+    if(key && typeof key === 'string'){
+      const k = key.toLowerCase().trim();
+      if(['spi_semanal','spi_acumulado','sectores_prog_sem','sectores_ejec_sem',
+          'sectores_prog_acum','sectores_ejec_acum','pct_prog_promedio','pct_real_promedio'].includes(k)){
+        datos[k] = val;
+      }
+    }
+  }
+  // Partidas: buscar header
+  for(let r = 20; r <= 40; r++){
+    const h = getCell(sheet, 'B'+r);
+    if(h && typeof h === 'string' && h.toLowerCase().trim() === 'partida'){
+      for(let i = 1; i <= 10; i++){
+        const p = getCell(sheet, 'B'+(r+i));
+        if(!p) break;
+        datos.partidas.push({
+          partida:        p,
+          pct_prog:       getCell(sheet, 'C'+(r+i)),
+          pct_real:       getCell(sheet, 'D'+(r+i)),
+          sec_prog_sem:   getCell(sheet, 'E'+(r+i)),
+          sec_ejec_sem:   getCell(sheet, 'F'+(r+i)),
+          sec_prog_acum:  getCell(sheet, 'G'+(r+i)),
+          sec_ejec_acum:  getCell(sheet, 'H'+(r+i)),
+        });
+      }
+      break;
+    }
+  }
+  return datos;
+}
+
+// ────────────────────────────────────────
+// PREVIEW (paso 2)
+// ────────────────────────────────────────
+function renderPreview(){
+  const d = cargaState.datos;
+  if(!d){ document.getElementById('previewContent').innerHTML = '<p>Sin datos.</p>'; return; }
+
+  const h = d.archivos.histograma || {};
+  const adq = d.archivos.adquisiciones || {};
+
+  // Consolidar SPI sumando los 3 archivos 02
+  const sot = d.archivos.casco_sot || {};
+  const sup = d.archivos.casco_sup || {};
+  const alb = d.archivos.albanileria || {};
+  const prog_acum = (sot.sectores_prog_acum||0) + (sup.sectores_prog_acum||0) + (alb.sectores_prog_acum||0);
+  const ejec_acum = (sot.sectores_ejec_acum||0) + (sup.sectores_ejec_acum||0) + (alb.sectores_ejec_acum||0);
+  const spi_acum_consol = prog_acum > 0 ? (ejec_acum/prog_acum) : 0;
+  const prog_sem = (sot.sectores_prog_sem||0) + (sup.sectores_prog_sem||0) + (alb.sectores_prog_sem||0);
+  const ejec_sem = (sot.sectores_ejec_sem||0) + (sup.sectores_ejec_sem||0) + (alb.sectores_ejec_sem||0);
+  const spi_sem_consol = prog_sem > 0 ? (ejec_sem/prog_sem) : 0;
+
+  // Render cards
+  const fmtPct = v => v != null ? (v*100).toFixed(1)+'%' : '—';
+  const fmtSol = v => v != null ? 'S/ '+Math.round(v).toLocaleString('es-PE') : '—';
+  const fmtNum = v => v != null ? v.toFixed(2) : '—';
+
+  const colorCPI = h.cpi_mo >= 1 ? 'green' : 'red';
+  const colorSPI = spi_acum_consol >= 0.95 ? 'green' : spi_acum_consol >= 0.85 ? 'orange' : 'red';
+  const colorAv = h.avance_obra_pct >= 0.5 ? 'green' : 'orange';
+
+  let html = `
+    <h3 style="margin-bottom:6px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--twitter-blue)">PREVIEW · ${d.semana} · Corte ${d.corte_fecha}</h3>
+    <p style="color:var(--text-muted);font-size:12px;margin-bottom:16px">Revisá que los 6 KPIs ejecutivos luzcan razonables antes de publicar.</p>
+
+    <div class="preview-grid">
+      <div class="preview-card highlight">
+        <div class="pc-lbl">AVANCE OBRA</div>
+        <div class="pc-val ${colorAv}">${fmtPct(h.avance_obra_pct)}</div>
+        <div class="pc-sub">Ponderado físico</div>
+      </div>
+      <div class="preview-card highlight">
+        <div class="pc-lbl">CPI MO</div>
+        <div class="pc-val ${colorCPI}">${fmtNum(h.cpi_mo)}</div>
+        <div class="pc-sub">${h.cpi_mo >= 1 ? 'Ahorrando' : 'Sobrecosto'}</div>
+      </div>
+      <div class="preview-card highlight">
+        <div class="pc-lbl">SPI META ACUM.</div>
+        <div class="pc-val ${colorSPI}">${fmtNum(spi_acum_consol)}</div>
+        <div class="pc-sub">${ejec_acum}/${prog_acum} sectores</div>
+      </div>
+      <div class="preview-card">
+        <div class="pc-lbl">SPI META SEM</div>
+        <div class="pc-val">${fmtNum(spi_sem_consol)}</div>
+        <div class="pc-sub">${ejec_sem}/${prog_sem} sectores</div>
+      </div>
+      <div class="preview-card">
+        <div class="pc-lbl">MO CONSUMIDA</div>
+        <div class="pc-val">${fmtSol(h.mo_consumida)}</div>
+        <div class="pc-sub">Acum. real</div>
+      </div>
+      <div class="preview-card">
+        <div class="pc-lbl">PERSONAL</div>
+        <div class="pc-val">${h.personal_obra || '—'}</div>
+        <div class="pc-sub">pax</div>
+      </div>
+    </div>`;
+
+  // Sección económica
+  html += `
+    <h4 style="margin-top:22px;margin-bottom:8px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:var(--twitter-blue-dk)">ECONÓMICO</h4>
+    <div class="preview-grid">
+      <div class="preview-card">
+        <div class="pc-lbl">COSTO DIRECTO</div>
+        <div class="pc-val">${fmtSol(adq.costo_directo)}</div>
+      </div>
+      <div class="preview-card">
+        <div class="pc-lbl">CONTRATADO</div>
+        <div class="pc-val">${fmtSol(adq.contratado_total)}</div>
+      </div>
+      <div class="preview-card">
+        <div class="pc-lbl">% AVANCE CONTR.</div>
+        <div class="pc-val">${adq.avance_contratacion_pct != null ? adq.avance_contratacion_pct.toFixed(1)+'%' : '—'}</div>
+      </div>
+      <div class="preview-card">
+        <div class="pc-lbl">MARGEN</div>
+        <div class="pc-val">${fmtSol(adq.margen_total)}</div>
+      </div>
+    </div>`;
+
+  // Adicionales
+  const ad = d.archivos.adicionales || {};
+  if(ad.adicionales_sol != null){
+    html += `
+      <h4 style="margin-top:22px;margin-bottom:8px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:var(--twitter-blue-dk)">ADICIONALES</h4>
+      <div class="preview-grid">
+        <div class="preview-card">
+          <div class="pc-lbl">ADIC. S/</div>
+          <div class="pc-val green">${fmtSol(ad.adicionales_sol)}</div>
+        </div>
+        <div class="preview-card">
+          <div class="pc-lbl">ADIC. US$</div>
+          <div class="pc-val green">$ ${ad.adicionales_usd != null ? Math.round(ad.adicionales_usd).toLocaleString('es-PE') : '—'}</div>
+        </div>
+        <div class="preview-card">
+          <div class="pc-lbl">DEDUCT. S/</div>
+          <div class="pc-val red">${fmtSol(ad.deductivos_sol)}</div>
+        </div>
+        <div class="preview-card">
+          <div class="pc-lbl">NETO S/</div>
+          <div class="pc-val">${fmtSol(ad.neto_sol)}</div>
+        </div>
+        <div class="preview-card">
+          <div class="pc-lbl">ÍTEMS</div>
+          <div class="pc-val">${ad.cantidad_items || '—'}</div>
+        </div>
+      </div>`;
+  }
+
+  // Errores y advertencias
+  if(d.errores.length > 0){
+    html += `<div class="modal-msg err"><b>Errores:</b><br>` + d.errores.map(e => '• ' + e).join('<br>') + '</div>';
+  }
+  if(d.advertencias.length > 0){
+    html += `<div class="modal-msg warn"><b>Archivos faltantes (se usará la semana anterior):</b><br>` + d.advertencias.map(e => '• ' + e).join('<br>') + '</div>';
+  }
+
+  document.getElementById('previewContent').innerHTML = html;
+}
+
+// ────────────────────────────────────────
+// PUBLICAR (paso 3): generar JSON y mostrar instrucciones
+// ────────────────────────────────────────
+function renderPublish(){
+  const d = cargaState.datos;
+  const semana = d.semana;
+  const json = JSON.stringify(d, null, 2);
+  const filename = `data-${semana.toLowerCase()}.json`;
+
+  const html = `
+    <div class="modal-msg ok">
+      <b>✓ Archivo listo para publicar.</b> Descargá el JSON y subilo al repo de GitHub.
+    </div>
+
+    <div class="gh-steps">
+      <h4>📤 CÓMO PUBLICAR EN 3 CLICKS</h4>
+      <ol>
+        <li>Click en <b>"💾 Descargar JSON"</b> abajo → se baja <code>${filename}</code>.</li>
+        <li>Abrí <a href="https://github.com/esparq/e140-dashboard" target="_blank" style="color:var(--twitter-blue);font-weight:600">tu repo en GitHub</a>.</li>
+        <li>Arrastrá el archivo <code>${filename}</code> dentro de la carpeta <code>data/</code> del repo → commit.</li>
+        <li>El dashboard detectará la nueva semana automáticamente en ~1 minuto.</li>
+      </ol>
+    </div>
+
+    <div style="margin-top:18px;display:flex;gap:10px;align-items:center">
+      <button class="hdr-btn hdr-btn-primary" onclick="descargarJSON()">💾 Descargar JSON</button>
+      <button class="hdr-btn" onclick="copiarJSON()">📋 Copiar al portapapeles</button>
+      <span id="copyFeedback" style="font-size:11px;color:var(--green);font-weight:600"></span>
+    </div>
+
+    <details style="margin-top:18px">
+      <summary style="cursor:pointer;font-size:12px;color:var(--text-muted);font-weight:600">Ver contenido del JSON (avanzado)</summary>
+      <div class="json-box">${escapeHtml(json)}</div>
+    </details>
+  `;
+  document.getElementById('publishContent').innerHTML = html;
+}
+
+function descargarJSON(){
+  const d = cargaState.datos;
+  const json = JSON.stringify(d, null, 2);
+  const filename = `data-${d.semana.toLowerCase()}.json`;
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function copiarJSON(){
+  const d = cargaState.datos;
+  const json = JSON.stringify(d, null, 2);
+  try {
+    await navigator.clipboard.writeText(json);
+    const fb = document.getElementById('copyFeedback');
+    fb.textContent = '✓ Copiado al portapapeles';
+    setTimeout(() => fb.textContent = '', 3000);
+  } catch(err){
+    alert('No se pudo copiar. Usá el botón de descarga.');
+  }
+}
+
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Cerrar modal con tecla Escape
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && document.getElementById('cargaModal').classList.contains('show')){
+    closeCargaModal();
+  }
+});
+
 </script>
 </body>
 </html>
