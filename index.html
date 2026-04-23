@@ -1637,12 +1637,216 @@ function buildDataFromSheets(raw){
 const HOJAS = Object.keys(SHEET_URLS);
 const LS_KEY = "e140_dashboard_cache_v1";
 
+/* ═══════════════════════════════════════════════════════════════════
+   CARGA DESDE JSONs DE data/  (prioritario sobre Google Sheet)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/**
+ * Busca archivos data-sXX.json en la carpeta data/ del repo.
+ * Barre semanas 1 a 100. Devuelve un objeto con weeks indexadas por código.
+ * Si no encuentra ningún JSON, devuelve null (para que el flujo caiga al Sheet).
+ */
+async function loadFromJSONs(){
+  setLoadingProgress("Buscando JSONs semanales en data/…", 0);
+
+  // Barrer semanas 1-100 con fetch paralelo
+  const promises = [];
+  for(let i = 1; i <= 100; i++){
+    const sem = 'S' + (i < 10 ? '0' + i : i);
+    const url = `./data/data-${sem.toLowerCase()}.json?v=${Date.now()}`;
+    promises.push(
+      fetch(url)
+        .then(r => r.ok ? r.json() : null)
+        .then(j => j ? {sem, data: j} : null)
+        .catch(() => null)
+    );
+  }
+  const results = await Promise.all(promises);
+  const found = results.filter(r => r !== null);
+
+  if(found.length === 0){
+    setLoadingProgress("No se encontraron JSONs en data/", 0, false);
+    return null;
+  }
+
+  setLoadingProgress(`✓ Encontrados ${found.length} JSON(s) en data/`, found.length);
+
+  // Construir estructura weeks mezclando JSONs encontrados con el esqueleto DEMO
+  const weeks = {};
+  const order = [];
+
+  // Primero: llenar con datos DEMO de base (mantiene la estructura rica del dashboard)
+  Object.keys(DEMO_DATA.weeks).forEach(k => {
+    weeks[k] = JSON.parse(JSON.stringify(DEMO_DATA.weeks[k]));  // deep clone
+  });
+
+  // Luego: sobrescribir con los datos de JSONs reales
+  found.forEach(({sem, data}) => {
+    if(!weeks[sem]) weeks[sem] = JSON.parse(JSON.stringify(DEMO_DATA.weeks['S36'] || {}));
+    mergeJsonIntoWeek(weeks[sem], data);
+  });
+
+  // Ordenar semanas (S01 < S02 < ... < S36, S37...)
+  const allSems = new Set([...Object.keys(weeks), ...found.map(f => f.sem)]);
+  allSems.forEach(s => { if(!order.includes(s)) order.push(s); });
+  order.sort((a,b) => {
+    const na = parseInt(a.replace(/\D/g,''), 10);
+    const nb = parseInt(b.replace(/\D/g,''), 10);
+    return na - nb;
+  });
+
+  // Semana actual = la más reciente con JSON propio (no demo)
+  const realSems = found.map(f => f.sem).sort((a,b) => {
+    return parseInt(b.replace(/\D/g,''), 10) - parseInt(a.replace(/\D/g,''), 10);
+  });
+  const currentWeek = realSems[0] || order[order.length - 1];
+
+  return {
+    currentWeek,
+    weeks,
+    order,
+  };
+}
+
+/**
+ * Mergea los datos planos de un JSON en la estructura rica de una semana.
+ * El JSON tiene forma: { semana, corte_fecha, archivos: {histograma, casco_sot, ...} }
+ */
+function mergeJsonIntoWeek(week, json){
+  if(!json || !json.archivos) return;
+
+  // Corte de semana
+  if(json.corte_fecha){
+    const d = json.corte_fecha;
+    if(d instanceof Date || /^\d{4}-\d{2}-\d{2}/.test(d)){
+      week.corte = fmtFecha(d);
+    } else {
+      week.corte = d;
+    }
+  }
+  if(json.semana){
+    const n = parseInt(json.semana.replace(/\D/g,''), 10);
+    if(!isNaN(n)) week.semNum = n;
+  }
+
+  // ─── 01 Histograma ───
+  const h = json.archivos.histograma;
+  if(h){
+    if(!week.kpis) week.kpis = {};
+    if(h.personal_obra != null)    week.kpis.personal = Math.round(h.personal_obra);
+    if(h.mo_consumida != null)     week.kpis.moConsumida = h.mo_consumida;
+    if(h.cpi_mo != null)           week.kpis.cpi = h.cpi_mo;
+    if(h.spi_meta != null)         week.kpis.spiMeta = h.spi_meta;
+    if(h.spi_contractual != null && h.spi_contractual !== '—') week.kpis.spiContractual = h.spi_contractual;
+    if(h.avance_obra_pct != null)  week.kpis.avanceObra = Math.round(h.avance_obra_pct * 1000)/10;  // 51.8
+    if(h.costo_directo != null)    week.kpis.costoDirecto = h.costo_directo;
+    if(h.mo_real_acum != null)     week.kpis.moReal = h.mo_real_acum;
+
+    // Personal dotación
+    if(week.personal){
+      if(h.personal_obra != null) week.personal.dotacion = Math.round(h.personal_obra);
+    }
+
+    // Panel ejecutivo: los 6 KPIs grandes
+    week.panelEjecutivo = {
+      avance:          h.avance_obra_pct != null ? Math.round(h.avance_obra_pct * 1000)/10 : null,
+      cpi:             h.cpi_mo,
+      spiMeta:         h.spi_meta,
+      spiContractual:  h.spi_contractual,
+      moConsumida:     h.mo_consumida,
+      personal:        h.personal_obra,
+    };
+
+    // Sectores consolidados
+    week.sectores = {
+      progSem:  h.sectores_prog_sem,
+      ejecSem:  h.sectores_ejec_sem,
+      progAcum: h.sectores_prog_acum,
+      ejecAcum: h.sectores_ejec_acum,
+    };
+  }
+
+  // ─── 02 Casco SOT, SUP, Albañilería: reconstruir partidas ───
+  const frentes = [
+    {key: 'casco_sot', prefix: 'SOT'},
+    {key: 'casco_sup', prefix: 'SUP'},
+    {key: 'albanileria', prefix: 'ALB'},
+  ];
+  const partidas = [];
+  frentes.forEach(({key, prefix}) => {
+    const f = json.archivos[key];
+    if(f && Array.isArray(f.partidas)){
+      f.partidas.forEach(p => {
+        if(p.partida){
+          partidas.push({
+            n: p.partida,
+            prog: p.pct_prog != null ? Math.round(p.pct_prog*10)/10 : 0,
+            real: p.pct_real != null ? Math.round(p.pct_real*10)/10 : 0,
+          });
+        }
+      });
+    }
+  });
+  if(partidas.length > 0){
+    if(!week.avanceFisico) week.avanceFisico = {};
+    week.avanceFisico.partidas = partidas;
+  }
+
+  // Frentes resumidos
+  const resumenFrentes = [];
+  if(json.archivos.casco_sot){
+    const pct = json.archivos.casco_sot.pct_real_promedio || 0;
+    resumenFrentes.push({
+      n:"CASCO SÓTANOS",
+      pct: Math.round(pct*10)/10,
+      status: pct >= 95 ? "ok" : pct > 0 ? "info" : "info",
+      label: pct >= 95 ? "Cerrando" : pct > 0 ? "En ejecución" : "Sin iniciar",
+      nota: `SPI Sem: ${(json.archivos.casco_sot.spi_semanal||0).toFixed(2)} · Acum: ${(json.archivos.casco_sot.spi_acumulado||0).toFixed(2)}`,
+    });
+  }
+  if(json.archivos.casco_sup){
+    const pct = json.archivos.casco_sup.pct_real_promedio || 0;
+    resumenFrentes.push({
+      n:"CASCO SUPERIORES",
+      pct: Math.round(pct*10)/10,
+      status: pct > 0 ? "info" : "info",
+      label: pct > 0 ? "En ejecución" : "Sin iniciar",
+      nota: pct > 0 ? `SPI Acum: ${(json.archivos.casco_sup.spi_acumulado||0).toFixed(2)}` : "Pendiente de iniciar",
+    });
+  }
+  if(json.archivos.albanileria){
+    const pct = json.archivos.albanileria.pct_real_promedio || 0;
+    resumenFrentes.push({
+      n:"ALBAÑILERÍA",
+      pct: Math.round(pct*10)/10,
+      status: pct > 0 ? "info" : "info",
+      label: pct > 0 ? "En ejecución" : "Sin iniciar",
+      nota: `SPI Sem: ${(json.archivos.albanileria.spi_semanal||0).toFixed(2)} · Acum: ${(json.archivos.albanileria.spi_acumulado||0).toFixed(2)}`,
+    });
+  }
+  // Muros anclados: si ya está terminado (fase anterior) queda como estaba
+  if(resumenFrentes.length > 0){
+    if(!week.avanceFisico) week.avanceFisico = {};
+    const existingMuros = (week.avanceFisico.frentes||[]).find(f => /muros|anclaj/i.test(f.n||''));
+    if(existingMuros) resumenFrentes.push(existingMuros);
+    week.avanceFisico.frentes = resumenFrentes;
+  }
+
+  // ─── 03 Adquisiciones (opcional) ───
+  const adq = json.archivos.adquisiciones;
+  if(adq){
+    if(adq.costo_directo != null)         week.kpis.costoDirecto = adq.costo_directo;
+    if(adq.avance_contratacion_pct != null) week.kpis.contratacionPct = adq.avance_contratacion_pct;
+    if(adq.margen_total != null)          week.kpis.margenAdq = adq.margen_total;
+  }
+}
+
+
 async function loadFromSheets(){
   setLoadingProgress("Conectando a Google Sheets…", 0);
   const raw = {};
   const errors = {};
   let okCount = 0;
-
   // Fetch en paralelo
   const tasks = HOJAS.map(async (hoja)=>{
     const url = SHEET_URLS[hoja];
@@ -1765,6 +1969,27 @@ let LAST_SYNC = null;
 let MODE = 'unknown'; // 'live' | 'demo' | 'cache' | 'offline'
 
 async function initDashboard(){
+  // ─── CAPA NUEVA: leer primero JSONs de data/ ───
+  // Si hay al menos un JSON semanal subido al repo, se usa.
+  // Si no hay JSONs o fallan todos, cae al flujo original (Google Sheet).
+  try {
+    const jsonData = await loadFromJSONs();
+    if(jsonData && jsonData.currentWeek){
+      applyDataToGlobal(jsonData);
+      MODE = 'json';
+      LAST_SYNC = new Date();
+      hideLoading();
+      showBanner('ok', `📂 <b>Modo JSON</b>. Cargadas ${Object.keys(jsonData.weeks).length} semana(s) desde <code>data/</code>. Última: <b>${jsonData.currentWeek}</b>.`, true);
+      setSyncState('ok', `Modo JSON activo`, `Última sync: ${LAST_SYNC.toLocaleTimeString('es-PE')} · Datos desde data/`);
+      populateWeekSelector();
+      renderCurrentWeek();
+      return;
+    }
+  } catch(e){
+    console.warn('[E140] JSONs no disponibles, cayendo a Google Sheet:', e.message);
+  }
+
+  // ─── FLUJO ORIGINAL (Google Sheet) ───
   if(!hasSheetUrls()){
     // No hay URLs: ir directo a demo (con banner avisando)
     console.info('[E140] Sin URLs de Google Sheets configuradas. Usando DEMO_DATA.');
@@ -1832,7 +2057,31 @@ async function refreshData(){
   btn.disabled = true;
   btn.classList.add('spinning');
   clearBanners();
-  setSyncState('warn', 'Sincronizando…', 'Reconsultando Google Sheets');
+  setSyncState('warn', 'Sincronizando…', MODE === 'json' ? 'Reconsultando data/' : 'Reconsultando Google Sheets');
+
+  // ─── Si estamos en modo JSON, recargar JSONs ───
+  if(MODE === 'json'){
+    try {
+      const jsonData = await loadFromJSONs();
+      if(jsonData && jsonData.currentWeek){
+        applyDataToGlobal(jsonData);
+        LAST_SYNC = new Date();
+        showBanner('ok', `📂 Datos actualizados · ${Object.keys(jsonData.weeks).length} semana(s) · ${LAST_SYNC.toLocaleTimeString('es-PE')}`, true);
+        setSyncState('ok', `Modo JSON activo`, `Última sync: ${LAST_SYNC.toLocaleTimeString('es-PE')}`);
+        populateWeekSelector();
+        renderCurrentWeek();
+      }
+    } catch(e){
+      showBanner('err', `Error al actualizar JSONs: ${e.message||'desconocido'}`);
+      setSyncState('err', 'Error de sync', e.message || '');
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('spinning');
+    }
+    return;
+  }
+
+  // ─── Flujo original (Google Sheet) ───
   try{
     if(!hasSheetUrls()){
       showBanner('warn', 'No hay URLs de Google Sheets configuradas. Configura <code>SHEET_URLS</code> en el HTML para activar el modo en vivo.');
