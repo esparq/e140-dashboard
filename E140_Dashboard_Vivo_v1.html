@@ -1,0 +1,3217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E140 · ESPARQ 140 — Dashboard Vivo v1 (Google Sheets)</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+:root{
+  --twitter-blue:#0070B4;--twitter-blue-dk:#005A91;--blue-bell-dk:#3A91C5;--blue-bell:#509BC9;--baby-blue:#97C5E0;--alice-blue:#EEF5FA;
+  --white:#FFFFFF;--red:#D64045;--orange:#E07B39;--yellow:#F2C94C;--green:#2D936C;
+  --bg:var(--alice-blue);--bg-card:var(--white);--accent:var(--twitter-blue);--accent-mid:var(--blue-bell);--accent-lt:var(--baby-blue);
+  --text:#1A2B3C;--text-muted:#5A7A96;--border:#D4E5F2;--border-mid:#B0CFEA;
+  --sidebar-bg:#003A66;--sidebar-bg-hover:#0A4E81;--sidebar-text:#BFD6E8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5;overflow:hidden;}
+
+/* ═════════ APP SHELL ═════════ */
+.app{display:grid;grid-template-columns:230px 1fr;height:100vh;overflow:hidden;}
+
+/* ═════════ SIDEBAR ═════════ */
+.sidebar{background:var(--sidebar-bg);color:var(--sidebar-text);display:flex;flex-direction:column;overflow-y:auto;}
+.sb-brand{padding:22px 18px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sb-badge{background:var(--white);color:var(--twitter-blue);font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;padding:6px 10px;border-radius:6px;line-height:1;}
+.sb-brand-info h2{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.8px;color:var(--white);line-height:1;}
+.sb-brand-info p{font-size:9px;color:var(--baby-blue);margin-top:3px;letter-spacing:.08em;text-transform:uppercase;}
+
+.sb-group-label{padding:16px 18px 8px;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,0.4);font-weight:700;}
+.sb-nav{display:flex;flex-direction:column;padding:0 8px 8px;}
+.sb-item{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:2px;border-radius:6px;cursor:pointer;color:var(--sidebar-text);font-size:12.5px;user-select:none;transition:background .15s, color .15s;position:relative;border:none;background:transparent;width:100%;text-align:left;font-family:inherit;}
+.sb-item .sb-num{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;opacity:.55;min-width:18px;}
+.sb-item .sb-icon{width:8px;height:8px;border-radius:2px;flex-shrink:0;background:currentColor;opacity:.5;}
+.sb-item .sb-label{flex:1;}
+.sb-item:hover{background:var(--sidebar-bg-hover);color:var(--white);}
+.sb-item:hover .sb-num{opacity:.8;}
+.sb-item.active{background:var(--white);color:var(--twitter-blue);font-weight:600;}
+.sb-item.active .sb-num{color:var(--twitter-blue);opacity:.7;}
+.sb-item.active::before{content:'';position:absolute;left:-8px;top:6px;bottom:6px;width:4px;background:var(--twitter-blue);border-radius:0 3px 3px 0;}
+.sb-item.active .sb-icon{opacity:1;}
+
+.sb-item.sb-resumen{background:rgba(255,255,255,0.08);color:var(--white);font-weight:600;margin-bottom:6px;padding:12px 12px;font-size:13px;border:1px solid rgba(255,255,255,0.1);}
+.sb-item.sb-resumen .sb-num{opacity:.9;}
+.sb-item.sb-resumen:hover{background:rgba(255,255,255,0.14);}
+.sb-item.sb-resumen.active{background:var(--white);color:var(--twitter-blue);border-color:var(--white);}
+
+.sb-divider{height:1px;background:rgba(255,255,255,0.08);margin:10px 16px;}
+
+.sb-footer{padding:14px 18px;font-size:10px;color:rgba(255,255,255,0.4);border-top:1px solid rgba(255,255,255,0.08);margin-top:auto;}
+.sb-footer b{color:var(--white);font-weight:600;}
+
+/* ═════════ CONTENT AREA ═════════ */
+.content-area{display:flex;flex-direction:column;overflow:hidden;background:var(--bg);}
+
+/* Header */
+.top-header{background:var(--twitter-blue);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,0.15);flex-shrink:0;z-index:5;}
+.th-left h1{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--white);line-height:1;}
+.th-left p{font-size:10px;color:var(--baby-blue);margin-top:3px;letter-spacing:.05em;}
+.th-right{display:flex;align-items:center;gap:18px;}
+.week-selector{display:flex;flex-direction:column;align-items:flex-end;}
+.week-selector label{font-size:9px;color:var(--baby-blue);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;font-weight:600;}
+.week-selector select{background:rgba(255,255,255,0.12);color:var(--white);border:1px solid rgba(255,255,255,0.25);border-radius:5px;padding:6px 10px;font-size:12px;font-family:inherit;cursor:pointer;outline:none;font-weight:600;letter-spacing:.05em;min-width:150px;}
+.week-selector select:hover{background:rgba(255,255,255,0.2);}
+.week-selector select option{background:var(--twitter-blue);color:var(--white);}
+.th-date{text-align:right;border-left:1px solid rgba(255,255,255,0.2);padding-left:18px;}
+.th-date .dl{font-size:9px;color:var(--baby-blue);letter-spacing:.1em;text-transform:uppercase;}
+.th-date .dv{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:2px;line-height:1.05;}
+.th-date .dc{font-size:10px;color:var(--baby-blue);margin-top:2px;}
+
+/* Project bar */
+.project-bar{background:var(--white);border-bottom:1.5px solid var(--border);padding:8px 28px;display:flex;gap:22px;flex-wrap:wrap;align-items:center;flex-shrink:0;}
+.pb-item{display:flex;flex-direction:column;gap:2px;}
+.pb-label{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.pb-value{font-size:11.5px;color:var(--text);font-weight:600;}
+.pb-sep{width:1px;height:26px;background:var(--border);}
+
+/* Scroll area for sections */
+.scroll-area{flex:1;overflow-y:auto;padding:20px 28px 40px;}
+
+/* Section visibility */
+.section{display:none;}
+.section.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+/* ═════════ GENERAL COMPONENTS ═════════ */
+/* Resumen ejecutivo card */
+.lectura-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 22px;margin-bottom:22px;position:relative;overflow:hidden;}
+.lectura-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--red) 0%,var(--orange) 50%,var(--green) 100%);}
+.lectura-header{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.lectura-header:hover{color:var(--twitter-blue);}
+.lectura-toggle{font-size:10px;opacity:.6;transition:transform .25s;display:inline-block;}
+.lectura-toggle.collapsed{transform:rotate(-90deg);}
+.lectura-lines{display:flex;flex-direction:column;gap:8px;overflow:hidden;transition:max-height .3s,opacity .3s,margin .3s;opacity:1;max-height:600px;}
+.lectura-lines.collapsed{max-height:0;opacity:0;margin:0;}
+.lectura-line{display:flex;align-items:baseline;gap:10px;font-size:13px;line-height:1.5;color:var(--text);}
+.lectura-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;position:relative;top:1px;}
+.lectura-dot.ld-red{background:var(--red);}
+.lectura-dot.ld-orange{background:var(--orange);}
+.lectura-dot.ld-blue{background:var(--twitter-blue);}
+.lectura-dot.ld-green{background:var(--green);}
+.lectura-line b{font-weight:700;color:var(--text);}
+
+/* KPI strip */
+.kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:22px;}
+.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 14px;position:relative;overflow:hidden;}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--blue-bell);}
+.kpi-card.k-primary::before{background:var(--twitter-blue);}
+.kpi-card.k-dark::before{background:var(--blue-bell-dk);}
+.kpi-card.k-green::before{background:var(--green);}
+.kpi-card.k-orange::before{background:var(--orange);}
+.kpi-card.k-red::before{background:var(--red);}
+.kpi-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;font-weight:600;}
+.kpi-value{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;line-height:1;color:var(--twitter-blue);}
+.kpi-value.kv-dark{color:var(--blue-bell-dk);}
+.kpi-value.kv-green{color:var(--green);}
+.kpi-value.kv-orange{color:var(--orange);}
+.kpi-value.kv-red{color:var(--red);}
+.kpi-sub{font-size:10px;color:var(--text-muted);margin-top:4px;}
+.kpi-meta{font-size:10px;color:var(--text-muted);margin-top:6px;padding-top:6px;border-top:1px dashed var(--border);line-height:1.4;}
+.kpi-meta .meta-ok{color:var(--green);font-weight:600;}
+.kpi-meta .meta-warn{color:var(--orange);font-weight:600;}
+.kpi-meta .meta-bad{color:var(--red);font-weight:600;}
+
+/* Section header */
+.section-header{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--text);margin:0 0 6px;display:flex;align-items:center;gap:10px;font-weight:700;}
+.section-header::before{content:'';width:5px;height:22px;background:var(--twitter-blue);border-radius:2px;}
+.section-subheader{font-size:11px;color:var(--text-muted);margin-bottom:16px;padding-left:15px;}
+.section-subheader b{color:var(--twitter-blue);font-weight:600;}
+
+/* Charts */
+.charts-row{display:grid;gap:16px;margin-bottom:16px;}
+.charts-row.c2{grid-template-columns:1fr 1fr;}
+.charts-row.c3{grid-template-columns:1fr 1fr 1fr;}
+.charts-row.c2-1{grid-template-columns:2fr 1fr;}
+.charts-row.c1-2{grid-template-columns:1fr 2fr;}
+.chart-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+.chart-title{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;font-weight:700;}
+.chart-title .num{color:var(--twitter-blue);font-size:12px;background:var(--alice-blue);padding:2px 7px;border-radius:4px;}
+.chart-subtitle{font-size:10px;color:var(--text-muted);font-style:italic;margin:-4px 0 10px;}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);}
+.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 8px;border-radius:3px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;}
+.badge-ok{background:#E6F4EE;color:#1E7A53;border:1px solid #A8D8C0;}
+.badge-meta{background:#E6F1FA;color:#1A5F96;border:1px solid #97C5E0;}
+.badge-warn{background:#FEF3E8;color:#9E5215;border:1px solid #F0C894;}
+.badge-bad{background:#FDECEA;color:#B03030;border:1px solid #F0AAAA;}
+.badge-grey{background:#EFF3F7;color:#5A7A96;border:1px solid #CFDAE5;}
+
+/* Mini metrics */
+.mini-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-bottom:10px;}
+.mini{border:1px solid var(--border);border-radius:6px;padding:8px 10px;background:var(--alice-blue);}
+.mini-lbl{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;}
+.mini-val{font-family:'DM Mono',monospace;font-size:13px;color:var(--text);font-weight:700;margin-top:2px;}
+.mini-val.v-ok{color:var(--green);}
+.mini-val.v-warn{color:var(--orange);}
+.mini-val.v-bad{color:var(--red);}
+.mini-val.v-blue{color:var(--twitter-blue);}
+
+/* Tables */
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);background:var(--white);}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead tr{background:var(--alice-blue);}
+th{text-align:left;padding:10px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);border-bottom:1.5px solid var(--border-mid);white-space:nowrap;}
+td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:#F4FAFD;}
+.td-num{text-align:right;font-family:'DM Mono',monospace;font-size:12px;}
+.td-center{text-align:center;}
+.td-bold{font-weight:700;}
+tr.row-total td{background:#EEF5FA !important;font-weight:700;}
+
+/* ═════════ RESUMEN (PROYECCIÓN) ═════════ */
+.r-banner{background:linear-gradient(135deg,var(--twitter-blue) 0%,var(--twitter-blue-dk) 100%);color:var(--white);border-radius:14px;padding:26px 32px;margin-bottom:22px;position:relative;overflow:hidden;}
+.r-banner::after{content:'';position:absolute;right:-40px;top:-40px;width:180px;height:180px;background:rgba(255,255,255,0.05);border-radius:50%;}
+.r-banner-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;position:relative;z-index:1;}
+.r-banner-title{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:3px;line-height:1;}
+.r-banner-sub{font-size:12px;color:var(--baby-blue);letter-spacing:.15em;text-transform:uppercase;margin-top:6px;}
+.r-banner-right{text-align:right;position:relative;z-index:1;}
+.r-banner-right .corte-lbl{font-size:10px;color:var(--baby-blue);letter-spacing:.15em;text-transform:uppercase;}
+.r-banner-right .corte-val{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;}
+.r-banner-right .plazo{margin-top:6px;font-size:11px;color:var(--baby-blue);}
+.r-banner-right .plazo b{color:var(--white);font-weight:700;}
+
+.r-progress-track{height:16px;background:rgba(255,255,255,0.15);border-radius:8px;overflow:hidden;position:relative;}
+.r-progress-fill{height:100%;background:linear-gradient(90deg,#FFFFFF 0%,#B8DEF3 100%);border-radius:8px;transition:width .5s;}
+.r-progress-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--baby-blue);font-family:'DM Mono',monospace;letter-spacing:.05em;}
+
+/* R KPI Poster */
+.r-kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:22px;}
+.r-kpi{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 16px 12px;position:relative;overflow:hidden;}
+.r-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:var(--twitter-blue);}
+.r-kpi.rk-green::before{background:var(--green);}
+.r-kpi.rk-orange::before{background:var(--orange);}
+.r-kpi.rk-red::before{background:var(--red);}
+.r-kpi-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px;}
+.r-kpi-value{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:1px;line-height:.95;color:var(--twitter-blue);}
+.r-kpi.rk-green .r-kpi-value{color:var(--green);}
+.r-kpi.rk-orange .r-kpi-value{color:var(--orange);}
+.r-kpi.rk-red .r-kpi-value{color:var(--red);}
+.r-kpi-delta{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11px;font-family:'DM Mono',monospace;font-weight:700;}
+.r-kpi-delta .arrow{font-size:13px;line-height:1;}
+.r-kpi-delta.up{color:var(--green);}
+.r-kpi-delta.down{color:var(--red);}
+.r-kpi-delta.flat{color:var(--text-muted);}
+.r-kpi-delta .vs{color:var(--text-muted);font-weight:400;font-family:'DM Sans',sans-serif;font-size:10px;}
+.r-kpi-spark{height:34px;margin-top:8px;}
+
+/* Semáforo frentes */
+.r-frentes{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.r-frente{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 18px;position:relative;overflow:hidden;border-left:6px solid var(--green);}
+.r-frente.f-ok{border-left-color:var(--green);background:linear-gradient(135deg,#FFFFFF 0%,#F0F9F4 100%);}
+.r-frente.f-warn{border-left-color:var(--orange);background:linear-gradient(135deg,#FFFFFF 0%,#FFF7EF 100%);}
+.r-frente.f-bad{border-left-color:var(--red);background:linear-gradient(135deg,#FFFFFF 0%,#FEF1F0 100%);}
+.r-frente.f-info{border-left-color:var(--twitter-blue);background:linear-gradient(135deg,#FFFFFF 0%,#EDF5FB 100%);}
+.r-frente-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.r-frente-name{font-size:13px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.05em;}
+.r-frente-pct{font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:1px;line-height:.9;color:var(--twitter-blue);}
+.r-frente.f-ok .r-frente-pct{color:var(--green);}
+.r-frente.f-warn .r-frente-pct{color:var(--orange);}
+.r-frente.f-bad .r-frente-pct{color:var(--red);}
+.r-frente-note{font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.4;}
+.r-frente-badge-big{font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase;}
+
+/* Pulso (main evo chart) */
+.r-pulso{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px 22px;margin-bottom:22px;}
+.r-pulso-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--text);margin-bottom:4px;}
+.r-pulso-title span{color:var(--twitter-blue);margin-right:10px;}
+.r-pulso-sub{font-size:11px;color:var(--text-muted);margin-bottom:14px;}
+
+/* Alertas */
+.r-alertas{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+.r-alerta{border-radius:12px;padding:18px 20px;display:flex;align-items:center;gap:16px;color:var(--white);position:relative;overflow:hidden;}
+.r-alerta.a-red{background:linear-gradient(135deg,#D64045 0%,#B03030 100%);}
+.r-alerta.a-yellow{background:linear-gradient(135deg,#E07B39 0%,#C86423 100%);}
+.r-alerta.a-green{background:linear-gradient(135deg,#2D936C 0%,#1A6B4A 100%);}
+.r-alerta-icon{font-size:40px;flex-shrink:0;opacity:.95;}
+.r-alerta-body{flex:1;}
+.r-alerta-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.85;margin-bottom:4px;}
+.r-alerta-text{font-size:14px;font-weight:600;line-height:1.3;margin-bottom:4px;}
+.r-alerta-num{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;line-height:1;}
+
+/* Bottom evos */
+.r-evos{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;}
+.r-evo-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 22px;}
+.r-evo-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;color:var(--text);margin-bottom:4px;}
+.r-evo-title span{color:var(--twitter-blue);margin-right:8px;}
+.r-evo-sub{font-size:11px;color:var(--text-muted);font-style:italic;margin-bottom:12px;}
+
+/* Datos del plazo */
+.r-plazo{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:8px;}
+.r-plazo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:14px;}
+.r-plazo-block{text-align:center;padding:14px 10px;border-radius:10px;background:var(--alice-blue);}
+.r-plazo-block.p-ok{background:#E9F6F0;}
+.r-plazo-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:6px;}
+.r-plazo-val{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:1px;line-height:.95;color:var(--twitter-blue);}
+.r-plazo-block.p-ok .r-plazo-val{color:var(--green);}
+.r-plazo-sub{font-size:11px;color:var(--text-muted);margin-top:4px;}
+.r-plazo-track{height:14px;background:var(--alice-blue);border-radius:7px;overflow:hidden;position:relative;margin-top:8px;}
+.r-plazo-fill{height:100%;background:linear-gradient(90deg,var(--twitter-blue) 0%,var(--blue-bell) 100%);border-radius:7px;transition:width .5s;}
+.r-plazo-labs{display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+
+/* Mobile */
+.mobile-toggle{display:none;background:var(--twitter-blue);color:var(--white);border:none;padding:8px 12px;border-radius:5px;font-size:16px;cursor:pointer;}
+
+@media(max-width:900px){
+  .app{grid-template-columns:1fr;}
+  .sidebar{position:fixed;top:0;left:-260px;bottom:0;width:260px;z-index:100;transition:left .25s;box-shadow:2px 0 12px rgba(0,0,0,0.2);}
+  .sidebar.open{left:0;}
+  .mobile-toggle{display:inline-flex;align-items:center;justify-content:center;}
+  .top-header{padding:10px 16px;flex-wrap:wrap;gap:10px;}
+  .th-left h1{font-size:18px;}
+  .project-bar{padding:8px 16px;gap:12px;}
+  .scroll-area{padding:14px 16px 28px;}
+  .kpi-strip,.r-kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .r-frentes{grid-template-columns:1fr 1fr;}
+  .r-alertas,.r-evos{grid-template-columns:1fr;}
+  .r-plazo-grid{grid-template-columns:1fr;}
+  .charts-row.c2,.charts-row.c3,.charts-row.c2-1,.charts-row.c1-2{grid-template-columns:1fr;}
+  .r-banner-top{flex-direction:column;gap:14px;}
+  .r-banner-title{font-size:38px;}
+  .r-banner-right{text-align:left;}
+}
+@media(max-width:500px){
+  .kpi-strip,.r-kpi-grid{grid-template-columns:1fr 1fr;}
+  .kpi-value,.r-kpi-value{font-size:26px;}
+  .r-frente-pct{font-size:36px;}
+  .r-plazo-val{font-size:32px;}
+  .week-selector select{min-width:120px;}
+}
+
+/* Scrollbar */
+.scroll-area::-webkit-scrollbar,.sidebar::-webkit-scrollbar{width:7px;}
+.scroll-area::-webkit-scrollbar-thumb{background:#B0CFEA;border-radius:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:4px;}
+
+/* ═════════ PANTALLA DE CARGA ═════════ */
+.loading-overlay{position:fixed;inset:0;background:linear-gradient(135deg,var(--twitter-blue) 0%,var(--twitter-blue-dk) 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:1000;color:var(--white);transition:opacity .4s;}
+.loading-overlay.hidden{opacity:0;pointer-events:none;}
+.loading-badge{background:var(--white);color:var(--twitter-blue);font-family:'Bebas Neue',sans-serif;font-size:64px;letter-spacing:6px;padding:16px 28px;border-radius:12px;line-height:1;margin-bottom:24px;box-shadow:0 8px 28px rgba(0,0,0,0.2);}
+.loading-title{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:3px;margin-bottom:8px;}
+.loading-sub{font-size:13px;color:var(--baby-blue);letter-spacing:.1em;margin-bottom:28px;text-transform:uppercase;}
+.loading-spin{width:44px;height:44px;border:4px solid rgba(255,255,255,0.2);border-top-color:var(--white);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:18px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-progress{font-family:'DM Mono',monospace;font-size:12px;color:var(--baby-blue);letter-spacing:.05em;min-height:18px;text-align:center;}
+.loading-progress .ok{color:#A8EFC4;}
+.loading-progress .err{color:#FFB3B3;}
+
+/* ═════════ MODAL ERROR ═════════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,30,60,0.7);display:none;align-items:center;justify-content:center;z-index:900;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--white);border-radius:14px;max-width:560px;width:100%;padding:28px 32px;box-shadow:0 20px 50px rgba(0,0,0,0.3);}
+.modal-icon{font-size:40px;margin-bottom:14px;}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1.5px;color:var(--text);margin-bottom:10px;}
+.modal-text{font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:16px;}
+.modal-list{list-style:none;padding:0;margin:0 0 18px;}
+.modal-list li{padding:8px 0 8px 28px;position:relative;font-size:13px;color:var(--text);line-height:1.5;}
+.modal-list li::before{content:attr(data-num);position:absolute;left:0;top:8px;background:var(--twitter-blue);color:var(--white);width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:10px;}
+.btn{padding:9px 18px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:.03em;}
+.btn-primary{background:var(--twitter-blue);color:var(--white);}
+.btn-primary:hover{background:var(--twitter-blue-dk);}
+.btn-secondary{background:var(--alice-blue);color:var(--twitter-blue);border:1px solid var(--border);}
+.btn-secondary:hover{background:#DDEBF5;}
+
+/* ═════════ BANNER SYNC / AVISOS ═════════ */
+.sync-banner{background:#FFF4DD;border:1px solid #F0C894;color:#7A4F15;padding:8px 16px;font-size:12px;display:flex;align-items:center;gap:10px;border-radius:6px;margin:6px 28px 0;}
+.sync-banner.ok{background:#E9F7EF;border-color:#A8D8C0;color:#155F3E;}
+.sync-banner.err{background:#FDECEA;border-color:#F0AAAA;color:#8A2525;}
+.sync-banner .banner-ico{font-size:14px;}
+.sync-banner .banner-close{margin-left:auto;background:none;border:none;cursor:pointer;font-size:14px;opacity:.5;color:inherit;padding:2px 6px;}
+.sync-banner .banner-close:hover{opacity:1;}
+
+/* ═════════ BOTONES ACCIÓN HEADER ═════════ */
+.hdr-btn{background:rgba(255,255,255,0.12);color:var(--white);border:1px solid rgba(255,255,255,0.25);border-radius:5px;padding:7px 12px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;letter-spacing:.05em;display:inline-flex;align-items:center;gap:5px;transition:background .15s;white-space:nowrap;}
+.hdr-btn:hover{background:rgba(255,255,255,0.22);}
+.hdr-btn:disabled{opacity:.5;cursor:not-allowed;}
+.hdr-btn.spinning .ico{animation:spin 1s linear infinite;display:inline-block;}
+
+/* ═════════ FOOTER SYNC ═════════ */
+.sync-footer{background:var(--white);border-top:1px solid var(--border);padding:6px 28px;font-size:10px;color:var(--text-muted);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.sync-footer .sync-state{display:inline-flex;align-items:center;gap:6px;}
+.sync-footer .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;}
+.sync-footer .sync-dot.err{background:var(--red);}
+.sync-footer .sync-dot.warn{background:var(--orange);}
+.sync-footer .sync-dot.offline{background:var(--text-muted);}
+
+/* ═════════ MODO DATO FALTANTE ═════════ */
+.missing{color:var(--text-muted);font-style:italic;opacity:.7;}
+
+/* ═════════ PANEL AYUDA ═════════ */
+.help-panel{position:fixed;top:0;right:-440px;bottom:0;width:440px;background:var(--white);z-index:850;box-shadow:-6px 0 24px rgba(0,0,0,0.15);transition:right .3s;display:flex;flex-direction:column;overflow:hidden;}
+.help-panel.open{right:0;}
+.help-head{background:var(--twitter-blue);color:var(--white);padding:16px 22px;display:flex;justify-content:space-between;align-items:center;}
+.help-head h3{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;}
+.help-head button{background:rgba(255,255,255,0.15);border:none;color:var(--white);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;}
+.help-body{flex:1;overflow-y:auto;padding:20px 24px;font-size:13px;line-height:1.55;color:var(--text);}
+.help-body h4{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.2px;color:var(--twitter-blue);margin:18px 0 8px;border-bottom:1.5px solid var(--border);padding-bottom:4px;}
+.help-body h4:first-child{margin-top:0;}
+.help-body ol{padding-left:20px;margin-bottom:10px;}
+.help-body ol li{margin-bottom:6px;}
+.help-body code{background:var(--alice-blue);color:var(--twitter-blue);padding:1px 6px;border-radius:3px;font-family:'DM Mono',monospace;font-size:11.5px;}
+.help-body .help-tbl{width:100%;border-collapse:collapse;margin:6px 0 12px;font-size:12px;}
+.help-body .help-tbl th,.help-body .help-tbl td{padding:6px 8px;border:1px solid var(--border);text-align:left;}
+.help-body .help-tbl th{background:var(--alice-blue);font-size:10px;text-transform:uppercase;color:var(--text-muted);}
+.help-body .help-tbl code{font-size:11px;}
+.help-body .help-note{background:#FFF4DD;border-left:3px solid var(--orange);padding:8px 12px;margin:10px 0;font-size:12px;border-radius:4px;}
+.help-body .help-ok{background:#E9F7EF;border-left:3px solid var(--green);padding:8px 12px;margin:10px 0;font-size:12px;border-radius:4px;}
+.help-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:840;display:none;}
+.help-overlay.open{display:block;}
+.sb-item.sb-help{margin-top:10px;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.15);}
+
+/* ═════════ TOOLTIP INFO ═════════ */
+.info-badge{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--blue-bell);color:var(--white);font-size:10px;font-weight:700;cursor:help;margin-left:6px;font-family:'DM Mono',monospace;}
+.info-badge:hover{background:var(--twitter-blue);}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     PANTALLA DE CARGA INICIAL
+     ═══════════════════════════════════════════ -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-badge">E140</div>
+  <div class="loading-title">ESPARQ 140 · DASHBOARD VIVO</div>
+  <div class="loading-sub">Sincronizando con Google Sheets…</div>
+  <div class="loading-spin"></div>
+  <div class="loading-progress" id="loadingProgress">Iniciando…</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL ERROR DE CONEXIÓN
+     ═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalError">
+  <div class="modal">
+    <div class="modal-icon">📡</div>
+    <div class="modal-title">NO SE PUDO CONECTAR AL GOOGLE SHEET</div>
+    <div class="modal-text" id="modalErrorText">La carga inicial falló. Por favor verifica lo siguiente:</div>
+    <ul class="modal-list">
+      <li data-num="1">Tienes conexión a <b>internet</b>.</li>
+      <li data-num="2">El Google Sheet sigue publicado en la web (<b>Archivo › Compartir › Publicar en la web</b>).</li>
+      <li data-num="3">Las URLs dentro de la constante <code style="background:var(--alice-blue);padding:1px 4px;border-radius:3px;font-family:'DM Mono',monospace;font-size:11px">SHEET_URLS</code> del HTML son correctas.</li>
+      <li data-num="4">La hoja <code style="background:var(--alice-blue);padding:1px 4px;border-radius:3px;font-family:'DM Mono',monospace;font-size:11px">SEMANAS</code> existe y tiene al menos una fila.</li>
+    </ul>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="useDemoData()">Usar datos demo</button>
+      <button class="btn btn-primary" onclick="retryFetch()">🔄 Reintentar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PANEL DE AYUDA LATERAL
+     ═══════════════════════════════════════════ -->
+<div class="help-overlay" id="helpOverlay" onclick="toggleHelp()"></div>
+<div class="help-panel" id="helpPanel">
+  <div class="help-head">
+    <h3>❓ GUÍA DE USO</h3>
+    <button onclick="toggleHelp()" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="help-body">
+
+    <h4>1 · CÓMO PUBLICAR EL SHEET</h4>
+    <ol>
+      <li>Abre tu Google Sheet y ve a <b>Archivo › Compartir › Publicar en la web</b>.</li>
+      <li>En la pestaña <b>Enlace</b>, selecciona cada hoja individualmente y formato <b>Valores separados por coma (.csv)</b>.</li>
+      <li>Click en <b>Publicar</b> y copia la URL generada.</li>
+      <li>Repite para las 11 hojas: <code>_CONFIG</code>, <code>SEMANAS</code>, <code>KPIS</code>, <code>AVANCE_FISICO</code>, <code>FRENTES</code>, <code>PERSONAL</code>, <code>MO</code>, <code>ADQUISICIONES</code>, <code>ADICIONALES</code>, <code>RESUMEN_BULLETS</code>, <code>FOTOS</code>.</li>
+      <li>Pega cada URL en la constante <code>SHEET_URLS</code> al inicio del <code>&lt;script&gt;</code> de este HTML.</li>
+    </ol>
+    <div class="help-ok"><b>💡 Tip:</b> al publicar, Google te da una URL larga. Ya viene con <code>output=csv</code>, así que solo cópiala tal cual.</div>
+
+    <h4>2 · CÓMO AGREGAR UNA NUEVA SEMANA</h4>
+    <ol>
+      <li>Ve a la hoja <code>SEMANAS</code> del Google Sheet y agrega una nueva fila con el código de semana (ej. <code>S37</code>), la fecha de corte y el estado <code>en_carga</code>.</li>
+      <li>Agrega las 6 filas de KPIs en la hoja <code>KPIS</code> con la misma clave de semana.</li>
+      <li>Llena las partidas, frentes, cuadrillas, adquisiciones, adicionales y bullets del resumen — todos filtrados por <code>semana = S37</code>.</li>
+      <li>Cuando termines, cambia el estado a <code>actual</code> (y cambia el anterior a <code>cerrada</code>).</li>
+      <li>Click en <b>🔄 Actualizar datos</b> del header del dashboard (o recarga la página) — la nueva semana aparece en el dropdown.</li>
+    </ol>
+
+    <h4>3 · QUÉ HACER SI ALGO NO CARGA</h4>
+    <ul style="padding-left:20px;margin-bottom:10px">
+      <li style="margin-bottom:4px"><b>Banner amarillo:</b> alguna hoja no se pudo leer. El resto sigue funcionando. Revisa esa hoja en el Sheet.</li>
+      <li style="margin-bottom:4px"><b>Celdas con "—":</b> ese campo está vacío en el Sheet. No es un error, es un placeholder.</li>
+      <li style="margin-bottom:4px"><b>Semana "(incompleta)":</b> falta data en alguna de las hojas para esa semana. Completa las filas faltantes en el Sheet.</li>
+      <li style="margin-bottom:4px"><b>Modal "No se pudo conectar":</b> revisa los 4 puntos listados en el modal.</li>
+      <li style="margin-bottom:4px"><b>Modo offline:</b> sin internet, el dashboard muestra los últimos datos cacheados con un aviso.</li>
+    </ul>
+
+    <h4>4 · VALORES VÁLIDOS EN COLUMNAS (DROPDOWNS)</h4>
+    <table class="help-tbl">
+      <tr><th>Hoja</th><th>Columna</th><th>Valores válidos</th></tr>
+      <tr><td>SEMANAS</td><td>estado</td><td><code>cerrada</code>, <code>actual</code>, <code>en_carga</code>, <code>incompleta</code></td></tr>
+      <tr><td>KPIS</td><td>kpi_id</td><td><code>contratacion</code>, <code>mo_pct</code>, <code>util_rent</code>, <code>personal</code>, <code>adicionales</code>, <code>rent_mo</code></td></tr>
+      <tr><td>FRENTES</td><td>estado</td><td><code>ok</code>, <code>cerrando</code>, <code>ejecutando</code>, <code>inicia</code>, <code>atrasado</code>, <code>terminado</code></td></tr>
+      <tr><td>RESUMEN_BULLETS</td><td>color</td><td><code>green</code>, <code>blue</code>, <code>orange</code>, <code>red</code></td></tr>
+    </table>
+    <div class="help-note"><b>⚠ Importante:</b> usa <b>Validación de datos</b> en Google Sheets para estas columnas. Así evitas typos.</div>
+
+    <h4>5 · ACTUALIZACIÓN EN VIVO</h4>
+    <p style="margin-bottom:8px">El botón <b>🔄 Actualizar datos</b> del header refetchea los CSVs sin recargar el HTML. Úsalo cuando:</p>
+    <ul style="padding-left:20px">
+      <li>Acabas de editar el Sheet y quieres ver el cambio en la TV de obra.</li>
+      <li>La sync está en rojo y quieres reintentar.</li>
+    </ul>
+
+    <h4>6 · MODO DATOS DEMO</h4>
+    <p>Si no tienes el Sheet configurado aún (o estás probando), el botón <b>"Usar datos demo"</b> del modal carga las semanas S35 (simulada) y S36 (real) hardcodeadas para que veas el dashboard completo.</p>
+
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- ═════════ SIDEBAR ═════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-badge">E140</div>
+      <div class="sb-brand-info">
+        <h2>ESPARQ 140</h2>
+        <p>Fase 2 · Dashboard Vivo</p>
+      </div>
+    </div>
+
+    <div class="sb-group-label">Vista ejecutiva</div>
+    <div class="sb-nav" style="padding-bottom:0">
+      <button class="sb-item sb-resumen active" data-tab="resumen">
+        <span class="sb-num">📊</span>
+        <span class="sb-label">RESUMEN</span>
+      </button>
+    </div>
+
+    <div class="sb-divider"></div>
+    <div class="sb-group-label">Secciones temáticas</div>
+    <div class="sb-nav">
+      <button class="sb-item" data-tab="avance" style="color:#97C5E0">
+        <span class="sb-num">01</span><span class="sb-icon"></span>
+        <span class="sb-label">Avance Físico</span>
+      </button>
+      <button class="sb-item" data-tab="personal" style="color:#509BC9">
+        <span class="sb-num">02</span><span class="sb-icon"></span>
+        <span class="sb-label">Personal & Dimens.</span>
+      </button>
+      <button class="sb-item" data-tab="mo" style="color:#2D936C">
+        <span class="sb-num">03</span><span class="sb-icon"></span>
+        <span class="sb-label">Mano de Obra</span>
+      </button>
+      <button class="sb-item" data-tab="adq" style="color:#3A91C5">
+        <span class="sb-num">04</span><span class="sb-icon"></span>
+        <span class="sb-label">Adquisiciones</span>
+      </button>
+      <button class="sb-item" data-tab="encofrado" style="color:#E07B39">
+        <span class="sb-num">05</span><span class="sb-icon"></span>
+        <span class="sb-label">Encofrado / Log.</span>
+      </button>
+      <button class="sb-item" data-tab="adic" style="color:#D64045">
+        <span class="sb-num">06</span><span class="sb-icon"></span>
+        <span class="sb-label">Adicionales</span>
+      </button>
+      <button class="sb-item" data-tab="crono" style="color:#509BC9">
+        <span class="sb-num">07</span><span class="sb-icon"></span>
+        <span class="sb-label">Cronograma</span>
+      </button>
+      <button class="sb-item" data-tab="fotos" style="color:#97C5E0">
+        <span class="sb-num">08</span><span class="sb-icon"></span>
+        <span class="sb-label">Panel Fotográfico</span>
+      </button>
+    </div>
+
+    <div class="sb-divider" style="margin-top:auto"></div>
+    <div class="sb-nav" style="padding-top:4px;padding-bottom:4px">
+      <button class="sb-item sb-help" onclick="toggleHelp()">
+        <span class="sb-num">❓</span>
+        <span class="sb-label">Guía de uso</span>
+      </button>
+    </div>
+
+    <div class="sb-footer">
+      <b>ESPARQ Construcción S.A.C.</b><br>
+      Residente: <span id="sbResidente">José Rojas O.</span><br>
+      Cliente: <span id="sbCliente">Espinosa Arquitectos</span>
+    </div>
+  </aside>
+
+  <!-- ═════════ CONTENT ═════════ -->
+  <div class="content-area">
+
+    <!-- HEADER -->
+    <div class="top-header">
+      <div class="th-left" style="display:flex;align-items:center;gap:14px">
+        <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Menú">☰</button>
+        <div>
+          <h1>DASHBOARD SEMANAL DE OBRA</h1>
+          <p>E140 · ESPARQ 140 Fase 2 · Miraflores</p>
+        </div>
+      </div>
+      <div class="th-right">
+        <div class="week-selector">
+          <label>Semana de corte</label>
+          <select id="weekSelect" onchange="onWeekChange(this.value)"></select>
+        </div>
+        <button class="hdr-btn" id="refreshBtn" onclick="refreshData()" title="Vuelve a leer el Google Sheet sin recargar la página">
+          <span class="ico">🔄</span> Actualizar
+        </button>
+        <div class="th-date">
+          <div class="dl">Semana</div>
+          <div class="dv" id="hdrSem">SEM 36</div>
+          <div class="dc" id="hdrCorte">Corte: 18/04/2026</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BANNER ZONE (mensajes de sync, errores por hoja, offline, etc.) -->
+    <div id="bannerZone"></div>
+
+    <!-- PROJECT BAR -->
+    <div class="project-bar">
+      <div class="pb-item"><div class="pb-label">Cliente</div><div class="pb-value" id="pbCliente">Espinosa Arquitectos</div></div>
+      <div class="pb-sep"></div>
+      <div class="pb-item"><div class="pb-label">Dirección</div><div class="pb-value" id="pbDireccion">Av. Arequipa 4682, Miraflores</div></div>
+      <div class="pb-sep"></div>
+      <div class="pb-item"><div class="pb-label">Niveles</div><div class="pb-value" id="pbNiveles">16 + Azotea · 5 Sót.</div></div>
+      <div class="pb-sep"></div>
+      <div class="pb-item"><div class="pb-label">Área</div><div class="pb-value" id="pbArea">13,784.54 m²</div></div>
+      <div class="pb-sep"></div>
+      <div class="pb-item"><div class="pb-label">Dptos/Estac.</div><div class="pb-value" id="pbDptosEstac">103 / 112</div></div>
+      <div class="pb-sep"></div>
+      <div class="pb-item"><div class="pb-label">Inicio · Plazo</div><div class="pb-value" id="pbInicio">11/08/2025 · 471 d</div></div>
+    </div>
+
+    <!-- SCROLL AREA -->
+    <div class="scroll-area" id="scrollArea">
+
+      <!-- ═══════════════════════════════════════════
+           SECCIÓN RESUMEN (DEFAULT)
+           ═══════════════════════════════════════════ -->
+      <section class="section active" id="sec-resumen">
+        <!-- A. Banner -->
+        <div class="r-banner">
+          <div class="r-banner-top">
+            <div>
+              <div class="r-banner-title" id="rBannerTitle">ESPARQ 140 · SEMANA 36</div>
+              <div class="r-banner-sub">Dashboard ejecutivo de obra · Fase 2</div>
+            </div>
+            <div class="r-banner-right">
+              <div class="corte-lbl">Corte</div>
+              <div class="corte-val" id="rBannerCorte">18 / 04 / 2026</div>
+              <div class="plazo" id="rBannerPlazo">Día <b>250</b> de 471 · <b>221 d restantes</b></div>
+            </div>
+          </div>
+          <div class="r-progress-track"><div class="r-progress-fill" id="rProgressFill" style="width:53.1%"></div></div>
+          <div class="r-progress-labels">
+            <span>11/08/2025 · INICIO</span>
+            <span id="rProgressPct" style="color:#FFFFFF;font-weight:700">53.1% TRANSCURRIDO</span>
+            <span>24/11/2026 · CIERRE EST.</span>
+          </div>
+        </div>
+
+        <!-- B. KPI Poster -->
+        <div class="r-kpi-grid" id="rKpiGrid"></div>
+
+        <!-- C. Semáforo frentes -->
+        <div class="r-frentes" id="rFrentes"></div>
+
+        <!-- D. Pulso de obra -->
+        <div class="r-pulso">
+          <div class="r-pulso-title"><span>▸</span>PULSO DE LA OBRA · EVOLUCIÓN SEMANAL</div>
+          <div class="r-pulso-sub">Contratación · Mano de obra · Personal · Tendencia por las últimas semanas registradas</div>
+          <div style="position:relative;height:340px"><canvas id="rChartPulso"></canvas></div>
+        </div>
+
+        <!-- E. Alertas -->
+        <div class="r-alertas" id="rAlertas"></div>
+
+        <!-- F. Evolutivos -->
+        <div class="r-evos">
+          <div class="r-evo-card">
+            <div class="r-evo-title"><span>▸</span>PERSONAL EN OBRA POR SEMANA</div>
+            <div class="r-evo-sub">Trabajadores en obra vs. meta dimensionamiento gerencia (46 pax)</div>
+            <div style="position:relative;height:260px"><canvas id="rChartPersonal"></canvas></div>
+          </div>
+          <div class="r-evo-card">
+            <div class="r-evo-title"><span>▸</span>MANO DE OBRA EJECUTADA ACUMULADA</div>
+            <div class="r-evo-sub">S/ ejecutado vs. presupuesto total F1+F2 (S/ 6.61 M)</div>
+            <div style="position:relative;height:260px"><canvas id="rChartMOEvo"></canvas></div>
+          </div>
+        </div>
+
+        <!-- G. Datos del plazo -->
+        <div class="r-plazo">
+          <div class="r-pulso-title" style="margin-bottom:16px"><span>▸</span>DATOS DEL PLAZO</div>
+          <div class="r-plazo-grid">
+            <div class="r-plazo-block">
+              <div class="r-plazo-lbl">Días transcurridos</div>
+              <div class="r-plazo-val" id="rPlazoTrans">250</div>
+              <div class="r-plazo-sub" id="rPlazoTransPct">53.1% del plazo</div>
+            </div>
+            <div class="r-plazo-block p-ok">
+              <div class="r-plazo-lbl">Días restantes</div>
+              <div class="r-plazo-val" id="rPlazoRest">221</div>
+              <div class="r-plazo-sub" id="rPlazoRestPct">46.9% del plazo</div>
+            </div>
+            <div class="r-plazo-block">
+              <div class="r-plazo-lbl">% Avance calendario</div>
+              <div class="r-plazo-val" id="rPlazoPct">53.1%</div>
+              <div class="r-plazo-sub">Sem <span id="rPlazoSem">36</span> · Fase 2</div>
+            </div>
+          </div>
+          <div class="r-plazo-track"><div class="r-plazo-fill" id="rPlazoFill" style="width:53.1%"></div></div>
+          <div class="r-plazo-labs">
+            <span>11/08/2025</span>
+            <span id="rPlazoHoy" style="color:var(--twitter-blue);font-weight:700">HOY · SEM 36</span>
+            <span>24/11/2026</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           SECCIÓN 1 — AVANCE FÍSICO
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-avance">
+        <div class="section-header">Avance Físico de Obra</div>
+        <div class="section-subheader">Fuente: <b>02 · Control de Avance</b> (Casco SOT + Casco SUP + Albañilería) — corte <span class="corte-inline">Sem 36 (18/04/2026)</span></div>
+
+        <div class="charts-row c2-1">
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">01</span> Avance por partida (%)</div>
+            <div class="chart-subtitle">% real acumulado frente a programado · Casco SOT · Casco SUP · Albañilería</div>
+            <div class="legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#97C5E0"></div>Programado</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#0070B4"></div>Real</div>
+            </div>
+            <div style="position:relative;height:360px"><canvas id="chartAvance"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">02</span> Estado por frente</div>
+            <div class="chart-subtitle">Resumen de estatus por frente de trabajo</div>
+            <div id="frentesResumen" style="display:flex;flex-direction:column;gap:10px;margin-top:8px"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           SECCIÓN 2 — PERSONAL Y DIMENSIONAMIENTO
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-personal">
+        <div class="section-header">Histograma de Personal y Dimensionamiento</div>
+        <div class="section-subheader">Fuente: <b>01 · Histograma</b> — Dotación diaria y dimensionamiento de cuadrillas</div>
+
+        <div class="charts-row c2-1">
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">03</span> Evolución de personal en obra</div>
+            <div class="chart-subtitle">Promedio semanal de trabajadores · histórico</div>
+            <div style="position:relative;height:280px"><canvas id="chartPersonal"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">04</span> HH Préstamo acumulado por obra</div>
+            <div class="chart-subtitle">Apoyo recibido desde otras obras · Sem 30-35 (acum. HH)</div>
+            <div class="mini-row" id="hhPrestamoMinis" style="margin-bottom:6px"></div>
+            <div style="position:relative;height:180px"><canvas id="chartHH"></canvas></div>
+          </div>
+        </div>
+
+        <div class="charts-row c1-2">
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">05</span> Dimensionamiento</div>
+            <div class="chart-subtitle">Total pax por origen</div>
+            <table style="margin-top:6px">
+              <thead><tr><th></th><th class="td-center">GER.</th><th class="td-center">CAMPO</th><th class="td-center">Δ</th></tr></thead>
+              <tbody id="tblDimens"></tbody>
+            </table>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">06</span> Cuadrilla por categoría — ENCOFRADO Sótano 01</div>
+            <div class="chart-subtitle">Meta-Campo vs. Aprobada Gerencia vs. Actual</div>
+            <div style="position:relative;height:280px"><canvas id="chartDim"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           SECCIÓN 3 — MANO DE OBRA
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-mo">
+        <div class="section-header">Control de Mano de Obra (MO)</div>
+        <div class="section-subheader">Fuente: <b>06 · Control de MO</b> — Evolución mensual, rentabilidad por cuadrilla y saldo respecto al presupuesto F1+F2</div>
+
+        <div class="charts-row c2-1">
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">07</span> Evolución mensual de MO acumulada</div>
+            <div class="chart-subtitle">Costo mensual ejecutado vs. % avance sobre presupuesto MO total (S/ 6,611,447)</div>
+            <div class="legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#0070B4"></div>MO ejecutada mensual (S/)</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#2D936C"></div>% Acumulado</div>
+            </div>
+            <div style="position:relative;height:320px"><canvas id="chartMO"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">08</span> Estado MO</div>
+            <div class="chart-subtitle">Indicadores clave</div>
+            <div class="mini-row" id="moMinis" style="grid-template-columns:repeat(2,1fr);gap:10px;margin-top:6px"></div>
+            <div id="moExtra" style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);font-size:11px;color:var(--text-muted)"></div>
+          </div>
+        </div>
+
+        <div class="charts-row c2">
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">09</span> Rentabilidad proyectada por cuadrilla</div>
+            <div class="chart-subtitle">% Rentabilidad · Verde = ahorro · Naranja = ajustado · Rojo = sobrecosto</div>
+            <div style="position:relative;height:400px"><canvas id="chartRentMO"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">10</span> Saldo MO por cuadrilla (S/)</div>
+            <div class="chart-subtitle">Presupuesto restante por especialidad · ordenado de mayor a menor</div>
+            <div style="position:relative;height:400px"><canvas id="chartSaldoMO"></canvas></div>
+          </div>
+        </div>
+
+        <div class="chart-card" style="margin-top:16px">
+          <div class="chart-title"><span class="num">11</span> Detalle económico por cuadrilla</div>
+          <div class="chart-subtitle">MO base vs. meta · ejecutado · saldo · rentabilidad proyectada</div>
+          <div class="table-wrap" style="border:none">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cuadrilla</th>
+                  <th class="td-center">MO Base (S/)</th>
+                  <th class="td-center">MO Meta (S/)</th>
+                  <th class="td-center">Ahorro Meta</th>
+                  <th class="td-center">MO Real Acum.</th>
+                  <th class="td-center">% Incid.</th>
+                  <th class="td-center">Saldo MO</th>
+                  <th class="td-center">% Rent.</th>
+                </tr>
+              </thead>
+              <tbody id="tblCuadrillas"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           SECCIÓN 4 — ADQUISICIONES
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-adq">
+        <div class="section-header">Adquisiciones y Subcontratos</div>
+        <div class="section-subheader" id="adqSubheader">Fuente: <b>03 · Cuadro de adquisiciones</b> — 74 ítems · S/ 13.27 M contratado · Margen S/ 2.62 M (16.5%)</div>
+
+        <div class="charts-row c3">
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">12</span> Margen de adq. por especialidad</div>
+            <div class="chart-subtitle">Monto contratado y % margen por disciplina</div>
+            <div style="position:relative;height:300px"><canvas id="chartAdqEsp"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">13</span> Avance por etapa de gestión</div>
+            <div class="chart-subtitle">% completado · SAME, Comp., Contrato, Netlog, OC, Impl. Obra</div>
+            <div style="position:relative;height:300px"><canvas id="chartEtapas"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">14</span> Tipo de contratación</div>
+            <div class="chart-subtitle">Suministro vs Subcontrato</div>
+            <div style="position:relative;height:230px"><canvas id="chartTipo"></canvas></div>
+            <div id="tipoFoot" style="margin-top:10px;font-size:10px;color:var(--text-muted);text-align:center"></div>
+          </div>
+        </div>
+
+        <div class="charts-row c2">
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">15</span> Resumen por responsable</div>
+            <div class="chart-subtitle">Cantidad de ítems y margen económico gestionado</div>
+            <div class="table-wrap" style="border:none">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Resp.</th><th class="td-center">Ítems</th>
+                    <th class="td-center">Contractual</th><th class="td-center">Contratado</th>
+                    <th class="td-center">Margen</th><th class="td-center">% Part.</th>
+                  </tr>
+                </thead>
+                <tbody id="tblResp"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">16</span> Indicadores de rentabilidad</div>
+            <div class="chart-subtitle">Desglose de utilidad proyectada sobre facturación</div>
+            <div id="rentPanel" style="display:flex;flex-direction:column;gap:10px;margin-top:10px"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           SECCIÓN 5 — ENCOFRADO
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-encofrado">
+        <div class="section-header">Control de Encofrado</div>
+        <div class="section-subheader">Fuente: <b>08 · Arrendamiento F1-F2 (Unispan)</b> y <b>09 · Kardex Encofrado</b></div>
+
+        <div class="charts-row c2-1">
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">17</span> Ingreso de material de encofrado Unispan</div>
+            <div class="chart-subtitle">Eventos de despacho/recepción · histórico de recepciones</div>
+            <div style="position:relative;height:280px"><canvas id="chartEncofIng"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">18</span> Composición encofrado</div>
+            <div class="chart-subtitle">Unispan (arrendado) · Casa (propio) · Consumibles</div>
+            <div class="mini-row" id="encofMinis" style="grid-template-columns:1fr;gap:8px;margin-top:6px"></div>
+            <div id="encofExtra" style="margin-top:14px;padding:10px 12px;background:#F4FAFD;border-left:3px solid var(--twitter-blue);border-radius:4px;font-size:11px;color:var(--text-muted);line-height:1.5"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           SECCIÓN 6 — ADICIONALES
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-adic">
+        <div class="section-header">Adicionales, Deductivos y Optimizaciones</div>
+        <div class="section-subheader" id="adicSubheader">Fuente: <b>10 · Status de Adicionales y Deductivos</b></div>
+
+        <div class="charts-row c2">
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">19</span> Adicionales aprobados por especialidad (S/)</div>
+            <div class="chart-subtitle">Monto total sin IGV por disciplina</div>
+            <div style="position:relative;height:320px"><canvas id="chartAdicEsp"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">20</span> Top adicionales por monto</div>
+            <div class="chart-subtitle">Ítems de mayor impacto económico aprobados</div>
+            <div class="table-wrap" style="border:none">
+              <table>
+                <thead><tr><th>#</th><th>Descripción</th><th>Esp.</th><th class="td-center">Monto S/</th></tr></thead>
+                <tbody id="tblAdicTop"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           SECCIÓN 7 — CRONOGRAMA
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-crono">
+        <div class="section-header">Cronograma Meta</div>
+        <div class="section-subheader">Fuente: <b>05 · Control Cronograma Meta</b> — Plazo total 471 días · Inicio 11/08/2025</div>
+
+        <div class="charts-row c1-2">
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">21</span> Estado del plazo</div>
+            <div class="chart-subtitle">Indicadores macro</div>
+            <div class="mini-row" id="cronoMinis" style="grid-template-columns:1fr;gap:8px;margin-top:6px"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title"><span class="num">22</span> Línea de tiempo macro de obra</div>
+            <div class="chart-subtitle">Avance del plazo calendario · Fase actual en ejecución</div>
+            <div style="position:relative;height:140px;margin-top:10px;padding:10px 0">
+              <div style="position:absolute;left:0;right:0;top:50%;height:14px;background:#E5EDF3;border-radius:7px;transform:translateY(-50%);overflow:hidden">
+                <div id="cronoBarFill" style="position:absolute;left:0;top:0;bottom:0;width:53.1%;background:linear-gradient(90deg,var(--twitter-blue),var(--blue-bell));border-radius:7px"></div>
+              </div>
+              <div id="cronoBarMarker" style="position:absolute;left:53.1%;top:calc(50% - 16px);transform:translateX(-50%);background:var(--twitter-blue);color:var(--white);padding:4px 10px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;box-shadow:0 2px 6px rgba(0,112,180,0.4)">
+                HOY · SEM 36
+              </div>
+              <div style="position:absolute;left:0;top:calc(50% + 16px);font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace">11/08/2025</div>
+              <div style="position:absolute;right:0;top:calc(50% + 16px);font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace">24/11/2026 (est.)</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:20px;font-size:10px">
+              <div style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:#E6F4EE">
+                <div style="color:var(--green);font-weight:700;margin-bottom:2px">F1 Muros Anclados</div>
+                <div style="color:var(--text-muted)">Completada</div>
+              </div>
+              <div style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:#E6EEF8">
+                <div style="color:var(--twitter-blue);font-weight:700;margin-bottom:2px">F2 Sótanos Casco</div>
+                <div style="color:var(--text-muted)">Cerrando (100%)</div>
+              </div>
+              <div style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:#EEF5FA">
+                <div style="color:var(--blue-bell-dk);font-weight:700;margin-bottom:2px">F2 Sup. Casco</div>
+                <div style="color:var(--text-muted)">Inicia Sem 37</div>
+              </div>
+              <div style="padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:#FEF3E8">
+                <div style="color:var(--orange);font-weight:700;margin-bottom:2px">Acabados</div>
+                <div style="color:var(--text-muted)">Pendiente</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           SECCIÓN 8 — PANEL FOTOGRÁFICO
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-fotos">
+        <div class="section-header">Panel Fotográfico de la Semana</div>
+        <div class="section-subheader">Fuente: <b>04 · Reporte gráfico</b> — Registros fotográficos documentados</div>
+
+        <div class="chart-card">
+          <div id="fotoGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px"></div>
+          <div style="font-size:10px;color:var(--text-muted);font-style:italic;margin-top:10px;text-align:center">Placeholders · las fotografías originales están en el Excel fuente <b style="color:var(--twitter-blue)">04 · Reporte gráfico</b></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- FOOTER DE SINCRONIZACIÓN -->
+    <div class="sync-footer">
+      <div class="sync-state">
+        <span class="sync-dot" id="syncDot"></span>
+        <span id="syncState">Sin sincronizar aún</span>
+      </div>
+      <div id="syncDetail">Dashboard Vivo · Google Sheets · v1</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   CONFIGURACIÓN DE URLs DE GOOGLE SHEETS
+   ───────────────────────────────────────────────────────────────────
+   Cómo obtener estas URLs:
+   1) Abre el Google Sheet.
+   2) Archivo › Compartir › Publicar en la web.
+   3) En la pestaña "Enlace", selecciona cada hoja individualmente y
+      formato "Valores separados por coma (.csv)".
+   4) Click en "Publicar" y copia la URL generada.
+   5) Pega cada URL en el slot correspondiente abajo.
+
+   ⚠ IMPORTANTE: Debes publicar cada hoja por separado (no todo el
+   documento). Cada URL tiene un "gid" único por hoja.
+
+   Para empezar SIN Sheet, deja las URLs en "" y el dashboard cargará
+   con DATOS DEMO (Sem 35 + Sem 36). Útil para pruebas.
+   ═══════════════════════════════════════════════════════════════════ */
+
+const SHEET_URLS = {
+  CONFIG:           "", // Ej: https://docs.google.com/spreadsheets/d/e/XXXX/pub?gid=0&single=true&output=csv
+  SEMANAS:          "",
+  KPIS:             "",
+  AVANCE_FISICO:    "",
+  FRENTES:          "",
+  PERSONAL:         "",
+  MO:               "",
+  ADQUISICIONES:    "",
+  ADICIONALES:      "",
+  RESUMEN_BULLETS:  "",
+  FOTOS:            ""
+};
+
+// Flag para saber si hay al menos una URL configurada
+function hasSheetUrls(){
+  return Object.values(SHEET_URLS).some(u => u && u.trim().length > 0);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   CONSTANTES DEL PROYECTO (fallback si no hay _CONFIG en el Sheet)
+   ═══════════════════════════════════════════════════════════════════ */
+
+const CONSTANTES = {
+  moBaseTotal: 6611447,       // S/ · Presupuesto MO F1+F2
+  costoDirecto: 26445788,     // S/ · Costo directo del proyecto
+  plazoDias: 471,             // Días de plazo total
+  fechaInicio: "11/08/2025",
+  fechaFinEst: "24/11/2026",
+  metaDimensionamiento: 46    // Personal objetivo gerencia
+};
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   UTILIDADES DE PARSEO Y TOLERANCIA A ERRORES
+   ═══════════════════════════════════════════════════════════════════ */
+
+// Convierte string con comas/espacios a número. Devuelve null si no se puede.
+function toNum(v){
+  if(v===null||v===undefined||v==="") return null;
+  if(typeof v==="number") return isNaN(v) ? null : v;
+  const clean = String(v).replace(/[,\s]/g,'').replace(/[^\d.\-]/g,'');
+  const n = parseFloat(clean);
+  return isNaN(n) ? null : n;
+}
+
+// Convierte string a número con fallback 0 (para acumuladores)
+function toNum0(v){ return toNum(v) ?? 0; }
+
+// Devuelve el valor o el placeholder "—"
+function safe(v){
+  if(v===null||v===undefined||v==="") return "—";
+  return v;
+}
+
+// Formatea fecha YYYY-MM-DD (o Date) a DD/MM/YYYY
+function fmtFecha(v){
+  if(!v) return "—";
+  if(v instanceof Date && !isNaN(v)) {
+    return String(v.getDate()).padStart(2,'0')+'/'+String(v.getMonth()+1).padStart(2,'0')+'/'+v.getFullYear();
+  }
+  const s = String(v).trim();
+  // Si ya viene DD/MM/YYYY
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+  // Si viene YYYY-MM-DD
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m) return `${m[3]}/${m[2]}/${m[1]}`;
+  return s;
+}
+
+// Días entre dos fechas (YYYY-MM-DD o DD/MM/YYYY)
+function diasEntre(desde, hasta){
+  function toDate(s){
+    if(!s) return null;
+    if(s instanceof Date) return s;
+    const str = String(s).trim();
+    const mISO = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(mISO) return new Date(+mISO[1], +mISO[2]-1, +mISO[3]);
+    const mDMY = str.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    if(mDMY) return new Date(+mDMY[3], +mDMY[2]-1, +mDMY[1]);
+    return null;
+  }
+  const d1 = toDate(desde), d2 = toDate(hasta);
+  if(!d1 || !d2) return null;
+  return Math.round((d2-d1)/(1000*60*60*24));
+}
+
+// Warning consistente al console
+function logWarn(hoja, msg){
+  console.warn(`[E140] Hoja ${hoja}: ${msg}`);
+}
+
+// Fetch con timeout y reintento simple
+async function fetchCSV(url, hojaName, timeoutMs=15000){
+  if(!url || !url.trim()) throw new Error(`URL vacía para ${hojaName}`);
+  const controller = new AbortController();
+  const tid = setTimeout(()=>controller.abort(), timeoutMs);
+  try{
+    const r = await fetch(url, {signal: controller.signal, cache:'no-store'});
+    clearTimeout(tid);
+    if(!r.ok) throw new Error(`HTTP ${r.status} en ${hojaName}`);
+    return await r.text();
+  } catch(e){
+    clearTimeout(tid);
+    throw e;
+  }
+}
+
+// Parsea CSV a array de objetos. Devuelve [] si falla.
+function parseCSV(csv, hojaName){
+  try{
+    const res = Papa.parse(csv, {header:true, dynamicTyping:true, skipEmptyLines:true, transformHeader: h=>String(h).trim()});
+    if(res.errors && res.errors.length){
+      res.errors.slice(0,3).forEach(e=>logWarn(hojaName, `parse warning: ${e.message} (fila ${e.row})`));
+    }
+    return res.data.filter(row => {
+      // Filtrar filas totalmente vacías
+      return Object.values(row).some(v=>v!==null && v!==undefined && v!=="");
+    });
+  } catch(e){
+    logWarn(hojaName, `parse error: ${e.message}`);
+    return [];
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   TRANSFORMACIÓN DE CSV → objeto DATA.weeks[...] consumible por el UI
+   ═══════════════════════════════════════════════════════════════════ */
+
+function buildDataFromSheets(raw){
+  // raw = { CONFIG:[], SEMANAS:[], KPIS:[], AVANCE_FISICO:[], ... }
+  const data = { currentWeek: null, weeks: {} };
+  const warnings = [];
+
+  // ── CONFIG ─────────────────────────────────────────
+  const config = {};
+  (raw.CONFIG || []).forEach(r=>{
+    if(r.campo && r.valor !== undefined && r.valor !== null) config[r.campo] = r.valor;
+  });
+  data.config = config;
+
+  // Actualizar constantes si vienen
+  if(config.plazo_dias) CONSTANTES.plazoDias = toNum(config.plazo_dias) ?? CONSTANTES.plazoDias;
+  if(config.inicio) CONSTANTES.fechaInicio = fmtFecha(config.inicio);
+
+  // ── SEMANAS ────────────────────────────────────────
+  const semanas = (raw.SEMANAS || []).filter(r => r.semana);
+  if(!semanas.length){
+    warnings.push("Hoja SEMANAS vacía — no hay semanas cargables");
+    return { data, warnings };
+  }
+
+  // Ordenar semanas por fecha de corte desc (más reciente primero)
+  semanas.sort((a,b)=>{
+    const da = new Date(a.corte_fecha || 0);
+    const db = new Date(b.corte_fecha || 0);
+    return db - da;
+  });
+
+  const weeksOrder = [];
+  semanas.forEach(s=>{
+    const key = String(s.semana).trim();
+    const estado = String(s.estado||'cerrada').toLowerCase().trim();
+    const corteStr = fmtFecha(s.corte_fecha);
+    const numMatch = key.match(/\d+/);
+    const semNum = numMatch ? parseInt(numMatch[0]) : 0;
+    const dTrans = diasEntre(CONSTANTES.fechaInicio, s.corte_fecha);
+    data.weeks[key] = {
+      corte: corteStr,
+      semNum,
+      estado,
+      notas: s.notas || "",
+      diasTranscurridos: dTrans ?? 0,
+      // Estructuras vacías con fallbacks (se rellenan abajo)
+      resumenEjecutivo: [],
+      kpis: {contratacionPct:null, moPct:null, utilRentPct:null, personal:null, adicionales:null, rentMOPct:null},
+      avanceFisico: {partidas:[], frentes:[]},
+      personal: {evolucion:{labels:[],data:[]}, hhPrestamo:{TI:0,HMT:0,BL:0,GPLF:0,VT:0,TOTAL:0,serie:{labels:[],TI:[],HMT:[],BL:[],GPLF:[],VT:[]}}, dimensionamiento:[], encofradoCuadrilla:{labels:[],meta:[],aprobada:[],actual:[]}, dotacion:null},
+      mo: {acumulado:null, porcAcumulado:null, saldo:null, mensual:{labels:[],data:[],pct:[]}, stats:{ahorroMeta:null,rentProyPct:null,semActual:"",promUltimas:""}, cuadrillas:[]},
+      adquisiciones: {subheader:"Fuente: <b>03 · Cuadro de adquisiciones</b>", porEspecialidad:{labels:[],contratado:[],margenPct:[]}, etapas:{labels:['SAME','COMP','CONTRATO','NETLOG','OC','IMPL. OBRA','SEGUIM.','CIERRE'], data:[0,0,0,0,0,0,0,0]}, tipo:{suministros:0,subcontratos:0,cntSum:0,cntSc:0}, responsables:[], rentabilidad:[], facturacion: CONSTANTES.costoDirecto},
+      encofrado: {ingresos:{labels:[],data:[]}, composicion:[], nota:""},
+      adicionales: {subheader:"Fuente: <b>10 · Status de Adicionales y Deductivos</b>", porEspecialidad:{labels:[],data:[]}, top:[]},
+      cronograma: {minis:[]},
+      fotos: [],
+      alertas: [],
+      _incompleta: false
+    };
+    weeksOrder.push(key);
+  });
+
+  // ── KPIS ───────────────────────────────────────────
+  const kpiMap = {
+    'contratacion':'contratacionPct',
+    'avance_contratacion':'contratacionPct',
+    'mo_pct':'moPct',
+    'mo_acumulada_pct':'moPct',
+    'util_rent':'utilRentPct',
+    'util_rent_total':'utilRentPct',
+    'personal':'personal',
+    'personal_obra':'personal',
+    'adicionales':'adicionales',
+    'rent_mo':'rentMOPct',
+    'rent_mo_proy':'rentMOPct',
+    'costo_directo':'costoDirecto'
+  };
+  (raw.KPIS || []).forEach(r=>{
+    if(!r.semana || !r.kpi_id) return;
+    const sem = String(r.semana).trim();
+    const kid = String(r.kpi_id).trim().toLowerCase();
+    if(!data.weeks[sem]){ logWarn('KPIS',`semana ${sem} no existe en SEMANAS`); return; }
+    const target = kpiMap[kid];
+    if(target === 'costoDirecto'){
+      if(toNum(r.valor)) CONSTANTES.costoDirecto = toNum(r.valor);
+      return;
+    }
+    if(!target){ logWarn('KPIS',`kpi_id desconocido: ${kid}`); return; }
+    data.weeks[sem].kpis[target] = toNum(r.valor);
+  });
+
+  // ── AVANCE FÍSICO ──────────────────────────────────
+  (raw.AVANCE_FISICO || []).forEach(r=>{
+    if(!r.semana || !r.partida) return;
+    const sem = String(r.semana).trim();
+    if(!data.weeks[sem]) return;
+    data.weeks[sem].avanceFisico.partidas.push({
+      n: String(r.partida).trim(),
+      prog: toNum0(r.pct_programado),
+      real: toNum0(r.pct_real)
+    });
+  });
+
+  // ── FRENTES ────────────────────────────────────────
+  const estadoToStatus = {ok:'ok', cerrando:'ok', terminado:'ok', ejecutando:'info', inicia:'info', atrasado:'bad'};
+  const estadoToLabel  = {ok:'En meta', cerrando:'Cerrando', terminado:'Terminado', ejecutando:'En ejecución', inicia:'Inicia pronto', atrasado:'Atrasado'};
+  (raw.FRENTES || []).forEach(r=>{
+    if(!r.semana || !r.frente) return;
+    const sem = String(r.semana).trim();
+    if(!data.weeks[sem]) return;
+    const est = String(r.estado||'ejecutando').toLowerCase().trim();
+    data.weeks[sem].avanceFisico.frentes.push({
+      n: String(r.frente).trim(),
+      pct: toNum0(r.pct),
+      status: estadoToStatus[est] || 'info',
+      label: estadoToLabel[est] || est,
+      nota: r.comentario || ""
+    });
+  });
+
+  // ── PERSONAL ───────────────────────────────────────
+  (raw.PERSONAL || []).forEach(r=>{
+    if(!r.semana) return;
+    const sem = String(r.semana).trim();
+    if(!data.weeks[sem]) return;
+    const w = data.weeks[sem];
+    w.personal.dotacion = toNum(r.dotacion_actual);
+    const metaGer = toNum(r.meta_dimension_ger);
+    const metaCampo = toNum(r.meta_dimension_campo);
+    if(metaGer!==null && metaCampo!==null){
+      w.personal.dimensionamiento = [
+        {n:"Subestructura", ger:40, campo:40},
+        {n:"Superestructura", ger:metaGer, campo:metaCampo},
+        {n:"Total meta", ger:40+metaGer, campo:40+metaCampo, total:true},
+        {n:"Actual (obra)", actual: w.personal.dotacion ?? 0, warn:(w.personal.dotacion ?? 0)-(40+metaCampo)}
+      ];
+    }
+    // Meta dimensionamiento (para comparativo) toma el campo si existe
+    if(metaCampo) CONSTANTES.metaDimensionamiento = metaCampo;
+  });
+
+  // ── MO (Mano de Obra) ──────────────────────────────
+  const moBySem = {};
+  (raw.MO || []).forEach(r=>{
+    if(!r.semana || !r.cuadrilla) return;
+    const sem = String(r.semana).trim();
+    if(!data.weeks[sem]) return;
+    if(!moBySem[sem]) moBySem[sem] = [];
+    moBySem[sem].push({
+      n: String(r.cuadrilla).trim(),
+      base: toNum0(r.mo_base),
+      meta: toNum0(r.mo_meta),
+      real: toNum0(r.mo_real),
+      saldo: toNum0(r.saldo),
+      rent: toNum0(r.rent_pct),
+      ahorro: toNum0(r.mo_base) - toNum0(r.mo_meta),
+      incid: 0  // se calcula luego
+    });
+  });
+  Object.keys(moBySem).forEach(sem=>{
+    const lista = moBySem[sem];
+    const w = data.weeks[sem];
+    const totReal = lista.reduce((s,c)=>s+c.real,0);
+    lista.forEach(c=>{ c.incid = totReal>0 ? (c.real/totReal*100) : 0; });
+    w.mo.cuadrillas = lista;
+    w.mo.acumulado = totReal;
+    w.mo.saldo = lista.reduce((s,c)=>s+c.saldo,0);
+    w.mo.porcAcumulado = CONSTANTES.moBaseTotal>0 ? (totReal/CONSTANTES.moBaseTotal*100) : 0;
+    const totAhorro = lista.reduce((s,c)=>s+c.ahorro,0);
+    const totMeta = lista.reduce((s,c)=>s+c.meta,0);
+    w.mo.stats.ahorroMeta = totAhorro;
+    w.mo.stats.rentProyPct = totMeta>0 ? (totAhorro/totMeta*100) : 0;
+  });
+
+  // ── ADQUISICIONES ──────────────────────────────────
+  const adqBySem = {};
+  (raw.ADQUISICIONES || []).forEach(r=>{
+    if(!r.semana || !r.especialidad) return;
+    const sem = String(r.semana).trim();
+    if(!data.weeks[sem]) return;
+    if(!adqBySem[sem]) adqBySem[sem] = {labels:[], contratado:[], margenPct:[], items:0, totContrat:0};
+    adqBySem[sem].labels.push(String(r.especialidad).trim());
+    adqBySem[sem].contratado.push(toNum0(r.contratado));
+    adqBySem[sem].margenPct.push(toNum0(r.margen_pct));
+    adqBySem[sem].items += toNum0(r.items);
+    adqBySem[sem].totContrat += toNum0(r.contratado);
+  });
+  Object.keys(adqBySem).forEach(sem=>{
+    const a = adqBySem[sem];
+    const w = data.weeks[sem];
+    w.adquisiciones.porEspecialidad = {labels:a.labels, contratado:a.contratado, margenPct:a.margenPct};
+    const margenTot = a.contratado.reduce((s,v,i)=>s+v*(a.margenPct[i]||0)/100, 0);
+    w.adquisiciones.subheader = `Fuente: <b>03 · Cuadro de adquisiciones</b> — ${a.items||a.labels.length} ítems · S/ ${(a.totContrat/1e6).toFixed(2)} M contratado · Margen S/ ${(margenTot/1e6).toFixed(2)} M (${a.totContrat>0?(margenTot/a.totContrat*100).toFixed(1):'0'}%)`;
+  });
+
+  // ── ADICIONALES ────────────────────────────────────
+  const adicBySem = {};
+  (raw.ADICIONALES || []).forEach(r=>{
+    if(!r.semana) return;
+    const sem = String(r.semana).trim();
+    if(!data.weeks[sem]) return;
+    if(!adicBySem[sem]) adicBySem[sem] = [];
+    adicBySem[sem].push({
+      num: r.n || "",
+      desc: String(r.descripcion||"").trim(),
+      esp: String(r.especialidad||"").trim(),
+      monto: toNum0(r.monto)
+    });
+  });
+  Object.keys(adicBySem).forEach(sem=>{
+    const lista = adicBySem[sem].sort((a,b)=>b.monto-a.monto);
+    const w = data.weeks[sem];
+    const tot = lista.reduce((s,a)=>s+a.monto,0);
+    // Top 6 + resto + total
+    const top = lista.slice(0,6);
+    if(top.length && top[0].monto > tot*0.5) top[0].highlight = true;
+    const subtotal = top.reduce((s,a)=>s+a.monto,0);
+    const resto = tot - subtotal;
+    const rows = [...top];
+    if(lista.length > 6){
+      rows.push({num:"", desc:`Subtotal Top ${top.length}`, esp:"", monto:subtotal, subtotal:true});
+      rows.push({num:"", desc:`Otros ${lista.length-6} adicionales`, esp:"", monto:resto});
+    }
+    rows.push({num:"", desc:`TOTAL ADICIONALES (${lista.length})`, esp:"", monto:tot, total:true});
+    w.adicionales.top = rows;
+
+    // Por especialidad
+    const byEsp = {};
+    lista.forEach(a=>{ if(a.esp){ byEsp[a.esp] = (byEsp[a.esp]||0) + a.monto; } });
+    const labs = Object.keys(byEsp);
+    w.adicionales.porEspecialidad = {labels: labs, data: labs.map(l=>byEsp[l])};
+    w.adicionales.subheader = `Fuente: <b>10 · Status de Adicionales y Deductivos</b> — ${lista.length} ítems aprobados · Total S/ ${(tot/1000).toFixed(0)}K`;
+
+    // Sincronizar KPI de adicionales si no vino
+    if(w.kpis.adicionales === null) w.kpis.adicionales = tot;
+  });
+
+  // ── RESUMEN BULLETS ────────────────────────────────
+  (raw.RESUMEN_BULLETS || []).forEach(r=>{
+    if(!r.semana || !r.texto) return;
+    const sem = String(r.semana).trim();
+    if(!data.weeks[sem]) return;
+    const col = String(r.color||'blue').toLowerCase();
+    data.weeks[sem].resumenEjecutivo.push({
+      color: col,
+      text: String(r.texto),
+      orden: toNum(r.orden) ?? 99
+    });
+  });
+  // Ordenar y construir alertas (top 3 del resumen)
+  Object.keys(data.weeks).forEach(sem=>{
+    const w = data.weeks[sem];
+    w.resumenEjecutivo.sort((a,b)=>(a.orden||99)-(b.orden||99));
+    // Alertas de la vista RESUMEN: 1 red, 1 orange/yellow, 1 green (si existen)
+    const sevMap = {red:'red', orange:'yellow', blue:'yellow', green:'green'};
+    const sevIco = {red:'⚠', yellow:'⚡', green:'✓'};
+    const sevTit = {red:'ALERTA', yellow:'OBSERVACIÓN', green:'DESTACADO'};
+    const picked = {red:null, yellow:null, green:null};
+    w.resumenEjecutivo.forEach(b=>{
+      const sev = sevMap[b.color] || 'yellow';
+      if(!picked[sev]){
+        // Extraer el primer dato numérico destacado en negrita si hay
+        const numMatch = b.text.match(/<b>([^<]+)<\/b>/);
+        const textPlain = b.text.replace(/<[^>]+>/g,'');
+        picked[sev] = {
+          sev,
+          icon: sevIco[sev],
+          titulo: sevTit[sev],
+          texto: textPlain.length>90 ? textPlain.slice(0,88)+"…" : textPlain,
+          num: numMatch ? numMatch[1] : ""
+        };
+      }
+    });
+    w.alertas = [picked.red, picked.yellow, picked.green].filter(x=>x);
+    // Si no hay alertas, mensaje neutro
+    if(!w.alertas.length){
+      w.alertas = [{sev:'green', icon:'ℹ', titulo:'SIN ALERTAS', texto:'No se registraron observaciones esta semana', num:''}];
+    }
+  });
+
+  // ── FOTOS ──────────────────────────────────────────
+  (raw.FOTOS || []).forEach(r=>{
+    if(!r.semana || !r.titulo) return;
+    const sem = String(r.semana).trim();
+    if(!data.weeks[sem]) return;
+    data.weeks[sem].fotos.push({
+      n: toNum(r.orden) ?? (data.weeks[sem].fotos.length+1),
+      desc: String(r.titulo).trim(),
+      url: r.url_foto || "",
+      color: "#509BC9"
+    });
+  });
+  Object.keys(data.weeks).forEach(sem=>{
+    data.weeks[sem].fotos.sort((a,b)=>(a.n||99)-(b.n||99));
+  });
+
+  // ── DETECTAR SEMANAS INCOMPLETAS ───────────────────
+  Object.keys(data.weeks).forEach(sem=>{
+    const w = data.weeks[sem];
+    const incomp = (
+      !w.avanceFisico.partidas.length ||
+      !w.kpis.contratacionPct ||
+      !w.resumenEjecutivo.length
+    );
+    if(incomp) w._incompleta = true;
+    if(w.estado === 'en_carga' || w.estado === 'incompleta') w._incompleta = true;
+  });
+
+  // ── DETERMINAR SEMANA DEFAULT ──────────────────────
+  let def = config.semana_default;
+  if(!def || !data.weeks[def]){
+    // Buscar la semana con estado "actual"
+    const actual = semanas.find(s => String(s.estado||'').toLowerCase() === 'actual');
+    def = actual ? String(actual.semana).trim() : weeksOrder[0];
+  }
+  data.currentWeek = def;
+  data.order = weeksOrder;
+
+  return { data, warnings };
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   ORQUESTADOR DE CARGA: fetch + parse + build
+   ═══════════════════════════════════════════════════════════════════ */
+
+const HOJAS = Object.keys(SHEET_URLS);
+const LS_KEY = "e140_dashboard_cache_v1";
+
+async function loadFromSheets(){
+  setLoadingProgress("Conectando a Google Sheets…", 0);
+  const raw = {};
+  const errors = {};
+  let okCount = 0;
+
+  // Fetch en paralelo
+  const tasks = HOJAS.map(async (hoja)=>{
+    const url = SHEET_URLS[hoja];
+    if(!url || !url.trim()){ raw[hoja] = []; errors[hoja] = "URL no configurada"; return; }
+    try{
+      const csv = await fetchCSV(url, hoja);
+      raw[hoja] = parseCSV(csv, hoja);
+      okCount++;
+      setLoadingProgress(`✓ ${hoja} (${raw[hoja].length} filas)`, okCount);
+    } catch(e){
+      raw[hoja] = [];
+      errors[hoja] = e.message || "error";
+      setLoadingProgress(`✗ ${hoja} — ${e.message}`, okCount, true);
+    }
+  });
+  await Promise.all(tasks);
+
+  // Construir DATA
+  const { data, warnings } = buildDataFromSheets(raw);
+
+  // Validar que al menos haya una semana cargable
+  if(!data.currentWeek || !Object.keys(data.weeks).length){
+    const err = new Error("No se pudo construir ninguna semana desde el Sheet.");
+    err.sheetErrors = errors;
+    throw err;
+  }
+
+  // Guardar en localStorage como cache
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      data, errors, warnings,
+      ts: new Date().toISOString(),
+      constantes: CONSTANTES
+    }));
+  } catch(e){ logWarn('cache', `no se pudo guardar: ${e.message}`); }
+
+  return { data, errors, warnings };
+}
+
+function setLoadingProgress(msg, okN, isErr=false){
+  const el = document.getElementById('loadingProgress');
+  if(!el) return;
+  const tot = HOJAS.filter(h=>SHEET_URLS[h]).length || 0;
+  const cls = isErr ? 'err' : (okN>0 ? 'ok' : '');
+  el.innerHTML = `<span class="${cls}">${msg}</span>${tot?`<br><span style="opacity:.6">${okN}/${tot} hojas</span>`:''}`;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   UI: loading, modal, banners, sync footer
+   ═══════════════════════════════════════════════════════════════════ */
+
+function hideLoading(){
+  const el = document.getElementById('loadingOverlay');
+  el.classList.add('hidden');
+  setTimeout(()=>{ el.style.display='none'; }, 450);
+}
+function showLoading(){
+  const el = document.getElementById('loadingOverlay');
+  el.style.display='flex';
+  el.classList.remove('hidden');
+}
+function showModalError(text){
+  if(text) document.getElementById('modalErrorText').textContent = text;
+  document.getElementById('modalError').classList.add('open');
+}
+function hideModalError(){
+  document.getElementById('modalError').classList.remove('open');
+}
+
+function showBanner(kind, html, autoHide=false){
+  const zone = document.getElementById('bannerZone');
+  const b = document.createElement('div');
+  b.className = 'sync-banner '+kind;
+  const icoMap = {ok:'✓', err:'✗', warn:'⚠'};
+  b.innerHTML = `<span class="banner-ico">${icoMap[kind]||'•'}</span><span>${html}</span><button class="banner-close" onclick="this.parentElement.remove()">✕</button>`;
+  zone.appendChild(b);
+  if(autoHide){ setTimeout(()=>b.remove(), 6000); }
+}
+function clearBanners(){
+  document.getElementById('bannerZone').innerHTML = '';
+}
+
+function setSyncState(kind, text, detail){
+  const dot = document.getElementById('syncDot');
+  dot.className = 'sync-dot'+(kind==='err'?' err':kind==='warn'?' warn':kind==='offline'?' offline':'');
+  document.getElementById('syncState').textContent = text;
+  if(detail) document.getElementById('syncDetail').textContent = detail;
+}
+
+function toggleHelp(){
+  document.getElementById('helpPanel').classList.toggle('open');
+  document.getElementById('helpOverlay').classList.toggle('open');
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   APLICAR CONFIG DEL SHEET AL UI (project bar, sidebar, etc.)
+   ═══════════════════════════════════════════════════════════════════ */
+
+function applyConfigToUI(cfg){
+  if(!cfg) return;
+  const setIf = (id,v)=>{ const el=document.getElementById(id); if(el && v!==undefined && v!==null && v!=="") el.textContent = v; };
+  setIf('pbCliente', cfg.cliente);
+  setIf('pbDireccion', cfg.direccion);
+  setIf('pbNiveles', cfg.niveles);
+  if(cfg.area_techada) setIf('pbArea', Number(toNum(cfg.area_techada)||0).toLocaleString('es-PE',{maximumFractionDigits:2})+' m²');
+  if(cfg.dptos && cfg.estac) setIf('pbDptosEstac', `${cfg.dptos} / ${cfg.estac}`);
+  if(cfg.inicio && cfg.plazo_dias) setIf('pbInicio', `${fmtFecha(cfg.inicio)} · ${cfg.plazo_dias} d`);
+  setIf('sbResidente', cfg.residente);
+  setIf('sbCliente', cfg.cliente);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   ACCIONES: refresh, retry, usar demo
+   ═══════════════════════════════════════════════════════════════════ */
+
+let LAST_SYNC = null;
+let MODE = 'unknown'; // 'live' | 'demo' | 'cache' | 'offline'
+
+async function initDashboard(){
+  if(!hasSheetUrls()){
+    // No hay URLs: ir directo a demo (con banner avisando)
+    console.info('[E140] Sin URLs de Google Sheets configuradas. Usando DEMO_DATA.');
+    useDemoData(true);
+    return;
+  }
+  try{
+    const { data, errors, warnings } = await loadFromSheets();
+    applyDataToGlobal(data);
+    MODE = 'live';
+    LAST_SYNC = new Date();
+    hideLoading();
+    // Banners para errores parciales por hoja
+    const failedHojas = Object.keys(errors).filter(h=>SHEET_URLS[h] && errors[h]);
+    if(failedHojas.length){
+      showBanner('warn', `No se pudieron cargar ${failedHojas.length} hoja(s): <b>${failedHojas.join(', ')}</b>. El resto del dashboard funciona con los datos disponibles.`);
+    }
+    if(warnings.length){
+      warnings.forEach(w=>showBanner('warn', w));
+    }
+    setSyncState('ok', `Datos actualizados`, `Última sync: ${LAST_SYNC.toLocaleTimeString('es-PE')} · Modo en vivo`);
+    populateWeekSelector();
+    renderCurrentWeek();
+  } catch(e){
+    console.error('[E140] Error crítico cargando Sheet:', e);
+    // Intentar cache
+    const cached = loadFromCache();
+    if(cached){
+      applyDataToGlobal(cached.data);
+      MODE = 'cache';
+      LAST_SYNC = new Date(cached.ts);
+      hideLoading();
+      showBanner('warn', `📡 <b>Modo offline</b>. Mostrando datos cacheados del ${LAST_SYNC.toLocaleString('es-PE')}.`);
+      setSyncState('warn', 'Offline (cache)', `Cache del ${LAST_SYNC.toLocaleString('es-PE')}`);
+      populateWeekSelector();
+      renderCurrentWeek();
+    } else {
+      hideLoading();
+      showModalError(`${e.message||'Error desconocido'}`);
+      setSyncState('err', 'Sin conexión', 'No se pudo cargar el Sheet');
+    }
+  }
+}
+
+function loadFromCache(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return null;
+    const parsed = JSON.parse(raw);
+    if(parsed.constantes) Object.assign(CONSTANTES, parsed.constantes);
+    return parsed;
+  } catch(e){ return null; }
+}
+
+function applyDataToGlobal(d){
+  DATA.currentWeek = d.currentWeek;
+  DATA.weeks = d.weeks;
+  WEEKS_ORDER.length = 0;
+  (d.order || Object.keys(d.weeks)).forEach(k=>WEEKS_ORDER.push(k));
+  if(d.config) applyConfigToUI(d.config);
+}
+
+async function refreshData(){
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  btn.classList.add('spinning');
+  clearBanners();
+  setSyncState('warn', 'Sincronizando…', 'Reconsultando Google Sheets');
+  try{
+    if(!hasSheetUrls()){
+      showBanner('warn', 'No hay URLs de Google Sheets configuradas. Configura <code>SHEET_URLS</code> en el HTML para activar el modo en vivo.');
+      btn.disabled = false;
+      btn.classList.remove('spinning');
+      return;
+    }
+    const { data, errors, warnings } = await loadFromSheets();
+    applyDataToGlobal(data);
+    MODE = 'live';
+    LAST_SYNC = new Date();
+    const failedHojas = Object.keys(errors).filter(h=>SHEET_URLS[h] && errors[h]);
+    if(failedHojas.length){
+      showBanner('warn', `No se pudieron cargar: <b>${failedHojas.join(', ')}</b>.`);
+    } else {
+      showBanner('ok', `Datos actualizados · ${LAST_SYNC.toLocaleTimeString('es-PE')}`, true);
+    }
+    setSyncState('ok', `Datos actualizados`, `Última sync: ${LAST_SYNC.toLocaleTimeString('es-PE')} · Modo en vivo`);
+    populateWeekSelector();
+    renderCurrentWeek();
+  } catch(e){
+    showBanner('err', `Error al actualizar: ${e.message||'desconocido'}`);
+    setSyncState('err', 'Error de sync', e.message || '');
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('spinning');
+  }
+}
+
+function retryFetch(){
+  hideModalError();
+  showLoading();
+  setLoadingProgress("Reintentando…", 0);
+  initDashboard();
+}
+
+function useDemoData(silent=false){
+  hideModalError();
+  applyDataToGlobal({currentWeek: DEMO_DATA.currentWeek, weeks: DEMO_DATA.weeks, order: DEMO_ORDER});
+  MODE = 'demo';
+  hideLoading();
+  if(!silent){
+    showBanner('warn', '🧪 <b>Modo DEMO</b>. Estás viendo datos de ejemplo (Sem 35 + Sem 36). Configura <code>SHEET_URLS</code> para conectar tu Google Sheet.');
+  } else {
+    showBanner('warn', '🧪 <b>Modo DEMO</b>. No hay URLs de Google Sheets configuradas. Configura <code>SHEET_URLS</code> al inicio del HTML para activar la carga en vivo. Mientras tanto, se muestran datos de ejemplo.');
+  }
+  setSyncState('warn', 'Modo demo', 'Datos hardcodeados (Sem 35 + Sem 36)');
+  populateWeekSelector();
+  renderCurrentWeek();
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   MODELO DE DATOS — DATA se llena en runtime desde Sheet o desde DEMO_DATA
+   ═══════════════════════════════════════════════════════════════════ */
+
+const DATA = { currentWeek: null, weeks: {} };
+const WEEKS_ORDER = [];
+
+/* ═══════════════════════════════════════════════════════════════════
+   DATOS DEMO (fallback si no hay Sheet configurado)
+   Son los mismos datos de la Sem 35 + Sem 36 del dashboard v2.
+   ═══════════════════════════════════════════════════════════════════ */
+
+const DEMO_DATA = {
+  currentWeek: "S36",
+
+  weeks: {
+
+    /* ══════════════════════════════════════════
+       SEMANA 36 — DATOS REALES (corte 18/04/2026)
+       ══════════════════════════════════════════ */
+    "S36": {
+      corte: "18/04/2026",
+      semNum: 36,
+      diasTranscurridos: 250,
+
+      resumenEjecutivo: [
+        {color:"green", text:"Proyecto en <b>ejecución conforme a plazo</b>. Fase de sótanos (casco) cerrando partidas al 100% (verticales y losas). Superiores inicia <b>Sem 37</b>. Albañilería en sótanos avanza al <b>18.5%</b>."},
+        {color:"blue", text:"MO acumulada: <b>S/ 1,261,048 (19.1% del presupuesto MO F1+F2)</b>. Saldo MO: <b>S/ 5,350,399 (80.9%)</b>. Rentabilidad proyectada total: <b>+33.4%</b>."},
+        {color:"blue", text:"Contratación: <b>60.1% de avance</b> (79 ítems), margen de adquisiciones <b>S/ 2,621,904 (16.5%)</b>, rentabilidad total estimada <b>16.4%</b>."},
+        {color:"orange", text:"<b>Alerta Cuadrillas</b>: VIGÍAS (-136%), ALMACENERO (-25%), RIGGERS (-10%) excedidos. <b>IIEE</b> rentabilidad negativa (-19.9%)."},
+        {color:"green", text:"Adicionales aprobados: <b>20 ítems por S/ 894,602</b> (3.3% del CD). 4 optimizaciones por S/ -18,288. 0 deductivos."},
+        {color:"blue", text:"Personal actual: <b>75 trabajadores</b> (pico histórico). Dimensionamiento meta: 46 pax."}
+      ],
+
+      kpis: {
+        contratacionPct: 60.1,
+        moPct: 19.1,
+        utilRentPct: 16.4,
+        personal: 75,
+        adicionales: 894602,    // S/
+        rentMOPct: 33.4
+      },
+
+      // § 1 Avance físico
+      avanceFisico: {
+        partidas: [
+          {n:'SOT · Vert-Acero', prog:100, real:100},
+          {n:'SOT · Vert-Concreto', prog:100, real:100},
+          {n:'SOT · Vigas Enc+Acero', prog:100, real:92.3},
+          {n:'SOT · Losa Encof+Acero', prog:100, real:100},
+          {n:'SOT · Losa Concreto', prog:100, real:100},
+          {n:'SUP · Vert-Acero', prog:0, real:0},
+          {n:'SUP · Vert-Concreto', prog:0, real:0},
+          {n:'SUP · Vigas', prog:0, real:0},
+          {n:'SUP · Losa Enc', prog:0, real:0},
+          {n:'SUP · Losa Conc', prog:0, real:0},
+          {n:'ALB · Habilitado Solaqueo', prog:18.5, real:18.5},
+          {n:'ALB · Solaqueo', prog:18.5, real:18.5}
+        ],
+        frentes: [
+          {n:"CASCO SÓTANOS", pct:100, status:"ok", label:"Cerrando", nota:"Verticales + Losas al 100%. Vigas 92%. Fecha cierre prog. 11/04/26."},
+          {n:"CASCO SUPERIORES", pct:0, status:"info", label:"Inicia Sem 37", nota:"68 sectores (16 pisos + azotea). Plazo: Sem 37 a Sem 48 (12 sem)."},
+          {n:"ALBAÑILERÍA", pct:18.5, status:"info", label:"En ejecución", nota:"Habilitado y Solaqueo al 18.5%. Avance semanal sostenido."},
+          {n:"MUROS ANCLADOS / EXCAV.", pct:100, status:"ok", label:"Terminado", nota:"Cerrado en F1. Partidas de anclaje y mov. tierras finalizadas."}
+        ]
+      },
+
+      // § 2 Personal
+      personal: {
+        evolucion: {   // evolución semanal para gráfico 03
+          labels: ['S33','S34','S35','S36','S01','S05','S09','S13','Actual'],
+          data:   [11,19,20,23,31,49,51,46,75]
+        },
+        hhPrestamo: {
+          TI:3515, HMT:2177, BL:870, GPLF:742, VT:265, TOTAL:7569,
+          serie: {
+            labels:['S30','S31','S32','S33','S34','S35'],
+            TI:[151.5,705,1047.5,994,617,323],
+            HMT:[126,398,547.5,618,487.5,357],
+            BL:[357.5,495.5,17,0,0,0],
+            GPLF:[0,112.5,234.5,240,155,0],
+            VT:[25,206,34,0,0,0]
+          }
+        },
+        dimensionamiento: [
+          {n:"Subestructura", ger:40, campo:40},
+          {n:"Superestructura", ger:46, campo:46},
+          {n:"Total meta", ger:86, campo:86, total:true},
+          {n:"Actual (obra)", actual:75, warn:-11}
+        ],
+        encofradoCuadrilla: {
+          labels:['Capataz','Verticales','Vigas Fondo','Vigas Lat.','Losas Fondo','Frizos','Escalera','Cajones'],
+          meta:       [1,5,3,0,8,3,2,12],
+          aprobada:   [1,5,3,2,6,2,2,0],
+          actual:     [1,6,4,2,6,4,2,0]
+        },
+        dotacion: 75
+      },
+
+      // § 3 Mano de obra
+      mo: {
+        acumulado: 1261048,
+        porcAcumulado: 19.1,
+        saldo: 5350399,
+        mensual: {
+          labels:['AGO-25','SEP-25','OCT-25','NOV-25','DIC-25','ENE-26','FEB-26','MAR-26'],
+          data:  [50964,117460,157341,136534,145343,211461,224488,214126],
+          pct:   [0.77,2.55,4.93,6.99,9.19,12.39,15.78,19.07]
+        },
+        stats: {
+          ahorroMeta: 355094,
+          rentProyPct: 33.4,
+          semActual: "Semana 13 (Marzo): 46 trab. · S/ 49,508",
+          promUltimas: "Promedio últimas 4 sem: 50 trab. · S/ 53,532/sem"
+        },
+        cuadrillas: [
+          {n:'CONCRETO',rent:16.88,saldo:236023,base:479526,meta:422632,ahorro:56894,real:186609,incid:15.42},
+          {n:'ENCOFRADO',rent:7.59,saldo:517107,base:899964,meta:857678,ahorro:42286,real:340571,incid:28.13},
+          {n:'ACERO',rent:8.77,saldo:362289,base:832140,meta:631156,ahorro:200985,real:268867,incid:22.21},
+          {n:'MAESTRO CASCO',rent:14.46,saldo:42587,base:93960,meta:84564,ahorro:9396,real:41977,incid:3.47},
+          {n:'TOPÓGRAFO',rent:3.37,saldo:76115,base:169345,meta:152411,ahorro:16935,real:76296,incid:6.30},
+          {n:'VIGÍAS',rent:-136.23,saldo:-12037,base:58900,meta:53010,ahorro:5890,real:65047,incid:5.37},
+          {n:'ALMACENERO',rent:-25.50,saldo:17061,base:71145,meta:64031,ahorro:7115,real:46970,incid:3.88},
+          {n:'SEGURITOS',rent:13.42,saldo:66479,base:101900,meta:91710,ahorro:10190,real:25231,incid:2.08},
+          {n:'IISS',rent:9.82,saldo:372460,base:533172,meta:443662,ahorro:89510,real:71201,incid:5.88},
+          {n:'IIEE',rent:-19.93,saldo:463754,base:430559,meta:516370,ahorro:-85812,real:52617,incid:4.35},
+          {n:'RIGGERS',rent:-9.60,saldo:40351,base:83876,meta:75488,ahorro:8388,real:35137,incid:2.90}
+        ]
+      },
+
+      // § 4 Adquisiciones
+      adquisiciones: {
+        subheader: "Fuente: <b>03 · Cuadro de adquisiciones</b> — 74 ítems · S/ 13.27 M contratado · Margen S/ 2.62 M (16.5%)",
+        porEspecialidad: {
+          labels:['EST','ARQ','IIEE','IISS','IIGG','ACI','IIMM','DACI','COM','LEED'],
+          contratado:[5762924,4981863,836188,284978,145230,640800,297662,115032,119104,85502],
+          margenPct: [16.85,15.63,18.59,30.11,12.93,12.38,14.20,6.88,23.21,11.89]
+        },
+        etapas: {
+          labels:['SAME','COMP','CONTRATO','NETLOG','OC','IMPL. OBRA','SEGUIM.','CIERRE'],
+          data:  [51.4,68.9,40.5,44.6,25.7,13.5,0,0]
+        },
+        tipo: {
+          suministros: 10949392,
+          subcontratos: 2319888,
+          cntSum: 57,
+          cntSc: 17
+        },
+        responsables: [
+          {n:"MB", items:15, contract:2888886, contratado:2379264, margen:509622, partPct:18.2},
+          {n:"LF", items:5,  contract:1095284, contratado:1012093, margen:83191,  partPct:6.9},
+          {n:"DRS",items:33, contract:4809797, contratado:3969769, margen:840028, partPct:30.3},
+          {n:"JR", items:7,  contract:1229178, contratado:759358,  margen:469820, partPct:7.7},
+          {n:"JR/MB",items:16,contract:5868040,contratado:5148797, margen:719243, partPct:36.9},
+          {n:"TOTAL",items:76,contract:15891185,contratado:13269280,margen:2621904,partPct:100, total:true}
+        ],
+        rentabilidad: [
+          {lbl:"Utilidad Contractual", pct:6.50, monto:1718976, bg:"var(--alice-blue)", col:"var(--twitter-blue)"},
+          {lbl:"Rentabilidad Compras y S/C", pct:9.91, monto:2621904, bg:"#E6F4EE", col:"var(--green)"},
+          {lbl:"Entrega Anticipada", pct:0, monto:0, bg:"var(--alice-blue)", col:"var(--text-muted)", dim:true},
+          {lbl:"Ahorro MO", pct:0, monto:0, bg:"var(--alice-blue)", col:"var(--text-muted)", dim:true},
+          {lbl:"TOTAL Utilidad + Rentabilidad", pct:16.41, monto:4340881, bg:"var(--twitter-blue)", col:"var(--white)", total:true}
+        ],
+        facturacion: 26445788
+      },
+
+      // § 5 Encofrado
+      encofrado: {
+        ingresos: {
+          labels:['Ago-20','Sep-04','Sep-12','Sep-20','Sep-26','Oct-13','Oct-21','Nov-20','Dic-02','Dic-27','Ene-16','Ene-17','Ene-20','Ene-21','Ene-26'],
+          data:  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        },
+        composicion: [
+          {lbl:"Encofrado Casa (Propio)", val:"S/ 87,788 · 4,641 kg", cls:"v-blue", bg:"#E6EEF8"},
+          {lbl:"Consumibles Total", val:"S/ 10,257 · 19,663 u", cls:"v-ok", bg:"#E6F4EE"},
+          {lbl:"Unispan (Arrendado)", val:"S/ 33,178 (Comp.) · 2,339.68 m²", cls:"v-warn", bg:"#FEF3E8"}
+        ],
+        nota:"<b style='color:var(--text)'>Alcance arrend. F1:</b> Muro anclado 2,339.68 m² (encof+desenc) · S/ 32,685<br><b style='color:var(--text)'>Mensualidad Unispan:</b> escaleras y accesorios ~S/ 10,200/mes"
+      },
+
+      // § 6 Adicionales
+      adicionales: {
+        subheader: "Fuente: <b>10 · Status de Adicionales y Deductivos</b> — 20 Adicionales aprobados · 4 Optimizaciones · 0 Deductivos",
+        porEspecialidad: {
+          labels:['ARQ','EST','IISS','IIEE','IIMM','Provisionales'],
+          data:  [800817,53059,28805,1214,574,6731]
+        },
+        top: [
+          {num:11,desc:"Implementación áreas comunes",esp:"ARQ",monto:769740,highlight:true},
+          {num:12,desc:"Detalle vaciados entre diferentes resistencias",esp:"EST",monto:18362},
+          {num:7, desc:"Falsas zapatas por RFI 047 y 049",esp:"EST",monto:12664},
+          {num:3, desc:"Soporte para contenedor sala de ventas",esp:"ARQ",monto:11536},
+          {num:17,desc:"Modificación material en terrazas",esp:"ARQ",monto:10528},
+          {num:10,desc:"Redes enterradas IISS en sótano 5",esp:"IISS",monto:10604},
+          {num:16,desc:"En Rpta al RFI 053 Agua Tratada",esp:"IISS",monto:9495},
+          {num:"",desc:"Subtotal Top 7",esp:"",monto:842929, subtotal:true},
+          {num:"",desc:"Otros 13 adicionales",esp:"",monto:51673},
+          {num:"",desc:"TOTAL ADICIONALES (20)",esp:"",monto:894602, total:true}
+        ]
+      },
+
+      // § 7 Cronograma
+      cronograma: {
+        minis: [
+          {lbl:"Plazo total", val:"471 días", cls:"v-blue"},
+          {lbl:"Fecha inicio", val:"11/08/2025", cls:""},
+          {lbl:"Fecha reporte", val:"18/04/2026", cls:""},
+          {lbl:"Días transcurridos", val:"250 d (53.1%)", cls:"v-blue"},
+          {lbl:"Días restantes", val:"221 d (46.9%)", cls:"v-ok"},
+          {lbl:"Fase actual", val:"F2 · Cierre Sótanos", cls:"v-blue"}
+        ]
+      },
+
+      // § 8 Fotos
+      fotos: [
+        {n:1, desc:"Panorámica inicio de semana", color:"#509BC9"},
+        {n:2, desc:"Catreado doble altura Sector 1 Sót 1", color:"#509BC9"},
+        {n:3, desc:"Instalación de prelosas Sector 1", color:"#509BC9"},
+        {n:4, desc:"Vaciado Sector 1 Sót 1", color:"#509BC9"},
+        {n:5, desc:"Colocación acero verticales Piso 1", color:"#509BC9"},
+        {n:6, desc:"Inicio de partida albañilería", color:"#E07B39", badge:"Hito"},
+        {n:7, desc:"Solaqueo Sector 2 Sót 4", color:"#509BC9"},
+        {n:8, desc:"Habilitado Sector 3 Sót 4", color:"#509BC9"},
+        {n:9, desc:"Panorámica cierre semana — Albañilería", color:"#2D936C"},
+        {n:10,desc:"Panorámica cierre semana — Casco", color:"#2D936C"}
+      ],
+
+      // Alertas para la vista RESUMEN
+      alertas: [
+        {sev:"red", icon:"⚠", titulo:"CUADRILLAS EXCEDIDAS", texto:"Vigías, Almacenero y Riggers por encima de la meta", num:"-136% · -25% · -10%"},
+        {sev:"yellow", icon:"⚡", titulo:"IIEE RENTABILIDAD NEGATIVA", texto:"Mano de obra eléctrica supera el presupuesto meta", num:"-19.9%"},
+        {sev:"green", icon:"✓", titulo:"SÓTANOS CERRANDO AL 100%", texto:"Casco verticales + losas completadas en plazo", num:"100%"}
+      ]
+    },
+
+
+    /* ══════════════════════════════════════════
+       SEMANA 35 — DATOS SIMULADOS (ejemplo histórico)
+       Para demostrar el evolutivo. Rellenar con data real cuando esté.
+       ══════════════════════════════════════════ */
+    "S35": {
+      corte: "11/04/2026",
+      semNum: 35,
+      diasTranscurridos: 243,
+
+      resumenEjecutivo: [
+        {color:"green", text:"Sótanos (casco) avanzando según meta. Verticales al 96% y Losas al 95%. Preparación de arranque de superiores."},
+        {color:"blue", text:"MO acumulada: <b>S/ 1,211,540 (18.3%)</b>. Saldo MO: <b>S/ 5,399,907 (81.7%)</b>."},
+        {color:"blue", text:"Contratación: <b>57.8%</b> de avance. Ingresan 2 SC clave (albañilería y acabados iniciales)."},
+        {color:"orange", text:"<b>Alerta Cuadrillas</b>: VIGÍAS, ALMACENERO excedidos desde Sem 32. Se ajustó cuadrilla IIEE."},
+        {color:"green", text:"Adicionales aprobados acumulado: <b>S/ 873,500</b> (19 ítems). Se desestimó 1 adicional por RFI."},
+        {color:"blue", text:"Personal actual: <b>72 trabajadores</b>. Se incorporan 3 operarios de acero/encofrado."}
+      ],
+
+      kpis: {
+        contratacionPct: 57.8,
+        moPct: 18.3,
+        utilRentPct: 16.2,
+        personal: 72,
+        adicionales: 873500,
+        rentMOPct: 32.1
+      },
+
+      avanceFisico: {
+        partidas: [
+          {n:'SOT · Vert-Acero', prog:96, real:96},
+          {n:'SOT · Vert-Concreto', prog:96, real:96},
+          {n:'SOT · Vigas Enc+Acero', prog:92, real:85},
+          {n:'SOT · Losa Encof+Acero', prog:95, real:95},
+          {n:'SOT · Losa Concreto', prog:95, real:95},
+          {n:'SUP · Vert-Acero', prog:0, real:0},
+          {n:'SUP · Vert-Concreto', prog:0, real:0},
+          {n:'SUP · Vigas', prog:0, real:0},
+          {n:'SUP · Losa Enc', prog:0, real:0},
+          {n:'SUP · Losa Conc', prog:0, real:0},
+          {n:'ALB · Habilitado Solaqueo', prog:14.0, real:14.0},
+          {n:'ALB · Solaqueo', prog:14.0, real:14.0}
+        ],
+        frentes: [
+          {n:"CASCO SÓTANOS", pct:96, status:"ok", label:"En meta", nota:"Verticales 96% · Losas 95% · Vigas 85%. Ritmo adelantado."},
+          {n:"CASCO SUPERIORES", pct:0, status:"info", label:"Pendiente", nota:"Arranque previsto Sem 37. Preparación logística."},
+          {n:"ALBAÑILERÍA", pct:14, status:"info", label:"En ejecución", nota:"Habilitado y solaqueo avanzando en sótanos."},
+          {n:"MUROS ANCLADOS / EXCAV.", pct:100, status:"ok", label:"Terminado", nota:"Cerrado en F1."}
+        ]
+      },
+
+      personal: {
+        evolucion: {
+          labels: ['S33','S34','S35','S36','S01','S05','S09','S12','Actual'],
+          data:   [11,19,20,23,31,49,51,47,72]
+        },
+        hhPrestamo: {
+          TI:3515, HMT:2177, BL:870, GPLF:742, VT:265, TOTAL:7569,
+          serie: {
+            labels:['S30','S31','S32','S33','S34','S35'],
+            TI:[151.5,705,1047.5,994,617,323],
+            HMT:[126,398,547.5,618,487.5,357],
+            BL:[357.5,495.5,17,0,0,0],
+            GPLF:[0,112.5,234.5,240,155,0],
+            VT:[25,206,34,0,0,0]
+          }
+        },
+        dimensionamiento: [
+          {n:"Subestructura", ger:40, campo:40},
+          {n:"Superestructura", ger:46, campo:46},
+          {n:"Total meta", ger:86, campo:86, total:true},
+          {n:"Actual (obra)", actual:72, warn:-14}
+        ],
+        encofradoCuadrilla: {
+          labels:['Capataz','Verticales','Vigas Fondo','Vigas Lat.','Losas Fondo','Frizos','Escalera','Cajones'],
+          meta:       [1,5,3,0,8,3,2,12],
+          aprobada:   [1,5,3,2,6,2,2,0],
+          actual:     [1,6,4,1,6,3,2,0]
+        },
+        dotacion: 72
+      },
+
+      mo: {
+        acumulado: 1211540,
+        porcAcumulado: 18.3,
+        saldo: 5399907,
+        mensual: {
+          labels:['AGO-25','SEP-25','OCT-25','NOV-25','DIC-25','ENE-26','FEB-26','MAR-26'],
+          data:  [50964,117460,157341,136534,145343,211461,224488,167957],
+          pct:   [0.77,2.55,4.93,6.99,9.19,12.39,15.78,18.32]
+        },
+        stats: {
+          ahorroMeta: 348000,
+          rentProyPct: 32.1,
+          semActual: "Semana 12 (Marzo): 47 trab. · S/ 50,538",
+          promUltimas: "Promedio últimas 4 sem: 48 trab. · S/ 52,100/sem"
+        },
+        cuadrillas: [
+          {n:'CONCRETO',rent:16.50,saldo:245600,base:479526,meta:422632,ahorro:56894,real:177000,incid:15.0},
+          {n:'ENCOFRADO',rent:7.80,saldo:525000,base:899964,meta:857678,ahorro:42286,real:332500,incid:28.2},
+          {n:'ACERO',rent:8.90,saldo:370200,base:832140,meta:631156,ahorro:200985,real:260800,incid:22.1},
+          {n:'MAESTRO CASCO',rent:14.10,saldo:45800,base:93960,meta:84564,ahorro:9396,real:39000,incid:3.3},
+          {n:'TOPÓGRAFO',rent:3.50,saldo:78200,base:169345,meta:152411,ahorro:16935,real:74200,incid:6.3},
+          {n:'VIGÍAS',rent:-130.00,saldo:-10500,base:58900,meta:53010,ahorro:5890,real:63500,incid:5.4},
+          {n:'ALMACENERO',rent:-23.80,saldo:18600,base:71145,meta:64031,ahorro:7115,real:45400,incid:3.8},
+          {n:'SEGURITOS',rent:13.60,saldo:68500,base:101900,meta:91710,ahorro:10190,real:23200,incid:2.0},
+          {n:'IISS',rent:10.10,saldo:376500,base:533172,meta:443662,ahorro:89510,real:67200,incid:5.7},
+          {n:'IIEE',rent:-18.20,saldo:465300,base:430559,meta:516370,ahorro:-85812,real:50200,incid:4.3},
+          {n:'RIGGERS',rent:-8.90,saldo:41200,base:83876,meta:75488,ahorro:8388,real:33500,incid:2.8}
+        ]
+      },
+
+      adquisiciones: {
+        subheader: "Fuente: <b>03 · Cuadro de adquisiciones</b> — 71 ítems · S/ 12.75 M contratado · Margen S/ 2.58 M (15.8%)",
+        porEspecialidad: {
+          labels:['EST','ARQ','IIEE','IISS','IIGG','ACI','IIMM','DACI','COM','LEED'],
+          contratado:[5560000,4750000,810000,278000,142000,625000,285000,112000,115000,78000],
+          margenPct: [16.20,14.80,18.10,29.50,12.50,12.10,13.80,6.50,22.80,11.50]
+        },
+        etapas: {
+          labels:['SAME','COMP','CONTRATO','NETLOG','OC','IMPL. OBRA','SEGUIM.','CIERRE'],
+          data:  [48.6,66.2,37.8,41.9,22.8,11.5,0,0]
+        },
+        tipo: {
+          suministros: 10430000,
+          subcontratos: 2320000,
+          cntSum: 55,
+          cntSc: 16
+        },
+        responsables: [
+          {n:"MB", items:14, contract:2750000, contratado:2270000, margen:480000, partPct:17.9},
+          {n:"LF", items:5,  contract:1050000, contratado:975000,  margen:75000,  partPct:6.8},
+          {n:"DRS",items:32, contract:4630000, contratado:3820000, margen:810000, partPct:30.1},
+          {n:"JR", items:7,  contract:1180000, contratado:730000,  margen:450000, partPct:7.8},
+          {n:"JR/MB",items:15,contract:5650000,contratado:4960000, margen:690000, partPct:37.4},
+          {n:"TOTAL",items:73,contract:15260000,contratado:12755000,margen:2505000,partPct:100, total:true}
+        ],
+        rentabilidad: [
+          {lbl:"Utilidad Contractual", pct:6.50, monto:1718976, bg:"var(--alice-blue)", col:"var(--twitter-blue)"},
+          {lbl:"Rentabilidad Compras y S/C", pct:9.70, monto:2505000, bg:"#E6F4EE", col:"var(--green)"},
+          {lbl:"Entrega Anticipada", pct:0, monto:0, bg:"var(--alice-blue)", col:"var(--text-muted)", dim:true},
+          {lbl:"Ahorro MO", pct:0, monto:0, bg:"var(--alice-blue)", col:"var(--text-muted)", dim:true},
+          {lbl:"TOTAL Utilidad + Rentabilidad", pct:16.20, monto:4223976, bg:"var(--twitter-blue)", col:"var(--white)", total:true}
+        ],
+        facturacion: 26445788
+      },
+
+      encofrado: {
+        ingresos: {
+          labels:['Ago-20','Sep-04','Sep-12','Sep-20','Sep-26','Oct-13','Oct-21','Nov-20','Dic-02','Dic-27','Ene-16','Ene-17','Ene-20','Ene-21'],
+          data:  [1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        },
+        composicion: [
+          {lbl:"Encofrado Casa (Propio)", val:"S/ 87,788 · 4,641 kg", cls:"v-blue", bg:"#E6EEF8"},
+          {lbl:"Consumibles Total", val:"S/ 9,850 · 18,420 u", cls:"v-ok", bg:"#E6F4EE"},
+          {lbl:"Unispan (Arrendado)", val:"S/ 33,178 (Comp.) · 2,339.68 m²", cls:"v-warn", bg:"#FEF3E8"}
+        ],
+        nota:"<b style='color:var(--text)'>Alcance arrend. F1:</b> Muro anclado 2,339.68 m² (encof+desenc) · S/ 32,685<br><b style='color:var(--text)'>Mensualidad Unispan:</b> escaleras y accesorios ~S/ 10,200/mes"
+      },
+
+      adicionales: {
+        subheader: "Fuente: <b>10 · Status de Adicionales y Deductivos</b> — 19 Adicionales aprobados · 4 Optimizaciones · 0 Deductivos",
+        porEspecialidad: {
+          labels:['ARQ','EST','IISS','IIEE','IIMM','Provisionales'],
+          data:  [790000,50000,26000,1100,574,6731]
+        },
+        top: [
+          {num:11,desc:"Implementación áreas comunes",esp:"ARQ",monto:769740,highlight:true},
+          {num:12,desc:"Detalle vaciados entre diferentes resistencias",esp:"EST",monto:18362},
+          {num:7, desc:"Falsas zapatas por RFI 047 y 049",esp:"EST",monto:12664},
+          {num:3, desc:"Soporte para contenedor sala de ventas",esp:"ARQ",monto:11536},
+          {num:17,desc:"Modificación material en terrazas",esp:"ARQ",monto:10528},
+          {num:10,desc:"Redes enterradas IISS en sótano 5",esp:"IISS",monto:10604},
+          {num:"",desc:"Subtotal Top 6",esp:"",monto:833434, subtotal:true},
+          {num:"",desc:"Otros 13 adicionales",esp:"",monto:40066},
+          {num:"",desc:"TOTAL ADICIONALES (19)",esp:"",monto:873500, total:true}
+        ]
+      },
+
+      cronograma: {
+        minis: [
+          {lbl:"Plazo total", val:"471 días", cls:"v-blue"},
+          {lbl:"Fecha inicio", val:"11/08/2025", cls:""},
+          {lbl:"Fecha reporte", val:"11/04/2026", cls:""},
+          {lbl:"Días transcurridos", val:"243 d (51.6%)", cls:"v-blue"},
+          {lbl:"Días restantes", val:"228 d (48.4%)", cls:"v-ok"},
+          {lbl:"Fase actual", val:"F2 · Casco Sótanos", cls:"v-blue"}
+        ]
+      },
+
+      fotos: [
+        {n:1, desc:"Panorámica inicio de semana", color:"#509BC9"},
+        {n:2, desc:"Vaciado Sector 3 Sótano 2", color:"#509BC9"},
+        {n:3, desc:"Armado acero verticales Sector 4", color:"#509BC9"},
+        {n:4, desc:"Desencofrado losa Sótano 3", color:"#509BC9"},
+        {n:5, desc:"Montaje encofrado vigas Piso 1", color:"#509BC9"},
+        {n:6, desc:"Preparación de banco de acero", color:"#509BC9"},
+        {n:7, desc:"Solaqueo Sector 1 Sót 4", color:"#509BC9"},
+        {n:8, desc:"Panorámica cierre casco", color:"#2D936C"}
+      ],
+
+      alertas: [
+        {sev:"red", icon:"⚠", titulo:"CUADRILLAS EXCEDIDAS", texto:"Vigías y Almacenero siguen por encima de meta", num:"-130% · -24%"},
+        {sev:"yellow", icon:"⚡", titulo:"IIEE EN OBSERVACIÓN", texto:"Rentabilidad negativa mejora respecto a Sem 34", num:"-18.2%"},
+        {sev:"green", icon:"✓", titulo:"AVANCE CASCO EN META", texto:"Vert/Losas SOT al 95-96% conforme al cronograma", num:"96%"}
+      ]
+    }
+
+    // ═════════════════════════════════════════════════════════════
+    // AQUÍ SE AGREGAN SEMANAS NUEVAS — ver plantilla al final del archivo
+    // ═════════════════════════════════════════════════════════════
+  }
+};
+
+// Orden de visualización en el selector (de más reciente a más antigua) para el modo DEMO
+const DEMO_ORDER = ["S36","S35"];
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SISTEMA DE NAVEGACIÓN POR PESTAÑAS
+   ═══════════════════════════════════════════════════════════════════ */
+
+let currentTab = "resumen";
+
+function setTab(tab){
+  currentTab = tab;
+  // Marcar pestaña activa en sidebar
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.toggle('active', el.dataset.tab===tab));
+  // Mostrar sección
+  document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active', s.id==='sec-'+tab));
+  // Scroll top
+  document.getElementById('scrollArea').scrollTop = 0;
+  // Cerrar sidebar en móvil
+  if(window.innerWidth<=900){
+    document.getElementById('sidebar').classList.remove('open');
+  }
+  // Re-renderizar la sección (destruye charts previos y dibuja nuevos)
+  renderCurrentWeek();
+}
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+document.querySelectorAll('.sb-item').forEach(el=>{
+  el.addEventListener('click', ()=>setTab(el.dataset.tab));
+});
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SELECTOR DE SEMANA + POBLACIÓN DEL DROPDOWN
+   ═══════════════════════════════════════════════════════════════════ */
+
+function populateWeekSelector(){
+  const sel = document.getElementById('weekSelect');
+  sel.innerHTML = '';
+  if(!WEEKS_ORDER.length){
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'Sin semanas cargadas';
+    sel.appendChild(opt);
+    return;
+  }
+  WEEKS_ORDER.forEach(w=>{
+    const d = DATA.weeks[w];
+    if(!d) return;
+    const opt = document.createElement('option');
+    opt.value = w;
+    const marker = d._incompleta ? ' (incompleta)' : '';
+    opt.textContent = `${w} · ${d.corte}${marker}`;
+    if(d._incompleta) opt.style.color = '#8A7A55';
+    sel.appendChild(opt);
+  });
+  sel.value = DATA.currentWeek;
+}
+
+function onWeekChange(week){
+  if(!week || !DATA.weeks[week]) return;
+  DATA.currentWeek = week;
+  renderCurrentWeek();
+}
+
+function wk(){ return DATA.weeks[DATA.currentWeek] || null; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   GESTIÓN DE INSTANCIAS DE CHART.JS (evitar memory leaks)
+   ═══════════════════════════════════════════════════════════════════ */
+
+const CHART_INSTANCES = {};
+function destroyChart(id){
+  if(CHART_INSTANCES[id]){
+    CHART_INSTANCES[id].destroy();
+    delete CHART_INSTANCES[id];
+  }
+}
+function destroyAllCharts(){
+  Object.keys(CHART_INSTANCES).forEach(destroyChart);
+}
+
+Chart.defaults.font.family="'DM Sans',sans-serif";
+Chart.defaults.font.size=11;
+Chart.defaults.color='#5A7A96';
+
+const COLORS = {
+  blue:'#0070B4', blueMid:'#3A91C5', blueLt:'#97C5E0', babyBlue:'#D4E5F2',
+  green:'#2D936C', orange:'#E07B39', red:'#D64045', grey:'#BFCEDB', yellow:'#F2C94C'
+};
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   UTILS DE FORMATO
+   ═══════════════════════════════════════════════════════════════════ */
+
+function fmtSN(v){
+  if(v===null||v===undefined||isNaN(v))return '—';
+  return Number(v).toLocaleString('es-PE',{maximumFractionDigits:0});
+}
+function fmtPct(v,dec=1){
+  if(v===null||v===undefined||isNaN(v))return '—';
+  return v.toFixed(dec)+'%';
+}
+function fmtS(v){ return 'S/ '+fmtSN(v); }
+function fmtSMon(v){
+  if(v===null||v===undefined||isNaN(v)) return '—';
+  if(v>=1e6) return 'S/ '+(v/1e6).toFixed(2)+' M';
+  if(v>=1e3) return 'S/ '+(v/1e3).toFixed(0)+' K';
+  return 'S/ '+fmtSN(v);
+}
+
+// Compara con semana anterior (si existe en WEEKS_ORDER)
+function getPrevWeek(w){
+  const i = WEEKS_ORDER.indexOf(w);
+  // WEEKS_ORDER está ordenado de reciente a antiguo → prev = índice+1
+  if(i>=0 && i+1<WEEKS_ORDER.length) return WEEKS_ORDER[i+1];
+  return null;
+}
+function getDelta(actual, prev, esPct){
+  if(actual===null||actual===undefined||isNaN(actual)) return {val:null, txt:"sin dato", cls:"flat", arrow:"–"};
+  if(prev===null||prev===undefined||isNaN(prev)) return {val:null, txt:"sin histórico", cls:"flat", arrow:"–"};
+  const d = actual - prev;
+  const cls = d>0.001 ? "up" : (d<-0.001 ? "down" : "flat");
+  const arrow = d>0.001 ? "↑" : (d<-0.001 ? "↓" : "–");
+  let txt;
+  if(esPct) txt = (d>=0?"+":"")+d.toFixed(1)+" pp";
+  else if(Math.abs(d)>=1000) txt = (d>=0?"+":"")+fmtSMon(Math.abs(d)).replace('S/ ','S/ '+(d>=0?"":"-"));
+  else txt = (d>=0?"+":"")+fmtSN(d);
+  return {val:d, txt, cls, arrow};
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RENDER PRINCIPAL — llama al render de la pestaña activa + header
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderCurrentWeek(){
+  destroyAllCharts();
+  const d = wk();
+  if(!d) return; // No hay semana seleccionada aún
+
+  // Header superior (semana + corte)
+  document.getElementById('hdrSem').textContent = 'SEM '+d.semNum;
+  document.getElementById('hdrCorte').textContent = 'Corte: '+d.corte;
+
+  // Render según pestaña
+  switch(currentTab){
+    case 'resumen':   renderResumen(); break;
+    case 'avance':    renderAvance(); break;
+    case 'personal':  renderPersonal(); break;
+    case 'mo':        renderMO(); break;
+    case 'adq':       renderAdq(); break;
+    case 'encofrado': renderEncofrado(); break;
+    case 'adic':      renderAdic(); break;
+    case 'crono':     renderCrono(); break;
+    case 'fotos':     renderFotos(); break;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RENDER: RESUMEN (pestaña ejecutiva)
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderResumen(){
+  const d = wk();
+  const prev = getPrevWeek(DATA.currentWeek);
+  const dPrev = prev ? DATA.weeks[prev] : null;
+
+  // A. Banner
+  document.getElementById('rBannerTitle').textContent = `ESPARQ 140 · SEMANA ${d.semNum}`;
+  document.getElementById('rBannerCorte').textContent = d.corte;
+  const diasTrans = d.diasTranscurridos;
+  const diasRest = CONSTANTES.plazoDias - diasTrans;
+  const pctTrans = (diasTrans/CONSTANTES.plazoDias)*100;
+  document.getElementById('rBannerPlazo').innerHTML = `Día <b>${diasTrans}</b> de ${CONSTANTES.plazoDias} · <b>${diasRest} d restantes</b>`;
+  document.getElementById('rProgressFill').style.width = pctTrans.toFixed(1)+'%';
+  document.getElementById('rProgressPct').textContent = pctTrans.toFixed(1)+'% TRANSCURRIDO';
+
+  // B. KPI Poster
+  renderRKpis(d, dPrev);
+
+  // C. Semáforo frentes
+  renderRFrentes(d);
+
+  // D. Pulso
+  renderRPulso();
+
+  // E. Alertas
+  renderRAlertas(d);
+
+  // F. Evolutivos
+  renderREvoPersonal();
+  renderREvoMO();
+
+  // G. Plazo
+  document.getElementById('rPlazoTrans').textContent = diasTrans;
+  document.getElementById('rPlazoTransPct').textContent = pctTrans.toFixed(1)+'% del plazo';
+  document.getElementById('rPlazoRest').textContent = diasRest;
+  document.getElementById('rPlazoRestPct').textContent = (100-pctTrans).toFixed(1)+'% del plazo';
+  document.getElementById('rPlazoPct').textContent = pctTrans.toFixed(1)+'%';
+  document.getElementById('rPlazoSem').textContent = d.semNum;
+  document.getElementById('rPlazoFill').style.width = pctTrans.toFixed(1)+'%';
+  document.getElementById('rPlazoHoy').textContent = `HOY · SEM ${d.semNum}`;
+}
+
+function renderRKpis(d, dPrev){
+  const cont = document.getElementById('rKpiGrid');
+  cont.innerHTML = '';
+
+  // Construir series históricas con todas las semanas disponibles (orden cronológico)
+  const chron = [...WEEKS_ORDER].reverse();   // de más antigua a más reciente
+  const series = {
+    contratacionPct: chron.map(w=>DATA.weeks[w]?.kpis?.contratacionPct),
+    moPct:           chron.map(w=>DATA.weeks[w]?.kpis?.moPct),
+    utilRentPct:     chron.map(w=>DATA.weeks[w]?.kpis?.utilRentPct),
+    personal:        chron.map(w=>DATA.weeks[w]?.kpis?.personal),
+    adicionales:     chron.map(w=>DATA.weeks[w]?.kpis?.adicionales),
+    rentMOPct:       chron.map(w=>DATA.weeks[w]?.kpis?.rentMOPct)
+  };
+
+  const prev = dPrev ? dPrev.kpis : null;
+  const fmtPersonal = v => (v===null||v===undefined||isNaN(v)) ? '—' : String(v);
+  const fmtRent = v => (v===null||v===undefined||isNaN(v)) ? '—' : (v>=0?'+':'')+v.toFixed(1)+'%';
+  const kpis = [
+    {k:'contratacionPct', label:'% Avance Contratación', value:fmtPct(d.kpis.contratacionPct), raw:d.kpis.contratacionPct, prevRaw:prev?prev.contratacionPct:null, esPct:true, cls:'', color:COLORS.blue, spark:series.contratacionPct},
+    {k:'moPct',           label:'MO Acumulada (%)',     value:fmtPct(d.kpis.moPct),          raw:d.kpis.moPct, prevRaw:prev?prev.moPct:null, esPct:true, cls:'', color:COLORS.blueMid, spark:series.moPct},
+    {k:'utilRentPct',     label:'Util. + Rent. Total',  value:fmtPct(d.kpis.utilRentPct),    raw:d.kpis.utilRentPct, prevRaw:prev?prev.utilRentPct:null, esPct:true, cls:'rk-green', color:COLORS.green, spark:series.utilRentPct},
+    {k:'personal',        label:'Personal en obra',     value:fmtPersonal(d.kpis.personal), raw:d.kpis.personal, prevRaw:prev?prev.personal:null, esPct:false, cls:'rk-orange', color:COLORS.orange, spark:series.personal},
+    {k:'adicionales',     label:'Adicionales Aprob.',   value:fmtSMon(d.kpis.adicionales),  raw:d.kpis.adicionales, prevRaw:prev?prev.adicionales:null, esPct:false, cls:'', color:COLORS.blue, spark:series.adicionales},
+    {k:'rentMOPct',       label:'Rent. Proyect. MO',    value:fmtRent(d.kpis.rentMOPct), raw:d.kpis.rentMOPct, prevRaw:prev?prev.rentMOPct:null, esPct:true, cls:'rk-green', color:COLORS.green, spark:series.rentMOPct}
+  ];
+
+  kpis.forEach((kpi,i)=>{
+    const delta = getDelta(kpi.raw, kpi.prevRaw, kpi.esPct);
+    const div = document.createElement('div');
+    div.className = 'r-kpi '+kpi.cls;
+    div.innerHTML = `
+      <div class="r-kpi-label">${kpi.label}</div>
+      <div class="r-kpi-value">${kpi.value}</div>
+      <div class="r-kpi-delta ${delta.cls}"><span class="arrow">${delta.arrow}</span>${delta.txt} <span class="vs">vs sem ant.</span></div>
+      <div class="r-kpi-spark"><canvas id="rSpark_${i}"></canvas></div>`;
+    cont.appendChild(div);
+  });
+
+  // Sparklines
+  kpis.forEach((kpi,i)=>{
+    const cid = 'rSpark_'+i;
+    const ctx = document.getElementById(cid);
+    if(!ctx) return;
+    CHART_INSTANCES[cid] = new Chart(ctx,{
+      type:'line',
+      data:{
+        labels:kpi.spark.map((_,j)=>j),
+        datasets:[{data:kpi.spark, borderColor:kpi.color, backgroundColor:kpi.color+'22',
+          fill:true, tension:.35, pointRadius:0, pointHoverRadius:4, borderWidth:2}]
+      },
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{enabled:false}},
+        scales:{x:{display:false},y:{display:false}},
+        elements:{line:{capBezierPoints:true}}
+      }
+    });
+  });
+}
+
+function renderRFrentes(d){
+  const cont = document.getElementById('rFrentes');
+  cont.innerHTML = '';
+  const badgeMap = {ok:"🟢 OK", warn:"🟡 Atención", bad:"🔴 Alerta", info:"🔵 Info"};
+  d.avanceFisico.frentes.forEach(f=>{
+    const el = document.createElement('div');
+    el.className = 'r-frente f-'+f.status;
+    el.innerHTML = `
+      <div class="r-frente-head">
+        <div class="r-frente-name">${f.n}</div>
+        <span class="r-frente-badge-big badge-${f.status==='ok'?'ok':f.status==='warn'?'warn':f.status==='bad'?'bad':'meta'}">${badgeMap[f.status]||f.label}</span>
+      </div>
+      <div class="r-frente-pct">${f.pct}%</div>
+      <div class="r-frente-note">${f.nota}</div>`;
+    cont.appendChild(el);
+  });
+}
+
+function renderRPulso(){
+  const cid = 'rChartPulso';
+  destroyChart(cid);
+  // Construir la serie con TODAS las semanas cronológicamente
+  const chron = [...WEEKS_ORDER].reverse();
+  const labels = chron.map(w=>w);
+  const contratacion = chron.map(w=>DATA.weeks[w]?.kpis?.contratacionPct ?? null);
+  const mo = chron.map(w=>DATA.weeks[w]?.kpis?.moPct ?? null);
+  const pers = chron.map(w=>DATA.weeks[w]?.kpis?.personal ?? null);
+
+  CHART_INSTANCES[cid] = new Chart(document.getElementById(cid),{
+    data:{
+      labels,
+      datasets:[
+        {type:'bar', label:'Personal (pax)', data:pers, backgroundColor:COLORS.blueLt+'80', borderRadius:4, yAxisID:'y2', order:3},
+        {type:'line', label:'% Avance Contratación', data:contratacion, borderColor:COLORS.blue, backgroundColor:COLORS.blue+'20', tension:.3, pointRadius:5, pointBackgroundColor:COLORS.blue, borderWidth:3, yAxisID:'y1', order:1, fill:false},
+        {type:'line', label:'% MO Ejecutada', data:mo, borderColor:COLORS.green, backgroundColor:COLORS.green+'20', tension:.3, pointRadius:5, pointBackgroundColor:COLORS.green, borderWidth:3, yAxisID:'y1', order:2, fill:false}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom', labels:{usePointStyle:true, padding:14, boxWidth:8, font:{size:11, weight:'600'}}},
+        tooltip:{mode:'index', intersect:false}
+      },
+      scales:{
+        y1:{position:'left', beginAtZero:true, max:100, grid:{color:'#ECF3F9'}, ticks:{callback:v=>v+'%'}, title:{display:true, text:'% (izq)', color:COLORS.blue}},
+        y2:{position:'right', beginAtZero:true, grid:{display:false}, ticks:{callback:v=>v+' pax'}, title:{display:true, text:'Personal (der)', color:COLORS.blueLt}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+}
+
+function renderRAlertas(d){
+  const cont = document.getElementById('rAlertas');
+  cont.innerHTML = '';
+  d.alertas.forEach(a=>{
+    const el = document.createElement('div');
+    el.className = 'r-alerta a-'+a.sev;
+    el.innerHTML = `
+      <div class="r-alerta-icon">${a.icon}</div>
+      <div class="r-alerta-body">
+        <div class="r-alerta-title">${a.titulo}</div>
+        <div class="r-alerta-text">${a.texto}</div>
+        <div class="r-alerta-num">${a.num}</div>
+      </div>`;
+    cont.appendChild(el);
+  });
+}
+
+function renderREvoPersonal(){
+  const cid = 'rChartPersonal';
+  destroyChart(cid);
+  const chron = [...WEEKS_ORDER].reverse();
+  const labels = chron.map(w=>w);
+  const data = chron.map(w=>DATA.weeks[w]?.kpis?.personal ?? null);
+  CHART_INSTANCES[cid] = new Chart(document.getElementById(cid),{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Personal en obra', data, backgroundColor:COLORS.blue, borderRadius:5},
+        {type:'line', label:`Meta (${CONSTANTES.metaDimensionamiento} pax)`, data:data.map(()=>CONSTANTES.metaDimensionamiento),
+         borderColor:COLORS.orange, borderWidth:2, borderDash:[5,4], pointRadius:0, fill:false}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:10,font:{size:11}}}},
+      scales:{y:{beginAtZero:true,grid:{color:'#ECF3F9'}},x:{grid:{display:false}}}
+    }
+  });
+}
+
+function renderREvoMO(){
+  const cid = 'rChartMOEvo';
+  destroyChart(cid);
+  const chron = [...WEEKS_ORDER].reverse();
+  const labels = chron.map(w=>w);
+  const acum = chron.map(w=>DATA.weeks[w]?.mo?.acumulado ?? null);
+  const pct  = chron.map(w=>DATA.weeks[w]?.mo?.porcAcumulado ?? null);
+  CHART_INSTANCES[cid] = new Chart(document.getElementById(cid),{
+    data:{
+      labels,
+      datasets:[
+        {type:'bar', label:'MO Acum. (S/)', data:acum, backgroundColor:COLORS.green, borderRadius:4, yAxisID:'y1'},
+        {type:'line', label:'% sobre presup. MO', data:pct, borderColor:COLORS.blue, tension:.3, pointRadius:5, pointBackgroundColor:COLORS.blue, borderWidth:2.5, yAxisID:'y2', fill:false}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:10,font:{size:11}}},
+        tooltip:{callbacks:{label:c=>{
+          if(c.dataset.type==='line') return c.dataset.label+': '+(c.parsed.y||0).toFixed(1)+'%';
+          return c.dataset.label+': '+fmtSMon(c.parsed.y||0);
+        }}}},
+      scales:{
+        y1:{position:'left',beginAtZero:true,grid:{color:'#ECF3F9'},ticks:{callback:v=>(v/1e6).toFixed(1)+' M'}},
+        y2:{position:'right',beginAtZero:true,max:30,grid:{display:false},ticks:{callback:v=>v+'%'}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RENDER: SECCIÓN 1 — AVANCE FÍSICO
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderAvance(){
+  const d = wk();
+  // Actualizar corte en subheader
+  document.querySelectorAll('.corte-inline').forEach(e=>e.textContent = `Sem ${d.semNum} (${d.corte})`);
+
+  const cid='chartAvance';
+  destroyChart(cid);
+  const labels = d.avanceFisico.partidas.map(p=>p.n);
+  CHART_INSTANCES[cid] = new Chart(document.getElementById(cid),{
+    type:'bar',
+    data:{labels,
+      datasets:[
+        {label:'Programado',data:d.avanceFisico.partidas.map(p=>p.prog),backgroundColor:COLORS.blueLt,borderRadius:3,barPercentage:.75},
+        {label:'Real',data:d.avanceFisico.partidas.map(p=>p.real),backgroundColor:COLORS.blue,borderRadius:3,barPercentage:.75}
+      ]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.x+'%'}}},
+      scales:{x:{max:100,ticks:{callback:v=>v+'%'},grid:{color:'#ECF3F9'}},y:{grid:{display:false}}}
+    }
+  });
+
+  // Estado por frente
+  const cont = document.getElementById('frentesResumen');
+  cont.innerHTML = '';
+  const badgeCls = {ok:"badge-ok", warn:"badge-warn", bad:"badge-bad", info:"badge-meta"};
+  d.avanceFisico.frentes.forEach(f=>{
+    const el = document.createElement('div');
+    el.style.cssText = "border:1px solid var(--border);border-radius:8px;padding:10px 12px;";
+    el.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <b style="font-size:12px">${f.n}</b>
+        <span class="badge ${badgeCls[f.status]||'badge-meta'}">${f.label}</span>
+      </div>
+      <div style="font-size:10px;color:var(--text-muted)">${f.nota}</div>`;
+    cont.appendChild(el);
+  });
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RENDER: SECCIÓN 2 — PERSONAL Y DIMENSIONAMIENTO
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderPersonal(){
+  const d = wk();
+
+  // 03 · Evolución
+  destroyChart('chartPersonal');
+  CHART_INSTANCES['chartPersonal'] = new Chart(document.getElementById('chartPersonal'),{
+    type:'line',
+    data:{labels:d.personal.evolucion.labels,
+      datasets:[{label:'Trabajadores',data:d.personal.evolucion.data,
+        borderColor:COLORS.blue,backgroundColor:COLORS.blue+'20',fill:true,tension:.3,
+        pointBackgroundColor:COLORS.blue,pointRadius:4,borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:true,grid:{color:'#ECF3F9'}},x:{grid:{display:false}}}
+    }
+  });
+
+  // 04 · HH Préstamo minis
+  const hh = d.personal.hhPrestamo;
+  const hhCont = document.getElementById('hhPrestamoMinis');
+  hhCont.innerHTML = `
+    <div class="mini"><div class="mini-lbl">TI</div><div class="mini-val v-blue">${fmtSN(hh.TI)}</div></div>
+    <div class="mini"><div class="mini-lbl">HMT</div><div class="mini-val v-blue">${fmtSN(hh.HMT)}</div></div>
+    <div class="mini"><div class="mini-lbl">BL</div><div class="mini-val">${fmtSN(hh.BL)}</div></div>
+    <div class="mini"><div class="mini-lbl">GPLF</div><div class="mini-val">${fmtSN(hh.GPLF)}</div></div>
+    <div class="mini"><div class="mini-lbl">VT</div><div class="mini-val">${fmtSN(hh.VT)}</div></div>
+    <div class="mini"><div class="mini-lbl">TOTAL</div><div class="mini-val v-blue">${fmtSN(hh.TOTAL)}</div></div>`;
+
+  destroyChart('chartHH');
+  CHART_INSTANCES['chartHH'] = new Chart(document.getElementById('chartHH'),{
+    type:'bar',
+    data:{labels:hh.serie.labels,
+      datasets:[
+        {label:'TI',data:hh.serie.TI,backgroundColor:COLORS.blue,stack:'a'},
+        {label:'HMT',data:hh.serie.HMT,backgroundColor:COLORS.blueMid,stack:'a'},
+        {label:'BL',data:hh.serie.BL,backgroundColor:COLORS.blueLt,stack:'a'},
+        {label:'GPLF',data:hh.serie.GPLF,backgroundColor:COLORS.orange,stack:'a'},
+        {label:'VT',data:hh.serie.VT,backgroundColor:COLORS.grey,stack:'a'}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:8,font:{size:10}}}},
+      scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#ECF3F9'}}}
+    }
+  });
+
+  // 05 · Tabla dimensionamiento
+  const tb = document.getElementById('tblDimens');
+  tb.innerHTML = '';
+  d.personal.dimensionamiento.forEach(r=>{
+    const tr = document.createElement('tr');
+    if(r.total) tr.className='row-total';
+    if(r.actual!==undefined){
+      tr.innerHTML = `<td>${r.n}</td><td colspan="2" class="td-num td-bold" style="color:var(--orange)">${r.actual} trab.</td><td class="td-center"><span class="badge badge-warn">${r.warn}</span></td>`;
+    } else {
+      tr.innerHTML = `<td>${r.n}</td><td class="td-num">${r.ger}</td><td class="td-num">${r.campo}</td><td class="td-center"><span class="badge badge-ok">OK</span></td>`;
+    }
+    tb.appendChild(tr);
+  });
+
+  // 06 · Cuadrilla Encofrado
+  destroyChart('chartDim');
+  const ec = d.personal.encofradoCuadrilla;
+  CHART_INSTANCES['chartDim'] = new Chart(document.getElementById('chartDim'),{
+    type:'bar',
+    data:{labels:ec.labels,
+      datasets:[
+        {label:'Meta-Campo',data:ec.meta,backgroundColor:COLORS.blueLt},
+        {label:'Aprob. Gerencia',data:ec.aprobada,backgroundColor:COLORS.blueMid},
+        {label:'Actual Obra',data:ec.actual,backgroundColor:COLORS.blue}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:8,font:{size:10}}}},
+      scales:{y:{beginAtZero:true,grid:{color:'#ECF3F9'}},x:{grid:{display:false}}}
+    }
+  });
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RENDER: SECCIÓN 3 — MANO DE OBRA
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderMO(){
+  const d = wk();
+
+  // 07 · Evolución mensual
+  destroyChart('chartMO');
+  CHART_INSTANCES['chartMO'] = new Chart(document.getElementById('chartMO'),{
+    data:{labels:d.mo.mensual.labels,
+      datasets:[
+        {type:'bar',label:'MO mensual (S/)',data:d.mo.mensual.data,
+         backgroundColor:COLORS.blue,borderRadius:3,yAxisID:'y'},
+        {type:'line',label:'% Acumulado',data:d.mo.mensual.pct,
+         borderColor:COLORS.green,backgroundColor:COLORS.green,tension:.25,
+         pointRadius:4,pointBackgroundColor:COLORS.green,borderWidth:2,yAxisID:'y1'}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:c=>{
+          if(c.dataset.type==='line')return c.dataset.label+': '+c.parsed.y.toFixed(1)+'%';
+          return c.dataset.label+': '+fmtSMon(c.parsed.y);
+        }}}},
+      scales:{
+        y:{beginAtZero:true,grid:{color:'#ECF3F9'},ticks:{callback:v=>'S/ '+(v/1000).toFixed(0)+'K'}},
+        y1:{position:'right',beginAtZero:true,max:25,grid:{display:false},ticks:{callback:v=>v+'%'}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+
+  // 08 · Minis
+  const moMinis = document.getElementById('moMinis');
+  moMinis.innerHTML = `
+    <div class="mini"><div class="mini-lbl">MO Base F1+F2</div><div class="mini-val v-blue">S/ 6.61 M</div></div>
+    <div class="mini"><div class="mini-lbl">MO Acumulada</div><div class="mini-val v-blue">${fmtSMon(d.mo.acumulado)}</div></div>
+    <div class="mini"><div class="mini-lbl">% Gastado</div><div class="mini-val v-blue">${fmtPct(d.mo.porcAcumulado)}</div></div>
+    <div class="mini"><div class="mini-lbl">% Saldo</div><div class="mini-val v-ok">${fmtPct(100-d.mo.porcAcumulado)}</div></div>
+    <div class="mini"><div class="mini-lbl">Rent. Proyect.</div><div class="mini-val v-ok">+${fmtPct(d.mo.stats.rentProyPct)}</div></div>
+    <div class="mini"><div class="mini-lbl">Ahorro Meta</div><div class="mini-val v-ok">${fmtSMon(d.mo.stats.ahorroMeta)}</div></div>`;
+  document.getElementById('moExtra').innerHTML = `
+    <b style="color:var(--text)">${d.mo.stats.semActual}</b><br>
+    <b style="color:var(--text)">${d.mo.stats.promUltimas}</b>`;
+
+  // 09 · Rentabilidad por cuadrilla
+  destroyChart('chartRentMO');
+  const ordRent = [...d.mo.cuadrillas].sort((a,b)=>a.rent-b.rent);
+  CHART_INSTANCES['chartRentMO'] = new Chart(document.getElementById('chartRentMO'),{
+    type:'bar',
+    data:{labels:ordRent.map(c=>c.n),
+      datasets:[{label:'% Rentab.',data:ordRent.map(c=>c.rent),
+        backgroundColor:ordRent.map(c=>c.rent<0?COLORS.red:(c.rent<5?COLORS.orange:COLORS.green)),borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtPct(c.parsed.x)}}},
+      scales:{x:{grid:{color:'#ECF3F9'},ticks:{callback:v=>v+'%'}},y:{grid:{display:false}}}
+    }
+  });
+
+  // 10 · Saldo MO
+  destroyChart('chartSaldoMO');
+  const ordSaldo = [...d.mo.cuadrillas].sort((a,b)=>b.saldo-a.saldo);
+  CHART_INSTANCES['chartSaldoMO'] = new Chart(document.getElementById('chartSaldoMO'),{
+    type:'bar',
+    data:{labels:ordSaldo.map(c=>c.n),
+      datasets:[{label:'Saldo (S/)',data:ordSaldo.map(c=>c.saldo),
+        backgroundColor:ordSaldo.map(c=>c.saldo<0?COLORS.red:COLORS.blue),borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtS(c.parsed.x)}}},
+      scales:{x:{grid:{color:'#ECF3F9'},ticks:{callback:v=>'S/ '+(v/1000).toFixed(0)+'K'}},y:{grid:{display:false}}}
+    }
+  });
+
+  // 11 · Tabla cuadrillas
+  const tbl = document.getElementById('tblCuadrillas');
+  tbl.innerHTML = '';
+  let totBase=0, totMeta=0, totAhorro=0, totReal=0, totSaldo=0;
+  d.mo.cuadrillas.forEach(c=>{
+    totBase+=c.base; totMeta+=c.meta; totAhorro+=c.ahorro; totReal+=c.real; totSaldo+=c.saldo;
+    const rentCol = c.rent<0?'var(--red)':(c.rent<5?'var(--orange)':'var(--green)');
+    const saldoCol = c.saldo<0?'var(--red)':'var(--text)';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:600">${c.n}</td>
+      <td class="td-num">${fmtSN(c.base)}</td>
+      <td class="td-num">${fmtSN(c.meta)}</td>
+      <td class="td-num" style="color:${c.ahorro<0?'var(--red)':'var(--green)'};font-weight:600">${fmtSN(c.ahorro)}</td>
+      <td class="td-num">${fmtSN(c.real)}</td>
+      <td class="td-num">${fmtPct(c.incid)}</td>
+      <td class="td-num" style="color:${saldoCol};font-weight:600">${fmtSN(c.saldo)}</td>
+      <td class="td-num td-bold" style="color:${rentCol}">${fmtPct(c.rent)}</td>`;
+    tbl.appendChild(tr);
+  });
+  // Fila total
+  const totIncid = 100;
+  const trTot = document.createElement('tr');
+  trTot.className='row-total';
+  const rentTotPct = (totAhorro/totMeta)*100;
+  trTot.innerHTML = `
+    <td><b>TOTAL</b></td>
+    <td class="td-num"><b>${fmtSN(totBase)}</b></td>
+    <td class="td-num"><b>${fmtSN(totMeta)}</b></td>
+    <td class="td-num" style="color:var(--green)"><b>+${fmtSN(totAhorro)}</b></td>
+    <td class="td-num"><b>${fmtSN(totReal)}</b></td>
+    <td class="td-num"><b>100%</b></td>
+    <td class="td-num" style="color:var(--green)"><b>+${fmtSN(totSaldo)}</b></td>
+    <td class="td-num" style="color:var(--green)"><b>+${fmtPct(d.mo.stats.rentProyPct)}</b></td>`;
+  tbl.appendChild(trTot);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RENDER: SECCIÓN 4 — ADQUISICIONES
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderAdq(){
+  const d = wk();
+  document.getElementById('adqSubheader').innerHTML = d.adquisiciones.subheader;
+
+  // 12 · Adq por especialidad
+  destroyChart('chartAdqEsp');
+  CHART_INSTANCES['chartAdqEsp'] = new Chart(document.getElementById('chartAdqEsp'),{
+    data:{labels:d.adquisiciones.porEspecialidad.labels,
+      datasets:[
+        {type:'bar',label:'Contratado (S/)',data:d.adquisiciones.porEspecialidad.contratado,
+         backgroundColor:COLORS.blue,yAxisID:'y',borderRadius:3},
+        {type:'line',label:'% Margen',data:d.adquisiciones.porEspecialidad.margenPct,
+         borderColor:COLORS.green,backgroundColor:COLORS.green,pointRadius:4,
+         yAxisID:'y1',tension:.25,borderWidth:2}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:8,font:{size:10}}}},
+      scales:{
+        y:{beginAtZero:true,grid:{color:'#ECF3F9'},ticks:{callback:v=>'S/ '+(v/1e6).toFixed(1)+'M'}},
+        y1:{position:'right',beginAtZero:true,max:35,grid:{display:false},ticks:{callback:v=>v+'%'}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+
+  // 13 · Etapas
+  destroyChart('chartEtapas');
+  CHART_INSTANCES['chartEtapas'] = new Chart(document.getElementById('chartEtapas'),{
+    type:'bar',
+    data:{labels:d.adquisiciones.etapas.labels,
+      datasets:[{label:'% Avance',data:d.adquisiciones.etapas.data,
+        backgroundColor:d.adquisiciones.etapas.data.map(v=>v>60?COLORS.green:v>30?COLORS.blueMid:v>10?COLORS.orange:COLORS.grey),
+        borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtPct(c.parsed.y)}}},
+      scales:{y:{max:100,beginAtZero:true,grid:{color:'#ECF3F9'},ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}
+    }
+  });
+
+  // 14 · Tipo
+  destroyChart('chartTipo');
+  CHART_INSTANCES['chartTipo'] = new Chart(document.getElementById('chartTipo'),{
+    type:'doughnut',
+    data:{labels:['Suministros','Subcontratos'],
+      datasets:[{data:[d.adquisiciones.tipo.suministros, d.adquisiciones.tipo.subcontratos],
+        backgroundColor:[COLORS.blue,COLORS.orange],borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:8,font:{size:10}}},
+        tooltip:{callbacks:{label:c=>c.label+': '+fmtS(c.parsed)}}}
+    }
+  });
+  document.getElementById('tipoFoot').innerHTML = `<b style="color:var(--text)">${d.adquisiciones.tipo.cntSum} Suministros · ${d.adquisiciones.tipo.cntSc} Subcontratos</b>`;
+
+  // 15 · Tabla responsables
+  const tr = document.getElementById('tblResp');
+  tr.innerHTML = '';
+  d.adquisiciones.responsables.forEach(r=>{
+    const row = document.createElement('tr');
+    if(r.total) row.className = 'row-total';
+    row.innerHTML = `
+      <td><b>${r.n}</b></td>
+      <td class="td-num">${r.items}</td>
+      <td class="td-num">${fmtSN(r.contract)}</td>
+      <td class="td-num">${fmtSN(r.contratado)}</td>
+      <td class="td-num" style="color:var(--green);font-weight:700">${fmtSN(r.margen)}</td>
+      <td class="td-num">${fmtPct(r.partPct)}</td>`;
+    tr.appendChild(row);
+  });
+
+  // 16 · Panel rentabilidad
+  const rp = document.getElementById('rentPanel');
+  rp.innerHTML = '';
+  d.adquisiciones.rentabilidad.forEach(r=>{
+    const el = document.createElement('div');
+    const isTotal = r.total;
+    el.style.cssText = `display:flex;justify-content:space-between;align-items:center;padding:${isTotal?'12px 14px':'10px 14px'};background:${r.bg};border-radius:6px;${r.dim?'opacity:.6;':''}`;
+    if(isTotal) el.style.color = 'var(--white)';
+    el.innerHTML = `
+      <div>
+        <div style="font-size:10px;${isTotal?'opacity:.85;':'color:var(--text-muted);'}text-transform:uppercase;letter-spacing:.05em">${r.lbl}</div>
+        <div style="font-size:${isTotal?'15px':'13px'};font-weight:700;color:${r.col};margin-top:2px">${fmtPct(r.pct,2)}</div>
+      </div>
+      <div class="td-num td-bold" style="font-size:${isTotal?'17px':'15px'};color:${r.col}">${r.monto===0?'S/ 0':fmtS(r.monto)}</div>`;
+    rp.appendChild(el);
+  });
+  const foot = document.createElement('div');
+  foot.style.cssText = "font-size:11px;color:var(--text-muted);text-align:center;padding-top:4px";
+  foot.innerHTML = `Sobre Monto de Facturación: <b style="color:var(--text)">${fmtS(d.adquisiciones.facturacion)}</b>`;
+  rp.appendChild(foot);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RENDER: SECCIÓN 5 — ENCOFRADO
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderEncofrado(){
+  const d = wk();
+
+  // 17 · Ingresos
+  destroyChart('chartEncofIng');
+  CHART_INSTANCES['chartEncofIng'] = new Chart(document.getElementById('chartEncofIng'),{
+    type:'bar',
+    data:{labels:d.encofrado.ingresos.labels,
+      datasets:[{label:'Eventos de recepción',data:d.encofrado.ingresos.data,
+        backgroundColor:COLORS.blueMid,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Recepción '+c.label}}},
+      scales:{y:{beginAtZero:true,max:2,ticks:{stepSize:1,callback:v=>v===1?'✔':''},grid:{color:'#ECF3F9'}},x:{grid:{display:false}}}
+    }
+  });
+
+  // 18 · Composición
+  const em = document.getElementById('encofMinis');
+  em.innerHTML = '';
+  d.encofrado.composicion.forEach(c=>{
+    const el = document.createElement('div');
+    el.className = 'mini';
+    el.style.background = c.bg;
+    el.innerHTML = `<div class="mini-lbl">${c.lbl}</div><div class="mini-val ${c.cls}">${c.val}</div>`;
+    em.appendChild(el);
+  });
+  document.getElementById('encofExtra').innerHTML = d.encofrado.nota;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RENDER: SECCIÓN 6 — ADICIONALES
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderAdic(){
+  const d = wk();
+  document.getElementById('adicSubheader').innerHTML = d.adicionales.subheader;
+
+  // 19 · Por especialidad
+  destroyChart('chartAdicEsp');
+  const esps = d.adicionales.porEspecialidad;
+  const espColors = [COLORS.blue,COLORS.blueMid,COLORS.green,COLORS.orange,COLORS.grey,COLORS.red];
+  CHART_INSTANCES['chartAdicEsp'] = new Chart(document.getElementById('chartAdicEsp'),{
+    type:'bar',
+    data:{labels:esps.labels,
+      datasets:[{label:'Monto (S/)',data:esps.data,
+        backgroundColor:esps.labels.map((_,i)=>espColors[i%espColors.length]),borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtS(c.parsed.x)}}},
+      scales:{x:{grid:{color:'#ECF3F9'},ticks:{callback:v=>'S/ '+(v/1000).toFixed(0)+'K'}},y:{grid:{display:false}}}
+    }
+  });
+
+  // 20 · Tabla top
+  const tb = document.getElementById('tblAdicTop');
+  tb.innerHTML = '';
+  d.adicionales.top.forEach(it=>{
+    const tr = document.createElement('tr');
+    if(it.total || it.subtotal) tr.className = 'row-total';
+    const montoStyle = it.highlight ? 'color:var(--green);font-weight:700' : '';
+    const espCell = it.esp ? `<span class="badge badge-meta">${it.esp}</span>` : '';
+    if(it.total){
+      tr.innerHTML = `<td colspan="3"><b>${it.desc}</b></td><td class="td-num"><b>${fmtSN(it.monto)}</b></td>`;
+    } else if(it.subtotal){
+      tr.innerHTML = `<td colspan="3">${it.desc}</td><td class="td-num">${fmtSN(it.monto)}</td>`;
+    } else {
+      tr.innerHTML = `<td>${it.num}</td><td>${it.desc}</td><td>${espCell}</td><td class="td-num ${it.highlight?'td-bold':''}" style="${montoStyle}">${fmtSN(it.monto)}</td>`;
+    }
+    tb.appendChild(tr);
+  });
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RENDER: SECCIÓN 7 — CRONOGRAMA
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderCrono(){
+  const d = wk();
+  const pctTrans = (d.diasTranscurridos/CONSTANTES.plazoDias)*100;
+
+  // Minis
+  const cm = document.getElementById('cronoMinis');
+  cm.innerHTML = '';
+  d.cronograma.minis.forEach(m=>{
+    const el = document.createElement('div');
+    el.className = 'mini';
+    el.innerHTML = `<div class="mini-lbl">${m.lbl}</div><div class="mini-val ${m.cls}">${m.val}</div>`;
+    cm.appendChild(el);
+  });
+
+  // Barra
+  document.getElementById('cronoBarFill').style.width = pctTrans.toFixed(1)+'%';
+  const marker = document.getElementById('cronoBarMarker');
+  marker.style.left = pctTrans.toFixed(1)+'%';
+  marker.textContent = `HOY · SEM ${d.semNum}`;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RENDER: SECCIÓN 8 — FOTOS
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderFotos(){
+  const d = wk();
+  const g = document.getElementById('fotoGrid');
+  g.innerHTML = '';
+  d.fotos.forEach(f=>{
+    const el = document.createElement('div');
+    el.style.cssText = 'border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--alice-blue)';
+    const gradEnd = f.color === '#2D936C' ? '#1A6B4A' : (f.color === '#E07B39' ? '#D64045' : '#0070B4');
+    const badge = f.badge ? `<span class="badge badge-meta" style="margin-left:4px">${f.badge}</span>` : '';
+    el.innerHTML = `
+      <div style="height:120px;background:linear-gradient(135deg,${f.color},${gradEnd});display:flex;align-items:center;justify-content:center;color:var(--white);font-family:'Bebas Neue';font-size:22px;letter-spacing:2px">FOTO ${String(f.n).padStart(2,'0')}</div>
+      <div style="padding:8px 10px;font-size:11px"><b>${f.desc}</b>${badge}</div>`;
+    g.appendChild(el);
+  });
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   INICIALIZACIÓN
+   ═══════════════════════════════════════════════════════════════════ */
+
+// Dispara la carga (Google Sheets → DATA). Si no hay URLs, cae a DEMO.
+initDashboard();
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ══ CÓMO AGREGAR UNA NUEVA SEMANA ══
+   ═══════════════════════════════════════════════════════════════════════════
+
+   Paso 1 — Localizar el objeto DATA.weeks (arriba en este script).
+
+   Paso 2 — Copiar el bloque completo de "S36" (la semana de referencia con
+   más datos) y pegarlo ANTES del comentario "AQUÍ SE AGREGAN SEMANAS NUEVAS".
+
+   Paso 3 — Cambiar la clave "S36" por la nueva semana (por ej. "S37").
+
+   Paso 4 — Actualizar TODOS los valores numéricos y textos de esa nueva
+   semana con la información de cierre del periodo correspondiente.
+
+   Paso 5 — Agregar el código de la semana al array WEEKS_ORDER (arriba
+   de todos los otros, porque está ordenado de más reciente a más antigua).
+   Ejemplo: const WEEKS_ORDER = ["S37","S36","S35"];
+
+   Paso 6 — Guardar y recargar el archivo. La nueva semana aparecerá en
+   el selector del header. Al seleccionarla, todos los gráficos, KPIs y
+   tablas se recargarán automáticamente con los datos de esa semana.
+
+   ───────────────────────────────────────────────────────────────────────────
+   PLANTILLA DE SEMANA NUEVA — copiar y pegar dentro de DATA.weeks:
+   ───────────────────────────────────────────────────────────────────────────
+
+   "S37": {
+     corte: "25/04/2026",
+     semNum: 37,
+     diasTranscurridos: 257,         // Calcular desde 11/08/2025 hasta fecha de corte
+
+     // BULLETS DEL RESUMEN EJECUTIVO (6 líneas aprox., color: green/blue/orange/red)
+     resumenEjecutivo: [
+       {color:"green", text:"Frase resumen positiva..."},
+       {color:"blue",  text:"Dato económico..."},
+       // ...
+     ],
+
+     // KPIs PRINCIPALES (los 6 que se muestran en vista RESUMEN)
+     kpis: {
+       contratacionPct: 0,       // % avance contratación
+       moPct:          0,        // % MO ejecutada sobre ppto
+       utilRentPct:    0,        // Util. + Rent. total %
+       personal:       0,        // trabajadores en obra (pico/promedio)
+       adicionales:    0,        // S/ acumulados aprobados
+       rentMOPct:      0         // % rentabilidad proyectada de MO
+     },
+
+     // AVANCE FÍSICO
+     avanceFisico: {
+       partidas: [
+         {n:'SOT · Vert-Acero', prog:0, real:0},
+         // ... 12 partidas
+       ],
+       frentes: [
+         {n:"CASCO SÓTANOS", pct:0, status:"ok", label:"Cerrando", nota:"..."},
+         {n:"CASCO SUPERIORES", pct:0, status:"info", label:"En ejecución", nota:"..."},
+         {n:"ALBAÑILERÍA", pct:0, status:"info", label:"En ejecución", nota:"..."},
+         {n:"MUROS ANCLADOS / EXCAV.", pct:100, status:"ok", label:"Terminado", nota:"..."}
+       ]
+       // status: "ok"=verde, "warn"=naranja, "bad"=rojo, "info"=azul
+     },
+
+     // PERSONAL
+     personal: {
+       evolucion: {
+         labels: ['S33','S34',...,'Actual'],
+         data:   [11,19,...,0]
+       },
+       hhPrestamo: {
+         TI:0, HMT:0, BL:0, GPLF:0, VT:0, TOTAL:0,
+         serie: {
+           labels:['S30','S31','S32','S33','S34','S35'],
+           TI:[0,0,0,0,0,0], HMT:[0,0,0,0,0,0],
+           BL:[0,0,0,0,0,0], GPLF:[0,0,0,0,0,0], VT:[0,0,0,0,0,0]
+         }
+       },
+       dimensionamiento: [
+         {n:"Subestructura", ger:40, campo:40},
+         {n:"Superestructura", ger:46, campo:46},
+         {n:"Total meta", ger:86, campo:86, total:true},
+         {n:"Actual (obra)", actual:0, warn:0}
+       ],
+       encofradoCuadrilla: {
+         labels:['Capataz','Verticales','Vigas Fondo','Vigas Lat.','Losas Fondo','Frizos','Escalera','Cajones'],
+         meta:[0,0,0,0,0,0,0,0],
+         aprobada:[0,0,0,0,0,0,0,0],
+         actual:[0,0,0,0,0,0,0,0]
+       },
+       dotacion: 0
+     },
+
+     // MANO DE OBRA
+     mo: {
+       acumulado: 0,
+       porcAcumulado: 0,
+       saldo: 0,
+       mensual: {
+         labels:['AGO-25','SEP-25','OCT-25','NOV-25','DIC-25','ENE-26','FEB-26','MAR-26','ABR-26'],
+         data:  [50964,117460,157341,136534,145343,211461,224488,214126,0],
+         pct:   [0.77,2.55,4.93,6.99,9.19,12.39,15.78,19.07,0]
+       },
+       stats: {
+         ahorroMeta: 0,
+         rentProyPct: 0,
+         semActual: "Semana N (Mes): N trab. · S/ 0",
+         promUltimas: "Promedio últimas 4 sem: N trab. · S/ 0/sem"
+       },
+       cuadrillas: [
+         // 11 cuadrillas: CONCRETO, ENCOFRADO, ACERO, MAESTRO CASCO, TOPÓGRAFO, VIGÍAS,
+         //                ALMACENERO, SEGURITOS, IISS, IIEE, RIGGERS
+         {n:'CONCRETO',rent:0,saldo:0,base:0,meta:0,ahorro:0,real:0,incid:0},
+         // ... resto
+       ]
+     },
+
+     // ADQUISICIONES
+     adquisiciones: {
+       subheader: "Fuente: <b>03 · Cuadro de adquisiciones</b> — N ítems · ...",
+       porEspecialidad: {
+         labels:['EST','ARQ','IIEE','IISS','IIGG','ACI','IIMM','DACI','COM','LEED'],
+         contratado:[0,0,0,0,0,0,0,0,0,0],
+         margenPct: [0,0,0,0,0,0,0,0,0,0]
+       },
+       etapas: {
+         labels:['SAME','COMP','CONTRATO','NETLOG','OC','IMPL. OBRA','SEGUIM.','CIERRE'],
+         data:  [0,0,0,0,0,0,0,0]
+       },
+       tipo: { suministros:0, subcontratos:0, cntSum:0, cntSc:0 },
+       responsables: [
+         {n:"MB",    items:0, contract:0, contratado:0, margen:0, partPct:0},
+         {n:"LF",    items:0, contract:0, contratado:0, margen:0, partPct:0},
+         {n:"DRS",   items:0, contract:0, contratado:0, margen:0, partPct:0},
+         {n:"JR",    items:0, contract:0, contratado:0, margen:0, partPct:0},
+         {n:"JR/MB", items:0, contract:0, contratado:0, margen:0, partPct:0},
+         {n:"TOTAL", items:0, contract:0, contratado:0, margen:0, partPct:100, total:true}
+       ],
+       rentabilidad: [
+         {lbl:"Utilidad Contractual", pct:6.50, monto:1718976, bg:"var(--alice-blue)", col:"var(--twitter-blue)"},
+         {lbl:"Rentabilidad Compras y S/C", pct:0, monto:0, bg:"#E6F4EE", col:"var(--green)"},
+         {lbl:"Entrega Anticipada", pct:0, monto:0, bg:"var(--alice-blue)", col:"var(--text-muted)", dim:true},
+         {lbl:"Ahorro MO", pct:0, monto:0, bg:"var(--alice-blue)", col:"var(--text-muted)", dim:true},
+         {lbl:"TOTAL Utilidad + Rentabilidad", pct:0, monto:0, bg:"var(--twitter-blue)", col:"var(--white)", total:true}
+       ],
+       facturacion: 26445788
+     },
+
+     // ENCOFRADO
+     encofrado: {
+       ingresos: { labels:[], data:[] },
+       composicion: [
+         {lbl:"Encofrado Casa (Propio)", val:"S/ 0", cls:"v-blue", bg:"#E6EEF8"},
+         {lbl:"Consumibles Total", val:"S/ 0", cls:"v-ok", bg:"#E6F4EE"},
+         {lbl:"Unispan (Arrendado)", val:"S/ 0", cls:"v-warn", bg:"#FEF3E8"}
+       ],
+       nota:"..."
+     },
+
+     // ADICIONALES
+     adicionales: {
+       subheader: "Fuente: <b>10 · Status de Adicionales y Deductivos</b> — ...",
+       porEspecialidad: {
+         labels:['ARQ','EST','IISS','IIEE','IIMM','Provisionales'],
+         data:[0,0,0,0,0,0]
+       },
+       top: [
+         {num:1,desc:"Descripción del item",esp:"ARQ",monto:0},
+         // ... ítems del top
+         {num:"",desc:"TOTAL ADICIONALES (N)",esp:"",monto:0, total:true}
+       ]
+     },
+
+     // CRONOGRAMA
+     cronograma: {
+       minis: [
+         {lbl:"Plazo total", val:"471 días", cls:"v-blue"},
+         {lbl:"Fecha inicio", val:"11/08/2025", cls:""},
+         {lbl:"Fecha reporte", val:"25/04/2026", cls:""},
+         {lbl:"Días transcurridos", val:"257 d (54.6%)", cls:"v-blue"},
+         {lbl:"Días restantes", val:"214 d (45.4%)", cls:"v-ok"},
+         {lbl:"Fase actual", val:"F2 · ...", cls:"v-blue"}
+       ]
+     },
+
+     // FOTOS
+     fotos: [
+       {n:1, desc:"Descripción foto 1", color:"#509BC9"},
+       // ... hasta 10
+     ],
+
+     // ALERTAS DE LA VISTA RESUMEN (3 alertas severidad: red/yellow/green)
+     alertas: [
+       {sev:"red",    icon:"⚠", titulo:"TÍTULO CORTO", texto:"Descripción breve",    num:"dato clave"},
+       {sev:"yellow", icon:"⚡", titulo:"TÍTULO CORTO", texto:"Descripción breve",    num:"dato clave"},
+       {sev:"green",  icon:"✓", titulo:"TÍTULO CORTO", texto:"Descripción breve",    num:"dato clave"}
+     ]
+   }
+
+   ───────────────────────────────────────────────────────────────────────────
+   FIN PLANTILLA. Luego de pegar, agregar también la clave al array
+   WEEKS_ORDER al inicio (línea que dice: const WEEKS_ORDER = [...];)
+   ─────────────────────────────────────────────────────────────────────────── */
+</script>
+</body>
+</html>
