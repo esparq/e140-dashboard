@@ -1,21 +1,21 @@
 {
   "semana": "S37",
-  "corte_fecha": "2026-04-25",
+  "corte_fecha": "2026-04-26",
   "archivos": {
     "histograma": {
-      "avance_obra_pct": 0.518079207920792,
-      "cpi_mo": 5.46164509059307,
-      "spi_meta": 0.920289855072464,
+      "avance_obra_pct": 0.5180792079207921,
+      "cpi_mo": 0.8321840388993803,
+      "spi_meta": 0.9202898550724637,
       "spi_contractual": "—",
       "mo_consumida": 1210523,
       "personal_obra": 75,
-      "costo_directo": 26445788,
-      "pct_mo": 0.25,
-      "mo_real_acum": 1210523,
-      "sectores_prog_sem": 24,
-      "sectores_ejec_sem": 13,
-      "sectores_prog_acum": 138,
-      "sectores_ejec_acum": 127
+      "costo_directo": 75,
+      "pct_mo": 4852517,
+      "mo_real_acum": 1897900,
+      "sectores_prog_sem": 0.093,
+      "sectores_ejec_sem": 1,
+      "sectores_prog_acum": 24,
+      "sectores_ejec_acum": 13
     },
     "casco_sot": {
       "partidas": [
@@ -168,9 +168,9 @@
       "items_total": 79
     },
     "cronograma": {
-      "fecha_inicio": "2025-08-11T00:00:00",
+      "fecha_inicio": 45880,
       "plazo_dias": 471,
-      "fecha_fin_programada": "2026-11-24T00:00:00",
+      "fecha_fin_programada": 46350,
       "dias_transcurridos": 250,
       "dias_restantes": 221,
       "semana_actual": 36,
@@ -182,119 +182,119 @@
           "cuadrilla": "CONCRETO",
           "mo_base": 479526.445388,
           "mo_meta": 422632.08,
-          "mo_real": 56894.36538799998,
-          "saldo": 155100,
-          "rent_pct": 267532.08
+          "mo_real": 155100,
+          "saldo": 267532.08,
+          "rent_pct": 76.76332695520888
         },
         {
           "cuadrilla": "ENCOFRADO",
           "mo_base": 899963.8852400001,
           "mo_meta": 857677.6971428569,
-          "mo_real": 42286.1880971432,
-          "saldo": 448800,
-          "rent_pct": 408877.6971428569
+          "mo_real": 448800,
+          "saldo": 408877.6971428569,
+          "rent_pct": 52.602963414222145
         },
         {
           "cuadrilla": "ACERO",
           "mo_base": 832140.21058,
           "mo_meta": 631155.685714286,
-          "mo_real": 200984.5248657139,
-          "saldo": 289300,
-          "rent_pct": 341855.68571428605
+          "mo_real": 289300,
+          "saldo": 341855.68571428605,
+          "rent_pct": 86.00733905544422
         },
         {
           "cuadrilla": "MAESTRO CASCO",
           "mo_base": 93960,
           "mo_meta": 84564,
-          "mo_real": 9396,
-          "saldo": 29000,
-          "rent_pct": 55564
+          "mo_real": 29000,
+          "saldo": 55564,
+          "rent_pct": 76.81755829903977
         },
         {
           "cuadrilla": "TOPÓGRAFO",
           "mo_base": 169345.0764,
           "mo_meta": 152410.56876,
-          "mo_real": 16934.507639999996,
-          "saldo": 70400,
-          "rent_pct": 82010.56876
+          "mo_real": 70400,
+          "saldo": 82010.56876,
+          "rent_pct": 64.92008868217545
         },
         {
           "cuadrilla": "VIGÍAS",
           "mo_base": 58900,
           "mo_meta": 53010,
-          "mo_real": 5890,
-          "saldo": 68200,
-          "rent_pct": -15190
+          "mo_real": 68200,
+          "saldo": -15190,
+          "rent_pct": -17.543859649122805
         },
         {
           "cuadrilla": "ALMACENERO",
           "mo_base": 71145,
           "mo_meta": 64030.5,
-          "mo_real": 7114.5,
-          "saldo": 35200,
-          "rent_pct": 28830.5
+          "mo_real": 35200,
+          "saldo": 28830.5,
+          "rent_pct": 56.137309563411186
         },
         {
           "cuadrilla": "SEGURITOS",
           "mo_base": 101900,
           "mo_meta": 91710,
-          "mo_real": 10190,
-          "saldo": 52800,
-          "rent_pct": 38910
+          "mo_real": 52800,
+          "saldo": 38910,
+          "rent_pct": 53.53832733616836
         },
         {
           "cuadrilla": "IISS",
           "mo_base": 533171.5368,
           "mo_meta": 443661.6,
-          "mo_real": 89509.93680000002,
-          "saldo": 320100,
-          "rent_pct": 123561.59999999998
+          "mo_real": 320100,
+          "saldo": 123561.59999999998,
+          "rent_pct": 48.02568822724347
         },
         {
           "cuadrilla": "IIEE",
           "mo_base": 430558.55789,
           "mo_meta": 516370.422857143,
-          "mo_real": -85811.86496714299,
-          "saldo": 380600,
-          "rent_pct": 135770.42285714298
+          "mo_real": 380600,
+          "saldo": 135770.42285714298,
+          "rent_pct": 9.674945674380993
         },
         {
           "cuadrilla": "RIGGERS",
           "mo_base": 83875.84,
           "mo_meta": 75488.256,
-          "mo_real": 8387.584000000003,
-          "saldo": 48400,
-          "rent_pct": 27088.255999999994
+          "mo_real": 48400,
+          "saldo": 27088.255999999994,
+          "rent_pct": 46.99517763398852
         }
       ]
     },
     "acero": {
       "acero_ppto_kg": 588098.7954,
-      "acero_consumido_kg": 248152.8744,
+      "acero_consumido_kg": 248152.87440000003,
       "acero_saldo_kg": 339945.921,
-      "acero_avance_pct": 42.1957800867824,
-      "acero_valor_ppto": 441197.740008963,
-      "acero_valor_consumido": 186028.774408384,
-      "acero_valor_saldo": 255168.965600579
+      "acero_avance_pct": 42.19578008678235,
+      "acero_valor_ppto": 441197.7400089627,
+      "acero_valor_consumido": 186028.77440838402,
+      "acero_valor_saldo": 255168.96560057864
     },
     "arrendamiento": {
       "tipo_cambio": 3.7,
       "f1_muro_anclado_m2": 2339.68,
       "f1_muro_anclado_costo_sol": 32685.3296,
-      "f1_cimentacion_costo_sol": 492.7219,
+      "f1_cimentacion_costo_sol": 492.72190000000006,
       "f1_total_sol": 33178.0515,
-      "f1_total_usd": 8967.04094594595
+      "f1_total_usd": 8967.040945945946
     },
     "kardex": {
-      "unispan_peso_kg": 168070.08,
-      "unispan_valor_sol": 4158284.32,
-      "unispan_valor_usd": 1123860.62702703,
+      "unispan_peso_kg": 168070.07999999993,
+      "unispan_valor_sol": 4158284.3200000017,
+      "unispan_valor_usd": 1123860.6270270275,
       "casa_peso_kg": 4640.75,
       "casa_valor_sol": 87788.42,
       "casa_valor_usd": 23726.6,
       "consumibles_sol": 10257.25,
-      "consumibles_usd": 2772.22972972973,
-      "total_encofrado_sol": 4256329.99
+      "consumibles_usd": 2772.2297297297296,
+      "total_encofrado_sol": 4256329.990000002
     },
     "adicionales": {
       "items": [
@@ -462,88 +462,88 @@
           "n": 0,
           "descripcion": 0,
           "especialidad": 0,
-          "monto_sol": null,
-          "monto_usd": null,
-          "tipo": null
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
         },
         {
           "n": 0,
           "descripcion": 0,
           "especialidad": 0,
-          "monto_sol": null,
-          "monto_usd": null,
-          "tipo": null
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
         },
         {
           "n": 0,
           "descripcion": 0,
           "especialidad": 0,
-          "monto_sol": null,
-          "monto_usd": null,
-          "tipo": null
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
         },
         {
           "n": 0,
           "descripcion": "ADICIONALES EN EVALUACIÓN INTERNA DE STAFF",
           "especialidad": 0,
-          "monto_sol": null,
-          "monto_usd": null,
-          "tipo": null
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
         },
         {
           "n": 0,
           "descripcion": "RFI 077 Sumideros y sardinel en desniveles de estacionamientos",
           "especialidad": "IISS",
-          "monto_sol": null,
-          "monto_usd": null,
-          "tipo": null
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
         },
         {
           "n": 0,
           "descripcion": "RFI 078 Puerta lavandería P07 ventilación",
           "especialidad": "ARQ",
-          "monto_sol": null,
-          "monto_usd": null,
-          "tipo": null
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
         },
         {
           "n": 0,
           "descripcion": "RFI 080 Sumideros en estacionamiento",
           "especialidad": "IISS",
-          "monto_sol": null,
-          "monto_usd": null,
-          "tipo": null
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
         },
         {
           "n": 0,
           "descripcion": "RFI. N° 092-Muros cortafuego - aumento de sellos corta fuegos",
           "especialidad": "ARQ",
-          "monto_sol": null,
-          "monto_usd": null,
-          "tipo": null
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
         },
         {
           "n": 0,
           "descripcion": "RFI 081 Baranda en piso 14 (acceso a techo)",
           "especialidad": "ARQ",
-          "monto_sol": null,
-          "monto_usd": null,
-          "tipo": null
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
         },
         {
           "n": 0,
           "descripcion": "Actualización de planos DYA (ver control de cambios)",
           "especialidad": "DYA",
-          "monto_sol": null,
-          "monto_usd": null,
-          "tipo": null
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
         }
       ],
-      "adicionales_sol": 840002.307127,
+      "adicionales_sol": 840002.3071270001,
       "adicionales_usd": 20341.33,
       "deductivos_sol": 20298.4910775816,
       "deductivos_usd": 2466.005,
-      "neto_sol": 819703.816049418,
+      "neto_sol": 819703.8160494184,
       "neto_usd": 17875.325,
       "cantidad_items": 27
     }
