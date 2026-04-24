@@ -452,7 +452,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .capa-sub{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-left:auto;}
 
 /* ─── MÓDULO 1: UTILIDAD EN RIESGO (KPI maestro) ─── */
-.util-riesgo{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 20px;margin-bottom:12px;position:relative;overflow:hidden;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;max-height:130px;}
+.util-riesgo{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 20px;margin-bottom:8px;position:relative;overflow:hidden;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;max-height:130px;}
 .util-riesgo::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
 .util-riesgo.ur-green::before{background:var(--green);}
 .util-riesgo.ur-orange::before{background:var(--orange);}
@@ -479,6 +479,114 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .ur-componente{display:flex;flex-direction:row;gap:4px;align-items:center;padding:2px 6px;background:var(--alice-blue);border-radius:3px;border:1px solid var(--border);}
 .ur-componente-lbl{font-size:9px;text-transform:uppercase;color:var(--text-muted);letter-spacing:.04em;font-weight:700;}
 .ur-componente-val{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;color:var(--text);}
+
+/* ─── CAJA DE FÓRMULA Y DESGLOSE DEL CÁLCULO ─── */
+.ur-formula-box{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px 18px;
+  margin-bottom:12px;
+  font-size:11px;
+  color:var(--text);
+}
+.ur-formula-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+  padding-bottom:8px;
+  border-bottom:1px dashed var(--border);
+  gap:10px;
+}
+.ur-formula-title{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:var(--text-muted);
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.ur-formula-title::before{
+  content:'ƒ';
+  font-family:'DM Mono',monospace;
+  font-size:14px;
+  color:var(--twitter-blue);
+  font-weight:700;
+  font-style:italic;
+}
+.ur-formula-eq{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  color:var(--text-muted);
+  white-space:nowrap;
+  overflow-x:auto;
+}
+.ur-formula-eq b{color:var(--text);}
+.ur-breakdown{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+.ur-break-col{
+  padding:10px 12px;
+  background:var(--alice-blue);
+  border-radius:6px;
+  border-left:3px solid var(--blue-bell);
+}
+.ur-break-col.bc-spi{border-left-color:var(--orange);}
+.ur-break-col.bc-mo{border-left-color:var(--red);}
+.ur-break-col.bc-avance{border-left-color:var(--blue-bell);}
+.ur-break-label{
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--text-muted);
+  font-weight:700;
+  margin-bottom:4px;
+}
+.ur-break-metric{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  color:var(--text-muted);
+  margin-bottom:2px;
+}
+.ur-break-metric b{color:var(--text);}
+.ur-break-calc{
+  font-family:'DM Mono',monospace;
+  font-size:10.5px;
+  color:var(--text);
+  padding:4px 6px;
+  background:var(--white);
+  border-radius:3px;
+  margin-top:6px;
+  border:1px solid var(--border);
+}
+.ur-break-calc .contrib{
+  font-weight:700;
+  color:var(--twitter-blue);
+}
+.ur-formula-total{
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px dashed var(--border);
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  color:var(--text-muted);
+}
+.ur-formula-total b{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:20px;
+  color:var(--text);
+  letter-spacing:1px;
+  line-height:1;
+}
 
 /* REGLA GLOBAL DE SEGURIDAD — previene que cualquier canvas crezca fuera de su padre */
 .scroll-area canvas{max-width:100%;max-height:100%;}
@@ -1274,6 +1382,23 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
             <div class="risk-sparkline-wrap">
               <canvas id="urSpark"></canvas>
             </div>
+          </div>
+        </div>
+
+        <!-- Caja de fórmula y desglose del cálculo (transparencia) -->
+        <div class="ur-formula-box" id="urFormulaBox">
+          <div class="ur-formula-header">
+            <span class="ur-formula-title">Fórmula de Utilidad en Riesgo</span>
+            <span class="ur-formula-eq">
+              <b>Riesgo</b> = w<sub>1</sub>·Desv<sub>SPI</sub> + w<sub>2</sub>·Desv<sub>MO</sub> + w<sub>3</sub>·Desv<sub>Avance</sub>
+              <span style="color:var(--text-muted)">· pesos iguales (1/3 cada uno)</span>
+            </span>
+          </div>
+          <div class="ur-breakdown" id="urBreakdown">
+            <!-- Se llena dinámicamente desde v2RenderUtilidadRiesgo -->
+          </div>
+          <div class="ur-formula-total" id="urFormulaTotal">
+            <!-- Se llena dinámicamente -->
           </div>
         </div>
 
@@ -5489,9 +5614,9 @@ const CONFIG_V2 = {
   // ─── MÓDULO 1 · UTILIDAD EN RIESGO ───
   utilidadRiesgo: {
     pesos: {
-      spi: 0.35,       // Peso desviación SPI
-      mo:  0.40,       // Peso desviación CPI MO
-      avance: 0.25,    // Peso desviación avance vs cronograma
+      spi:    1/3,   // 33.33% — Peso desviación SPI
+      mo:     1/3,   // 33.33% — Peso desviación CPI MO
+      avance: 1/3,   // 33.33% — Peso desviación avance vs cronograma
     },
     umbrales: {
       verde: 5,        // 0 a 5% → utilidad asegurada
@@ -5585,7 +5710,7 @@ function v2RenderUtilidadRiesgo(){
   document.getElementById('urValue').textContent = utilRiesgoPct.toFixed(1) + '%';
   document.getElementById('urLectura').textContent = lectura;
 
-  // Componentes (mostrar desglose)
+  // Componentes compactos (chips de la tarjeta principal)
   document.getElementById('urComponentes').innerHTML = `
     <div class="ur-componente">
       <div class="ur-componente-lbl">Desv. SPI</div>
@@ -5600,6 +5725,47 @@ function v2RenderUtilidadRiesgo(){
       <div class="ur-componente-val">${desvAvance.toFixed(1)}%</div>
     </div>
   `;
+
+  // ─── Caja de fórmula: desglose detallado del cálculo ───
+  const pesoPctSpi    = (w.spi    * 100).toFixed(1);
+  const pesoPctMo     = (w.mo     * 100).toFixed(1);
+  const pesoPctAvance = (w.avance * 100).toFixed(1);
+  const contribSpi    = w.spi    * desvSpi;
+  const contribMo     = w.mo     * desvCpi;
+  const contribAvance = w.avance * desvAvance;
+
+  const breakdownEl = document.getElementById('urBreakdown');
+  if(breakdownEl){
+    breakdownEl.innerHTML = `
+      <div class="ur-break-col bc-spi">
+        <div class="ur-break-label">Desv. SPI · Peso ${pesoPctSpi}%</div>
+        <div class="ur-break-metric">SPI actual: <b>${spi != null ? spi.toFixed(2) : '—'}</b> · ideal <b>1.00</b></div>
+        <div class="ur-break-metric">Desviación: (1 − ${spi != null ? spi.toFixed(2) : '0'}) × 100 = <b>${desvSpi.toFixed(1)}%</b></div>
+        <div class="ur-break-calc">${pesoPctSpi}% × ${desvSpi.toFixed(1)}% = <span class="contrib">${contribSpi.toFixed(2)} pp</span></div>
+      </div>
+      <div class="ur-break-col bc-mo">
+        <div class="ur-break-label">Desv. MO · Peso ${pesoPctMo}%</div>
+        <div class="ur-break-metric">CPI actual: <b>${cpi != null ? cpi.toFixed(2) : '—'}</b> · ideal <b>1.00</b></div>
+        <div class="ur-break-metric">Desviación: (1 − ${cpi != null ? Math.min(cpi, 1).toFixed(2) : '0'}) × 100 = <b>${desvCpi.toFixed(1)}%</b></div>
+        <div class="ur-break-calc">${pesoPctMo}% × ${desvCpi.toFixed(1)}% = <span class="contrib">${contribMo.toFixed(2)} pp</span></div>
+      </div>
+      <div class="ur-break-col bc-avance">
+        <div class="ur-break-label">Desv. Avance · Peso ${pesoPctAvance}%</div>
+        <div class="ur-break-metric">Avance real: <b>${avance != null ? avance.toFixed(1) : '—'}%</b> · tiempo transcurrido <b>${diasPct.toFixed(1)}%</b></div>
+        <div class="ur-break-metric">Desviación: ${diasPct.toFixed(1)}% − ${avance != null ? avance.toFixed(1) : '0'}% = <b>${desvAvance.toFixed(1)}%</b></div>
+        <div class="ur-break-calc">${pesoPctAvance}% × ${desvAvance.toFixed(1)}% = <span class="contrib">${contribAvance.toFixed(2)} pp</span></div>
+      </div>
+    `;
+  }
+
+  const totalEl = document.getElementById('urFormulaTotal');
+  if(totalEl){
+    totalEl.innerHTML = `
+      <span>Suma ponderada:</span>
+      <span>${contribSpi.toFixed(2)} + ${contribMo.toFixed(2)} + ${contribAvance.toFixed(2)} =</span>
+      <b>${utilRiesgoPct.toFixed(1)}%</b>
+    `;
+  }
 
   // Sparkline tendencia 4 semanas (usa valores histórico o placeholder)
   const ctx = document.getElementById('urSpark');
