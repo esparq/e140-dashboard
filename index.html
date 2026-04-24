@@ -166,7 +166,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .pb-sep{width:1px;height:26px;background:var(--border);}
 
 /* Scroll area for sections */
-.scroll-area{flex:1;overflow-y:auto;padding:20px 28px 40px;}
+.scroll-area{flex:1;overflow-y:auto;padding:12px 32px 32px;}
 
 /* Section visibility */
 .section{display:none;}
@@ -272,24 +272,38 @@ tbody tr:hover td{background:#EEF5FA;}
 tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 
 /* ═════════ RESUMEN (PROYECCIÓN) ═════════ */
-.r-banner{background:var(--twitter-blue);color:var(--white);border-radius:10px;padding:22px 26px;margin-bottom:22px;position:relative;overflow:hidden;}
+/* Banner del Resumen — versión COMPACTA fusionada con metadata */
+.r-banner{background:var(--twitter-blue);color:var(--white);border-radius:10px;padding:14px 24px;margin-bottom:12px;position:relative;overflow:hidden;}
 .r-banner::after{content:'';position:absolute;right:-40px;top:-40px;width:180px;height:180px;background:rgba(255,255,255,0.05);border-radius:50%;}
-.r-banner-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;position:relative;z-index:1;}
-.r-banner-title{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:3px;line-height:1;}
-.r-banner-sub{font-size:11px;color:var(--baby-blue);letter-spacing:.15em;text-transform:uppercase;margin-top:6px;}
-.r-banner-right{text-align:right;position:relative;z-index:1;}
-.r-banner-right .corte-lbl{font-size:10px;color:var(--baby-blue);letter-spacing:.15em;text-transform:uppercase;}
-.r-banner-right .corte-val{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;}
-.r-banner-right .plazo{margin-top:4px;font-size:10px;color:var(--baby-blue);}
+.r-banner-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;position:relative;z-index:1;gap:16px;}
+.r-banner-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;line-height:1;}
+.r-banner-sub{font-size:10px;color:var(--baby-blue);letter-spacing:.12em;text-transform:uppercase;margin-top:3px;}
+.r-banner-right{text-align:right;position:relative;z-index:1;display:flex;flex-direction:column;gap:2px;}
+.r-banner-right .corte-inline{display:flex;gap:8px;align-items:baseline;justify-content:flex-end;}
+.r-banner-right .corte-lbl{font-size:9px;color:var(--baby-blue);letter-spacing:.12em;text-transform:uppercase;}
+.r-banner-right .corte-val{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;}
+.r-banner-right .plazo{font-size:10px;color:var(--baby-blue);}
 .r-banner-right .plazo b{color:var(--white);font-weight:700;}
+
+/* Progress row compacta (barra + % inline) */
+.r-progress-row{display:flex;align-items:center;gap:12px;position:relative;z-index:1;margin-bottom:8px;}
+.r-progress-track{flex:1;background:rgba(255,255,255,0.18);border-radius:3px;height:6px;overflow:hidden;position:relative;}
+.r-progress-fill{background:var(--white);height:100%;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.r-progress-pct{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--white);letter-spacing:.05em;min-width:46px;text-align:right;}
+
+/* Metadata fusionada en una sola línea */
+.r-banner-meta{font-size:11px;color:var(--baby-blue);letter-spacing:.02em;position:relative;z-index:1;line-height:1.4;overflow-x:auto;white-space:nowrap;padding-bottom:2px;}
+.r-banner-meta::-webkit-scrollbar{height:0;}
+.r-banner-meta .sep{color:rgba(255,255,255,0.35);margin:0 8px;}
+.r-banner-meta span:not(.sep){color:rgba(255,255,255,0.92);}
 
 .r-progress-track{height:16px;background:rgba(255,255,255,0.15);border-radius:8px;overflow:hidden;position:relative;}
 .r-progress-fill{height:100%;background:linear-gradient(90deg,#FFFFFF 0%,#97C5E0 100%);border-radius:8px;transition:width .5s;}
 .r-progress-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--baby-blue);font-family:'DM Mono',monospace;letter-spacing:.05em;}
 
 /* R KPI Poster */
-.r-kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:22px;}
-.r-kpi{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 12px;position:relative;overflow:hidden;}
+.r-kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:10px;}
+.r-kpi{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 12px;position:relative;overflow:hidden;max-height:100px;}
 .r-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--blue-bell);}
 .r-kpi.rk-primary::before{background:var(--twitter-blue);}
 .r-kpi.rk-dark::before{background:var(--blue-bell-dk);}
@@ -297,18 +311,18 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .r-kpi.rk-green::before{background:var(--green);}
 .r-kpi.rk-orange::before{background:var(--orange);}
 .r-kpi.rk-red::before{background:var(--red);}
-.r-kpi-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:6px;}
-.r-kpi-value{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:1px;line-height:1;color:var(--twitter-blue);}
+.r-kpi-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px;}
+.r-kpi-value{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;line-height:1;color:var(--twitter-blue);}
 .r-kpi.rk-green .r-kpi-value{color:var(--green);}
 .r-kpi.rk-orange .r-kpi-value{color:var(--orange);}
 .r-kpi.rk-red .r-kpi-value{color:var(--red);}
-.r-kpi-delta{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11px;font-family:'DM Mono',monospace;font-weight:600;}
-.r-kpi-delta .arrow{font-size:12px;line-height:1;}
+.r-kpi-delta{display:flex;align-items:center;gap:4px;margin-top:4px;font-size:10px;font-family:'DM Mono',monospace;font-weight:600;}
+.r-kpi-delta .arrow{font-size:11px;line-height:1;}
 .r-kpi-delta.up{color:var(--green);}
 .r-kpi-delta.down{color:var(--red);}
 .r-kpi-delta.flat{color:var(--text-muted);}
 .r-kpi-delta .vs{color:var(--text-muted);font-weight:400;font-family:'DM Sans',sans-serif;font-size:10px;}
-.r-kpi-spark{height:30px;margin-top:6px;}
+.r-kpi-spark{height:22px;margin-top:4px;}
 
 /* Semáforo frentes */
 .r-frentes{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
@@ -370,47 +384,47 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
    ═  Velocidad · Separación Adicionales · Gestión · Pipeline       ═
    ═══════════════════════════════════════════════════════════════════ */
 
-/* Label de capa (RIESGO / HOY / MAÑANA) */
-.capa-header{display:flex;align-items:center;gap:12px;margin:8px 0 14px;padding:6px 14px;background:var(--alice-blue);border-radius:8px;border-left:4px solid var(--twitter-blue);}
+/* Label de capa (RIESGO / HOY / MAÑANA) — VERSIÓN COMPACTA */
+.capa-header{display:flex;align-items:center;gap:10px;margin:6px 0 6px;padding:4px 12px;background:var(--alice-blue);border-radius:6px;border-left:3px solid var(--twitter-blue);}
 .capa-header.c-riesgo{border-left-color:var(--red);}
 .capa-header.c-hoy{border-left-color:var(--twitter-blue);}
 .capa-header.c-manana{border-left-color:var(--blue-bell);}
 .capa-header.c-gestion{border-left-color:var(--blue-bell-dk);}
-.capa-num{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.5px;color:var(--twitter-blue);line-height:1;}
+.capa-num{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--twitter-blue);line-height:1;}
 .capa-header.c-riesgo .capa-num{color:var(--red);}
 .capa-header.c-manana .capa-num{color:var(--blue-bell);}
 .capa-header.c-gestion .capa-num{color:var(--blue-bell-dk);}
-.capa-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--text);line-height:1;}
-.capa-sub{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-left:auto;}
+.capa-title{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.5px;color:var(--text);line-height:1;}
+.capa-sub{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-left:auto;}
 
 /* ─── MÓDULO 1: UTILIDAD EN RIESGO (KPI maestro) ─── */
-.util-riesgo{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:22px 26px;margin-bottom:22px;position:relative;overflow:hidden;display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;max-height:220px;}
-.util-riesgo::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;}
+.util-riesgo{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 20px;margin-bottom:12px;position:relative;overflow:hidden;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;max-height:130px;}
+.util-riesgo::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
 .util-riesgo.ur-green::before{background:var(--green);}
 .util-riesgo.ur-orange::before{background:var(--orange);}
 .util-riesgo.ur-red::before{background:var(--red);}
-.ur-semaforo{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--white);letter-spacing:1px;box-shadow:0 4px 14px rgba(0,0,0,.1);flex-shrink:0;}
+.ur-semaforo{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--white);letter-spacing:1px;box-shadow:0 3px 10px rgba(0,0,0,.1);flex-shrink:0;}
 .util-riesgo.ur-green .ur-semaforo{background:var(--green);}
 .util-riesgo.ur-orange .ur-semaforo{background:var(--orange);}
 .util-riesgo.ur-red .ur-semaforo{background:var(--red);}
-.ur-center{display:flex;flex-direction:column;gap:4px;min-width:0;}
-.ur-label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;}
-.ur-value{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:1px;line-height:.95;color:var(--text);}
+.ur-center{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.ur-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;}
+.ur-value{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;line-height:.95;color:var(--text);}
 .util-riesgo.ur-green .ur-value{color:var(--green);}
 .util-riesgo.ur-orange .ur-value{color:var(--orange);}
 .util-riesgo.ur-red .ur-value{color:var(--red);}
-.ur-lectura{font-size:13px;color:var(--text-muted);font-weight:600;}
-.ur-right{text-align:right;min-width:180px;flex-shrink:0;}
-.ur-right-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:600;margin-bottom:4px;}
+.ur-lectura{font-size:12px;color:var(--text-muted);font-weight:600;}
+.ur-right{text-align:right;min-width:110px;flex-shrink:0;}
+.ur-right-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:600;margin-bottom:2px;}
 
-/* WRAPPER OBLIGATORIO DEL SPARKLINE — fija altura para evitar crecimiento infinito de Chart.js */
-.risk-sparkline-wrap{position:relative;width:160px;height:60px;max-height:60px;overflow:hidden;margin-left:auto;}
-.risk-sparkline-wrap canvas{max-height:60px !important;max-width:160px !important;}
+/* WRAPPER OBLIGATORIO DEL SPARKLINE — altura fija para evitar crecimiento infinito */
+.risk-sparkline-wrap{position:relative;width:100px;height:50px;max-height:50px;overflow:hidden;margin-left:auto;}
+.risk-sparkline-wrap canvas{max-height:50px !important;max-width:100px !important;}
 
-.ur-componentes{display:flex;gap:14px;margin-top:10px;font-size:10px;flex-wrap:wrap;}
-.ur-componente{display:flex;flex-direction:column;gap:2px;padding:4px 8px;background:var(--alice-blue);border-radius:4px;border:1px solid var(--border);}
-.ur-componente-lbl{font-size:9px;text-transform:uppercase;color:var(--text-muted);letter-spacing:.05em;font-weight:700;}
-.ur-componente-val{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--text);}
+.ur-componentes{display:flex;gap:6px;margin-top:4px;font-size:10px;flex-wrap:wrap;}
+.ur-componente{display:flex;flex-direction:row;gap:4px;align-items:center;padding:2px 6px;background:var(--alice-blue);border-radius:3px;border:1px solid var(--border);}
+.ur-componente-lbl{font-size:9px;text-transform:uppercase;color:var(--text-muted);letter-spacing:.04em;font-weight:700;}
+.ur-componente-val{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;color:var(--text);}
 
 /* REGLA GLOBAL DE SEGURIDAD — previene que cualquier canvas crezca fuera de su padre */
 .scroll-area canvas{max-width:100%;max-height:100%;}
@@ -435,29 +449,29 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .proy-chart{height:60px;margin-top:8px;}
 .proy-footer{font-size:10px;color:var(--text-muted);margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);}
 
-/* ─── MÓDULO 3: EFICIENCIA PRODUCTIVA (termómetro) ─── */
-.eficiencia-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-bottom:22px;}
-.ef-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
-.ef-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;color:var(--text);}
-.ef-title span{color:var(--twitter-blue);margin-right:8px;}
-.ef-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
-.ef-value{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:1px;line-height:.95;color:var(--text);text-align:right;}
+/* ─── MÓDULO 3: EFICIENCIA PRODUCTIVA (termómetro COMPACTO) ─── */
+.eficiencia-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 18px;margin-bottom:12px;max-height:150px;}
+.ef-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:14px;}
+.ef-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1.2px;color:var(--text);line-height:1;}
+.ef-title span{color:var(--twitter-blue);margin-right:6px;}
+.ef-sub{font-size:10px;color:var(--text-muted);margin-top:2px;}
+.ef-value{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;line-height:1;color:var(--text);text-align:right;flex-shrink:0;}
 .ef-value.ef-ok{color:var(--green);}
 .ef-value.ef-warn{color:var(--orange);}
 .ef-value.ef-bad{color:var(--red);}
-.ef-termometro{height:18px;background:linear-gradient(90deg,var(--red) 0%,var(--red) 33%,var(--orange) 33%,var(--orange) 50%,var(--green) 50%,var(--green) 100%);border-radius:9px;position:relative;margin:10px 0;}
-.ef-aguja{position:absolute;top:-4px;bottom:-4px;width:4px;background:var(--text);border-radius:2px;box-shadow:0 0 0 2px var(--white), 0 2px 6px rgba(0,0,0,.3);transition:left .5s cubic-bezier(.4,0,.2,1);}
-.ef-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.05em;}
-.ef-legenda{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;font-size:11px;}
-.ef-leg-block{padding:8px 10px;border-radius:6px;border-left:3px solid;}
+.ef-termometro{height:14px;background:linear-gradient(90deg,var(--red) 0%,var(--red) 33%,var(--orange) 33%,var(--orange) 50%,var(--green) 50%,var(--green) 100%);border-radius:7px;position:relative;margin:6px 0 4px;}
+.ef-aguja{position:absolute;top:-3px;bottom:-3px;width:3px;background:var(--text);border-radius:1.5px;box-shadow:0 0 0 2px var(--white), 0 2px 5px rgba(0,0,0,.3);transition:left .5s cubic-bezier(.4,0,.2,1);}
+.ef-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--text-muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.04em;}
+.ef-legenda{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px;font-size:10px;}
+.ef-leg-block{padding:4px 8px;border-radius:4px;border-left:2px solid;line-height:1.2;}
 .ef-leg-block.lb-bad{border-color:var(--red);background:#FDECEA;}
 .ef-leg-block.lb-warn{border-color:var(--orange);background:#FEF3E8;}
 .ef-leg-block.lb-ok{border-color:var(--green);background:#E6F4EE;}
-.ef-leg-lbl{font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.05em;}
+.ef-leg-lbl{font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.04em;}
 .ef-leg-block.lb-bad .ef-leg-lbl{color:var(--red);}
 .ef-leg-block.lb-warn .ef-leg-lbl{color:var(--orange);}
 .ef-leg-block.lb-ok .ef-leg-lbl{color:var(--green);}
-.ef-leg-desc{color:var(--text-muted);font-size:10px;margin-top:2px;}
+.ef-leg-desc{color:var(--text-muted);font-size:9px;margin-top:1px;}
 
 /* ─── MÓDULO 5: VELOCIDAD DE OBRA ─── */
 .velocidad-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-bottom:22px;}
@@ -1024,20 +1038,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
     <!-- BANNER ZONE (mensajes de sync, errores por hoja, offline, etc.) -->
     <div id="bannerZone"></div>
 
-    <!-- PROJECT BAR -->
-    <div class="project-bar">
-      <div class="pb-item"><div class="pb-label">Cliente</div><div class="pb-value" id="pbCliente">Espinosa Arquitectos</div></div>
-      <div class="pb-sep"></div>
-      <div class="pb-item"><div class="pb-label">Dirección</div><div class="pb-value" id="pbDireccion">Av. Arequipa 4682, Miraflores</div></div>
-      <div class="pb-sep"></div>
-      <div class="pb-item"><div class="pb-label">Niveles</div><div class="pb-value" id="pbNiveles">16 + Azotea · 5 Sót.</div></div>
-      <div class="pb-sep"></div>
-      <div class="pb-item"><div class="pb-label">Área</div><div class="pb-value" id="pbArea">13,784.54 m²</div></div>
-      <div class="pb-sep"></div>
-      <div class="pb-item"><div class="pb-label">Dptos/Estac.</div><div class="pb-value" id="pbDptosEstac">103 / 112</div></div>
-      <div class="pb-sep"></div>
-      <div class="pb-item"><div class="pb-label">Inicio · Plazo</div><div class="pb-value" id="pbInicio">11/08/2025 · 471 d</div></div>
-    </div>
+    <!-- PROJECT BAR eliminada — metadata ahora fusionada dentro del banner compacto del RESUMEN -->
 
     <!-- SCROLL AREA -->
     <div class="scroll-area" id="scrollArea">
@@ -1049,24 +1050,39 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
            CAPA 2 → MAÑANA (proyecciones)
            ═══════════════════════════════════════════ -->
       <section class="section active" id="sec-resumen">
-        <!-- A. Banner (plazo + semana) -->
-        <div class="r-banner">
+        <!-- A. Banner COMPACTO · fusiona metadata del proyecto + plazo -->
+        <div class="r-banner r-banner-compact">
           <div class="r-banner-top">
             <div>
               <div class="r-banner-title" id="rBannerTitle">ESPARQ 140 · SEMANA 36</div>
-              <div class="r-banner-sub">Dashboard ejecutivo de obra · Fase 2</div>
+              <div class="r-banner-sub">Dashboard ejecutivo · Fase 2</div>
             </div>
             <div class="r-banner-right">
-              <div class="corte-lbl">Corte</div>
-              <div class="corte-val" id="rBannerCorte">18 / 04 / 2026</div>
-              <div class="plazo" id="rBannerPlazo">Día <b>250</b> de 471 · <b>221 d restantes</b></div>
+              <div class="corte-inline">
+                <span class="corte-lbl">Corte</span>
+                <span class="corte-val" id="rBannerCorte">18 / 04 / 2026</span>
+              </div>
+              <div class="plazo" id="rBannerPlazo">Día <b>250</b>/471 · <b>221 d restantes</b></div>
             </div>
           </div>
-          <div class="r-progress-track"><div class="r-progress-fill" id="rProgressFill" style="width:53.1%"></div></div>
-          <div class="r-progress-labels">
-            <span>11/08/2025 · INICIO</span>
-            <span id="rProgressPct" style="color:#FFFFFF;font-weight:700">53.1% TRANSCURRIDO</span>
-            <span>24/11/2026 · CIERRE EST.</span>
+          <div class="r-progress-row">
+            <div class="r-progress-track"><div class="r-progress-fill" id="rProgressFill" style="width:53.1%"></div></div>
+            <span class="r-progress-pct" id="rProgressPct">53.1%</span>
+          </div>
+          <div class="r-banner-meta">
+            <span id="rMetaCliente">Espinosa Arquitectos</span>
+            <span class="sep">·</span>
+            <span id="rMetaDir">Av. Arequipa 4682, Miraflores</span>
+            <span class="sep">·</span>
+            <span id="rMetaNiveles">16 + Azotea · 5 Sót.</span>
+            <span class="sep">·</span>
+            <span id="rMetaArea">13,784.54 m²</span>
+            <span class="sep">·</span>
+            <span id="rMetaDptos">103/112 dptos</span>
+            <span class="sep">·</span>
+            <span id="rMetaInicio">Inicio 11/08/2025</span>
+            <span class="sep">·</span>
+            <span id="rMetaPlazo">Plazo 471 d</span>
           </div>
         </div>
 
