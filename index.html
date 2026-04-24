@@ -322,7 +322,53 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .r-kpi-delta.down{color:var(--red);}
 .r-kpi-delta.flat{color:var(--text-muted);}
 .r-kpi-delta .vs{color:var(--text-muted);font-weight:400;font-family:'DM Sans',sans-serif;font-size:10px;}
-.r-kpi-spark{height:22px;margin-top:4px;}
+.r-kpi-spark{height:18px;margin-top:2px;}
+
+/* ─── BADGE DE META AL PIE DE CADA KPI (estilo reporte marzo 2026) ─── */
+.kpi-meta-footer{
+  margin-top:6px;
+  padding-top:6px;
+  border-top:1px dashed var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:6px;
+  font-size:9.5px;
+  flex-wrap:wrap;
+  line-height:1.2;
+}
+.kpi-meta-target{
+  color:var(--text-muted);
+  font-weight:500;
+  letter-spacing:.02em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  flex:1;
+  min-width:0;
+}
+.kpi-meta-target b{
+  color:var(--text);
+  font-weight:600;
+}
+.kpi-meta-status{
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  padding:2px 5px;
+  border-radius:3px;
+  white-space:nowrap;
+  font-size:9px;
+  flex-shrink:0;
+}
+.kpi-meta-cumple,
+.kpi-meta-superada{color:#1E7A53;background:#E6F4EE;border:1px solid #A8D8C0;}
+.kpi-meta-seguimiento{color:#9E5215;background:#FEF3E8;border:1px solid #F0C894;}
+.kpi-meta-nocumple{color:#B03030;background:#FDECEA;border:1px solid #F0AAAA;}
+.kpi-meta-sindato{color:#6B7A88;background:#F1F4F7;border:1px solid #D4DDE5;}
+
+/* Leve incremento de altura máxima del KPI para acomodar el badge */
+.r-kpi{max-height:135px !important;}
 
 /* Semáforo frentes */
 .r-frentes{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
@@ -366,17 +412,6 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .r-evo-sub{font-size:11px;color:var(--text-muted);font-style:italic;margin-bottom:12px;}
 
 /* Datos del plazo */
-.r-plazo{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:8px;}
-.r-plazo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:14px;}
-.r-plazo-block{text-align:center;padding:14px 10px;border-radius:10px;background:var(--alice-blue);}
-.r-plazo-block.p-ok{background:#E9F6F0;}
-.r-plazo-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:6px;}
-.r-plazo-val{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:1px;line-height:.95;color:var(--twitter-blue);}
-.r-plazo-block.p-ok .r-plazo-val{color:var(--green);}
-.r-plazo-sub{font-size:11px;color:var(--text-muted);margin-top:4px;}
-.r-plazo-track{height:14px;background:var(--alice-blue);border-radius:7px;overflow:hidden;position:relative;margin-top:8px;}
-.r-plazo-fill{height:100%;background:linear-gradient(90deg,var(--twitter-blue) 0%,var(--blue-bell) 100%);border-radius:7px;transition:width .5s;}
-.r-plazo-labs{display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;}
 
 /* ═════════════════════════════════════════════════════════════════
    ═  MÓDULOS V2 — 3 CAPAS LÓGICAS + KPIs EJECUTIVOS                ═
@@ -539,7 +574,6 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
   .kpi-strip,.r-kpi-grid{grid-template-columns:repeat(2,1fr);}
   .r-frentes{grid-template-columns:1fr 1fr;}
   .r-alertas,.r-evos{grid-template-columns:1fr;}
-  .r-plazo-grid{grid-template-columns:1fr;}
   .charts-row.c2,.charts-row.c3,.charts-row.c2-1,.charts-row.c1-2{grid-template-columns:1fr;}
   .r-banner-top{flex-direction:column;gap:14px;}
   .r-banner-title{font-size:38px;}
@@ -549,7 +583,6 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
   .kpi-strip,.r-kpi-grid{grid-template-columns:1fr 1fr;}
   .kpi-value,.r-kpi-value{font-size:26px;}
   .r-frente-pct{font-size:36px;}
-  .r-plazo-val{font-size:32px;}
   .week-selector select{min-width:120px;}
 }
 
@@ -1238,33 +1271,6 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           </div>
         </div>
 
-        <!-- G. Datos del plazo -->
-        <div class="r-plazo">
-          <div class="r-pulso-title" style="margin-bottom:16px"><span>▸</span>DATOS DEL PLAZO</div>
-          <div class="r-plazo-grid">
-            <div class="r-plazo-block">
-              <div class="r-plazo-lbl">Días transcurridos</div>
-              <div class="r-plazo-val" id="rPlazoTrans">250</div>
-              <div class="r-plazo-sub" id="rPlazoTransPct">53.1% del plazo</div>
-            </div>
-            <div class="r-plazo-block p-ok">
-              <div class="r-plazo-lbl">Días restantes</div>
-              <div class="r-plazo-val" id="rPlazoRest">221</div>
-              <div class="r-plazo-sub" id="rPlazoRestPct">46.9% del plazo</div>
-            </div>
-            <div class="r-plazo-block">
-              <div class="r-plazo-lbl">% Avance calendario</div>
-              <div class="r-plazo-val" id="rPlazoPct">53.1%</div>
-              <div class="r-plazo-sub">Sem <span id="rPlazoSem">36</span> · Fase 2</div>
-            </div>
-          </div>
-          <div class="r-plazo-track"><div class="r-plazo-fill" id="rPlazoFill" style="width:53.1%"></div></div>
-          <div class="r-plazo-labs">
-            <span>11/08/2025</span>
-            <span id="rPlazoHoy" style="color:var(--twitter-blue);font-weight:700">HOY · SEM 36</span>
-            <span>24/11/2026</span>
-          </div>
-        </div>
       </section>
 
       <!-- ═══════════════════════════════════════════
@@ -3411,20 +3417,67 @@ function renderResumen(){
   renderREvoPersonal();
   renderREvoMO();
 
-  // G. Plazo
-  document.getElementById('rPlazoTrans').textContent = diasTrans;
-  document.getElementById('rPlazoTransPct').textContent = pctTrans.toFixed(1)+'% del plazo';
-  document.getElementById('rPlazoRest').textContent = diasRest;
-  document.getElementById('rPlazoRestPct').textContent = (100-pctTrans).toFixed(1)+'% del plazo';
-  document.getElementById('rPlazoPct').textContent = pctTrans.toFixed(1)+'%';
-  document.getElementById('rPlazoSem').textContent = d.semNum;
-  document.getElementById('rPlazoFill').style.width = pctTrans.toFixed(1)+'%';
-  document.getElementById('rPlazoHoy').textContent = `HOY · SEM ${d.semNum}`;
+  // (G. Plazo eliminado — datos ya visibles en el banner superior)
 }
 
 function renderRKpis(d, dPrev){
   const cont = document.getElementById('rKpiGrid');
   cont.innerHTML = '';
+
+  /* ═══════════════════════════════════════════════════════════════
+     CONFIG DE METAS POR KPI (reglas de cumplimiento)
+     Modificable sin tocar el resto del código
+     ═══════════════════════════════════════════════════════════════ */
+  const METAS_KPI = {
+    avance:         { tipo:'pct_prog', texto:'Según programación' },
+    cpi:            { tipo:'cpi',      meta:1.00, texto:'CPI ≥ 1.00' },
+    spiMeta:        { tipo:'spi',      meta:1.00, texto:'SPI ≥ 1.00' },
+    spiContractual: { tipo:'spi',      meta:1.00, texto:'SPI ≥ 1.00' },
+    moConsumida:    { tipo:'mo_pct',   meta:25,   texto:'≤ 25% costo directo' },
+    personal:       { tipo:'pax',      meta:46,   texto:'≤ 46 pax (dimensionado)' },
+  };
+
+  /* ─── Función evaluadora de metas ───
+     Devuelve { estado: 'cumple'|'seguimiento'|'nocumple'|'sindato', icono, label } */
+  function evaluarMetaKPI(valor, regla, contexto){
+    // Valor nulo → sin dato
+    if(valor == null || (typeof valor === 'number' && isNaN(valor))){
+      return {estado:'sindato', icono:'—', label:'Sin dato'};
+    }
+    switch(regla.tipo){
+      case 'cpi':
+        return valor >= regla.meta
+          ? {estado:'cumple', icono:'✓', label:'Cumple'}
+          : {estado:'seguimiento', icono:'⚠', label:'En seguimiento'};
+      case 'spi':
+        return valor >= regla.meta
+          ? {estado:'cumple', icono:'✓', label:'Cumple'}
+          : {estado:'nocumple', icono:'✗', label:'No cumple'};
+      case 'pax':
+        return valor <= regla.meta
+          ? {estado:'cumple', icono:'✓', label:'Cumple'}
+          : {estado:'nocumple', icono:'✗', label:'No cumple'};
+      case 'mo_pct': {
+        // Porcentaje de MO sobre costo directo
+        const cd = contexto && contexto.costoDirecto;
+        if(!cd || cd <= 0) return {estado:'sindato', icono:'—', label:'Sin dato'};
+        const pct = (valor / cd) * 100;
+        if(pct <= regla.meta) return {estado:'cumple', icono:'✓', label:'Cumple'};
+        if(pct <= regla.meta * 1.12) return {estado:'seguimiento', icono:'⚠', label:'En seguimiento'};
+        return {estado:'nocumple', icono:'✗', label:'No cumple'};
+      }
+      case 'pct_prog': {
+        // Avance real vs programado — si hay previo, comparar progreso; si no, seguimiento
+        const prog = contexto && contexto.programado;
+        if(prog == null) return {estado:'seguimiento', icono:'⚠', label:'En seguimiento'};
+        return valor >= prog
+          ? {estado:'cumple', icono:'✓', label:'Cumple'}
+          : {estado:'seguimiento', icono:'⚠', label:'En seguimiento'};
+      }
+      default:
+        return {estado:'seguimiento', icono:'⚠', label:'En seguimiento'};
+    }
+  }
 
   // Construir series históricas con todas las semanas disponibles (orden cronológico)
   const chron = [...WEEKS_ORDER].reverse();   // de más antigua a más reciente
@@ -3447,6 +3500,7 @@ function renderRKpis(d, dPrev){
       }
       case 'moConsumida':    return pe.moConsumida != null ? pe.moConsumida : kp.moConsumida;
       case 'personal':       return pe.personal != null ? pe.personal : kp.personal;
+      case 'costoDirecto':   return kp.costoDirecto != null ? kp.costoDirecto : (pe.costoDirecto || null);
     }
     return null;
   };
@@ -3468,6 +3522,7 @@ function renderRKpis(d, dPrev){
     spiContractual: getKpi(DATA.currentWeek, 'spiContractual'),
     moConsumida:    getKpi(DATA.currentWeek, 'moConsumida'),
     personal:       getKpi(DATA.currentWeek, 'personal'),
+    costoDirecto:   getKpi(DATA.currentWeek, 'costoDirecto'),
   };
   const prev = dPrev ? {
     avance:         getKpi(getPrevWeek(DATA.currentWeek), 'avance'),
@@ -3501,13 +3556,34 @@ function renderRKpis(d, dPrev){
 
   kpis.forEach((kpi,i)=>{
     const delta = getDelta(kpi.raw, kpi.prevRaw, kpi.esPct);
+
+    // Evaluar meta del KPI
+    const regla = METAS_KPI[kpi.k];
+    let metaEval = {estado:'sindato', icono:'—', label:'Sin dato'};
+    if(regla){
+      // Contexto para MO (necesita costo directo) y avance (necesita programado)
+      const ctx = {};
+      if(kpi.k === 'moConsumida') ctx.costoDirecto = cur.costoDirecto;
+      // Para MO consumida: valor "en seguimiento" según indicación del usuario
+      // si no hay costo directo disponible
+      metaEval = evaluarMetaKPI(kpi.raw, regla, ctx);
+      // Override especial: si es MO y salió "sindato" por falta de CD → en seguimiento
+      if(kpi.k === 'moConsumida' && metaEval.estado === 'sindato' && kpi.raw != null){
+        metaEval = {estado:'seguimiento', icono:'⚠', label:'En seguimiento'};
+      }
+    }
+
     const div = document.createElement('div');
     div.className = 'r-kpi '+kpi.cls;
     div.innerHTML = `
       <div class="r-kpi-label">${kpi.label}</div>
       <div class="r-kpi-value">${kpi.value}</div>
       <div class="r-kpi-delta ${delta.cls}"><span class="arrow">${delta.arrow}</span>${delta.txt} <span class="vs">vs sem ant.</span></div>
-      <div class="r-kpi-spark"><canvas id="rSpark_${i}"></canvas></div>`;
+      <div class="r-kpi-spark"><canvas id="rSpark_${i}"></canvas></div>
+      <div class="kpi-meta-footer">
+        <span class="kpi-meta-target" title="Meta: ${regla ? regla.texto : '—'}">▲ Meta: <b>${regla ? regla.texto : '—'}</b></span>
+        <span class="kpi-meta-status kpi-meta-${metaEval.estado}">${metaEval.icono} ${metaEval.label}</span>
+      </div>`;
     cont.appendChild(div);
   });
 
