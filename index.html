@@ -3598,9 +3598,9 @@ function renderREvoPersonal(){
     data:{
       labels,
       datasets:[
-        {label:'Personal en obra', data, backgroundColor:COLORS.blue, borderRadius:5},
+        {type:'bar', label:'Personal en obra', data, backgroundColor:COLORS.blue, borderRadius:5, order:2},
         {type:'line', label:`Meta (${CONSTANTES.metaDimensionamiento} pax)`, data:data.map(()=>CONSTANTES.metaDimensionamiento),
-         borderColor:COLORS.orange, borderWidth:2, borderDash:[5,4], pointRadius:0, fill:false}
+         borderColor:COLORS.orange, borderWidth:2.5, borderDash:[6,4], pointRadius:0, fill:false, order:1, z:10}
       ]
     },
     options:{responsive:true,maintainAspectRatio:false,
@@ -3621,8 +3621,8 @@ function renderREvoMO(){
     data:{
       labels,
       datasets:[
-        {type:'bar', label:'MO Acum. (S/)', data:acum, backgroundColor:COLORS.green, borderRadius:4, yAxisID:'y1'},
-        {type:'line', label:'% sobre presup. MO', data:pct, borderColor:COLORS.blue, tension:.3, pointRadius:5, pointBackgroundColor:COLORS.blue, borderWidth:2.5, yAxisID:'y2', fill:false}
+        {type:'bar', label:'MO Acum. (S/)', data:acum, backgroundColor:COLORS.green, borderRadius:4, yAxisID:'y1', order:2},
+        {type:'line', label:'% sobre presup. MO', data:pct, borderColor:COLORS.blue, tension:.3, pointRadius:5, pointBackgroundColor:COLORS.blue, borderWidth:2.5, yAxisID:'y2', fill:false, order:1, z:10}
       ]
     },
     options:{responsive:true,maintainAspectRatio:false,
@@ -3779,10 +3779,10 @@ function renderMO(){
     data:{labels:d.mo.mensual.labels,
       datasets:[
         {type:'bar',label:'MO mensual (S/)',data:d.mo.mensual.data,
-         backgroundColor:COLORS.blue,borderRadius:3,yAxisID:'y'},
+         backgroundColor:COLORS.blue,borderRadius:3,yAxisID:'y',order:2},
         {type:'line',label:'% Acumulado',data:d.mo.mensual.pct,
          borderColor:COLORS.green,backgroundColor:COLORS.green,tension:.25,
-         pointRadius:4,pointBackgroundColor:COLORS.green,borderWidth:2,yAxisID:'y1'}
+         pointRadius:4,pointBackgroundColor:COLORS.green,borderWidth:2.5,yAxisID:'y1',order:1,z:10}
       ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},
@@ -3891,10 +3891,10 @@ function renderAdq(){
     data:{labels:d.adquisiciones.porEspecialidad.labels,
       datasets:[
         {type:'bar',label:'Contratado (S/)',data:d.adquisiciones.porEspecialidad.contratado,
-         backgroundColor:COLORS.blue,yAxisID:'y',borderRadius:3},
+         backgroundColor:COLORS.blue,yAxisID:'y',borderRadius:3,order:2},
         {type:'line',label:'% Margen',data:d.adquisiciones.porEspecialidad.margenPct,
          borderColor:COLORS.green,backgroundColor:COLORS.green,pointRadius:4,
-         yAxisID:'y1',tension:.25,borderWidth:2}
+         yAxisID:'y1',tension:.25,borderWidth:2.5,order:1,z:10}
       ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:8,font:{size:10}}}},
@@ -5282,7 +5282,7 @@ const CONFIG_V2 = {
   proyecciones: {
     plazoTotalDias: 471,
     diasTranscurridos: 250,   // A Sem 36
-    utilidadPlaneadaPct: 15,  // Meta típica proyecto construcción
+    utilidadPlaneadaPct: 17,  // Meta real del proyecto E140
     spiMetaCierre: 1.0,       // Objetivo al cierre
   },
 
