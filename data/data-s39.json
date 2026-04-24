@@ -1,0 +1,553 @@
+{
+  "semana": "S39",
+  "corte_fecha": "2026-04-25",
+  "archivos": {
+    "histograma": {
+      "avance_obra_pct": 0.5180792079207921,
+      "cpi_mo": 0.8321840388993803,
+      "spi_meta": 0.9202898550724637,
+      "spi_contractual": "—",
+      "mo_consumida": 1210523,
+      "personal_obra": 75,
+      "costo_directo": 75,
+      "pct_mo": 4852517,
+      "mo_real_acum": 1897900,
+      "sectores_prog_sem": 0.093,
+      "sectores_ejec_sem": 1,
+      "sectores_prog_acum": 24,
+      "sectores_ejec_acum": 13
+    },
+    "casco_sot": {
+      "partidas": [
+        {
+          "partida": "SOT · Vert-Acero",
+          "pct_prog": 100,
+          "pct_real": 100,
+          "sec_prog_sem": 1,
+          "sec_ejec_sem": 1,
+          "sec_prog_acum": 26,
+          "sec_ejec_acum": 26
+        },
+        {
+          "partida": "SOT · Vert-Concreto",
+          "pct_prog": 100,
+          "pct_real": 100,
+          "sec_prog_sem": 1,
+          "sec_ejec_sem": 1,
+          "sec_prog_acum": 26,
+          "sec_ejec_acum": 26
+        },
+        {
+          "partida": "SOT · Vigas Enc+Acero",
+          "pct_prog": 92.3076923076923,
+          "pct_real": 92.3076923076923,
+          "sec_prog_sem": 2,
+          "sec_ejec_sem": 2,
+          "sec_prog_acum": 24,
+          "sec_ejec_acum": 24
+        },
+        {
+          "partida": "SOT · Losa Encof+Acero",
+          "pct_prog": 100,
+          "pct_real": 88.4615384615385,
+          "sec_prog_sem": 5,
+          "sec_ejec_sem": 2,
+          "sec_prog_acum": 26,
+          "sec_ejec_acum": 23
+        },
+        {
+          "partida": "SOT · Losa Concreto",
+          "pct_prog": 100,
+          "pct_real": 88.4615384615385,
+          "sec_prog_sem": 5,
+          "sec_ejec_sem": 2,
+          "sec_prog_acum": 26,
+          "sec_ejec_acum": 23
+        }
+      ],
+      "spi_semanal": 0.571428571428571,
+      "spi_acumulado": 0.953125,
+      "sectores_prog_sem": 14,
+      "sectores_ejec_sem": 8,
+      "sectores_prog_acum": 128,
+      "sectores_ejec_acum": 122,
+      "pct_prog_promedio": 98.4615384615385,
+      "pct_real_promedio": 93.8461538461538
+    },
+    "casco_sup": {
+      "partidas": [
+        {
+          "partida": "SUP · Vert-Acero",
+          "pct_prog": 0,
+          "pct_real": 0,
+          "sec_prog_sem": 0,
+          "sec_ejec_sem": 0,
+          "sec_prog_acum": 0,
+          "sec_ejec_acum": 0
+        },
+        {
+          "partida": "SUP · Vert-Concreto",
+          "pct_prog": 0,
+          "pct_real": 0,
+          "sec_prog_sem": 0,
+          "sec_ejec_sem": 0,
+          "sec_prog_acum": 0,
+          "sec_ejec_acum": 0
+        },
+        {
+          "partida": "SUP · Vigas Enc+Acero",
+          "pct_prog": 0,
+          "pct_real": 0,
+          "sec_prog_sem": 0,
+          "sec_ejec_sem": 0,
+          "sec_prog_acum": 0,
+          "sec_ejec_acum": 0
+        },
+        {
+          "partida": "SUP · Losa Enc+Acero",
+          "pct_prog": 0,
+          "pct_real": 0,
+          "sec_prog_sem": 0,
+          "sec_ejec_sem": 0,
+          "sec_prog_acum": 0,
+          "sec_ejec_acum": 0
+        },
+        {
+          "partida": "SUP · Losa Concreto",
+          "pct_prog": 0,
+          "pct_real": 0,
+          "sec_prog_sem": 0,
+          "sec_ejec_sem": 0,
+          "sec_prog_acum": 0,
+          "sec_ejec_acum": 0
+        }
+      ],
+      "spi_semanal": 0,
+      "spi_acumulado": 0,
+      "sectores_prog_sem": 0,
+      "sectores_ejec_sem": 0,
+      "sectores_prog_acum": 0,
+      "sectores_ejec_acum": 0,
+      "pct_prog_promedio": 0,
+      "pct_real_promedio": 0
+    },
+    "albanileria": {
+      "partidas": [
+        {
+          "partida": "ALB · Habilitado Solaqueo",
+          "pct_prog": 18.5185185185185,
+          "pct_real": 11.1111111111111,
+          "sec_prog_sem": 5,
+          "sec_ejec_sem": 3,
+          "sec_prog_acum": 5,
+          "sec_ejec_acum": 3
+        },
+        {
+          "partida": "ALB · Solaqueo",
+          "pct_prog": 18.5185185185185,
+          "pct_real": 7.40740740740741,
+          "sec_prog_sem": 5,
+          "sec_ejec_sem": 2,
+          "sec_prog_acum": 5,
+          "sec_ejec_acum": 2
+        }
+      ],
+      "spi_acumulado": 0.5,
+      "sectores_prog_sem": 10,
+      "sectores_ejec_sem": 5,
+      "sectores_prog_acum": 10,
+      "sectores_ejec_acum": 5,
+      "pct_prog_promedio": 18.5185185185185,
+      "pct_real_promedio": 9.25925925925926
+    },
+    "adquisiciones": {
+      "costo_directo": 26445788.0883562,
+      "avance_contratacion_pct": 60.089663125890326,
+      "contratado_total": 13269280.495980918,
+      "margen_total": 2621904.477299151,
+      "items_total": 79
+    },
+    "cronograma": {
+      "fecha_inicio": 45880,
+      "plazo_dias": 471,
+      "fecha_fin_programada": 46350,
+      "dias_transcurridos": 250,
+      "dias_restantes": 221,
+      "semana_actual": 36,
+      "avance_plazo_pct": 53.1
+    },
+    "mo": {
+      "cuadrillas": [
+        {
+          "cuadrilla": "CONCRETO",
+          "mo_base": 479526.445388,
+          "mo_meta": 422632.08,
+          "mo_real": 155100,
+          "saldo": 267532.08,
+          "rent_pct": 76.76332695520888
+        },
+        {
+          "cuadrilla": "ENCOFRADO",
+          "mo_base": 899963.8852400001,
+          "mo_meta": 857677.6971428569,
+          "mo_real": 448800,
+          "saldo": 408877.6971428569,
+          "rent_pct": 52.602963414222145
+        },
+        {
+          "cuadrilla": "ACERO",
+          "mo_base": 832140.21058,
+          "mo_meta": 631155.685714286,
+          "mo_real": 289300,
+          "saldo": 341855.68571428605,
+          "rent_pct": 86.00733905544422
+        },
+        {
+          "cuadrilla": "MAESTRO CASCO",
+          "mo_base": 93960,
+          "mo_meta": 84564,
+          "mo_real": 29000,
+          "saldo": 55564,
+          "rent_pct": 76.81755829903977
+        },
+        {
+          "cuadrilla": "TOPÓGRAFO",
+          "mo_base": 169345.0764,
+          "mo_meta": 152410.56876,
+          "mo_real": 70400,
+          "saldo": 82010.56876,
+          "rent_pct": 64.92008868217545
+        },
+        {
+          "cuadrilla": "VIGÍAS",
+          "mo_base": 58900,
+          "mo_meta": 53010,
+          "mo_real": 68200,
+          "saldo": -15190,
+          "rent_pct": -17.543859649122805
+        },
+        {
+          "cuadrilla": "ALMACENERO",
+          "mo_base": 71145,
+          "mo_meta": 64030.5,
+          "mo_real": 35200,
+          "saldo": 28830.5,
+          "rent_pct": 56.137309563411186
+        },
+        {
+          "cuadrilla": "SEGURITOS",
+          "mo_base": 101900,
+          "mo_meta": 91710,
+          "mo_real": 52800,
+          "saldo": 38910,
+          "rent_pct": 53.53832733616836
+        },
+        {
+          "cuadrilla": "IISS",
+          "mo_base": 533171.5368,
+          "mo_meta": 443661.6,
+          "mo_real": 320100,
+          "saldo": 123561.59999999998,
+          "rent_pct": 48.02568822724347
+        },
+        {
+          "cuadrilla": "IIEE",
+          "mo_base": 430558.55789,
+          "mo_meta": 516370.422857143,
+          "mo_real": 380600,
+          "saldo": 135770.42285714298,
+          "rent_pct": 9.674945674380993
+        },
+        {
+          "cuadrilla": "RIGGERS",
+          "mo_base": 83875.84,
+          "mo_meta": 75488.256,
+          "mo_real": 48400,
+          "saldo": 27088.255999999994,
+          "rent_pct": 46.99517763398852
+        }
+      ]
+    },
+    "acero": {
+      "acero_ppto_kg": 588098.7954,
+      "acero_consumido_kg": 248152.87440000003,
+      "acero_saldo_kg": 339945.921,
+      "acero_avance_pct": 42.19578008678235,
+      "acero_valor_ppto": 441197.7400089627,
+      "acero_valor_consumido": 186028.77440838402,
+      "acero_valor_saldo": 255168.96560057864
+    },
+    "arrendamiento": {
+      "tipo_cambio": 3.7,
+      "f1_muro_anclado_m2": 2339.68,
+      "f1_muro_anclado_costo_sol": 32685.3296,
+      "f1_cimentacion_costo_sol": 492.72190000000006,
+      "f1_total_sol": 33178.0515,
+      "f1_total_usd": 8967.040945945946
+    },
+    "kardex": {
+      "unispan_peso_kg": 168070.07999999993,
+      "unispan_valor_sol": 4158284.3200000017,
+      "unispan_valor_usd": 1123860.6270270275,
+      "casa_peso_kg": 4640.75,
+      "casa_valor_sol": 87788.42,
+      "casa_valor_usd": 23726.6,
+      "consumibles_sol": 10257.25,
+      "consumibles_usd": 2772.2297297297296,
+      "total_encofrado_sol": 4256329.990000002
+    },
+    "adicionales": {
+      "items": [
+        {
+          "n": 1,
+          "descripcion": "DEMOLICION MANUAL DE ESTRUCTURAS ENTERRADAS",
+          "especialidad": "EST",
+          "monto_sol": 6797.97,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 2,
+          "descripcion": "MOVIMIENTO DE CERCO PROVISIONAL DE OBRA PARA RETIRO DE CONTENEDOR DE SALA DE VENTAS",
+          "especialidad": "ARQ",
+          "monto_sol": 1470,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 3,
+          "descripcion": "SOPORTE PARA CONTENEDOR DE SALA DE VENTAS",
+          "especialidad": "ARQ",
+          "monto_sol": 10831.68,
+          "monto_usd": 860.4,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 4,
+          "descripcion": "ESPECIFICACIONES LEED PARA SISTEMA DE IIMM",
+          "especialidad": "IIMM",
+          "monto_sol": 0,
+          "monto_usd": 539.26,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 5,
+          "descripcion": "DEMOLICION DE MURO PERIMETRAL VECINO",
+          "especialidad": "EST",
+          "monto_sol": 8172.46,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 6,
+          "descripcion": "INSTALACION DE MEDIDOR PARA CONTROL DE CONSUMO ELECTRICO DE SALA DE VENTAS",
+          "especialidad": "IIEE",
+          "monto_sol": 1000,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 7,
+          "descripcion": "FALSAS ZAPATAS POR RFI 047 Y 049",
+          "especialidad": "EST",
+          "monto_sol": 11891.14848,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 8,
+          "descripcion": "TRANSICION DE DESAGÜE",
+          "especialidad": "IISS",
+          "monto_sol": 8174.66,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 9,
+          "descripcion": "CERRAMIENTO DE MURO POR DEMOLICION",
+          "especialidad": "PROVISIONALES",
+          "monto_sol": 6320,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 10,
+          "descripcion": "Redes enterradas IISS en sótano 5",
+          "especialidad": "IISS",
+          "monto_sol": 9956.43,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 11,
+          "descripcion": "Implementación de areas comunes",
+          "especialidad": "ARQ",
+          "monto_sol": 722760.534373,
+          "monto_usd": 18563.49,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 12,
+          "descripcion": "Detalle de vaciados entre diferentes resistencias de concreto",
+          "especialidad": "EST",
+          "monto_sol": 17240.88,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 13,
+          "descripcion": "ODC 01 Bolardos en rampa",
+          "especialidad": "ARQ",
+          "monto_sol": 1169.2752,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 14,
+          "descripcion": "ODC 11 Actualizacion Estructuras",
+          "especialidad": "EST",
+          "monto_sol": 2259.45,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 15,
+          "descripcion": "RFI 082 - Grupo electrógeno en Techo de Sótano 03",
+          "especialidad": "EST",
+          "monto_sol": 5279.63,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 16,
+          "descripcion": "En Rpta al RFI 053 Agua Tratada",
+          "especialidad": "IISS",
+          "monto_sol": 8915.72,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 17,
+          "descripcion": "MODIFICACION DE MATERIAL EN TERRAZAS",
+          "especialidad": "ARQ",
+          "monto_sol": 9885.32085,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 18,
+          "descripcion": "FALTA ENVIAR POR STAFF",
+          "especialidad": 0,
+          "monto_sol": 0,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 19,
+          "descripcion": "Luces de emergencia por RFI 105",
+          "especialidad": "IIEE",
+          "monto_sol": 1078.55,
+          "monto_usd": 378.18,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 20,
+          "descripcion": "Cambio de P9 a P12 por ODC 010",
+          "especialidad": "ARQ",
+          "monto_sol": 6798.598224,
+          "monto_usd": 0,
+          "tipo": "Adicional"
+        },
+        {
+          "n": 0,
+          "descripcion": 0,
+          "especialidad": 0,
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
+        },
+        {
+          "n": 0,
+          "descripcion": 0,
+          "especialidad": 0,
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
+        },
+        {
+          "n": 0,
+          "descripcion": 0,
+          "especialidad": 0,
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
+        },
+        {
+          "n": 0,
+          "descripcion": "ADICIONALES EN EVALUACIÓN INTERNA DE STAFF",
+          "especialidad": 0,
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
+        },
+        {
+          "n": 0,
+          "descripcion": "RFI 077 Sumideros y sardinel en desniveles de estacionamientos",
+          "especialidad": "IISS",
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
+        },
+        {
+          "n": 0,
+          "descripcion": "RFI 078 Puerta lavandería P07 ventilación",
+          "especialidad": "ARQ",
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
+        },
+        {
+          "n": 0,
+          "descripcion": "RFI 080 Sumideros en estacionamiento",
+          "especialidad": "IISS",
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
+        },
+        {
+          "n": 0,
+          "descripcion": "RFI. N° 092-Muros cortafuego - aumento de sellos corta fuegos",
+          "especialidad": "ARQ",
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
+        },
+        {
+          "n": 0,
+          "descripcion": "RFI 081 Baranda en piso 14 (acceso a techo)",
+          "especialidad": "ARQ",
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
+        },
+        {
+          "n": 0,
+          "descripcion": "Actualización de planos DYA (ver control de cambios)",
+          "especialidad": "DYA",
+          "monto_sol": "",
+          "monto_usd": "",
+          "tipo": ""
+        }
+      ],
+      "adicionales_sol": 840002.3071270001,
+      "adicionales_usd": 20341.33,
+      "deductivos_sol": 20298.4910775816,
+      "deductivos_usd": 2466.005,
+      "neto_sol": 819703.8160494184,
+      "neto_usd": 17875.325,
+      "cantidad_items": 27
+    }
+  },
+  "errores": [],
+  "advertencias": []
+}
