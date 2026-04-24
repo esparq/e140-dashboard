@@ -2272,7 +2272,7 @@ function buildDataFromSheets(raw){
       kpis: {contratacionPct:null, moPct:null, utilRentPct:null, personal:null, adicionales:null, rentMOPct:null},
       avanceFisico: {partidas:[], frentes:[]},
       personal: {evolucion:{labels:[],data:[]}, hhPrestamo:{TI:0,HMT:0,BL:0,GPLF:0,VT:0,TOTAL:0,serie:{labels:[],TI:[],HMT:[],BL:[],GPLF:[],VT:[]}}, dimensionamiento:[], encofradoCuadrilla:{labels:[],meta:[],aprobada:[],actual:[]}, dotacion:null},
-      mo: {acumulado:null, porcAcumulado:null, saldo:null, mensual:{labels:[],data:[],pct:[]}, stats:{ahorroMeta:null,rentProyPct:null,semActual:"",promUltimas:""}, cuadrillas:[]},
+      mo: {acumulado:null, porcAcumulado:null, saldo:null, moBaseCostoDirecto:null, saldoBaseCostoDirecto:null, mensual:{labels:[],data:[],pct:[]}, stats:{ahorroMeta:null,rentProyPct:null,semActual:"",promUltimas:""}, cuadrillas:[]},
       adquisiciones: {subheader:"Fuente: <b>03 · Cuadro de adquisiciones</b>", porEspecialidad:{labels:[],contratado:[],margenPct:[]}, etapas:{labels:['SAME','COMP','CONTRATO','NETLOG','OC','IMPL. OBRA','SEGUIM.','CIERRE'], data:[0,0,0,0,0,0,0,0]}, tipo:{suministros:0,subcontratos:0,cntSum:0,cntSc:0}, responsables:[], rentabilidad:[], facturacion: CONSTANTES.costoDirecto},
       encofrado: {ingresos:{labels:[],data:[]}, composicion:[], nota:""},
       adicionales: {subheader:"Fuente: <b>10 · Status de Adicionales y Deductivos</b>", porEspecialidad:{labels:[],data:[]}, top:[]},
@@ -2776,6 +2776,37 @@ function mergeJsonIntoWeek(week, json){
     if(adq.costo_directo != null)         week.kpis.costoDirecto = adq.costo_directo;
     if(adq.avance_contratacion_pct != null) week.kpis.contratacionPct = adq.avance_contratacion_pct;
     if(adq.margen_total != null)          week.kpis.margenAdq = adq.margen_total;
+  }
+
+  // ─── 06 Mano de Obra (opcional) ───
+  const mo = json.archivos.mo;
+  if(mo){
+    if(!week.mo) week.mo = {acumulado:null, porcAcumulado:null, saldo:null, moBaseCostoDirecto:null, saldoBaseCostoDirecto:null, mensual:{labels:[],data:[],pct:[]}, stats:{ahorroMeta:null,rentProyPct:null,semActual:"",promUltimas:""}, cuadrillas:[]};
+    // KPIs totales del panel de MO
+    if(mo.mo_base_costo_directo != null)    week.mo.moBaseCostoDirecto = mo.mo_base_costo_directo;
+    if(mo.saldo_base_costo_directo != null) week.mo.saldoBaseCostoDirecto = mo.saldo_base_costo_directo;
+    if(mo.mo_real_acumulada != null)        week.mo.acumulado = mo.mo_real_acumulada;
+    if(mo.saldo_meta != null)               week.mo.saldo = mo.saldo_meta;
+    if(mo.rentabilidad_proyectada != null){
+      if(!week.mo.stats) week.mo.stats = {};
+      week.mo.stats.rentProyPct = mo.rentabilidad_proyectada;
+    }
+    // Cuadrillas
+    if(Array.isArray(mo.cuadrillas) && mo.cuadrillas.length){
+      week.mo.cuadrillas = mo.cuadrillas.map(c => ({
+        n: String(c.cuadrilla||'').trim(),
+        base: Number(c.mo_base)||0,
+        meta: Number(c.mo_meta)||0,
+        real: Number(c.mo_real)||0,
+        saldo: Number(c.saldo)||0,
+        rent: Number(c.rent_pct)||0,
+        ahorro: (Number(c.mo_base)||0) - (Number(c.mo_meta)||0),
+        incid: 0
+      }));
+      // incidencia sobre total real
+      const totReal = week.mo.cuadrillas.reduce((s,c)=>s+c.real,0);
+      week.mo.cuadrillas.forEach(c=>{ c.incid = totReal>0 ? (c.real/totReal*100) : 0; });
+    }
   }
 }
 
@@ -4021,11 +4052,13 @@ function renderMO(){
 
   // 08 · Minis
   const moMinis = document.getElementById('moMinis');
+  const moBaseCD  = d.mo.moBaseCostoDirecto != null ? d.mo.moBaseCostoDirecto : 6611447;  // fallback 25% CD
+  const saldoBaseCD = d.mo.saldoBaseCostoDirecto != null ? d.mo.saldoBaseCostoDirecto : (moBaseCD - (d.mo.acumulado||0));
   moMinis.innerHTML = `
-    <div class="mini"><div class="mini-lbl">MO Base F1+F2</div><div class="mini-val v-blue">S/ 6.61 M</div></div>
+    <div class="mini"><div class="mini-lbl">MO Base (25% CD)</div><div class="mini-val v-blue">${fmtSMon(moBaseCD)}</div></div>
     <div class="mini"><div class="mini-lbl">MO Acumulada</div><div class="mini-val v-blue">${fmtSMon(d.mo.acumulado)}</div></div>
+    <div class="mini"><div class="mini-lbl">Saldo vs CD</div><div class="mini-val v-ok">${fmtSMon(saldoBaseCD)}</div></div>
     <div class="mini"><div class="mini-lbl">% Gastado</div><div class="mini-val v-blue">${fmtPct(d.mo.porcAcumulado)}</div></div>
-    <div class="mini"><div class="mini-lbl">% Saldo</div><div class="mini-val v-ok">${fmtPct(100-d.mo.porcAcumulado)}</div></div>
     <div class="mini"><div class="mini-lbl">Rent. Proyect.</div><div class="mini-val v-ok">+${fmtPct(d.mo.stats.rentProyPct)}</div></div>
     <div class="mini"><div class="mini-lbl">Ahorro Meta</div><div class="mini-val v-ok">${fmtSMon(d.mo.stats.ahorroMeta)}</div></div>`;
   document.getElementById('moExtra').innerHTML = `
@@ -4570,17 +4603,17 @@ setInterval(() => location.reload(), 15 * 60 * 1000); // 15 minutos
 
 // Archivos esperados con su identificador y la hoja a leer
 const ARCHIVOS_ESPERADOS = [
-  {prefijo:'01',    key:'histograma',    label:'Histograma',    hoja:'RESUMEN'},
-  {prefijo:'02_01', key:'casco_sot',     label:'Casco SOT',     hoja:'RESUMEN'},
-  {prefijo:'02_02', key:'casco_sup',     label:'Casco SUP',     hoja:'RESUMEN'},
-  {prefijo:'02_03', key:'albanileria',   label:'Albañilería',   hoja:'RESUMEN'},
-  {prefijo:'03',    key:'adquisiciones', label:'Adquisiciones', hoja:'RESUMEN'},
+  {prefijo:'01',    key:'histograma',    label:'Histograma',    hoja:'_DASHBOARD_DATA'},
+  {prefijo:'02_01', key:'casco_sot',     label:'Casco SOT',     hoja:'_DASHBOARD_DATA'},
+  {prefijo:'02_02', key:'casco_sup',     label:'Casco SUP',     hoja:'_DASHBOARD_DATA'},
+  {prefijo:'02_03', key:'albanileria',   label:'Albañilería',   hoja:'_DASHBOARD_DATA'},
+  {prefijo:'03',    key:'adquisiciones', label:'Adquisiciones', hoja:'_DASHBOARD_DATA'},
   {prefijo:'05',    key:'cronograma',    label:'Cronograma',    hoja:'RESUMEN'},
-  {prefijo:'06',    key:'mo',            label:'MO',            hoja:'RESUMEN_DASH'},
+  {prefijo:'06',    key:'mo',            label:'MO',            hoja:'_DASHBOARD_DATA'},
   {prefijo:'07',    key:'acero',         label:'Acero',         hoja:'RESUMEN'},
   {prefijo:'08',    key:'arrendamiento', label:'Arrendamiento', hoja:'RESUMEN'},
   {prefijo:'09',    key:'kardex',        label:'Kardex',        hoja:'RESUMEN'},
-  {prefijo:'10',    key:'adicionales',   label:'Adicionales',   hoja:'RESUMEN'},
+  {prefijo:'10',    key:'adicionales',   label:'Adicionales',   hoja:'_DASHBOARD_DATA'},
 ];
 
 // Estado del modal
@@ -4978,7 +5011,7 @@ function getCell(sheet, ref){
 const EXTRACTORES = {
   // 01 Histograma: Panel Ejecutivo (primero intenta B7-G7, si fallan usa INPUTS)
   histograma: (sheet) => {
-    // Intento 1: leer directamente los KPIs del panel (B7-G7)
+    // Intento 1: leer directamente los KPIs del panel (B7-G7) - formato RESUMEN viejo
     const panel = {
       avance_obra_pct:    getCell(sheet, 'B7'),
       cpi_mo:             getCell(sheet, 'C7'),
@@ -4987,7 +5020,7 @@ const EXTRACTORES = {
       mo_consumida:       getCell(sheet, 'F7'),
       personal_obra:      getCell(sheet, 'G7'),
     };
-    // Inputs crudos (filas 29-41 bloque amarillo)
+    // Inputs crudos - formato viejo (filas 29-41 bloque amarillo) o nuevo (filas 5-10 clave-valor)
     const inputs = {
       costo_directo:      getCell(sheet, 'C29'),
       pct_mo:             getCell(sheet, 'C30'),
@@ -5009,6 +5042,23 @@ const EXTRACTORES = {
       // Personal
       personal: getCell(sheet, 'C31'),
     };
+
+    // INTENTO 2: formato nuevo _DASHBOARD_DATA clave-valor (rango 5-40)
+    // Busca claves como 'personal_obra', 'hh_prestamo_total', etc.
+    for(let r = 3; r <= 40; r++){
+      const key = getCell(sheet, 'B'+r);
+      const val = getCell(sheet, 'C'+r);
+      if(key && typeof key === 'string'){
+        const k = key.toLowerCase().trim();
+        if(k === 'personal_obra' && (panel.personal_obra == null || isNaN(panel.personal_obra))) panel.personal_obra = val;
+        if(k === 'meta_dimension_ger' && !inputs.personal) inputs.meta_dimension_ger = val;
+        if(k === 'hh_prestamo_total') inputs.hh_prestamo_total = val;
+        if(k === 'avance_obra_pct' && (panel.avance_obra_pct == null || isNaN(panel.avance_obra_pct))) panel.avance_obra_pct = val;
+        if(k === 'cpi_mo' && (panel.cpi_mo == null || isNaN(panel.cpi_mo))) panel.cpi_mo = val;
+        if(k === 'spi_meta' && (panel.spi_meta == null || isNaN(panel.spi_meta))) panel.spi_meta = val;
+        if(k === 'mo_consumida' && (panel.mo_consumida == null || isNaN(panel.mo_consumida))) panel.mo_consumida = val;
+      }
+    }
 
     // ── FALLBACKS: si los valores del panel vienen vacíos, calcularlos ──
 
@@ -5087,8 +5137,9 @@ const EXTRACTORES = {
   // 03 Adquisiciones: KPIs económicos
   adquisiciones: (sheet) => {
     // Primero intento leer del bloque DATOS PARA DASHBOARD (clave-valor)
+    // Rango amplio: soporta hoja RESUMEN (filas 25+) y _DASHBOARD_DATA (filas 5+)
     const datos = {};
-    for(let r = 20; r <= 50; r++){
+    for(let r = 3; r <= 50; r++){
       const key = getCell(sheet, 'B'+r);
       const val = getCell(sheet, 'C'+r);
       if(key && typeof key === 'string'){
@@ -5104,7 +5155,7 @@ const EXTRACTORES = {
   // 05 Cronograma: plazos
   cronograma: (sheet) => {
     const datos = {};
-    for(let r = 10; r <= 40; r++){
+    for(let r = 3; r <= 45; r++){
       const key = getCell(sheet, 'B'+r);
       const val = getCell(sheet, 'C'+r);
       if(key && typeof key === 'string'){
@@ -5117,11 +5168,12 @@ const EXTRACTORES = {
     return datos;
   },
 
-  // 06 MO: cuadrillas
+  // 06 MO: cuadrillas + KPIs totales
   mo: (sheet) => {
     const datos = {cuadrillas: []};
     // Buscar bloque "cuadrilla | mo_base | mo_meta | mo_real | saldo | rent_pct"
-    for(let r = 15; r <= 45; r++){
+    // Rango amplio: soporta RESUMEN_DASH (fila 25+) y _DASHBOARD_DATA (fila 5+)
+    for(let r = 3; r <= 50; r++){
       const h = getCell(sheet, 'B'+r);
       if(h && typeof h === 'string' && h.toLowerCase() === 'cuadrilla'){
         // Encontramos el header, leer 11 filas abajo
@@ -5138,6 +5190,18 @@ const EXTRACTORES = {
           });
         }
         break;
+      }
+    }
+    // KPIs escalares (clave-valor) en _DASHBOARD_DATA
+    for(let r = 3; r <= 50; r++){
+      const key = getCell(sheet, 'B'+r);
+      const val = getCell(sheet, 'C'+r);
+      if(key && typeof key === 'string'){
+        const k = key.toLowerCase().trim();
+        if(['mo_base_costo_directo','saldo_base_costo_directo','mo_base_aprobado',
+            'mo_real_acumulada','saldo_meta','rentabilidad_proyectada'].includes(k)){
+          datos[k] = val;
+        }
       }
     }
     return datos;
@@ -5195,8 +5259,8 @@ const EXTRACTORES = {
   // 10 Adicionales: KPIs + lista
   adicionales: (sheet) => {
     const datos = {items: []};
-    // KPIs clave-valor
-    for(let r = 40; r <= 55; r++){
+    // KPIs clave-valor - rango amplio: soporta RESUMEN (filas 40+) y _DASHBOARD_DATA (filas 5+)
+    for(let r = 3; r <= 60; r++){
       const key = getCell(sheet, 'B'+r);
       const val = getCell(sheet, 'C'+r);
       if(key && typeof key === 'string'){
@@ -5208,7 +5272,7 @@ const EXTRACTORES = {
       }
     }
     // Items - buscar header 'n' 'descripcion' 'especialidad' 'monto_sol'...
-    for(let r = 45; r <= 65; r++){
+    for(let r = 3; r <= 70; r++){
       const h = getCell(sheet, 'B'+r);
       if(h && typeof h === 'string' && h.toLowerCase().trim() === 'n'){
         for(let i = 1; i <= 30; i++){
@@ -5233,8 +5297,8 @@ const EXTRACTORES = {
 // Extractor común para archivos 02
 function extraerAvance(sheet){
   const datos = {partidas: []};
-  // KPIs clave-valor
-  for(let r = 17; r <= 35; r++){
+  // KPIs clave-valor (rango amplio: soporta hoja RESUMEN antigua y _DASHBOARD_DATA nueva)
+  for(let r = 3; r <= 40; r++){
     const key = getCell(sheet, 'B'+r);
     const val = getCell(sheet, 'C'+r);
     if(key && typeof key === 'string'){
@@ -5245,8 +5309,8 @@ function extraerAvance(sheet){
       }
     }
   }
-  // Partidas: buscar header
-  for(let r = 20; r <= 40; r++){
+  // Partidas: buscar header (rango amplio)
+  for(let r = 10; r <= 45; r++){
     const h = getCell(sheet, 'B'+r);
     if(h && typeof h === 'string' && h.toLowerCase().trim() === 'partida'){
       for(let i = 1; i <= 10; i++){
