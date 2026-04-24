@@ -7,308 +7,89 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root {
-  --blue: #0070B4;
-  --blue-dk: #004A7C;
-  --alice: #EEF5FA;
-  --baby: #97C5E0;
-  --border: #D7E3EC;
-  --border-mid: #B0CFEA;
-  --text: #1A2B3C;
-  --text-muted: #5A7A96;
-  --green: #2D936C;
-  --orange: #E07B39;
-  --red: #D64045;
-  --white: #FFFFFF;
-  --bg: #F5F9FC;
+  --blue: #0070B4; --blue-dk: #004A7C; --alice: #EEF5FA; --baby: #97C5E0;
+  --border: #D7E3EC; --border-mid: #B0CFEA; --text: #1A2B3C; --text-muted: #5A7A96;
+  --green: #2D936C; --orange: #E07B39; --red: #D64045; --white: #FFFFFF; --bg: #F5F9FC;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: 'DM Sans', -apple-system, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  padding: 20px;
-}
+body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px; }
 .container { max-width: 960px; margin: 0 auto; }
-.header {
-  background: var(--blue);
-  color: var(--white);
-  padding: 24px 28px;
-  border-radius: 10px 10px 0 0;
-}
-.header h1 {
-  font-size: 24px;
-  letter-spacing: 2px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-.header p {
-  font-size: 12px;
-  color: var(--baby);
-  margin-top: 6px;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-.back-link {
-  display: inline-block;
-  color: var(--baby);
-  font-size: 11px;
-  margin-bottom: 10px;
-  text-decoration: none;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-}
-.back-link:hover { color: var(--white); }
-.body {
-  background: var(--white);
-  padding: 28px;
-  border-radius: 0 0 10px 10px;
-  box-shadow: 0 4px 20px rgba(0,0,0,.08);
-}
-.step-title {
-  font-size: 14px;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--blue-dk);
-  font-weight: 700;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--alice);
-}
+.header { background: var(--blue); color: var(--white); padding: 24px 28px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center; }
+.header-left h1 { font-size: 22px; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; }
+.header-left p { font-size: 11px; color: var(--baby); margin-top: 6px; letter-spacing: .08em; text-transform: uppercase; }
+.header-right { display: flex; gap: 10px; align-items: center; }
+.btn-config { background: rgba(255,255,255,.15); color: var(--white); border: 1px solid rgba(255,255,255,.3); padding: 8px 12px; border-radius: 5px; cursor: pointer; font-family: inherit; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+.btn-config:hover { background: rgba(255,255,255,.25); }
+.back-link { display: inline-block; color: var(--blue); font-size: 11px; margin-bottom: 10px; text-decoration: none; letter-spacing: .05em; text-transform: uppercase; font-weight: 600; }
+.back-link:hover { text-decoration: underline; }
+.token-status { padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.token-status.ok { background: var(--green); color: var(--white); }
+.token-status.missing { background: var(--orange); color: var(--white); }
+.body { background: var(--white); padding: 28px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 20px rgba(0,0,0,.08); }
+.token-setup { background: var(--alice); border: 2px dashed var(--blue); border-radius: 10px; padding: 30px; margin-bottom: 24px; text-align: center; }
+.token-setup.hidden { display: none; }
+.token-setup h3 { font-size: 17px; color: var(--blue); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .08em; }
+.token-setup p { color: var(--text-muted); font-size: 13px; margin-bottom: 16px; }
+.token-setup input { width: 100%; max-width: 560px; padding: 12px 14px; border: 1px solid var(--border-mid); border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 12px; margin-bottom: 10px; }
+.token-setup input:focus { outline: none; border-color: var(--blue); }
+.step-title { font-size: 14px; letter-spacing: .08em; text-transform: uppercase; color: var(--blue-dk); font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--alice); }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
 .form-field { display: flex; flex-direction: column; gap: 6px; }
-.form-field label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--text-muted);
-  font-weight: 700;
-}
-.form-field input {
-  padding: 10px 14px;
-  border: 1px solid var(--border-mid);
-  border-radius: 5px;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-}
+.form-field label { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); font-weight: 700; }
+.form-field input { padding: 10px 14px; border: 1px solid var(--border-mid); border-radius: 5px; font-family: inherit; font-size: 14px; font-weight: 600; color: var(--text); }
 .form-field input:focus { outline: none; border-color: var(--blue); }
-
-.dropzone {
-  border: 3px dashed var(--border-mid);
-  border-radius: 10px;
-  padding: 40px 30px;
-  text-align: center;
-  transition: all .2s;
-  background: var(--alice);
-  cursor: pointer;
-  margin-bottom: 16px;
-}
+.dropzone { border: 3px dashed var(--border-mid); border-radius: 10px; padding: 40px 30px; text-align: center; transition: all .2s; background: var(--alice); cursor: pointer; margin-bottom: 16px; }
 .dropzone:hover { border-color: var(--blue); background: #DFEAF2; }
 .dropzone.drag { border-color: var(--blue); background: #C9DCE9; }
 .dz-icon { font-size: 48px; margin-bottom: 12px; }
-.dz-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--blue);
-  margin-bottom: 6px;
-}
-.dz-sub {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 14px;
-}
-.dz-btn {
-  background: var(--blue);
-  color: var(--white);
-  border: none;
-  border-radius: 6px;
-  padding: 10px 22px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: .05em;
-  cursor: pointer;
-}
+.dz-title { font-size: 20px; font-weight: 700; color: var(--blue); margin-bottom: 6px; }
+.dz-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+.dz-btn { background: var(--blue); color: var(--white); border: none; border-radius: 6px; padding: 10px 22px; font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: .05em; cursor: pointer; }
 .dz-btn:hover { background: var(--blue-dk); }
-
-.file-list {
-  margin-top: 18px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-.file-list-head {
-  background: var(--alice);
-  padding: 10px 14px;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--text-muted);
-  font-weight: 700;
-  display: grid;
-  grid-template-columns: 40px 1fr 140px 80px;
-  gap: 10px;
-}
-.file-row {
-  padding: 10px 14px;
-  display: grid;
-  grid-template-columns: 40px 1fr 140px 80px;
-  gap: 10px;
-  align-items: center;
-  border-top: 1px solid var(--border);
-  font-size: 12px;
-}
+.file-list { margin-top: 18px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.file-list-head { background: var(--alice); padding: 10px 14px; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); font-weight: 700; display: grid; grid-template-columns: 40px 1fr 140px 80px; gap: 10px; }
+.file-row { padding: 10px 14px; display: grid; grid-template-columns: 40px 1fr 140px 80px; gap: 10px; align-items: center; border-top: 1px solid var(--border); font-size: 12px; }
 .file-icon { font-size: 18px; text-align: center; }
 .file-icon.ok { color: var(--green); }
 .file-icon.err { color: var(--red); }
 .file-icon.warn { color: var(--orange); }
-.file-name {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.file-type {
-  background: var(--alice);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--blue);
-  text-align: center;
-  letter-spacing: .05em;
-}
+.file-name { font-family: 'DM Mono', monospace; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-type { background: var(--alice); padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; color: var(--blue); text-align: center; letter-spacing: .05em; }
 .file-type.unknown { color: var(--orange); background: #FEF3E8; }
-.file-remove {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 16px;
-}
+.file-remove { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; }
 .file-remove:hover { color: var(--red); }
-
-.info-box {
-  background: #E6F0FA;
-  padding: 12px 16px;
-  border-radius: 6px;
-  font-size: 12px;
-  border-left: 4px solid var(--blue);
-  margin-top: 14px;
-  color: var(--blue-dk);
-  line-height: 1.5;
-}
-.info-box b { color: var(--blue-dk); }
-
-.ok-box {
-  background: #E8F4ED;
-  padding: 12px 16px;
-  border-radius: 6px;
-  font-size: 12px;
-  border-left: 4px solid var(--green);
-  margin: 14px 0;
-  color: #0E5D3B;
-}
-
-.actions {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-}
-.btn {
-  padding: 11px 22px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: .05em;
-  cursor: pointer;
-  border-radius: 6px;
-  border: 1px solid transparent;
-}
-.btn-primary {
-  background: var(--blue);
-  color: var(--white);
-  border-color: var(--blue);
-}
+.info-box { background: #E6F0FA; padding: 12px 16px; border-radius: 6px; font-size: 12px; border-left: 4px solid var(--blue); margin-top: 14px; color: var(--blue-dk); line-height: 1.5; }
+.ok-box { background: #E8F4ED; padding: 14px 18px; border-radius: 6px; font-size: 13px; border-left: 4px solid var(--green); margin: 14px 0; color: #0E5D3B; }
+.warn-box { background: #FEF3E8; padding: 14px 18px; border-radius: 6px; font-size: 13px; border-left: 4px solid var(--orange); margin: 14px 0; color: #8B4A0E; }
+.err-box { background: #FDE8E8; padding: 14px 18px; border-radius: 6px; font-size: 13px; border-left: 4px solid var(--red); margin: 14px 0; color: #8B2020; }
+.actions { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; gap: 12px; justify-content: flex-end; align-items: center; }
+.btn { padding: 11px 22px; font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: .05em; cursor: pointer; border-radius: 6px; border: 1px solid transparent; }
+.btn-primary { background: var(--blue); color: var(--white); border-color: var(--blue); }
 .btn-primary:hover { background: var(--blue-dk); }
 .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
-.btn-secondary {
-  background: var(--white);
-  color: var(--text);
-  border-color: var(--border-mid);
-}
+.btn-publish { background: var(--green); color: var(--white); border-color: var(--green); padding: 13px 26px; font-size: 14px; }
+.btn-publish:hover { background: #24795a; }
+.btn-publish:disabled { opacity: .5; cursor: not-allowed; }
+.btn-secondary { background: var(--white); color: var(--text); border-color: var(--border-mid); }
 .btn-secondary:hover { background: var(--alice); }
-
-/* Preview */
-.preview-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px;
-  margin: 16px 0;
-}
-.preview-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 14px;
-  text-align: center;
-}
+.preview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+.preview-card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center; }
 .preview-card.hl { border-color: var(--blue); background: var(--alice); }
-.pc-lbl {
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--text-muted);
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-.pc-val {
-  font-family: 'DM Mono', monospace;
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--blue);
-}
+.pc-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
+.pc-val { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 700; color: var(--blue); }
 .pc-val.green { color: var(--green); }
 .pc-val.orange { color: var(--orange); }
 .pc-val.red { color: var(--red); }
 .pc-sub { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
-
-.steps-gh {
-  background: var(--alice);
-  padding: 16px 20px;
-  border-radius: 8px;
-  margin: 18px 0;
-}
-.steps-gh h4 {
-  color: var(--blue);
-  margin-bottom: 10px;
-  font-size: 14px;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-}
-.steps-gh ol { margin-left: 22px; }
-.steps-gh li { font-size: 13px; margin-bottom: 6px; }
-.steps-gh code {
-  background: var(--white);
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  color: var(--blue-dk);
-}
-.steps-gh a {
-  color: var(--blue);
-  font-weight: 600;
-  text-decoration: none;
-}
-.steps-gh a:hover { text-decoration: underline; }
-
+.modal-bd { position: fixed; inset: 0; background: rgba(0,40,80,.6); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.modal-bd.show { display: flex; }
+.modal-card { background: var(--white); border-radius: 10px; max-width: 500px; width: 100%; overflow: hidden; }
+.modal-card-head { background: var(--orange); color: var(--white); padding: 16px 20px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; font-size: 14px; }
+.modal-card-body { padding: 20px; font-size: 13px; line-height: 1.5; }
+.modal-card-body b { color: var(--red); }
+.modal-card-foot { padding: 14px 20px; background: var(--alice); display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid var(--border); }
+.loader { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: var(--white); border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
 .hidden { display: none !important; }
 </style>
 </head>
@@ -316,102 +97,165 @@ body {
 
 <div class="container">
   <a href="./" class="back-link">← Volver al dashboard</a>
-
   <div class="header">
-    <h1>📂 Cargar Semana · E140</h1>
-    <p>Parseá los 11 archivos de cierre · previsualizá · publicá</p>
+    <div class="header-left"><h1>📂 Cargar Semana · E140</h1><p>Publicación directa al dashboard</p></div>
+    <div class="header-right">
+      <span id="tokenStatus" class="token-status missing">⚙ Configurar</span>
+      <button class="btn-config" onclick="abrirConfig()">⚙ Config</button>
+    </div>
   </div>
-
   <div class="body">
-
-    <!-- PASO 1 -->
+    <div class="token-setup" id="tokenSetup">
+      <h3>⚙ Primer paso: configurar publicación directa</h3>
+      <p>Pegá el token de GitHub que generaste. Se guarda solo en este navegador, no se sube a ningún servidor.</p>
+      <input type="password" id="tokenInput" placeholder="github_pat_... (pegá el token aquí)" autocomplete="off">
+      <div style="margin-top:10px"><button class="btn btn-primary" onclick="guardarToken()">Guardar token</button></div>
+      <p style="margin-top:14px;font-size:11px;color:var(--text-muted)">¿No tenés token? <a href="https://github.com/settings/tokens?type=beta" target="_blank" style="color:var(--blue)">Generá uno aquí</a> con permiso <b>Contents: Read & Write</b> sobre el repo <code>esparq/e140-dashboard</code>.</p>
+    </div>
     <div id="step1">
       <div class="step-title">1 · Identificación y archivos</div>
-
       <div class="form-row">
-        <div class="form-field">
-          <label>Código semana (ej. S37)</label>
-          <input type="text" id="inSem" placeholder="S37">
-        </div>
-        <div class="form-field">
-          <label>Fecha de corte</label>
-          <input type="date" id="inFecha">
-        </div>
+        <div class="form-field"><label>Código semana (ej. S37)</label><input type="text" id="inSem" placeholder="S37"></div>
+        <div class="form-field"><label>Fecha de corte</label><input type="date" id="inFecha"></div>
       </div>
-
       <div class="dropzone" id="dz" onclick="document.getElementById('fileInput').click()">
         <div class="dz-icon">📂</div>
         <div class="dz-title">Arrastrá los 11 archivos acá</div>
-        <div class="dz-sub">O hacé click para seleccionarlos. Los archivos se procesan en tu navegador — nada se sube a internet.</div>
+        <div class="dz-sub">O hacé click para seleccionarlos. Los archivos se procesan en tu navegador — nada se sube hasta que publiques.</div>
         <button class="dz-btn" type="button">Seleccionar archivos</button>
         <input type="file" id="fileInput" multiple accept=".xlsx,.xlsb,.xls" style="display:none">
       </div>
-
       <div id="fileListContainer"></div>
-
-      <div class="info-box">
-        <b>💡 Archivos esperados</b> (puede faltar alguno — usará la semana previa):<br>
-        01 Histograma · 02.01 SOT · 02.02 SUP · 02.03 Albañilería · 03 Adquisiciones · 05 Cronograma · 06 MO · 07 Acero · 08 Arrendamiento · 09 Kardex · 10 Adicionales
-      </div>
-
-      <div class="actions">
-        <button class="btn btn-primary" id="btnProcesar" onclick="procesar()" disabled>Procesar archivos →</button>
-      </div>
+      <div class="info-box"><b>💡 Archivos esperados</b> (puede faltar alguno — usará la semana previa):<br>01 Histograma · 02.01 SOT · 02.02 SUP · 02.03 Albañilería · 03 Adquisiciones · 05 Cronograma · 06 MO · 07 Acero · 08 Arrendamiento · 09 Kardex · 10 Adicionales</div>
+      <div class="actions"><button class="btn btn-primary" id="btnProcesar" onclick="procesar()" disabled>Procesar archivos →</button></div>
     </div>
-
-    <!-- PASO 2: PREVIEW -->
     <div id="step2" class="hidden">
       <div class="step-title">2 · Preview · Revisá los KPIs antes de publicar</div>
       <div id="previewContent"></div>
       <div class="actions">
         <button class="btn btn-secondary" onclick="volverAPaso1()">← Volver</button>
-        <button class="btn btn-primary" onclick="irAPublicar()">Publicar →</button>
+        <button class="btn btn-publish" id="btnPublicar" onclick="publicar()">🚀 Publicar al dashboard</button>
       </div>
     </div>
-
-    <!-- PASO 3: PUBLICAR -->
     <div id="step3" class="hidden">
-      <div class="step-title">3 · Publicar</div>
-      <div id="publishContent"></div>
-      <div class="actions">
-        <button class="btn btn-secondary" onclick="volverAPaso2()">← Volver</button>
-        <button class="btn btn-primary" onclick="location.reload()">Nueva carga</button>
-      </div>
+      <div class="step-title">3 · Resultado</div>
+      <div id="resultContent"></div>
+      <div class="actions"><button class="btn btn-primary" onclick="location.reload()">Nueva carga</button></div>
     </div>
+  </div>
+</div>
 
+<div class="modal-bd" id="modalSobre">
+  <div class="modal-card">
+    <div class="modal-card-head">⚠ Semana ya existe</div>
+    <div class="modal-card-body">
+      <p>Ya existe un archivo <code id="modalFilename"></code> publicado en el dashboard.</p>
+      <p style="margin-top:10px">¿Deseás <b>sobrescribirlo</b> con la nueva versión?</p>
+      <p style="margin-top:10px;font-size:12px;color:var(--text-muted)">Esta acción no se puede deshacer. El JSON antiguo quedará reemplazado.</p>
+    </div>
+    <div class="modal-card-foot">
+      <button class="btn btn-secondary" onclick="cancelarSobrescribir()">Cancelar</button>
+      <button class="btn" style="background:var(--red);color:var(--white);border-color:var(--red)" onclick="confirmarSobrescribir()">Sí, sobrescribir</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bd" id="modalConfig">
+  <div class="modal-card">
+    <div class="modal-card-head" style="background:var(--blue)">⚙ Configuración del token</div>
+    <div class="modal-card-body">
+      <p>Token actual: <code id="tokenPreview" style="background:var(--alice);padding:2px 6px;border-radius:3px"></code></p>
+      <p style="margin-top:14px;font-size:12px;color:var(--text-muted)">Pegá un nuevo token para reemplazar, o borralo para forzar reconfiguración.</p>
+      <input type="password" id="tokenInputConfig" placeholder="github_pat_..." style="width:100%;padding:10px;margin-top:10px;border:1px solid var(--border-mid);border-radius:5px;font-family:'DM Mono',monospace;font-size:12px" autocomplete="off">
+    </div>
+    <div class="modal-card-foot">
+      <button class="btn btn-secondary" onclick="cerrarConfig()">Cerrar</button>
+      <button class="btn" style="background:var(--red);color:var(--white);border-color:var(--red)" onclick="borrarToken()">Borrar token</button>
+      <button class="btn btn-primary" onclick="guardarTokenConfig()">Guardar nuevo</button>
+    </div>
   </div>
 </div>
 
 <script>
-// ════════════════════════════════════════════
-// CONFIGURACIÓN
-// ════════════════════════════════════════════
+const GITHUB_REPO = 'esparq/e140-dashboard';
+const GITHUB_BRANCH = 'main';
+const TOKEN_KEY = 'e140_github_token_v1';
 const ARCHIVOS_ESPERADOS = [
-  {prefijo:'01',    key:'histograma',    label:'Histograma',    hoja:'RESUMEN'},
-  {prefijo:'02_01', key:'casco_sot',     label:'Casco SOT',     hoja:'RESUMEN'},
-  {prefijo:'02_02', key:'casco_sup',     label:'Casco SUP',     hoja:'RESUMEN'},
-  {prefijo:'02_03', key:'albanileria',   label:'Albañilería',   hoja:'RESUMEN'},
-  {prefijo:'03',    key:'adquisiciones', label:'Adquisiciones', hoja:'RESUMEN'},
-  {prefijo:'05',    key:'cronograma',    label:'Cronograma',    hoja:'RESUMEN'},
-  {prefijo:'06',    key:'mo',            label:'MO',            hoja:'RESUMEN_DASH'},
-  {prefijo:'07',    key:'acero',         label:'Acero',         hoja:'RESUMEN'},
-  {prefijo:'08',    key:'arrendamiento', label:'Arrendamiento', hoja:'RESUMEN'},
-  {prefijo:'09',    key:'kardex',        label:'Kardex',        hoja:'RESUMEN'},
-  {prefijo:'10',    key:'adicionales',   label:'Adicionales',   hoja:'RESUMEN'},
+  {prefijo:'01', key:'histograma', label:'Histograma', hoja:'RESUMEN'},
+  {prefijo:'02_01', key:'casco_sot', label:'Casco SOT', hoja:'RESUMEN'},
+  {prefijo:'02_02', key:'casco_sup', label:'Casco SUP', hoja:'RESUMEN'},
+  {prefijo:'02_03', key:'albanileria', label:'Albañilería', hoja:'RESUMEN'},
+  {prefijo:'03', key:'adquisiciones', label:'Adquisiciones', hoja:'RESUMEN'},
+  {prefijo:'05', key:'cronograma', label:'Cronograma', hoja:'RESUMEN'},
+  {prefijo:'06', key:'mo', label:'MO', hoja:'RESUMEN_DASH'},
+  {prefijo:'07', key:'acero', label:'Acero', hoja:'RESUMEN'},
+  {prefijo:'08', key:'arrendamiento', label:'Arrendamiento', hoja:'RESUMEN'},
+  {prefijo:'09', key:'kardex', label:'Kardex', hoja:'RESUMEN'},
+  {prefijo:'10', key:'adicionales', label:'Adicionales', hoja:'RESUMEN'},
 ];
+let state = { archivos: {}, datos: null, sobrescribirFilename: null, sobrescribirSha: null };
 
-let state = { archivos: {}, datos: null };
+function getToken(){ return localStorage.getItem(TOKEN_KEY) || ''; }
+function setToken(t){ localStorage.setItem(TOKEN_KEY, t); }
+function removeToken(){ localStorage.removeItem(TOKEN_KEY); }
 
-// Prefill inputs al cargar
+function actualizarTokenUI(){
+  const t = getToken();
+  const status = document.getElementById('tokenStatus');
+  const setup = document.getElementById('tokenSetup');
+  if(t){
+    status.className = 'token-status ok';
+    status.textContent = '✓ Token OK';
+    setup.classList.add('hidden');
+  } else {
+    status.className = 'token-status missing';
+    status.textContent = '⚙ Configurar';
+    setup.classList.remove('hidden');
+  }
+}
+
+function guardarToken(){
+  const t = document.getElementById('tokenInput').value.trim();
+  if(!t){ alert('Pegá un token válido'); return; }
+  if(!t.startsWith('github_pat_') && !t.startsWith('ghp_')){
+    if(!confirm('El token no parece de GitHub. ¿Guardar igual?')) return;
+  }
+  setToken(t);
+  document.getElementById('tokenInput').value = '';
+  actualizarTokenUI();
+  alert('✓ Token guardado correctamente.');
+}
+
+function abrirConfig(){
+  document.getElementById('modalConfig').classList.add('show');
+  const t = getToken();
+  document.getElementById('tokenPreview').textContent = t ? (t.substring(0,10) + '...' + t.substring(t.length-4)) : '(sin token)';
+  document.getElementById('tokenInputConfig').value = '';
+}
+function cerrarConfig(){ document.getElementById('modalConfig').classList.remove('show'); }
+function guardarTokenConfig(){
+  const t = document.getElementById('tokenInputConfig').value.trim();
+  if(!t){ alert('Pegá un token'); return; }
+  setToken(t);
+  actualizarTokenUI();
+  cerrarConfig();
+  alert('✓ Token actualizado');
+}
+function borrarToken(){
+  if(!confirm('¿Borrar el token? Tendrás que volver a configurarlo.')) return;
+  removeToken();
+  actualizarTokenUI();
+  cerrarConfig();
+}
+
 window.addEventListener('load', () => {
+  actualizarTokenUI();
   document.getElementById('inSem').value = 'S37';
   const today = new Date();
   const dow = today.getDay();
   const daysToSat = (6 - dow + 7) % 7 || 7;
   const nextSat = new Date(today.getTime() + daysToSat*24*60*60*1000);
   document.getElementById('inFecha').value = nextSat.toISOString().split('T')[0];
-
-  // Dropzone
   const dz = document.getElementById('dz');
   const input = document.getElementById('fileInput');
   ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
@@ -434,9 +278,7 @@ function identificar(file){
   const name = file.name.toLowerCase();
   for(const a of ARCHIVOS_ESPERADOS){
     const p = a.prefijo.toLowerCase();
-    if(name.startsWith(p + '_') || name.startsWith(p + '.') || name.startsWith(p + '__')){
-      return a;
-    }
+    if(name.startsWith(p + '_') || name.startsWith(p + '.') || name.startsWith(p + '__')){ return a; }
   }
   return {prefijo:'?', key:'unknown', label:'No reconocido', hoja:''};
 }
@@ -452,13 +294,7 @@ function renderList(){
     const icon = unknown ? '!' : '✓';
     const iconCls = unknown ? 'warn' : 'ok';
     const typeCls = unknown ? 'unknown' : '';
-    html += `
-      <div class="file-row">
-        <span class="file-icon ${iconCls}">${icon}</span>
-        <span class="file-name" title="${a.file.name}">${a.file.name}</span>
-        <span class="file-type ${typeCls}">${unknown ? 'No reconocido' : a.info.prefijo + ' · ' + a.info.label}</span>
-        <button class="file-remove" onclick="quitar('${k}')">✕</button>
-      </div>`;
+    html += `<div class="file-row"><span class="file-icon ${iconCls}">${icon}</span><span class="file-name" title="${a.file.name}">${a.file.name}</span><span class="file-type ${typeCls}">${unknown ? 'No reconocido' : a.info.prefijo + ' · ' + a.info.label}</span><button class="file-remove" onclick="quitar('${k}')">✕</button></div>`;
   }
   html += '</div>';
   c.innerHTML = html;
@@ -470,38 +306,26 @@ function quitar(key){
   document.getElementById('btnProcesar').disabled = Object.keys(state.archivos).filter(k => !k.startsWith('unknown')).length === 0;
 }
 
-// ════════════════════════════════════════════
-// PROCESAR
-// ════════════════════════════════════════════
 async function procesar(){
   const sem = document.getElementById('inSem').value.trim().toUpperCase();
   const fecha = document.getElementById('inFecha').value;
   if(!/^S\d{1,3}$/.test(sem)){ alert('Código de semana inválido. Ej: S37'); return; }
   if(!fecha){ alert('Fecha requerida'); return; }
-
   const btn = document.getElementById('btnProcesar');
   btn.disabled = true;
   btn.textContent = 'Procesando...';
-
   const resultado = { semana: sem, corte_fecha: fecha, archivos: {}, errores: [], advertencias: [] };
-
   for(const k of Object.keys(state.archivos)){
     const a = state.archivos[k];
     if(a.info.key === 'unknown' || a.info.prefijo === '?') continue;
     try {
       const datos = await parsear(a.file, a.info);
       resultado.archivos[a.info.key] = datos;
-    } catch(err){
-      resultado.errores.push(`${a.info.label}: ${err.message}`);
-    }
+    } catch(err){ resultado.errores.push(`${a.info.label}: ${err.message}`); }
   }
-
   for(const exp of ARCHIVOS_ESPERADOS){
-    if(!resultado.archivos[exp.key]){
-      resultado.advertencias.push(`Falta: ${exp.label} (se usará la semana anterior)`);
-    }
+    if(!resultado.archivos[exp.key]){ resultado.advertencias.push(`Falta: ${exp.label} (se usará la semana anterior)`); }
   }
-
   state.datos = resultado;
   mostrarPreview();
   btn.disabled = false;
@@ -514,10 +338,7 @@ async function parsear(file, info){
     reader.onload = (e) => {
       try {
         const wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
-        if(!wb.Sheets[info.hoja]){
-          reject(new Error(`No se encontró hoja "${info.hoja}". Disponibles: ${wb.SheetNames.join(', ')}`));
-          return;
-        }
+        if(!wb.Sheets[info.hoja]){ reject(new Error(`No se encontró hoja "${info.hoja}". Disponibles: ${wb.SheetNames.join(', ')}`)); return; }
         const ext = EXTRACTORES[info.key];
         if(!ext){ reject(new Error('Sin extractor')); return; }
         resolve(ext(wb.Sheets[info.hoja]));
@@ -528,38 +349,25 @@ async function parsear(file, info){
   });
 }
 
-function getCell(sheet, ref){
-  const cell = sheet[ref];
-  return cell ? cell.v : null;
-}
+function getCell(sheet, ref){ const cell = sheet[ref]; return cell ? cell.v : null; }
 
-// ════════════════════════════════════════════
-// EXTRACTORES
-// ════════════════════════════════════════════
 const EXTRACTORES = {
   histograma: (sheet) => ({
-    avance_obra_pct:    getCell(sheet, 'B7'),
-    cpi_mo:             getCell(sheet, 'C7'),
-    spi_meta:           getCell(sheet, 'D7'),
-    spi_contractual:    getCell(sheet, 'E7'),
-    mo_consumida:       getCell(sheet, 'F7'),
-    personal_obra:      getCell(sheet, 'G7'),
-    costo_directo:      getCell(sheet, 'C29'),
-    pct_mo:             getCell(sheet, 'C30'),
-    mo_real_acum:       getCell(sheet, 'C32'),
-    sectores_prog_sem:  getCell(sheet, 'C37'),
-    sectores_ejec_sem:  getCell(sheet, 'C38'),
-    sectores_prog_acum: getCell(sheet, 'C39'),
-    sectores_ejec_acum: getCell(sheet, 'C40'),
+    avance_obra_pct: getCell(sheet, 'B7'), cpi_mo: getCell(sheet, 'C7'),
+    spi_meta: getCell(sheet, 'D7'), spi_contractual: getCell(sheet, 'E7'),
+    mo_consumida: getCell(sheet, 'F7'), personal_obra: getCell(sheet, 'G7'),
+    costo_directo: getCell(sheet, 'C29'), pct_mo: getCell(sheet, 'C30'),
+    mo_real_acum: getCell(sheet, 'C32'),
+    sectores_prog_sem: getCell(sheet, 'C37'), sectores_ejec_sem: getCell(sheet, 'C38'),
+    sectores_prog_acum: getCell(sheet, 'C39'), sectores_ejec_acum: getCell(sheet, 'C40'),
   }),
-  casco_sot:   (sheet) => extraerAvance(sheet),
-  casco_sup:   (sheet) => extraerAvance(sheet),
+  casco_sot: (sheet) => extraerAvance(sheet),
+  casco_sup: (sheet) => extraerAvance(sheet),
   albanileria: (sheet) => extraerAvance(sheet),
   adquisiciones: (sheet) => {
     const d = {};
     for(let r = 20; r <= 50; r++){
-      const k = getCell(sheet, 'B'+r);
-      const v = getCell(sheet, 'C'+r);
+      const k = getCell(sheet, 'B'+r); const v = getCell(sheet, 'C'+r);
       if(k && typeof k === 'string'){
         const kl = k.toLowerCase().trim();
         if(['costo_directo','avance_contratacion_pct','contratado_total','margen_total','items_total'].includes(kl)) d[kl] = v;
@@ -570,8 +378,7 @@ const EXTRACTORES = {
   cronograma: (sheet) => {
     const d = {};
     for(let r = 10; r <= 40; r++){
-      const k = getCell(sheet, 'B'+r);
-      const v = getCell(sheet, 'C'+r);
+      const k = getCell(sheet, 'B'+r); const v = getCell(sheet, 'C'+r);
       if(k && typeof k === 'string'){
         const kl = k.toLowerCase().trim();
         if(['fecha_inicio','plazo_dias','fecha_fin_programada','dias_transcurridos','dias_restantes','semana_actual','avance_plazo_pct'].includes(kl)) d[kl] = v;
@@ -587,14 +394,7 @@ const EXTRACTORES = {
         for(let i = 1; i <= 11; i++){
           const c = getCell(sheet, 'B'+(r+i));
           if(!c) break;
-          d.cuadrillas.push({
-            cuadrilla: c,
-            mo_base:   getCell(sheet, 'C'+(r+i)),
-            mo_meta:   getCell(sheet, 'D'+(r+i)),
-            mo_real:   getCell(sheet, 'E'+(r+i)),
-            saldo:     getCell(sheet, 'F'+(r+i)),
-            rent_pct:  getCell(sheet, 'G'+(r+i)),
-          });
+          d.cuadrillas.push({cuadrilla: c, mo_base: getCell(sheet, 'C'+(r+i)), mo_meta: getCell(sheet, 'D'+(r+i)), mo_real: getCell(sheet, 'E'+(r+i)), saldo: getCell(sheet, 'F'+(r+i)), rent_pct: getCell(sheet, 'G'+(r+i))});
         }
         break;
       }
@@ -604,8 +404,7 @@ const EXTRACTORES = {
   acero: (sheet) => {
     const d = {};
     for(let r = 15; r <= 40; r++){
-      const k = getCell(sheet, 'B'+r);
-      const v = getCell(sheet, 'C'+r);
+      const k = getCell(sheet, 'B'+r); const v = getCell(sheet, 'C'+r);
       if(k && typeof k === 'string'){
         const kl = k.toLowerCase().trim();
         if(['acero_ppto_kg','acero_consumido_kg','acero_saldo_kg','acero_avance_pct','acero_valor_ppto','acero_valor_consumido','acero_valor_saldo'].includes(kl)) d[kl] = v;
@@ -616,8 +415,7 @@ const EXTRACTORES = {
   arrendamiento: (sheet) => {
     const d = {};
     for(let r = 15; r <= 40; r++){
-      const k = getCell(sheet, 'B'+r);
-      const v = getCell(sheet, 'C'+r);
+      const k = getCell(sheet, 'B'+r); const v = getCell(sheet, 'C'+r);
       if(k && typeof k === 'string'){
         const kl = k.toLowerCase().trim();
         if(kl.startsWith('tipo_cambio') || kl.startsWith('f1_')) d[kl] = v;
@@ -628,8 +426,7 @@ const EXTRACTORES = {
   kardex: (sheet) => {
     const d = {};
     for(let r = 15; r <= 50; r++){
-      const k = getCell(sheet, 'B'+r);
-      const v = getCell(sheet, 'C'+r);
+      const k = getCell(sheet, 'B'+r); const v = getCell(sheet, 'C'+r);
       if(k && typeof k === 'string'){
         const kl = k.toLowerCase().trim();
         if(kl.includes('unispan') || kl.includes('casa') || kl.includes('consumibles') || kl === 'total_encofrado_sol') d[kl] = v;
@@ -640,8 +437,7 @@ const EXTRACTORES = {
   adicionales: (sheet) => {
     const d = {items: []};
     for(let r = 40; r <= 55; r++){
-      const k = getCell(sheet, 'B'+r);
-      const v = getCell(sheet, 'C'+r);
+      const k = getCell(sheet, 'B'+r); const v = getCell(sheet, 'C'+r);
       if(k && typeof k === 'string'){
         const kl = k.toLowerCase().trim();
         if(['adicionales_sol','adicionales_usd','deductivos_sol','deductivos_usd','neto_sol','neto_usd','cantidad_items'].includes(kl)) d[kl] = v;
@@ -653,14 +449,7 @@ const EXTRACTORES = {
         for(let i = 1; i <= 30; i++){
           const n = getCell(sheet, 'B'+(r+i));
           if(n === null || n === '' || n === undefined) break;
-          d.items.push({
-            n: n,
-            descripcion:  getCell(sheet, 'C'+(r+i)),
-            especialidad: getCell(sheet, 'D'+(r+i)),
-            monto_sol:    getCell(sheet, 'E'+(r+i)),
-            monto_usd:    getCell(sheet, 'F'+(r+i)),
-            tipo:         getCell(sheet, 'G'+(r+i)),
-          });
+          d.items.push({n: n, descripcion: getCell(sheet, 'C'+(r+i)), especialidad: getCell(sheet, 'D'+(r+i)), monto_sol: getCell(sheet, 'E'+(r+i)), monto_usd: getCell(sheet, 'F'+(r+i)), tipo: getCell(sheet, 'G'+(r+i))});
         }
         break;
       }
@@ -672,8 +461,7 @@ const EXTRACTORES = {
 function extraerAvance(sheet){
   const d = {partidas: []};
   for(let r = 17; r <= 35; r++){
-    const k = getCell(sheet, 'B'+r);
-    const v = getCell(sheet, 'C'+r);
+    const k = getCell(sheet, 'B'+r); const v = getCell(sheet, 'C'+r);
     if(k && typeof k === 'string'){
       const kl = k.toLowerCase().trim();
       if(['spi_semanal','spi_acumulado','sectores_prog_sem','sectores_ejec_sem','sectores_prog_acum','sectores_ejec_acum','pct_prog_promedio','pct_real_promedio'].includes(kl)) d[kl] = v;
@@ -685,15 +473,7 @@ function extraerAvance(sheet){
       for(let i = 1; i <= 10; i++){
         const p = getCell(sheet, 'B'+(r+i));
         if(!p) break;
-        d.partidas.push({
-          partida: p,
-          pct_prog:       getCell(sheet, 'C'+(r+i)),
-          pct_real:       getCell(sheet, 'D'+(r+i)),
-          sec_prog_sem:   getCell(sheet, 'E'+(r+i)),
-          sec_ejec_sem:   getCell(sheet, 'F'+(r+i)),
-          sec_prog_acum:  getCell(sheet, 'G'+(r+i)),
-          sec_ejec_acum:  getCell(sheet, 'H'+(r+i)),
-        });
+        d.partidas.push({partida: p, pct_prog: getCell(sheet, 'C'+(r+i)), pct_real: getCell(sheet, 'D'+(r+i)), sec_prog_sem: getCell(sheet, 'E'+(r+i)), sec_ejec_sem: getCell(sheet, 'F'+(r+i)), sec_prog_acum: getCell(sheet, 'G'+(r+i)), sec_ejec_acum: getCell(sheet, 'H'+(r+i))});
       }
       break;
     }
@@ -701,70 +481,35 @@ function extraerAvance(sheet){
   return d;
 }
 
-// ════════════════════════════════════════════
-// PREVIEW
-// ════════════════════════════════════════════
 function mostrarPreview(){
   document.getElementById('step1').classList.add('hidden');
   document.getElementById('step2').classList.remove('hidden');
-
   const d = state.datos;
   const h = d.archivos.histograma || {};
   const adq = d.archivos.adquisiciones || {};
   const sot = d.archivos.casco_sot || {};
   const sup = d.archivos.casco_sup || {};
   const alb = d.archivos.albanileria || {};
-
   const prog_acum = (sot.sectores_prog_acum||0) + (sup.sectores_prog_acum||0) + (alb.sectores_prog_acum||0);
   const ejec_acum = (sot.sectores_ejec_acum||0) + (sup.sectores_ejec_acum||0) + (alb.sectores_ejec_acum||0);
   const spi_acum = prog_acum > 0 ? (ejec_acum/prog_acum) : 0;
   const prog_sem = (sot.sectores_prog_sem||0) + (sup.sectores_prog_sem||0) + (alb.sectores_prog_sem||0);
   const ejec_sem = (sot.sectores_ejec_sem||0) + (sup.sectores_ejec_sem||0) + (alb.sectores_ejec_sem||0);
   const spi_sem  = prog_sem > 0 ? (ejec_sem/prog_sem) : 0;
-
   const fmtPct = v => v != null ? (v*100).toFixed(1)+'%' : '—';
   const fmtSol = v => v != null ? 'S/ '+Math.round(v).toLocaleString('es-PE') : '—';
   const fmtNum = v => v != null ? v.toFixed(2) : '—';
-
   const colorCPI = h.cpi_mo >= 1 ? 'green' : 'red';
   const colorSPI = spi_acum >= 0.95 ? 'green' : spi_acum >= 0.85 ? 'orange' : 'red';
-
-  let html = `
-    <p style="color:var(--text-muted);font-size:12px;margin-bottom:14px">
-      Semana <b>${d.semana}</b> · Corte <b>${d.corte_fecha}</b>
-    </p>
+  let html = `<p style="color:var(--text-muted);font-size:12px;margin-bottom:14px">Semana <b>${d.semana}</b> · Corte <b>${d.corte_fecha}</b></p>
     <div class="preview-grid">
-      <div class="preview-card hl">
-        <div class="pc-lbl">Avance Obra</div>
-        <div class="pc-val orange">${fmtPct(h.avance_obra_pct)}</div>
-        <div class="pc-sub">Ponderado físico</div>
-      </div>
-      <div class="preview-card hl">
-        <div class="pc-lbl">CPI MO</div>
-        <div class="pc-val ${colorCPI}">${fmtNum(h.cpi_mo)}</div>
-        <div class="pc-sub">${h.cpi_mo >= 1 ? 'Ahorrando' : 'Sobrecosto'}</div>
-      </div>
-      <div class="preview-card hl">
-        <div class="pc-lbl">SPI Meta Acum</div>
-        <div class="pc-val ${colorSPI}">${fmtNum(spi_acum)}</div>
-        <div class="pc-sub">${ejec_acum}/${prog_acum} sectores</div>
-      </div>
-      <div class="preview-card">
-        <div class="pc-lbl">SPI Sem</div>
-        <div class="pc-val">${fmtNum(spi_sem)}</div>
-        <div class="pc-sub">${ejec_sem}/${prog_sem} sectores</div>
-      </div>
-      <div class="preview-card">
-        <div class="pc-lbl">MO Consumida</div>
-        <div class="pc-val">${fmtSol(h.mo_consumida)}</div>
-      </div>
-      <div class="preview-card">
-        <div class="pc-lbl">Personal</div>
-        <div class="pc-val">${h.personal_obra || '—'}</div>
-        <div class="pc-sub">pax</div>
-      </div>
+      <div class="preview-card hl"><div class="pc-lbl">Avance Obra</div><div class="pc-val orange">${fmtPct(h.avance_obra_pct)}</div><div class="pc-sub">Ponderado físico</div></div>
+      <div class="preview-card hl"><div class="pc-lbl">CPI MO</div><div class="pc-val ${colorCPI}">${fmtNum(h.cpi_mo)}</div><div class="pc-sub">${h.cpi_mo >= 1 ? 'Ahorrando' : 'Sobrecosto'}</div></div>
+      <div class="preview-card hl"><div class="pc-lbl">SPI Meta Acum</div><div class="pc-val ${colorSPI}">${fmtNum(spi_acum)}</div><div class="pc-sub">${ejec_acum}/${prog_acum} sectores</div></div>
+      <div class="preview-card"><div class="pc-lbl">SPI Sem</div><div class="pc-val">${fmtNum(spi_sem)}</div><div class="pc-sub">${ejec_sem}/${prog_sem} sectores</div></div>
+      <div class="preview-card"><div class="pc-lbl">MO Consumida</div><div class="pc-val">${fmtSol(h.mo_consumida)}</div></div>
+      <div class="preview-card"><div class="pc-lbl">Personal</div><div class="pc-val">${h.personal_obra || '—'}</div><div class="pc-sub">pax</div></div>
     </div>`;
-
   if(adq.costo_directo){
     html += `<h4 style="margin-top:20px;margin-bottom:8px;font-size:13px;color:var(--blue-dk);text-transform:uppercase;letter-spacing:.05em">Económico</h4>
     <div class="preview-grid">
@@ -774,14 +519,8 @@ function mostrarPreview(){
       <div class="preview-card"><div class="pc-lbl">Margen</div><div class="pc-val">${fmtSol(adq.margen_total)}</div></div>
     </div>`;
   }
-
-  if(d.errores.length > 0){
-    html += `<div class="info-box" style="background:#FDE8E8;border-color:var(--red);color:#8B2020"><b>Errores:</b><br>` + d.errores.map(e=>'• '+e).join('<br>') + '</div>';
-  }
-  if(d.advertencias.length > 0){
-    html += `<div class="info-box" style="background:#FEF3E8;border-color:var(--orange);color:#8B4A0E"><b>Archivos faltantes (se usará la semana anterior):</b><br>` + d.advertencias.map(e=>'• '+e).join('<br>') + '</div>';
-  }
-
+  if(d.errores.length > 0) html += `<div class="err-box"><b>Errores:</b><br>` + d.errores.map(e=>'• '+e).join('<br>') + '</div>';
+  if(d.advertencias.length > 0) html += `<div class="warn-box"><b>Archivos faltantes (se usará la semana anterior):</b><br>` + d.advertencias.map(e=>'• '+e).join('<br>') + '</div>';
   document.getElementById('previewContent').innerHTML = html;
 }
 
@@ -790,66 +529,106 @@ function volverAPaso1(){
   document.getElementById('step1').classList.remove('hidden');
 }
 
-function irAPublicar(){
+async function publicar(){
+  const token = getToken();
+  if(!token){ alert('No hay token configurado. Usá "⚙ Config" arriba.'); return; }
+  const d = state.datos;
+  const filename = `data-${d.semana.toLowerCase()}.json`;
+  const path = `data/${filename}`;
+  const btn = document.getElementById('btnPublicar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span>Verificando...';
+  try {
+    const checkUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${path}?ref=${GITHUB_BRANCH}`;
+    const checkResp = await fetch(checkUrl, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if(checkResp.status === 200){
+      const existing = await checkResp.json();
+      state.sobrescribirFilename = filename;
+      state.sobrescribirSha = existing.sha;
+      document.getElementById('modalFilename').textContent = filename;
+      document.getElementById('modalSobre').classList.add('show');
+      btn.disabled = false;
+      btn.innerHTML = '🚀 Publicar al dashboard';
+      return;
+    } else if(checkResp.status === 404){
+      await subirArchivo(null);
+    } else if(checkResp.status === 401){
+      throw new Error('Token inválido o expirado. Configurá uno nuevo en ⚙ Config.');
+    } else {
+      throw new Error(`Error al verificar archivo (HTTP ${checkResp.status})`);
+    }
+  } catch(err){
+    mostrarError(err.message);
+    btn.disabled = false;
+    btn.innerHTML = '🚀 Publicar al dashboard';
+  }
+}
+
+function cancelarSobrescribir(){
+  document.getElementById('modalSobre').classList.remove('show');
+  state.sobrescribirFilename = null;
+  state.sobrescribirSha = null;
+}
+
+async function confirmarSobrescribir(){
+  document.getElementById('modalSobre').classList.remove('show');
+  const btn = document.getElementById('btnPublicar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span>Subiendo...';
+  try {
+    await subirArchivo(state.sobrescribirSha);
+  } catch(err){
+    mostrarError(err.message);
+    btn.disabled = false;
+    btn.innerHTML = '🚀 Publicar al dashboard';
+  }
+}
+
+async function subirArchivo(existingSha){
+  const token = getToken();
+  const d = state.datos;
+  const filename = `data-${d.semana.toLowerCase()}.json`;
+  const path = `data/${filename}`;
+  const json = JSON.stringify(d, null, 2);
+  const contentB64 = btoa(unescape(encodeURIComponent(json)));
+  const body = { message: `Publicar ${d.semana} · corte ${d.corte_fecha}`, content: contentB64, branch: GITHUB_BRANCH };
+  if(existingSha) body.sha = existingSha;
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${path}`;
+  const resp = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if(resp.ok){
+    mostrarExito(filename, existingSha != null);
+  } else {
+    const err = await resp.json().catch(() => ({message: 'Error desconocido'}));
+    if(resp.status === 401) throw new Error('Token inválido o expirado. Configurá uno nuevo en ⚙ Config.');
+    if(resp.status === 403) throw new Error('Sin permisos. Verificá que el token tenga "Contents: Read & Write" sobre el repo.');
+    throw new Error(`Error ${resp.status}: ${err.message || 'al subir archivo'}`);
+  }
+}
+
+function mostrarExito(filename, sobrescrito){
   document.getElementById('step2').classList.add('hidden');
   document.getElementById('step3').classList.remove('hidden');
-
-  const d = state.datos;
-  const filename = `data-${d.semana.toLowerCase()}.json`;
-  const json = JSON.stringify(d, null, 2);
-
-  // Auto-descargar
-  const blob = new Blob([json], {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-
   const html = `
-    <div class="ok-box">
-      <b>✓ Archivo ${filename} descargado.</b> Subilo a GitHub para que el dashboard lo detecte.
-    </div>
-    <div class="steps-gh">
-      <h4>Cómo publicar en 3 clicks</h4>
-      <ol>
-        <li>Abrí <a href="https://github.com/esparq/e140-dashboard/tree/main/data" target="_blank">la carpeta data/ del repo</a>.</li>
-        <li>Click en <b>"Add file"</b> → <b>"Upload files"</b>.</li>
-        <li>Arrastrá el archivo <code>${filename}</code> y hacé <b>Commit changes</b>.</li>
-        <li>Esperá 1 minuto, recargá el dashboard con <b>Ctrl+F5</b>.</li>
-      </ol>
-    </div>
-    <p style="color:var(--text-muted);font-size:12px;margin-top:10px">
-      Si no se bajó automáticamente:
-      <button class="btn btn-secondary" style="margin-left:10px" onclick="reDescargar()">💾 Descargar de nuevo</button>
-    </p>
+    <div class="ok-box"><b>✓ Publicación exitosa</b><br>${sobrescrito ? 'Archivo <code>'+filename+'</code> sobrescrito' : 'Archivo <code>'+filename+'</code> creado'} en el repositorio.</div>
+    <div class="info-box"><b>📡 Próximos pasos:</b><br>El dashboard se actualizará automáticamente en <b>1-2 minutos</b> (GitHub Pages tarda un poco en re-publicar).<br><br>Abrí el dashboard: <a href="./" target="_blank" style="color:var(--blue);font-weight:600">https://esparq.github.io/e140-dashboard/</a><br>Apretá <b>Ctrl+F5</b> para forzar recarga sin caché.</div>
   `;
-  document.getElementById('publishContent').innerHTML = html;
+  document.getElementById('resultContent').innerHTML = html;
 }
 
-function reDescargar(){
-  const d = state.datos;
-  const filename = `data-${d.semana.toLowerCase()}.json`;
-  const json = JSON.stringify(d, null, 2);
-  const blob = new Blob([json], {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-function volverAPaso2(){
-  document.getElementById('step3').classList.add('hidden');
-  document.getElementById('step2').classList.remove('hidden');
+function mostrarError(msg){
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step3').classList.remove('hidden');
+  document.getElementById('resultContent').innerHTML = `
+    <div class="err-box"><b>✗ Error al publicar</b><br>${msg}</div>
+    <p style="margin-top:16px;font-size:13px;color:var(--text-muted)">Podés intentar de nuevo o recargar la página.</p>
+  `;
 }
 </script>
-
 </body>
 </html>
