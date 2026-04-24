@@ -347,18 +347,19 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 
 /* ═════════ MODAL CARGA SEMANA ═════════ */
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,40,80,.55);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;}
-.modal-backdrop.show{display:flex;}
-.modal-card{background:var(--white);border-radius:10px;width:100%;max-width:960px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(0,0,0,.25);}
-.modal-head{background:var(--twitter-blue);color:var(--white);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;}
-.modal-head h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;font-weight:400;}
+.modal-backdrop.show{display:flex !important;}
+.modal-card{background:var(--white) !important;border-radius:10px;width:100%;max-width:960px;max-height:92vh;overflow:hidden;display:flex !important;flex-direction:column !important;box-shadow:0 18px 50px rgba(0,0,0,.25);}
+.modal-head{background:var(--twitter-blue);color:var(--white);padding:18px 24px;display:flex !important;align-items:center;justify-content:space-between;flex-shrink:0 !important;}
+.modal-head h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;font-weight:400;color:var(--white);}
 .modal-head p{font-size:11px;color:var(--baby-blue);margin-top:2px;letter-spacing:.05em;text-transform:uppercase;}
 .modal-close{background:rgba(255,255,255,.15);border:none;color:var(--white);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:inline-flex;align-items:center;justify-content:center;}
 .modal-close:hover{background:rgba(255,255,255,.28);}
-.modal-body{padding:24px;overflow-y:auto;flex:1 1 auto;min-height:400px;}
-.modal-foot{background:var(--alice-blue);border-top:1px solid var(--border);padding:14px 24px;display:flex;gap:10px;justify-content:flex-end;align-items:center;flex-shrink:0;}
+.modal-body{padding:24px;overflow-y:auto;flex:1 1 auto !important;min-height:500px !important;display:block !important;}
+.modal-foot{background:var(--alice-blue);border-top:1px solid var(--border);padding:14px 24px;display:flex !important;gap:10px;justify-content:flex-end;align-items:center;flex-shrink:0 !important;}
 
-/* Forzar step1 visible por defecto */
-#step1{min-height:350px;}
+/* Forzar step1 visible por defecto con fuerza bruta */
+#step1{display:block !important;min-height:400px !important;visibility:visible !important;opacity:1 !important;}
+#step1.hidden{display:none !important;}
 
 /* Drop zone */
 .dropzone{border:3px dashed var(--border-mid);border-radius:10px;padding:40px 30px;text-align:center;transition:all .2s;background:var(--alice-blue);cursor:pointer;}
@@ -579,53 +580,85 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
   </div>
   <div class="help-body">
 
-    <h4>1 · CÓMO PUBLICAR EL SHEET</h4>
+    <h4>1 · CÓMO PUBLICAR UNA NUEVA SEMANA</h4>
     <ol>
-      <li>Abre tu Google Sheet y ve a <b>Archivo › Compartir › Publicar en la web</b>.</li>
-      <li>En la pestaña <b>Enlace</b>, selecciona cada hoja individualmente y formato <b>Valores separados por coma (.csv)</b>.</li>
-      <li>Click en <b>Publicar</b> y copia la URL generada.</li>
-      <li>Repite para las 11 hojas: <code>_CONFIG</code>, <code>SEMANAS</code>, <code>KPIS</code>, <code>AVANCE_FISICO</code>, <code>FRENTES</code>, <code>PERSONAL</code>, <code>MO</code>, <code>ADQUISICIONES</code>, <code>ADICIONALES</code>, <code>RESUMEN_BULLETS</code>, <code>FOTOS</code>.</li>
-      <li>Pega cada URL en la constante <code>SHEET_URLS</code> al inicio del <code>&lt;script&gt;</code> de este HTML.</li>
+      <li>Asegúrate que los <b>11 archivos Excel</b> del cierre estén actualizados en tu PC o SharePoint.</li>
+      <li>Abre la página de carga: <a href="./cargar.html" target="_blank" style="color:var(--twitter-blue);font-weight:600"><code>cargar.html</code></a>.</li>
+      <li>Completa el <b>código de semana</b> (ej. <code>S37</code>) y la <b>fecha de corte</b> (sábado del cierre).</li>
+      <li>Arrastra los 11 Excel al dropzone (o click en "Seleccionar archivos").</li>
+      <li>Click en <b>"Procesar archivos →"</b>.</li>
+      <li>Revisa los 6 KPIs del <b>preview</b>: Avance · CPI · SPI Meta · SPI Contractual · MO · Personal.</li>
+      <li>Si todo luce bien, click en <b>"🚀 Publicar al dashboard"</b>.</li>
+      <li>Vuelve a este dashboard y espera 1-2 minutos. Apreta <b>Ctrl+F5</b>.</li>
     </ol>
-    <div class="help-ok"><b>💡 Tip:</b> al publicar, Google te da una URL larga. Ya viene con <code>output=csv</code>, así que solo cópiala tal cual.</div>
+    <div class="help-ok"><b>💡 Tiempo total: ~3 minutos</b>. Los archivos se procesan en tu navegador — nada se sube hasta que confirmas "Publicar".</div>
 
-    <h4>2 · CÓMO AGREGAR UNA NUEVA SEMANA</h4>
+    <h4>2 · CONFIGURAR EL TOKEN (SOLO LA PRIMERA VEZ)</h4>
+    <p style="margin-bottom:8px">Para que puedas publicar directamente sin entrar a GitHub, necesitas configurar un token una sola vez en tu navegador.</p>
     <ol>
-      <li>Ve a la hoja <code>SEMANAS</code> del Google Sheet y agrega una nueva fila con el código de semana (ej. <code>S37</code>), la fecha de corte y el estado <code>en_carga</code>.</li>
-      <li>Agrega las 6 filas de KPIs en la hoja <code>KPIS</code> con la misma clave de semana.</li>
-      <li>Llena las partidas, frentes, cuadrillas, adquisiciones, adicionales y bullets del resumen — todos filtrados por <code>semana = S37</code>.</li>
-      <li>Cuando termines, cambia el estado a <code>actual</code> (y cambia el anterior a <code>cerrada</code>).</li>
-      <li>Click en <b>🔄 Actualizar datos</b> del header del dashboard (o recarga la página) — la nueva semana aparece en el dropdown.</li>
+      <li>Abre <code>cargar.html</code>. Verás una caja azul pidiendo el token.</li>
+      <li>Genera el token en <a href="https://github.com/settings/tokens?type=beta" target="_blank" style="color:var(--twitter-blue);font-weight:600">GitHub › Fine-grained tokens</a> con permiso <b>Contents: Read & Write</b> sobre el repo <code>esparq/e140-dashboard</code>.</li>
+      <li>Pégalo en el campo y click en <b>"Guardar token"</b>.</li>
+      <li>El estado cambia a <b>✓ Token OK</b> (verde) en la parte superior.</li>
     </ol>
+    <div class="help-note"><b>⚠ Seguridad:</b> el token se guarda solo en tu navegador. No lo compartas por canales públicos (grupos de WhatsApp, correo sin cifrado). Si sospechas que se filtró, revócalo en GitHub y genera uno nuevo.</div>
 
     <h4>3 · QUÉ HACER SI ALGO NO CARGA</h4>
     <ul style="padding-left:20px;margin-bottom:10px">
-      <li style="margin-bottom:4px"><b>Banner amarillo:</b> alguna hoja no se pudo leer. El resto sigue funcionando. Revisa esa hoja en el Sheet.</li>
-      <li style="margin-bottom:4px"><b>Celdas con "—":</b> ese campo está vacío en el Sheet. No es un error, es un placeholder.</li>
-      <li style="margin-bottom:4px"><b>Semana "(incompleta)":</b> falta data en alguna de las hojas para esa semana. Completa las filas faltantes en el Sheet.</li>
-      <li style="margin-bottom:4px"><b>Modal "No se pudo conectar":</b> revisa los 4 puntos listados en el modal.</li>
-      <li style="margin-bottom:4px"><b>Modo offline:</b> sin internet, el dashboard muestra los últimos datos cacheados con un aviso.</li>
+      <li style="margin-bottom:6px"><b>Banner "Archivos faltantes":</b> falta algún Excel al cargar. El dashboard usará los datos de la semana anterior para ese archivo. Puedes volver a publicar con el archivo completo después.</li>
+      <li style="margin-bottom:6px"><b>Celdas con "—":</b> ese campo está vacío o no se pudo leer del Excel. No es un error, es un placeholder.</li>
+      <li style="margin-bottom:6px"><b>Error "Token inválido o expirado":</b> el token de GitHub expiró. Genera uno nuevo y reemplázalo en ⚙ Config de <code>cargar.html</code>.</li>
+      <li style="margin-bottom:6px"><b>Semana no aparece en el dashboard:</b> GitHub Pages tarda 1-2 minutos en publicar. Apreta Ctrl+F5 o espera.</li>
+      <li style="margin-bottom:6px"><b>Modo offline:</b> sin internet, el dashboard muestra los últimos datos cacheados con un aviso.</li>
     </ul>
 
-    <h4>4 · VALORES VÁLIDOS EN COLUMNAS (DROPDOWNS)</h4>
+    <h4>4 · LOS 6 KPIs DEL PANEL EJECUTIVO</h4>
     <table class="help-tbl">
-      <tr><th>Hoja</th><th>Columna</th><th>Valores válidos</th></tr>
-      <tr><td>SEMANAS</td><td>estado</td><td><code>cerrada</code>, <code>actual</code>, <code>en_carga</code>, <code>incompleta</code></td></tr>
-      <tr><td>KPIS</td><td>kpi_id</td><td><code>contratacion</code>, <code>mo_pct</code>, <code>util_rent</code>, <code>personal</code>, <code>adicionales</code>, <code>rent_mo</code></td></tr>
-      <tr><td>FRENTES</td><td>estado</td><td><code>ok</code>, <code>cerrando</code>, <code>ejecutando</code>, <code>inicia</code>, <code>atrasado</code>, <code>terminado</code></td></tr>
-      <tr><td>RESUMEN_BULLETS</td><td>color</td><td><code>green</code>, <code>blue</code>, <code>orange</code>, <code>red</code></td></tr>
+      <tr><th>KPI</th><th>Fórmula</th><th>Lectura</th></tr>
+      <tr><td>Avance de Obra</td><td>Promedio ponderado por MO Base</td><td>% físico consolidado</td></tr>
+      <tr><td>CPI Mano Obra</td><td>MO Proyectada / MO Real<br><small>(MO Proy = 25% × Costo Directo)</small></td><td>&gt;1 = ahorro · &lt;1 = sobrecosto</td></tr>
+      <tr><td>SPI Meta</td><td>Sectores ejecutados / programados (acumulados)</td><td>0.92 = 92% del plan cumplido</td></tr>
+      <tr><td>SPI Contractual</td><td>Pendiente definir fuente</td><td>Muestra "—" por ahora</td></tr>
+      <tr><td>MO Consumida</td><td>Real acumulado (archivo 06 col O)</td><td>Gasto real hasta la fecha</td></tr>
+      <tr><td>Personal en Obra</td><td>Dotación actual</td><td>Personas físicas hoy</td></tr>
     </table>
-    <div class="help-note"><b>⚠ Importante:</b> usa <b>Validación de datos</b> en Google Sheets para estas columnas. Así evitas typos.</div>
+    <div class="help-ok"><b>💡 Colores:</b> verde = saludable · naranja = atento · rojo = alerta. Cada KPI tiene sus propios umbrales.</div>
 
-    <h4>5 · ACTUALIZACIÓN EN VIVO</h4>
-    <p style="margin-bottom:8px">El botón <b>🔄 Actualizar datos</b> del header refetchea los CSVs sin recargar el HTML. Úsalo cuando:</p>
+    <h4>5 · ACTUALIZACIÓN Y SINCRONIZACIÓN</h4>
+    <p style="margin-bottom:8px">El botón <b>🔄 Actualizar</b> del header recarga los datos desde GitHub sin recargar la página entera. Úsalo cuando:</p>
     <ul style="padding-left:20px">
-      <li>Acabas de editar el Sheet y quieres ver el cambio en la TV de obra.</li>
+      <li>Acabas de publicar una semana nueva y quieres verla inmediatamente.</li>
       <li>La sync está en rojo y quieres reintentar.</li>
     </ul>
+    <div class="help-note"><b>📡 Origen de datos:</b> el dashboard lee prioritariamente los JSONs de la carpeta <code>data/</code> del repo de GitHub. Si eso falla, cae automáticamente a datos demo.</div>
 
-    <h4>6 · MODO DATOS DEMO</h4>
-    <p>Si no tienes el Sheet configurado aún (o estás probando), el botón <b>"Usar datos demo"</b> del modal carga las semanas S35 (simulada) y S36 (real) hardcodeadas para que veas el dashboard completo.</p>
+    <h4>6 · ARCHIVOS EXCEL DE FUENTE</h4>
+    <p style="margin-bottom:8px">Los 11 Excel que alimentan el dashboard son:</p>
+    <ol style="font-size:12px">
+      <li><code>01 Histograma</code> — Panel Ejecutivo + personal + HH préstamo</li>
+      <li><code>02.01 Casco SOT</code> — Avance por partida + sectores</li>
+      <li><code>02.02 Casco SUP</code> — Avance por partida + sectores</li>
+      <li><code>02.03 Albañilería</code> — Avance por partida + sectores</li>
+      <li><code>03 Adquisiciones</code> — KPIs económicos</li>
+      <li><code>05 Cronograma</code> — Plazos y fechas</li>
+      <li><code>06 Control MO</code> — Cuadrillas + MO real/meta</li>
+      <li><code>07 Acero</code> — Consumos y valorizaciones</li>
+      <li><code>08 Arrendamiento</code> — Encofrado F1 (S/ + US$)</li>
+      <li><code>09 Kardex</code> — UNISPAN + Casa + consumibles</li>
+      <li><code>10 Adicionales</code> — Adicionales + deductivos + USD</li>
+    </ol>
+    <div class="help-note"><b>⚠ Importante:</b> cada archivo debe tener una hoja llamada <code>RESUMEN</code> (o <code>RESUMEN_DASH</code> para el 06) con la estructura correcta. Si cambias la estructura del Excel, los datos no se leerán bien.</div>
+
+    <h4>7 · ACCESO Y USUARIOS</h4>
+    <p style="margin-bottom:8px">El dashboard tiene 2 roles:</p>
+    <ul style="padding-left:20px;font-size:12px">
+      <li style="margin-bottom:4px"><b>Visualizador:</b> cualquiera con el link ve el dashboard. No necesita login.</li>
+      <li style="margin-bottom:4px"><b>Publicador:</b> solo con token configurado puede subir semanas desde <code>cargar.html</code>.</li>
+    </ul>
+    <div class="help-ok"><b>🔗 Links clave:</b><br>
+      • Dashboard: <code>https://esparq.github.io/e140-dashboard/</code><br>
+      • Cargar: <code>https://esparq.github.io/e140-dashboard/cargar.html</code>
+    </div>
 
   </div>
 </div>
@@ -719,12 +752,12 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           <label>Semana de corte</label>
           <select id="weekSelect" onchange="onWeekChange(this.value)"></select>
         </div>
-        <button class="hdr-btn" id="refreshBtn" onclick="refreshData()" title="Vuelve a leer el Google Sheet sin recargar la página">
+        <button class="hdr-btn" id="refreshBtn" onclick="refreshData()" title="Recarga los datos más recientes desde GitHub">
           <span class="ico">🔄</span> Actualizar
         </button>
-        <button class="hdr-btn hdr-btn-primary" id="cargarSemBtn" onclick="openCargaModal()" title="Cargar una nueva semana parseando los Excel de obra">
+        <a href="./cargar.html" target="_blank" class="hdr-btn hdr-btn-primary" id="cargarSemBtn" title="Abre la página para cargar y publicar una nueva semana" style="text-decoration:none">
           <span class="ico">📂</span> Cargar Semana
-        </button>
+        </a>
         <div class="th-date">
           <div class="dl">Semana</div>
           <div class="dv" id="hdrSem">SEM 36</div>
@@ -3764,54 +3797,107 @@ let cargaState = {
 // ABRIR / CERRAR MODAL
 // ────────────────────────────────────────
 function openCargaModal(){
+  console.log('═══ [DEBUG] openCargaModal INICIADO ═══');
   try {
     // 1. Reset estado
     cargaState = {step:1, archivos:{}, datos:null};
+    console.log('[DEBUG] 1. Estado reseteado');
 
-    // 2. Mostrar modal PRIMERO (aunque algo falle después, el modal queda abierto)
+    // 2. Mostrar modal
     const modal = document.getElementById('cargaModal');
+    console.log('[DEBUG] 2. Modal element:', modal);
     if(!modal){
       alert('Error: modal no encontrado en el DOM');
       return;
     }
     modal.classList.add('show');
+    console.log('[DEBUG] 3. Modal marcado como show');
 
-    // 3. Prefill de semana (con fallbacks seguros)
+    // 3. Verificar step1
+    const s1 = document.getElementById('step1');
+    console.log('[DEBUG] 4. step1 element:', s1);
+    if(s1){
+      console.log('[DEBUG] 4a. step1.innerHTML length:', s1.innerHTML.length);
+      console.log('[DEBUG] 4b. step1.offsetHeight:', s1.offsetHeight);
+      console.log('[DEBUG] 4c. step1.offsetWidth:', s1.offsetWidth);
+      const style = window.getComputedStyle(s1);
+      console.log('[DEBUG] 4d. step1 computed display:', style.display);
+      console.log('[DEBUG] 4e. step1 computed visibility:', style.visibility);
+      console.log('[DEBUG] 4f. step1 computed opacity:', style.opacity);
+      console.log('[DEBUG] 4g. step1 computed height:', style.height);
+    }
+
+    // 4. Verificar inputs
+    const inputSem = document.getElementById('inSemanaCod');
+    const inputFecha = document.getElementById('inSemanaFecha');
+    console.log('[DEBUG] 5a. inSemanaCod:', inputSem);
+    console.log('[DEBUG] 5b. inSemanaFecha:', inputFecha);
+
+    // 5. Verificar dropzone
+    const dz = document.getElementById('dropzone');
+    console.log('[DEBUG] 6. dropzone:', dz);
+    if(dz){
+      console.log('[DEBUG] 6a. dropzone.offsetHeight:', dz.offsetHeight);
+      const dzStyle = window.getComputedStyle(dz);
+      console.log('[DEBUG] 6b. dropzone computed display:', dzStyle.display);
+    }
+
+    // 6. Prefill (con errores capturados)
     try {
       const weekSelect = document.getElementById('weekSelect');
       const currentSem = weekSelect && weekSelect.value ? weekSelect.value : 'S36';
       const match = currentSem.match(/\d+/);
       const numAct = match ? parseInt(match[0], 10) : 36;
       const nextSem = 'S' + (numAct + 1);
-      const inputSem = document.getElementById('inSemanaCod');
       if(inputSem) inputSem.value = nextSem;
-    } catch(e){ console.warn('Error prellenando semana:', e); }
+      console.log('[DEBUG] 7. Semana prefill:', nextSem);
+    } catch(e){ console.warn('[DEBUG] Error prefill semana:', e); }
 
-    // 4. Prefill de fecha (siguiente sábado)
     try {
       const today = new Date();
       const dow = today.getDay();
       const daysToSat = (6 - dow + 7) % 7 || 7;
       const nextSat = new Date(today.getTime() + daysToSat*24*60*60*1000);
-      const inputFecha = document.getElementById('inSemanaFecha');
       if(inputFecha) inputFecha.value = nextSat.toISOString().split('T')[0];
-    } catch(e){ console.warn('Error prellenando fecha:', e); }
+      console.log('[DEBUG] 8. Fecha prefill:', nextSat.toISOString().split('T')[0]);
+    } catch(e){ console.warn('[DEBUG] Error prefill fecha:', e); }
 
-    // 5. Renderizar paso inicial
-    try { renderCargaStep(); } catch(e){ console.error('Error en renderCargaStep:', e); }
+    // 7. Render
+    try { renderCargaStep(); console.log('[DEBUG] 9. renderCargaStep OK'); } catch(e){ console.error('[DEBUG] Error renderCargaStep:', e); }
+    try { setupDropzone(); console.log('[DEBUG] 10. setupDropzone OK'); } catch(e){ console.error('[DEBUG] Error setupDropzone:', e); }
 
-    // 6. Configurar dropzone
-    try { setupDropzone(); } catch(e){ console.error('Error en setupDropzone:', e); }
-
-    // 7. Forzar visibilidad del step1 (failsafe)
-    const s1 = document.getElementById('step1');
+    // 8. Failsafe de visibilidad
+    if(s1) {
+      s1.style.display = 'block';
+      s1.style.visibility = 'visible';
+      s1.style.opacity = '1';
+      s1.style.minHeight = '400px';
+    }
     const s2 = document.getElementById('step2');
     const s3 = document.getElementById('step3');
-    if(s1) s1.style.display = 'block';
     if(s2) s2.style.display = 'none';
     if(s3) s3.style.display = 'none';
+
+    console.log('[DEBUG] 11. Failsafe aplicado');
+    console.log('═══ [DEBUG] openCargaModal TERMINADO ═══');
+
+    // 9. Verificación FINAL después de 100ms
+    setTimeout(() => {
+      const s1f = document.getElementById('step1');
+      if(s1f){
+        const sf = window.getComputedStyle(s1f);
+        console.log('═══ [DEBUG] VERIFICACIÓN POST-TIMEOUT ═══');
+        console.log('[DEBUG] step1 display final:', sf.display);
+        console.log('[DEBUG] step1 visibility final:', sf.visibility);
+        console.log('[DEBUG] step1 height final:', sf.height);
+        console.log('[DEBUG] step1 offsetHeight final:', s1f.offsetHeight);
+        console.log('[DEBUG] step1 children:', s1f.children.length);
+        console.log('[DEBUG] step1.innerHTML preview:', s1f.innerHTML.substring(0, 200));
+      }
+    }, 100);
+
   } catch(err){
-    console.error('[Cargar Semana] Error al abrir modal:', err);
+    console.error('[DEBUG] Error CRÍTICO al abrir modal:', err);
     alert('Error al abrir modal: ' + err.message);
   }
 }
@@ -3851,10 +3937,39 @@ function renderCargaStep(){
     if(s < cargaState.step) el.classList.add('done');
     else if(s === cargaState.step) el.classList.add('active');
   });
-  // Paneles
-  document.getElementById('step1').style.display = cargaState.step === 1 ? 'block' : 'none';
-  document.getElementById('step2').style.display = cargaState.step === 2 ? 'block' : 'none';
-  document.getElementById('step3').style.display = cargaState.step === 3 ? 'block' : 'none';
+  // Paneles: usar clase + style inline para máxima compatibilidad
+  const s1 = document.getElementById('step1');
+  const s2 = document.getElementById('step2');
+  const s3 = document.getElementById('step3');
+  if(s1){
+    if(cargaState.step === 1){
+      s1.classList.remove('hidden');
+      s1.style.display = 'block';
+      s1.style.visibility = 'visible';
+      s1.style.opacity = '1';
+    } else {
+      s1.classList.add('hidden');
+      s1.style.display = 'none';
+    }
+  }
+  if(s2){
+    if(cargaState.step === 2){
+      s2.style.display = 'block';
+      s2.style.visibility = 'visible';
+      s2.style.opacity = '1';
+    } else {
+      s2.style.display = 'none';
+    }
+  }
+  if(s3){
+    if(cargaState.step === 3){
+      s3.style.display = 'block';
+      s3.style.visibility = 'visible';
+      s3.style.opacity = '1';
+    } else {
+      s3.style.display = 'none';
+    }
+  }
   // Botones footer
   const back = document.getElementById('cargaBackBtn');
   const next = document.getElementById('cargaNextBtn');
@@ -4064,16 +4179,19 @@ function getCell(sheet, ref){
 // Cada función recibe la hoja RESUMEN y devuelve los datos estructurados
 // ────────────────────────────────────────
 const EXTRACTORES = {
-  // 01 Histograma: Panel Ejecutivo (C29-C41 en INPUTS, B7=avance, C7=CPI, etc.)
+  // 01 Histograma: Panel Ejecutivo (primero intenta B7-G7, si fallan usa INPUTS)
   histograma: (sheet) => {
-    return {
+    // Intento 1: leer directamente los KPIs del panel (B7-G7)
+    const panel = {
       avance_obra_pct:    getCell(sheet, 'B7'),
       cpi_mo:             getCell(sheet, 'C7'),
       spi_meta:           getCell(sheet, 'D7'),
       spi_contractual:    getCell(sheet, 'E7'),
       mo_consumida:       getCell(sheet, 'F7'),
       personal_obra:      getCell(sheet, 'G7'),
-      // Inputs (por si se quieren verificar)
+    };
+    // Inputs crudos (filas 29-41 bloque amarillo)
+    const inputs = {
       costo_directo:      getCell(sheet, 'C29'),
       pct_mo:             getCell(sheet, 'C30'),
       mo_real_acum:       getCell(sheet, 'C32'),
@@ -4081,6 +4199,86 @@ const EXTRACTORES = {
       sectores_ejec_sem:  getCell(sheet, 'C38'),
       sectores_prog_acum: getCell(sheet, 'C39'),
       sectores_ejec_acum: getCell(sheet, 'C40'),
+      spi_contractual_in: getCell(sheet, 'C41'),
+      // Avances por frente (C33-C36) + pesos (D33-D36)
+      av_sot:   getCell(sheet, 'C33'),
+      av_sup:   getCell(sheet, 'C34'),
+      av_alb:   getCell(sheet, 'C35'),
+      av_mur:   getCell(sheet, 'C36'),
+      peso_sot: getCell(sheet, 'D33'),
+      peso_sup: getCell(sheet, 'D34'),
+      peso_alb: getCell(sheet, 'D35'),
+      peso_mur: getCell(sheet, 'D36'),
+      // Personal
+      personal: getCell(sheet, 'C31'),
+    };
+
+    // ── FALLBACKS: si los valores del panel vienen vacíos, calcularlos ──
+
+    // 1. AVANCE DE OBRA: fórmula = SUMPRODUCT(avances, pesos) / SUM(pesos)
+    if(panel.avance_obra_pct == null || isNaN(panel.avance_obra_pct)){
+      const avs = [inputs.av_sot, inputs.av_sup, inputs.av_alb, inputs.av_mur];
+      const pesos = [inputs.peso_sot, inputs.peso_sup, inputs.peso_alb, inputs.peso_mur];
+      let sumaPonderada = 0;
+      let sumaPesos = 0;
+      for(let i = 0; i < 4; i++){
+        if(avs[i] != null && pesos[i] != null && !isNaN(avs[i]) && !isNaN(pesos[i])){
+          sumaPonderada += avs[i] * pesos[i];
+          sumaPesos += pesos[i];
+        }
+      }
+      if(sumaPesos > 0){
+        panel.avance_obra_pct = sumaPonderada / sumaPesos;
+      }
+    }
+
+    // 2. CPI MO: fórmula = (Costo Directo × %MO) / MO Real
+    if(panel.cpi_mo == null || isNaN(panel.cpi_mo)){
+      if(inputs.costo_directo != null && inputs.pct_mo != null && inputs.mo_real_acum != null && inputs.mo_real_acum > 0){
+        panel.cpi_mo = (inputs.costo_directo * inputs.pct_mo) / inputs.mo_real_acum;
+      }
+    }
+
+    // 3. SPI META: Sectores Ejec Acum / Sectores Prog Acum
+    if(panel.spi_meta == null || isNaN(panel.spi_meta)){
+      if(inputs.sectores_prog_acum > 0){
+        panel.spi_meta = inputs.sectores_ejec_acum / inputs.sectores_prog_acum;
+      }
+    }
+
+    // 4. SPI CONTRACTUAL
+    if(panel.spi_contractual == null || panel.spi_contractual === ''){
+      panel.spi_contractual = inputs.spi_contractual_in || '—';
+    }
+
+    // 5. MO CONSUMIDA
+    if(panel.mo_consumida == null || isNaN(panel.mo_consumida)){
+      panel.mo_consumida = inputs.mo_real_acum;
+    }
+
+    // 6. PERSONAL
+    if(panel.personal_obra == null || isNaN(panel.personal_obra)){
+      panel.personal_obra = inputs.personal;
+    }
+
+    // Debug: imprimir qué se leyó
+    console.log('[DEBUG Histograma] Panel leído:', panel);
+    console.log('[DEBUG Histograma] Inputs leídos:', inputs);
+
+    return {
+      avance_obra_pct:    panel.avance_obra_pct,
+      cpi_mo:             panel.cpi_mo,
+      spi_meta:           panel.spi_meta,
+      spi_contractual:    panel.spi_contractual,
+      mo_consumida:       panel.mo_consumida,
+      personal_obra:      panel.personal_obra,
+      costo_directo:      inputs.costo_directo,
+      pct_mo:             inputs.pct_mo,
+      mo_real_acum:       inputs.mo_real_acum,
+      sectores_prog_sem:  inputs.sectores_prog_sem,
+      sectores_ejec_sem:  inputs.sectores_ejec_sem,
+      sectores_prog_acum: inputs.sectores_prog_acum,
+      sectores_ejec_acum: inputs.sectores_ejec_acum,
     };
   },
 
