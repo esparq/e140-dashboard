@@ -339,6 +339,145 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .r-plazo-fill{height:100%;background:linear-gradient(90deg,var(--twitter-blue) 0%,var(--blue-bell) 100%);border-radius:7px;transition:width .5s;}
 .r-plazo-labs{display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;}
 
+/* ═════════════════════════════════════════════════════════════════
+   ═  MÓDULOS V2 — 3 CAPAS LÓGICAS + KPIs EJECUTIVOS                ═
+   ═  Agregados: Utilidad en Riesgo · Proyecciones · Eficiencia ·   ═
+   ═  Velocidad · Separación Adicionales · Gestión · Pipeline       ═
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Label de capa (RIESGO / HOY / MAÑANA) */
+.capa-header{display:flex;align-items:center;gap:12px;margin:8px 0 14px;padding:6px 14px;background:var(--alice-blue);border-radius:8px;border-left:4px solid var(--twitter-blue);}
+.capa-header.c-riesgo{border-left-color:var(--red);}
+.capa-header.c-hoy{border-left-color:var(--twitter-blue);}
+.capa-header.c-manana{border-left-color:var(--blue-bell);}
+.capa-header.c-gestion{border-left-color:var(--blue-bell-dk);}
+.capa-num{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.5px;color:var(--twitter-blue);line-height:1;}
+.capa-header.c-riesgo .capa-num{color:var(--red);}
+.capa-header.c-manana .capa-num{color:var(--blue-bell);}
+.capa-header.c-gestion .capa-num{color:var(--blue-bell-dk);}
+.capa-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--text);line-height:1;}
+.capa-sub{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-left:auto;}
+
+/* ─── MÓDULO 1: UTILIDAD EN RIESGO (KPI maestro) ─── */
+.util-riesgo{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:22px 26px;margin-bottom:22px;position:relative;overflow:hidden;display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;}
+.util-riesgo::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;}
+.util-riesgo.ur-green::before{background:var(--green);}
+.util-riesgo.ur-orange::before{background:var(--orange);}
+.util-riesgo.ur-red::before{background:var(--red);}
+.ur-semaforo{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--white);letter-spacing:1px;box-shadow:0 4px 14px rgba(0,0,0,.1);}
+.util-riesgo.ur-green .ur-semaforo{background:var(--green);}
+.util-riesgo.ur-orange .ur-semaforo{background:var(--orange);}
+.util-riesgo.ur-red .ur-semaforo{background:var(--red);}
+.ur-center{display:flex;flex-direction:column;gap:4px;}
+.ur-label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;}
+.ur-value{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:1px;line-height:.95;color:var(--text);}
+.util-riesgo.ur-green .ur-value{color:var(--green);}
+.util-riesgo.ur-orange .ur-value{color:var(--orange);}
+.util-riesgo.ur-red .ur-value{color:var(--red);}
+.ur-lectura{font-size:13px;color:var(--text-muted);font-weight:600;}
+.ur-right{text-align:right;min-width:180px;}
+.ur-right-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:600;margin-bottom:4px;}
+.ur-spark{height:50px;width:160px;}
+.ur-componentes{display:flex;gap:14px;margin-top:10px;font-size:10px;}
+.ur-componente{display:flex;flex-direction:column;gap:2px;padding:4px 8px;background:var(--alice-blue);border-radius:4px;border:1px solid var(--border);}
+.ur-componente-lbl{font-size:9px;text-transform:uppercase;color:var(--text-muted);letter-spacing:.05em;font-weight:700;}
+.ur-componente-val{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--text);}
+
+/* ─── MÓDULO 2: PROYECCIONES (3 KPIs) ─── */
+.proy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+.proy-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 18px 14px;position:relative;overflow:hidden;}
+.proy-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--blue-bell);}
+.proy-card.pc-ok::before{background:var(--green);}
+.proy-card.pc-warn::before{background:var(--orange);}
+.proy-card.pc-bad::before{background:var(--red);}
+.proy-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin-bottom:8px;}
+.proy-values{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;}
+.proy-actual{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;line-height:.95;color:var(--text);}
+.proy-proj{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;line-height:.95;color:var(--blue-bell);}
+.proy-proj-lbl{font-size:10px;text-transform:uppercase;color:var(--text-muted);font-weight:600;letter-spacing:.05em;}
+.proy-arrow{font-size:12px;color:var(--text-muted);}
+.proy-delta{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-family:'DM Mono',monospace;font-weight:700;padding:3px 8px;border-radius:4px;background:var(--alice-blue);}
+.proy-delta.d-ok{color:var(--green);background:#E6F4EE;}
+.proy-delta.d-warn{color:var(--orange);background:#FEF3E8;}
+.proy-delta.d-bad{color:var(--red);background:#FDECEA;}
+.proy-chart{height:60px;margin-top:8px;}
+.proy-footer{font-size:10px;color:var(--text-muted);margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);}
+
+/* ─── MÓDULO 3: EFICIENCIA PRODUCTIVA (termómetro) ─── */
+.eficiencia-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-bottom:22px;}
+.ef-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+.ef-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;color:var(--text);}
+.ef-title span{color:var(--twitter-blue);margin-right:8px;}
+.ef-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.ef-value{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:1px;line-height:.95;color:var(--text);text-align:right;}
+.ef-value.ef-ok{color:var(--green);}
+.ef-value.ef-warn{color:var(--orange);}
+.ef-value.ef-bad{color:var(--red);}
+.ef-termometro{height:18px;background:linear-gradient(90deg,var(--red) 0%,var(--red) 33%,var(--orange) 33%,var(--orange) 50%,var(--green) 50%,var(--green) 100%);border-radius:9px;position:relative;margin:10px 0;}
+.ef-aguja{position:absolute;top:-4px;bottom:-4px;width:4px;background:var(--text);border-radius:2px;box-shadow:0 0 0 2px var(--white), 0 2px 6px rgba(0,0,0,.3);transition:left .5s cubic-bezier(.4,0,.2,1);}
+.ef-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.05em;}
+.ef-legenda{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;font-size:11px;}
+.ef-leg-block{padding:8px 10px;border-radius:6px;border-left:3px solid;}
+.ef-leg-block.lb-bad{border-color:var(--red);background:#FDECEA;}
+.ef-leg-block.lb-warn{border-color:var(--orange);background:#FEF3E8;}
+.ef-leg-block.lb-ok{border-color:var(--green);background:#E6F4EE;}
+.ef-leg-lbl{font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.05em;}
+.ef-leg-block.lb-bad .ef-leg-lbl{color:var(--red);}
+.ef-leg-block.lb-warn .ef-leg-lbl{color:var(--orange);}
+.ef-leg-block.lb-ok .ef-leg-lbl{color:var(--green);}
+.ef-leg-desc{color:var(--text-muted);font-size:10px;margin-top:2px;}
+
+/* ─── MÓDULO 5: VELOCIDAD DE OBRA ─── */
+.velocidad-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-bottom:22px;}
+.vel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.vel-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;color:var(--text);}
+.vel-title span{color:var(--twitter-blue);margin-right:8px;}
+.vel-tag{font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;letter-spacing:.05em;text-transform:uppercase;}
+.vel-tag.t-up{background:#E6F4EE;color:#1E7A53;border:1px solid #A8D8C0;}
+.vel-tag.t-flat{background:#EEF5FA;color:#3A91C5;border:1px solid #97C5E0;}
+.vel-tag.t-down{background:#FEF3E8;color:#9E5215;border:1px solid #F0C894;}
+.vel-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;}
+.vel-metric{display:flex;flex-direction:column;gap:4px;}
+.vel-metric-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;}
+.vel-metric-val{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;color:var(--twitter-blue);line-height:.95;}
+.vel-metric-sub{font-size:10px;color:var(--text-muted);}
+.vel-chart{height:120px;}
+
+/* ─── MÓDULO 4: SEPARACIÓN DE ADICIONALES ─── */
+.sep-adic-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;}
+.sep-adic-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 22px;position:relative;}
+.sep-adic-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--baby-blue);border-radius:10px 10px 0 0;}
+.sep-adic-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin-bottom:8px;}
+.sep-adic-value{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1px;color:var(--text);line-height:.95;}
+.sep-adic-sub{font-size:11px;color:var(--text-muted);margin-top:6px;}
+.sep-adic-comp{display:flex;gap:18px;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);}
+.sep-adic-comp-block{display:flex;flex-direction:column;gap:3px;}
+.sep-adic-comp-lbl{font-size:9px;text-transform:uppercase;color:var(--text-muted);letter-spacing:.05em;font-weight:700;}
+.sep-adic-comp-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--text);}
+.sep-adic-comp-val.vb-clean{color:var(--green);}
+.sep-adic-badge{display:inline-block;font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;background:var(--alice-blue);color:var(--blue-bell-dk);border:1px solid var(--baby-blue);letter-spacing:.03em;margin-top:8px;}
+
+/* ─── PLACEHOLDER (módulos en construcción) ─── */
+.placeholder-card{background:var(--white);border:2px dashed var(--border-mid);border-radius:10px;padding:24px;text-align:center;margin-bottom:22px;opacity:.85;}
+.placeholder-icon{font-size:32px;margin-bottom:8px;opacity:.5;}
+.placeholder-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;color:var(--text-muted);margin-bottom:4px;}
+.placeholder-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:4px;background:#FEF3E8;color:#9E5215;border:1px solid #F0C894;letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px;}
+.placeholder-desc{font-size:12px;color:var(--text-muted);max-width:560px;margin:0 auto;line-height:1.5;}
+.placeholder-data-need{font-size:11px;color:var(--text-muted);margin-top:10px;padding:8px 12px;background:var(--alice-blue);border-radius:5px;display:inline-block;}
+.placeholder-data-need b{color:var(--text);}
+
+/* Responsivo módulos v2 */
+@media(max-width:900px){
+  .util-riesgo{grid-template-columns:1fr;text-align:center;}
+  .ur-right{text-align:center;min-width:auto;}
+  .ur-spark{margin:0 auto;}
+  .proy-grid{grid-template-columns:1fr;}
+  .ef-legenda{grid-template-columns:1fr;}
+  .vel-grid{grid-template-columns:1fr;}
+  .sep-adic-grid{grid-template-columns:1fr;}
+  .ur-componentes{flex-direction:column;}
+}
+
 /* Mobile */
 .mobile-toggle{display:none;background:var(--twitter-blue);color:var(--white);border:none;padding:8px 12px;border-radius:5px;font-size:16px;cursor:pointer;}
 
@@ -794,6 +933,14 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
         <span class="sb-num">08</span><span class="sb-icon"></span>
         <span class="sb-label">Panel Fotográfico</span>
       </button>
+      <button class="sb-item" data-tab="gestion" data-tooltip="Gestión de Información" style="color:#3A91C5">
+        <span class="sb-num">09</span><span class="sb-icon"></span>
+        <span class="sb-label">Gestión de Info</span>
+      </button>
+      <button class="sb-item" data-tab="pipeline" data-tooltip="Pipeline & Capacidad" style="color:#509BC9">
+        <span class="sb-num">10</span><span class="sb-icon"></span>
+        <span class="sb-label">Pipeline</span>
+      </button>
     </div>
 
     <div class="sb-divider" style="margin-top:auto"></div>
@@ -864,10 +1011,13 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
     <div class="scroll-area" id="scrollArea">
 
       <!-- ═══════════════════════════════════════════
-           SECCIÓN RESUMEN (DEFAULT)
+           SECCIÓN RESUMEN (DEFAULT) — REORGANIZADA EN 3 CAPAS
+           CAPA 3 → RIESGO (arriba · lo más importante)
+           CAPA 1 → HOY    (control actual)
+           CAPA 2 → MAÑANA (proyecciones)
            ═══════════════════════════════════════════ -->
       <section class="section active" id="sec-resumen">
-        <!-- A. Banner -->
+        <!-- A. Banner (plazo + semana) -->
         <div class="r-banner">
           <div class="r-banner-top">
             <div>
@@ -888,8 +1038,78 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           </div>
         </div>
 
-        <!-- B. KPI Poster -->
+        <!-- ═══════════════════════════════════════════
+             CAPA 3 · RIESGO (KPI maestro arriba)
+             ═══════════════════════════════════════════ -->
+        <div class="capa-header c-riesgo">
+          <div class="capa-num">▲</div>
+          <div>
+            <div class="capa-title">RIESGO</div>
+          </div>
+          <div class="capa-sub">Indicador maestro</div>
+        </div>
+
+        <!-- MÓDULO 1 · UTILIDAD EN RIESGO -->
+        <div class="util-riesgo" id="utilRiesgoCard">
+          <div class="ur-semaforo" id="urSemaforo">—</div>
+          <div class="ur-center">
+            <div class="ur-label">Utilidad en Riesgo</div>
+            <div class="ur-value" id="urValue">—</div>
+            <div class="ur-lectura" id="urLectura">Calculando...</div>
+            <div class="ur-componentes" id="urComponentes"></div>
+          </div>
+          <div class="ur-right">
+            <div class="ur-right-lbl">Tendencia 4 sem.</div>
+            <canvas class="ur-spark" id="urSpark"></canvas>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════
+             CAPA 1 · HOY (control actual)
+             ═══════════════════════════════════════════ -->
+        <div class="capa-header c-hoy">
+          <div class="capa-num">●</div>
+          <div>
+            <div class="capa-title">HOY — CONTROL</div>
+          </div>
+          <div class="capa-sub">Panel ejecutivo semana actual</div>
+        </div>
+
+        <!-- B. KPI Poster (6 KPIs ejecutivos) -->
         <div class="r-kpi-grid" id="rKpiGrid"></div>
+
+        <!-- MÓDULO 3 · EFICIENCIA PRODUCTIVA (termómetro) -->
+        <div class="eficiencia-card" id="eficienciaCard">
+          <div class="ef-header">
+            <div>
+              <div class="ef-title"><span>▸</span>EFICIENCIA PRODUCTIVA</div>
+              <div class="ef-sub">Balance entre avance físico y consumo de MO · mide si se está "comprando avance caro"</div>
+            </div>
+            <div class="ef-value" id="efValue">—</div>
+          </div>
+          <div class="ef-termometro">
+            <div class="ef-aguja" id="efAguja" style="left:50%"></div>
+          </div>
+          <div class="ef-labels">
+            <span>0.50 (ineficiente)</span>
+            <span>1.00 (balance)</span>
+            <span>1.50+ (eficiente)</span>
+          </div>
+          <div class="ef-legenda">
+            <div class="ef-leg-block lb-bad">
+              <div class="ef-leg-lbl">&lt; 1.00</div>
+              <div class="ef-leg-desc">Se compra avance caro — alerta</div>
+            </div>
+            <div class="ef-leg-block lb-warn">
+              <div class="ef-leg-lbl">= 1.00</div>
+              <div class="ef-leg-desc">Balance perfecto — según plan</div>
+            </div>
+            <div class="ef-leg-block lb-ok">
+              <div class="ef-leg-lbl">&gt; 1.00</div>
+              <div class="ef-leg-desc">Se avanza más rápido de lo que se gasta</div>
+            </div>
+          </div>
+        </div>
 
         <!-- C. Semáforo frentes -->
         <div class="r-frentes" id="rFrentes"></div>
@@ -903,6 +1123,56 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 
         <!-- E. Alertas -->
         <div class="r-alertas" id="rAlertas"></div>
+
+        <!-- ═══════════════════════════════════════════
+             CAPA 2 · MAÑANA (proyecciones)
+             ═══════════════════════════════════════════ -->
+        <div class="capa-header c-manana">
+          <div class="capa-num">▶</div>
+          <div>
+            <div class="capa-title">MAÑANA — PROYECCIÓN</div>
+          </div>
+          <div class="capa-sub">Estimación a fin de obra</div>
+        </div>
+
+        <!-- MÓDULO 2 · PROYECCIONES -->
+        <div class="proy-grid" id="proyGrid">
+          <!-- 2.1 SPI Proyectado -->
+          <div class="proy-card" id="proyCardSpi">
+            <div class="proy-label">SPI a fin de obra</div>
+            <div class="proy-values">
+              <span class="proy-actual" id="proySpiActual">—</span>
+              <span class="proy-arrow">→</span>
+              <span class="proy-proj" id="proySpiProj">—</span>
+            </div>
+            <div class="proy-proj-lbl">Actual → Proyectado al cierre</div>
+            <div style="margin-top:8px"><span class="proy-delta" id="proySpiDelta">—</span></div>
+            <div class="proy-chart"><canvas id="proyChartSpi"></canvas></div>
+            <div class="proy-footer" id="proySpiFooter">Basado en tendencia histórica</div>
+          </div>
+          <!-- 2.2 EAC -->
+          <div class="proy-card" id="proyCardEac">
+            <div class="proy-label">EAC · Costo final MO</div>
+            <div class="proy-values">
+              <span class="proy-actual" id="proyEacActual">—</span>
+            </div>
+            <div class="proy-proj-lbl">Estimate at Completion</div>
+            <div style="margin-top:8px"><span class="proy-delta" id="proyEacDelta">—</span></div>
+            <div class="proy-footer" id="proyEacFooter">EAC = AC + (BAC − EV) / CPI</div>
+          </div>
+          <!-- 2.3 Desviación Utilidad -->
+          <div class="proy-card" id="proyCardUtil">
+            <div class="proy-label">Desviación proyectada de utilidad</div>
+            <div class="proy-values">
+              <span class="proy-actual" id="proyUtilPlaneada">—</span>
+              <span class="proy-arrow">→</span>
+              <span class="proy-proj" id="proyUtilProyectada">—</span>
+            </div>
+            <div class="proy-proj-lbl">Planeada → Proyectada</div>
+            <div style="margin-top:8px"><span class="proy-delta" id="proyUtilDelta">—</span></div>
+            <div class="proy-footer" id="proyUtilFooter">Tendencia de utilidad si se mantiene el ritmo actual</div>
+          </div>
+        </div>
 
         <!-- F. Evolutivos -->
         <div class="r-evos">
@@ -953,6 +1223,30 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
       <section class="section" id="sec-avance">
         <div class="section-header">Avance Físico de Obra</div>
         <div class="section-subheader">Fuente: <b>02 · Control de Avance</b> (Casco SOT + Casco SUP + Albañilería) — corte <span class="corte-inline">Sem 36 (18/04/2026)</span></div>
+
+        <!-- MÓDULO 5 · VELOCIDAD DE AVANCE SEMANAL -->
+        <div class="velocidad-card" id="velocidadCard">
+          <div class="vel-header">
+            <div>
+              <div class="vel-title"><span>▸</span>VELOCIDAD DE AVANCE SEMANAL</div>
+              <div class="ef-sub">Detección temprana de desaceleración · compara velocidad actual vs promedio de últimas 4 semanas</div>
+            </div>
+            <div class="vel-tag t-flat" id="velTag">— BASE INICIAL</div>
+          </div>
+          <div class="vel-grid">
+            <div class="vel-metric">
+              <div class="vel-metric-lbl">Avance semana actual</div>
+              <div class="vel-metric-val" id="velActual">—</div>
+              <div class="vel-metric-sub" id="velActualSub">% ejecutado esta semana</div>
+            </div>
+            <div class="vel-metric">
+              <div class="vel-metric-lbl">Promedio últimas 4 sem.</div>
+              <div class="vel-metric-val" id="velPromedio" style="color:var(--blue-bell)">—</div>
+              <div class="vel-metric-sub" id="velPromedioSub">Necesita 4+ semanas de historial</div>
+            </div>
+          </div>
+          <div class="vel-chart"><canvas id="chartVelocidad"></canvas></div>
+        </div>
 
         <div class="charts-row c2-1">
           <div class="chart-card">
@@ -1151,6 +1445,38 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
         <div class="section-header">Adicionales, Deductivos y Optimizaciones</div>
         <div class="section-subheader" id="adicSubheader">Fuente: <b>10 · Status de Adicionales y Deductivos</b></div>
 
+        <!-- MÓDULO 4 · SEPARACIÓN DE ADICIONALES (LECTURA LIMPIA) -->
+        <div class="sep-adic-grid">
+          <!-- 4.1 % costo explicado por adicionales -->
+          <div class="sep-adic-card" id="sepAdic1">
+            <div class="sep-adic-title">% Costo explicado por adicionales</div>
+            <div class="sep-adic-value" id="sepAdicPct">—</div>
+            <div class="sep-adic-sub">¿Cuánto del costo actual proviene de alcance nuevo aprobado?</div>
+            <div class="sep-adic-comp">
+              <div class="sep-adic-comp-block">
+                <div class="sep-adic-comp-lbl">Adicionales S/</div>
+                <div class="sep-adic-comp-val" id="sepAdicMontoSol">—</div>
+              </div>
+              <div class="sep-adic-comp-block">
+                <div class="sep-adic-comp-lbl">MO Real</div>
+                <div class="sep-adic-comp-val" id="sepAdicMoReal">—</div>
+              </div>
+            </div>
+          </div>
+          <!-- 4.2 Desviación limpia vs total (placeholder) -->
+          <div class="sep-adic-card placeholder-card" id="sepAdic2" style="padding:18px 22px;text-align:left;opacity:1;">
+            <div class="sep-adic-title">Desviación sin adicionales (lectura limpia)</div>
+            <div class="placeholder-badge" style="margin-top:4px;margin-bottom:8px">En construcción</div>
+            <div class="placeholder-desc" style="text-align:left;margin:0;font-size:11px">
+              Permite separar la desviación real del contrato base vs la desviación por alcance aprobado por el cliente.
+              Evita lecturas erróneas de "vamos mal" cuando la desviación está justificada.
+            </div>
+            <div class="placeholder-data-need" style="margin-top:10px">
+              <b>Falta data:</b> separar MO ejecutada entre contrato base y adicionales en el archivo 06 o 10
+            </div>
+          </div>
+        </div>
+
         <div class="charts-row c2">
           <div class="chart-card">
             <div class="chart-title"><span class="num">19</span> Adicionales aprobados por especialidad (S/)</div>
@@ -1228,6 +1554,122 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
         <div class="chart-card">
           <div id="fotoGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px"></div>
           <div style="font-size:10px;color:var(--text-muted);font-style:italic;margin-top:10px;text-align:center">Placeholders · las fotografías originales están en el Excel fuente <b style="color:var(--twitter-blue)">04 · Reporte gráfico</b></div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           SECCIÓN 9 — GESTIÓN DE INFORMACIÓN (placeholder)
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-gestion">
+        <div class="section-header">Gestión de Información · Integración e Innovación</div>
+        <div class="section-subheader">Indicadores transversales de calidad en la gestión de data entre áreas</div>
+
+        <div class="capa-header c-gestion">
+          <div class="capa-num">◆</div>
+          <div>
+            <div class="capa-title">INDICADORES DE GESTIÓN</div>
+          </div>
+          <div class="capa-sub">Área transversal</div>
+        </div>
+
+        <!-- 6.1 · Cumplimiento entrega data -->
+        <div class="placeholder-card">
+          <div class="placeholder-icon">📊</div>
+          <div class="placeholder-title">% CUMPLIMIENTO ENTREGA DE DATA POR ÁREAS</div>
+          <div class="placeholder-badge">En construcción</div>
+          <div class="placeholder-desc">
+            Medirá el porcentaje de áreas (Producción, MO, Logística, Ingeniería, QC) que entregan
+            su reporte semanal a tiempo · con desglose por área y tendencia de las últimas semanas.
+          </div>
+          <div class="placeholder-data-need">
+            <b>Falta data:</b> registro de fecha/hora de entrega por área (no existe en los 11 Excel actuales)
+          </div>
+        </div>
+
+        <!-- 6.2 · Tiempo de respuesta RFIs -->
+        <div class="placeholder-card">
+          <div class="placeholder-icon">⏱</div>
+          <div class="placeholder-title">TIEMPO PROMEDIO DE RESPUESTA · RFIs / INGENIERÍA</div>
+          <div class="placeholder-badge">En construcción</div>
+          <div class="placeholder-desc">
+            Días promedio entre emisión de un RFI (Request For Information) y su respuesta.
+            Comparará meta vs real con indicador de tendencia.
+          </div>
+          <div class="placeholder-data-need">
+            <b>Falta data:</b> registro de RFIs emitidos con fechas de emisión y respuesta
+          </div>
+        </div>
+
+        <!-- 6.3 · Alineamiento de información -->
+        <div class="placeholder-card">
+          <div class="placeholder-icon">🔗</div>
+          <div class="placeholder-title">NIVEL DE ALINEAMIENTO DE INFORMACIÓN</div>
+          <div class="placeholder-badge">En construcción</div>
+          <div class="placeholder-desc">
+            Score 0-100 compuesto que mide la consistencia entre los datos de avance físico,
+            MO consumida, costos registrados y logística. Detecta discrepancias entre fuentes.
+          </div>
+          <div class="placeholder-data-need">
+            <b>Cálculo automático:</b> este KPI se activará automáticamente cuando se agreguen las reglas de reconciliación entre áreas
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           SECCIÓN 10 — PIPELINE & CAPACIDAD (placeholder)
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-pipeline">
+        <div class="section-header">Pipeline & Capacidad · Visión Gerencial</div>
+        <div class="section-subheader">Proyección de carga y utilidad de proyectos futuros (multi-obra)</div>
+
+        <div class="capa-header c-manana">
+          <div class="capa-num">▶</div>
+          <div>
+            <div class="capa-title">PIPELINE Y CARGA FUTURA</div>
+          </div>
+          <div class="capa-sub">Requiere data de otros proyectos</div>
+        </div>
+
+        <!-- 7.1 Proyectos futuros vs capacidad -->
+        <div class="placeholder-card">
+          <div class="placeholder-icon">📈</div>
+          <div class="placeholder-title">PROYECTOS FUTUROS vs CAPACIDAD</div>
+          <div class="placeholder-badge">En construcción</div>
+          <div class="placeholder-desc">
+            Gráfico de carga de obra proyectada por mes (próximos 6-12 meses) con línea horizontal
+            de capacidad máxima. Zonas sobre/bajo capacidad resaltadas en color.
+          </div>
+          <div class="placeholder-data-need">
+            <b>Falta data:</b> requiere información de otros proyectos de la cartera ESPARQ (no solo E140)
+          </div>
+        </div>
+
+        <!-- 7.2 Utilidad proyectada pipeline -->
+        <div class="placeholder-card">
+          <div class="placeholder-icon">💰</div>
+          <div class="placeholder-title">UTILIDAD PROYECTADA DE PIPELINE</div>
+          <div class="placeholder-badge">En construcción</div>
+          <div class="placeholder-desc">
+            Suma de utilidad esperada de proyectos en cartera no iniciados, con desglose por proyecto.
+            Visión estratégica para decisiones comerciales.
+          </div>
+          <div class="placeholder-data-need">
+            <b>Falta data:</b> base de proyectos en cartera con utilidad esperada por proyecto
+          </div>
+        </div>
+
+        <!-- 7.3 Carga de obra por mes -->
+        <div class="placeholder-card">
+          <div class="placeholder-icon">🗓</div>
+          <div class="placeholder-title">CARGA DE OBRA POR MES</div>
+          <div class="placeholder-badge">En construcción</div>
+          <div class="placeholder-desc">
+            Heatmap o barras apiladas mostrando qué obras están activas cada mes.
+            Permite identificar gaps de capacidad ociosa o saturación operativa.
+          </div>
+          <div class="placeholder-data-need">
+            <b>Falta data:</b> cronograma maestro multi-proyecto de la cartera
+          </div>
         </div>
       </section>
 
@@ -4776,6 +5218,479 @@ document.addEventListener('keydown', (e) => {
     closeCargaModal();
   }
 });
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   ═  MÓDULOS V2 — 3 CAPAS LÓGICAS                                    ═
+   ═  Config, cálculos y renderizado                                  ═
+   ═══════════════════════════════════════════════════════════════════ */
+
+/**
+ * Configuración central de todos los módulos nuevos.
+ * Ajustable sin tocar el resto del código.
+ */
+const CONFIG_V2 = {
+  // ─── MÓDULO 1 · UTILIDAD EN RIESGO ───
+  utilidadRiesgo: {
+    pesos: {
+      spi: 0.35,       // Peso desviación SPI
+      mo:  0.40,       // Peso desviación CPI MO
+      avance: 0.25,    // Peso desviación avance vs cronograma
+    },
+    umbrales: {
+      verde: 5,        // 0 a 5% → utilidad asegurada
+      amarillo: 12,    // 5 a 12% → ligera desviación
+      // > 12% → rojo (proyecto comprometido)
+    },
+  },
+
+  // ─── MÓDULO 2 · PROYECCIONES ───
+  proyecciones: {
+    plazoTotalDias: 471,
+    diasTranscurridos: 250,   // A Sem 36
+    utilidadPlaneadaPct: 15,  // Meta típica proyecto construcción
+    spiMetaCierre: 1.0,       // Objetivo al cierre
+  },
+
+  // ─── MÓDULO 3 · EFICIENCIA PRODUCTIVA ───
+  eficiencia: {
+    umbralBajo: 0.80,     // < 0.80 → alerta roja
+    umbralMedio: 1.00,    // 0.80 - 1.00 → amarillo
+    // > 1.00 → verde
+  },
+
+  // ─── MÓDULO 5 · VELOCIDAD ───
+  velocidad: {
+    semanasParaPromedio: 4,   // Ventana para promedio móvil
+    umbralDesaceleracion: 0.80, // vel actual / promedio < 0.80 → desacelerando
+    umbralAceleracion: 1.15,    // > 1.15 → acelerando
+  },
+};
+
+/**
+ * Auxiliar: obtener KPI de una semana (prefiere panelEjecutivo, fallback a kpis legacy)
+ */
+function v2GetKpi(weekKey, field){
+  if(!DATA || !DATA.weeks || !DATA.weeks[weekKey]) return null;
+  const w = DATA.weeks[weekKey];
+  const pe = w.panelEjecutivo || {};
+  const kp = w.kpis || {};
+  switch(field){
+    case 'avance':        return pe.avance != null ? pe.avance : kp.avanceObra;
+    case 'cpi':           return pe.cpi != null ? pe.cpi : kp.cpi;
+    case 'spiMeta':       return pe.spiMeta != null ? pe.spiMeta : kp.spiMeta;
+    case 'moConsumida':   return pe.moConsumida != null ? pe.moConsumida : kp.moConsumida;
+    case 'costoDirecto':  return w.kpis ? w.kpis.costoDirecto : null;
+  }
+  return null;
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════════════
+ * MÓDULO 1 · UTILIDAD EN RIESGO (KPI maestro)
+ * ═══════════════════════════════════════════════════════════════════
+ */
+function v2RenderUtilidadRiesgo(){
+  const card = document.getElementById('utilRiesgoCard');
+  if(!card) return;
+
+  const cw = DATA.currentWeek;
+  const spi = v2GetKpi(cw, 'spiMeta');
+  const cpi = v2GetKpi(cw, 'cpi');
+  const avance = v2GetKpi(cw, 'avance');
+  const diasPct = CONFIG_V2.proyecciones.diasTranscurridos / CONFIG_V2.proyecciones.plazoTotalDias * 100;
+
+  // Cálculos de desviación (en puntos porcentuales)
+  // Desviación SPI: cuánto me aleja de 1.0 (100%)
+  const desvSpi = spi != null ? Math.max(0, (1 - spi) * 100) : 0;
+  // Desviación CPI: si CPI < 1 (sobrecosto) penaliza, si >1 no penaliza
+  const desvCpi = cpi != null ? Math.max(0, (1 - Math.min(cpi, 1)) * 100) : 0;
+  // Desviación avance: diferencia entre %avance y %tiempo transcurrido
+  const desvAvance = avance != null ? Math.max(0, diasPct - avance) : 0;
+
+  // Cálculo ponderado
+  const w = CONFIG_V2.utilidadRiesgo.pesos;
+  const utilRiesgoPct = (w.spi * desvSpi) + (w.mo * desvCpi) + (w.avance * desvAvance);
+
+  // Semáforo
+  const u = CONFIG_V2.utilidadRiesgo.umbrales;
+  let semaforo, lectura, clase;
+  if(utilRiesgoPct <= u.verde){
+    clase = 'ur-green'; semaforo = '✓'; lectura = 'Utilidad asegurada';
+  } else if(utilRiesgoPct <= u.amarillo){
+    clase = 'ur-orange'; semaforo = '◐'; lectura = 'Ligera desviación · monitorear';
+  } else {
+    clase = 'ur-red'; semaforo = '✗'; lectura = 'Proyecto comprometido · acción inmediata';
+  }
+
+  // Aplicar
+  card.className = 'util-riesgo ' + clase;
+  document.getElementById('urSemaforo').textContent = semaforo;
+  document.getElementById('urValue').textContent = utilRiesgoPct.toFixed(1) + '%';
+  document.getElementById('urLectura').textContent = lectura;
+
+  // Componentes (mostrar desglose)
+  document.getElementById('urComponentes').innerHTML = `
+    <div class="ur-componente">
+      <div class="ur-componente-lbl">Desv. SPI</div>
+      <div class="ur-componente-val">${desvSpi.toFixed(1)}%</div>
+    </div>
+    <div class="ur-componente">
+      <div class="ur-componente-lbl">Desv. MO</div>
+      <div class="ur-componente-val">${desvCpi.toFixed(1)}%</div>
+    </div>
+    <div class="ur-componente">
+      <div class="ur-componente-lbl">Desv. Avance</div>
+      <div class="ur-componente-val">${desvAvance.toFixed(1)}%</div>
+    </div>
+  `;
+
+  // Sparkline tendencia 4 semanas (usa valores histórico o placeholder)
+  const ctx = document.getElementById('urSpark');
+  if(ctx){
+    const chron = [...WEEKS_ORDER].reverse();
+    const last4 = chron.slice(-4);
+    const series = last4.map(wk => {
+      const s = v2GetKpi(wk, 'spiMeta');
+      const c = v2GetKpi(wk, 'cpi');
+      const a = v2GetKpi(wk, 'avance');
+      const dS = s != null ? Math.max(0, (1-s)*100) : null;
+      const dC = c != null ? Math.max(0, (1-Math.min(c,1))*100) : null;
+      const dA = a != null ? Math.max(0, diasPct - a) : null;
+      if(dS == null && dC == null && dA == null) return null;
+      return w.spi*(dS||0) + w.mo*(dC||0) + w.avance*(dA||0);
+    });
+    if(CHART_INSTANCES['urSpark']) CHART_INSTANCES['urSpark'].destroy();
+    CHART_INSTANCES['urSpark'] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: last4,
+        datasets: [{
+          data: series, borderColor: utilRiesgoPct <= u.verde ? '#2D936C' : utilRiesgoPct <= u.amarillo ? '#E07B39' : '#D64045',
+          backgroundColor: (utilRiesgoPct <= u.verde ? '#2D936C' : utilRiesgoPct <= u.amarillo ? '#E07B39' : '#D64045') + '33',
+          fill: true, tension: .35, pointRadius: 2, borderWidth: 2, spanGaps: true,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: true } },
+        scales: { x: { display: false }, y: { display: false } },
+      }
+    });
+  }
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════════════
+ * MÓDULO 2 · PROYECCIONES (SPI proyectado, EAC, utilidad)
+ * ═══════════════════════════════════════════════════════════════════
+ */
+function v2RenderProyecciones(){
+  const cw = DATA.currentWeek;
+  const spi = v2GetKpi(cw, 'spiMeta');
+  const cpi = v2GetKpi(cw, 'cpi');
+  const avance = v2GetKpi(cw, 'avance');
+  const moReal = v2GetKpi(cw, 'moConsumida');
+  const cd = v2GetKpi(cw, 'costoDirecto');
+
+  // ─── 2.1 SPI Proyectado a fin de obra ───
+  // Proyección simple: si el SPI se mantiene, el cierre tendrá este SPI
+  // Si el SPI > 1, adelanto; si SPI < 1, atraso
+  if(spi != null){
+    document.getElementById('proySpiActual').textContent = spi.toFixed(2);
+    const spiProj = spi; // Proyección mantiene tendencia
+    document.getElementById('proySpiProj').textContent = spiProj.toFixed(2);
+
+    // Días de adelanto/atraso estimados al cierre
+    const plazoTotal = CONFIG_V2.proyecciones.plazoTotalDias;
+    const diasDesvEstimados = Math.round((1 - spi) * plazoTotal * (avance/100 || 0.5));
+
+    const deltaEl = document.getElementById('proySpiDelta');
+    const cardEl = document.getElementById('proyCardSpi');
+    if(spi >= 0.95){
+      deltaEl.className = 'proy-delta d-ok';
+      deltaEl.innerHTML = diasDesvEstimados <= 0 ? '↑ En plazo' : `⚠ ${diasDesvEstimados} días atraso estimado`;
+      cardEl.classList.remove('pc-bad','pc-warn'); cardEl.classList.add('pc-ok');
+    } else if(spi >= 0.85){
+      deltaEl.className = 'proy-delta d-warn';
+      deltaEl.innerHTML = `⚠ ${diasDesvEstimados} d atraso estimado`;
+      cardEl.classList.remove('pc-bad','pc-ok'); cardEl.classList.add('pc-warn');
+    } else {
+      deltaEl.className = 'proy-delta d-bad';
+      deltaEl.innerHTML = `↓ ${diasDesvEstimados} d atraso crítico`;
+      cardEl.classList.remove('pc-ok','pc-warn'); cardEl.classList.add('pc-bad');
+    }
+    document.getElementById('proySpiFooter').textContent = `Basado en SPI actual · ${WEEKS_ORDER.length} semana(s) registrada(s)`;
+  }
+
+  // ─── 2.2 EAC · Costo final MO ───
+  // Fórmula: EAC = AC + (BAC - EV) / CPI
+  // AC = MO Real actual
+  // BAC = Budget At Completion = 25% × Costo Directo (presupuesto MO)
+  // EV = Earned Value = BAC × %avance
+  if(moReal != null && cd != null && cpi != null && avance != null){
+    const bac = cd * 0.25;
+    const ev = bac * (avance/100);
+    const ac = moReal;
+    const eac = ac + (bac - ev) / cpi;
+    const desviacionMonto = eac - bac;
+    const desviacionPct = (desviacionMonto / bac) * 100;
+
+    document.getElementById('proyEacActual').textContent = 'S/ ' + Math.round(eac).toLocaleString('es-PE');
+
+    const deltaEl = document.getElementById('proyEacDelta');
+    const cardEl = document.getElementById('proyCardEac');
+    const signo = desviacionMonto >= 0 ? '+' : '';
+    if(desviacionPct <= 2){
+      deltaEl.className = 'proy-delta d-ok';
+      deltaEl.innerHTML = `✓ Controlado · ${signo}${Math.round(desviacionMonto/1000)}k S/`;
+      cardEl.classList.remove('pc-bad','pc-warn'); cardEl.classList.add('pc-ok');
+    } else if(desviacionPct <= 10){
+      deltaEl.className = 'proy-delta d-warn';
+      deltaEl.innerHTML = `⚠ Alerta · ${signo}${desviacionPct.toFixed(1)}% vs ppto`;
+      cardEl.classList.remove('pc-bad','pc-ok'); cardEl.classList.add('pc-warn');
+    } else {
+      deltaEl.className = 'proy-delta d-bad';
+      deltaEl.innerHTML = `✗ Crítico · ${signo}${desviacionPct.toFixed(1)}% vs ppto`;
+      cardEl.classList.remove('pc-ok','pc-warn'); cardEl.classList.add('pc-bad');
+    }
+    document.getElementById('proyEacFooter').innerHTML = `AC: S/${Math.round(ac).toLocaleString('es-PE')} · BAC: S/${Math.round(bac).toLocaleString('es-PE')} · EV: S/${Math.round(ev).toLocaleString('es-PE')}`;
+  }
+
+  // ─── 2.3 Desviación proyectada de utilidad ───
+  // Utilidad planeada (config) vs proyectada (basada en CPI)
+  // Si CPI > 1: utilidad proyectada sube. Si CPI < 1: baja
+  const utilPlan = CONFIG_V2.proyecciones.utilidadPlaneadaPct;
+  if(cpi != null){
+    // Utilidad proyectada: si CPI varía, la utilidad varía proporcionalmente
+    // Simplificación: utilidad proyectada = utilidad planeada × (CPI del proyecto)
+    // Acotamos para que no se dispare con CPI muy altos (proyectos en fase inicial)
+    const cpiClamp = Math.min(Math.max(cpi, 0.7), 1.3);
+    const utilProy = utilPlan * (0.5 + 0.5 * cpiClamp);
+    const delta = utilProy - utilPlan;
+
+    document.getElementById('proyUtilPlaneada').textContent = utilPlan.toFixed(1) + '%';
+    document.getElementById('proyUtilProyectada').textContent = utilProy.toFixed(1) + '%';
+
+    const deltaEl = document.getElementById('proyUtilDelta');
+    const cardEl = document.getElementById('proyCardUtil');
+    const signo = delta >= 0 ? '+' : '';
+    if(delta >= 0){
+      deltaEl.className = 'proy-delta d-ok';
+      deltaEl.innerHTML = `↑ ${signo}${delta.toFixed(1)} pp (ahorro)`;
+      cardEl.classList.remove('pc-bad','pc-warn'); cardEl.classList.add('pc-ok');
+    } else if(delta >= -2){
+      deltaEl.className = 'proy-delta d-warn';
+      deltaEl.innerHTML = `→ ${delta.toFixed(1)} pp (ligera pérdida)`;
+      cardEl.classList.remove('pc-bad','pc-ok'); cardEl.classList.add('pc-warn');
+    } else {
+      deltaEl.className = 'proy-delta d-bad';
+      deltaEl.innerHTML = `↓ ${delta.toFixed(1)} pp (pérdida proyectada)`;
+      cardEl.classList.remove('pc-ok','pc-warn'); cardEl.classList.add('pc-bad');
+    }
+    document.getElementById('proyUtilFooter').textContent = `Utilidad planeada: ${utilPlan}% · Modulada por CPI ${cpi.toFixed(2)}`;
+  }
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════════════
+ * MÓDULO 3 · EFICIENCIA PRODUCTIVA (termómetro)
+ * ═══════════════════════════════════════════════════════════════════
+ * IEP = % Avance real / % MO real consumida
+ */
+function v2RenderEficiencia(){
+  const card = document.getElementById('eficienciaCard');
+  if(!card) return;
+  const cw = DATA.currentWeek;
+  const avance = v2GetKpi(cw, 'avance');
+  const moReal = v2GetKpi(cw, 'moConsumida');
+  const cd = v2GetKpi(cw, 'costoDirecto');
+
+  if(avance == null || moReal == null || cd == null){
+    document.getElementById('efValue').textContent = '—';
+    return;
+  }
+
+  const moPct = (moReal / (cd * 0.25)) * 100;
+  const iep = moPct > 0 ? avance / moPct : 0;
+
+  document.getElementById('efValue').textContent = iep.toFixed(2);
+  const valueEl = document.getElementById('efValue');
+  valueEl.classList.remove('ef-ok','ef-warn','ef-bad');
+
+  const u = CONFIG_V2.eficiencia;
+  if(iep >= u.umbralMedio) valueEl.classList.add('ef-ok');
+  else if(iep >= u.umbralBajo) valueEl.classList.add('ef-warn');
+  else valueEl.classList.add('ef-bad');
+
+  // Aguja del termómetro: mapear 0.5-1.5 a 0%-100%
+  const clamp = Math.min(Math.max(iep, 0.5), 1.5);
+  const pct = ((clamp - 0.5) / 1.0) * 100;
+  document.getElementById('efAguja').style.left = pct + '%';
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════════════
+ * MÓDULO 5 · VELOCIDAD DE AVANCE
+ * ═══════════════════════════════════════════════════════════════════
+ */
+function v2RenderVelocidad(){
+  const card = document.getElementById('velocidadCard');
+  if(!card) return;
+  const cw = DATA.currentWeek;
+  const chron = [...WEEKS_ORDER].reverse();
+  const idx = chron.indexOf(cw);
+
+  const avanceActual = v2GetKpi(cw, 'avance');
+  const avancePrev = idx > 0 ? v2GetKpi(chron[idx-1], 'avance') : null;
+  const velSemana = (avanceActual != null && avancePrev != null) ? (avanceActual - avancePrev) : null;
+
+  // Promedio últimas N semanas
+  const N = CONFIG_V2.velocidad.semanasParaPromedio;
+  const semanasParaProm = chron.slice(Math.max(0, idx - N), idx);
+  const velocidadesPrevias = [];
+  for(let i = 1; i < semanasParaProm.length; i++){
+    const a1 = v2GetKpi(semanasParaProm[i], 'avance');
+    const a0 = v2GetKpi(semanasParaProm[i-1], 'avance');
+    if(a1 != null && a0 != null) velocidadesPrevias.push(a1 - a0);
+  }
+  const promedio = velocidadesPrevias.length > 0 ? velocidadesPrevias.reduce((a,b)=>a+b,0) / velocidadesPrevias.length : null;
+
+  // Renderizar
+  if(velSemana != null){
+    document.getElementById('velActual').textContent = velSemana.toFixed(2) + ' pp';
+    document.getElementById('velActualSub').textContent = 'Incremento de % avance esta semana';
+  } else {
+    document.getElementById('velActual').textContent = '—';
+    document.getElementById('velActualSub').textContent = 'Requiere semana anterior registrada';
+  }
+
+  if(promedio != null){
+    document.getElementById('velPromedio').textContent = promedio.toFixed(2) + ' pp';
+    document.getElementById('velPromedioSub').textContent = `Promedio de ${velocidadesPrevias.length} semana(s)`;
+
+    // Tag de tendencia
+    const tagEl = document.getElementById('velTag');
+    if(velSemana != null && promedio > 0){
+      const ratio = velSemana / promedio;
+      if(ratio >= CONFIG_V2.velocidad.umbralAceleracion){
+        tagEl.className = 'vel-tag t-up';
+        tagEl.textContent = '⚡ ACELERANDO';
+      } else if(ratio >= CONFIG_V2.velocidad.umbralDesaceleracion){
+        tagEl.className = 'vel-tag t-flat';
+        tagEl.textContent = '→ ESTABLE';
+      } else {
+        tagEl.className = 'vel-tag t-down';
+        tagEl.textContent = '⬇ DESACELERANDO';
+      }
+    }
+  } else {
+    document.getElementById('velPromedio').textContent = '—';
+    document.getElementById('velPromedioSub').textContent = 'Necesita 4+ semanas de historial';
+    document.getElementById('velTag').textContent = '— BASE INICIAL';
+    document.getElementById('velTag').className = 'vel-tag t-flat';
+  }
+
+  // Chart de las últimas 8 semanas
+  const ctx = document.getElementById('chartVelocidad');
+  if(ctx){
+    const last8 = chron.slice(-8);
+    const veloc8 = [];
+    for(let i = 1; i < last8.length; i++){
+      const a1 = v2GetKpi(last8[i], 'avance');
+      const a0 = v2GetKpi(last8[i-1], 'avance');
+      veloc8.push((a1 != null && a0 != null) ? (a1 - a0) : null);
+    }
+    const labels8 = last8.slice(1); // quitamos la primera (no tiene comparativo)
+
+    if(CHART_INSTANCES['chartVelocidad']) CHART_INSTANCES['chartVelocidad'].destroy();
+    CHART_INSTANCES['chartVelocidad'] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels8,
+        datasets: [{
+          label: 'pp/semana',
+          data: veloc8,
+          backgroundColor: veloc8.map((v,i) => {
+            if(v == null) return '#EDF2F4';
+            if(promedio == null) return '#0070B4';
+            return v >= promedio * CONFIG_V2.velocidad.umbralAceleracion ? '#2D936C' :
+                   v >= promedio * CONFIG_V2.velocidad.umbralDesaceleracion ? '#509BC9' :
+                   '#E07B39';
+          }),
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { font: { size: 10 } }, grid: { display: false } },
+          y: { ticks: { font: { size: 10 } }, beginAtZero: true },
+        },
+      }
+    });
+  }
+}
+
+/**
+ * ═══════════════════════════════════════════════════════════════════
+ * MÓDULO 4 · SEPARACIÓN DE ADICIONALES
+ * ═══════════════════════════════════════════════════════════════════
+ */
+function v2RenderSeparacionAdicionales(){
+  const cw = DATA.currentWeek;
+  const w = DATA.weeks[cw];
+  if(!w) return;
+
+  // Usa datos del archivo 10 (si están disponibles en data-s36.json)
+  const adicSol = (DATA.weeks[cw] && DATA.weeks[cw].kpis) ? DATA.weeks[cw].kpis.adicionales : null;
+  const moReal = v2GetKpi(cw, 'moConsumida');
+
+  let pctAdicSobreMo = null;
+  if(adicSol != null && moReal != null && moReal > 0){
+    pctAdicSobreMo = (adicSol / (adicSol + moReal)) * 100;
+  }
+
+  const pctEl = document.getElementById('sepAdicPct');
+  const montoEl = document.getElementById('sepAdicMontoSol');
+  const moEl = document.getElementById('sepAdicMoReal');
+  if(!pctEl) return;
+
+  if(pctAdicSobreMo != null){
+    pctEl.textContent = pctAdicSobreMo.toFixed(1) + '%';
+    montoEl.textContent = 'S/ ' + Math.round(adicSol).toLocaleString('es-PE');
+    moEl.textContent = 'S/ ' + Math.round(moReal).toLocaleString('es-PE');
+  } else {
+    pctEl.textContent = '—';
+    montoEl.textContent = '—';
+    moEl.textContent = '—';
+  }
+}
+
+/**
+ * Orquestador: renderiza TODOS los módulos v2.
+ * Se llama desde renderCurrentWeek() del dashboard original.
+ */
+function v2RenderAll(){
+  try { v2RenderUtilidadRiesgo(); } catch(e){ console.warn('[v2] utilRiesgo:', e); }
+  try { v2RenderProyecciones(); } catch(e){ console.warn('[v2] proyecciones:', e); }
+  try { v2RenderEficiencia(); } catch(e){ console.warn('[v2] eficiencia:', e); }
+  try { v2RenderVelocidad(); } catch(e){ console.warn('[v2] velocidad:', e); }
+  try { v2RenderSeparacionAdicionales(); } catch(e){ console.warn('[v2] sepAdic:', e); }
+}
+
+// Hook: llamar a v2RenderAll después de renderCurrentWeek original
+// Lo hacemos via monkey-patch para no tocar la función original
+(function installV2Hook(){
+  if(typeof renderCurrentWeek === 'function'){
+    const _originalRender = renderCurrentWeek;
+    window.renderCurrentWeek = function(){
+      _originalRender.apply(this, arguments);
+      try { v2RenderAll(); } catch(e){ console.warn('[v2] renderAll:', e); }
+    };
+  }
+})();
 
 </script>
 </body>
