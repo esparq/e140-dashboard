@@ -191,17 +191,17 @@ const GITHUB_REPO = 'esparq/e140-dashboard';
 const GITHUB_BRANCH = 'main';
 const TOKEN_KEY = 'e140_github_token_v1';
 const ARCHIVOS_ESPERADOS = [
-  {prefijo:'01', key:'histograma', label:'Histograma', hoja:'RESUMEN'},
-  {prefijo:'02_01', key:'casco_sot', label:'Casco SOT', hoja:'RESUMEN'},
-  {prefijo:'02_02', key:'casco_sup', label:'Casco SUP', hoja:'RESUMEN'},
-  {prefijo:'02_03', key:'albanileria', label:'Albañilería', hoja:'RESUMEN'},
-  {prefijo:'03', key:'adquisiciones', label:'Adquisiciones', hoja:'RESUMEN'},
+  {prefijo:'01', key:'histograma', label:'Histograma', hoja:'_DASHBOARD_DATA'},
+  {prefijo:'02_01', key:'casco_sot', label:'Casco SOT', hoja:'_DASHBOARD_DATA'},
+  {prefijo:'02_02', key:'casco_sup', label:'Casco SUP', hoja:'_DASHBOARD_DATA'},
+  {prefijo:'02_03', key:'albanileria', label:'Albañilería', hoja:'_DASHBOARD_DATA'},
+  {prefijo:'03', key:'adquisiciones', label:'Adquisiciones', hoja:'_DASHBOARD_DATA'},
   {prefijo:'05', key:'cronograma', label:'Cronograma', hoja:'RESUMEN'},
-  {prefijo:'06', key:'mo', label:'MO', hoja:'RESUMEN_DASH'},
+  {prefijo:'06', key:'mo', label:'MO', hoja:'_DASHBOARD_DATA'},
   {prefijo:'07', key:'acero', label:'Acero', hoja:'RESUMEN'},
   {prefijo:'08', key:'arrendamiento', label:'Arrendamiento', hoja:'RESUMEN'},
   {prefijo:'09', key:'kardex', label:'Kardex', hoja:'RESUMEN'},
-  {prefijo:'10', key:'adicionales', label:'Adicionales', hoja:'RESUMEN'},
+  {prefijo:'10', key:'adicionales', label:'Adicionales', hoja:'_DASHBOARD_DATA'},
 ];
 let state = { archivos: {}, datos: null, sobrescribirFilename: null, sobrescribirSha: null };
 
@@ -376,7 +376,7 @@ const EXTRACTORES = {
   albanileria: (sheet) => extraerAvance(sheet),
   adquisiciones: (sheet) => {
     const d = {};
-    for(let r = 20; r <= 50; r++){
+    for(let r = 3; r <= 50; r++){
       const k = getCell(sheet, 'B'+r); const v = getCell(sheet, 'C'+r);
       if(k && typeof k === 'string'){
         const kl = k.toLowerCase().trim();
@@ -387,7 +387,7 @@ const EXTRACTORES = {
   },
   cronograma: (sheet) => {
     const d = {};
-    for(let r = 10; r <= 40; r++){
+    for(let r = 3; r <= 45; r++){
       const k = getCell(sheet, 'B'+r); const v = getCell(sheet, 'C'+r);
       if(k && typeof k === 'string'){
         const kl = k.toLowerCase().trim();
@@ -398,7 +398,7 @@ const EXTRACTORES = {
   },
   mo: (sheet) => {
     const d = {cuadrillas: []};
-    for(let r = 15; r <= 45; r++){
+    for(let r = 3; r <= 50; r++){
       const h = getCell(sheet, 'B'+r);
       if(h && typeof h === 'string' && h.toLowerCase() === 'cuadrilla'){
         for(let i = 1; i <= 11; i++){
@@ -407,6 +407,14 @@ const EXTRACTORES = {
           d.cuadrillas.push({cuadrilla: c, mo_base: getCell(sheet, 'C'+(r+i)), mo_meta: getCell(sheet, 'D'+(r+i)), mo_real: getCell(sheet, 'E'+(r+i)), saldo: getCell(sheet, 'F'+(r+i)), rent_pct: getCell(sheet, 'G'+(r+i))});
         }
         break;
+      }
+    }
+    // KPIs escalares nuevos
+    for(let r = 3; r <= 50; r++){
+      const k = getCell(sheet, 'B'+r); const v = getCell(sheet, 'C'+r);
+      if(k && typeof k === 'string'){
+        const kl = k.toLowerCase().trim();
+        if(['mo_base_costo_directo','saldo_base_costo_directo','mo_base_aprobado','mo_real_acumulada','saldo_meta','rentabilidad_proyectada'].includes(kl)) d[kl] = v;
       }
     }
     return d;
@@ -446,14 +454,14 @@ const EXTRACTORES = {
   },
   adicionales: (sheet) => {
     const d = {items: []};
-    for(let r = 40; r <= 55; r++){
+    for(let r = 3; r <= 60; r++){
       const k = getCell(sheet, 'B'+r); const v = getCell(sheet, 'C'+r);
       if(k && typeof k === 'string'){
         const kl = k.toLowerCase().trim();
         if(['adicionales_sol','adicionales_usd','deductivos_sol','deductivos_usd','neto_sol','neto_usd','cantidad_items'].includes(kl)) d[kl] = v;
       }
     }
-    for(let r = 45; r <= 65; r++){
+    for(let r = 3; r <= 70; r++){
       const h = getCell(sheet, 'B'+r);
       if(h && typeof h === 'string' && h.toLowerCase().trim() === 'n'){
         for(let i = 1; i <= 30; i++){
@@ -470,14 +478,15 @@ const EXTRACTORES = {
 
 function extraerAvance(sheet){
   const d = {partidas: []};
-  for(let r = 17; r <= 35; r++){
+  // KPIs clave-valor (rango amplio: soporta RESUMEN antigua y _DASHBOARD_DATA nueva)
+  for(let r = 3; r <= 40; r++){
     const k = getCell(sheet, 'B'+r); const v = getCell(sheet, 'C'+r);
     if(k && typeof k === 'string'){
       const kl = k.toLowerCase().trim();
       if(['spi_semanal','spi_acumulado','sectores_prog_sem','sectores_ejec_sem','sectores_prog_acum','sectores_ejec_acum','pct_prog_promedio','pct_real_promedio'].includes(kl)) d[kl] = v;
     }
   }
-  for(let r = 20; r <= 40; r++){
+  for(let r = 10; r <= 45; r++){
     const h = getCell(sheet, 'B'+r);
     if(h && typeof h === 'string' && h.toLowerCase().trim() === 'partida'){
       for(let i = 1; i <= 10; i++){
