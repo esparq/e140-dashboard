@@ -36,6 +36,25 @@
   --sidebar-w-expanded: 230px;
   --sidebar-w-collapsed: 60px;
   --sidebar-transition: 0.28s cubic-bezier(.4,0,.2,1);
+
+  /* ═══════════════════════════════════════════════════════════════
+     TIPOGRAFÍA UNIFICADA — referencia: tarjetas KPI de HOY-CONTROL
+     ═══════════════════════════════════════════════════════════════ */
+  --kpi-label-size:    10px;
+  --kpi-label-weight:  600;
+  --kpi-label-ls:      .06em;
+  --kpi-value-size:    28px;
+  --kpi-value-family:  'Bebas Neue', sans-serif;
+  --kpi-value-ls:      1px;
+  --kpi-sub-size:      10px;
+  --kpi-meta-size:     10px;
+  --kpi-badge-size:    9.5px;
+  --kpi-badge-weight:  700;
+
+  /* Títulos de sección — DUPLICADOS respecto al valor anterior */
+  --section-header-size: 22px;   /* antes 12px */
+  --chart-title-size:    22px;   /* antes 11px */
+  --section-sub-size:    12px;   /* antes 11px, leve ajuste para proporción */
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;}
@@ -561,6 +580,117 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 
 /* Mobile */
 .mobile-toggle{display:none;background:var(--twitter-blue);color:var(--white);border:none;padding:8px 12px;border-radius:5px;font-size:16px;cursor:pointer;}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ═  UNIFICACIÓN TIPOGRÁFICA GLOBAL                                    ═
+   ═  Aplica a todas las tarjetas KPI y títulos de sección del dashboard ═
+   ═  Las variables se definen en :root (kpi-* y section-*-size)         ═
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── LABELS de tarjetas KPI ───
+   (10px, weight 600, letter-spacing .06em, uppercase, color text-muted) */
+.r-kpi-label,
+.kpi-label,
+.ur-label,
+.ur-right-lbl,
+.proy-label,
+.proy-proj-lbl,
+.pc-lbl,
+.mini-lbl,
+.vel-metric-lbl,
+.ur-componente-lbl,
+.ef-leg-lbl,
+.sep-adic-comp-lbl,
+.sep-adic-title{
+  font-size: var(--kpi-label-size) !important;
+  font-weight: var(--kpi-label-weight) !important;
+  letter-spacing: var(--kpi-label-ls) !important;
+}
+
+/* ─── VALORES PRINCIPALES de tarjetas KPI ───
+   (28px, Bebas Neue, letter-spacing 1px) */
+.r-kpi-value,
+.kpi-value,
+.ur-value,
+.ef-value,
+.vel-metric-val,
+.sep-adic-value,
+.proy-actual,
+.proy-proj{
+  font-size: var(--kpi-value-size) !important;
+  font-family: var(--kpi-value-family) !important;
+  letter-spacing: var(--kpi-value-ls) !important;
+  line-height: 1 !important;
+}
+
+/* pc-val (preview cards de cargar.html y chart-cards) usa DM Mono — respetamos su familia
+   pero igualamos tamaño para uniformidad */
+.pc-val{
+  font-size: var(--kpi-value-size) !important;
+  letter-spacing: var(--kpi-value-ls) !important;
+}
+
+/* ─── SUBTEXTOS y DELTAS de tarjetas KPI ───
+   (10px, weight 600) */
+.r-kpi-delta,
+.r-kpi-delta .vs,
+.vel-metric-sub,
+.ef-sub,
+.pc-sub,
+.proy-footer,
+.sep-adic-sub{
+  font-size: var(--kpi-sub-size) !important;
+}
+
+/* ─── BADGES de tarjetas KPI (metas, estados, deltas) ───
+   (9.5px, weight 700) */
+.kpi-meta-status,
+.proy-delta{
+  font-size: var(--kpi-badge-size) !important;
+  font-weight: var(--kpi-badge-weight) !important;
+}
+.kpi-meta-target{
+  font-size: var(--kpi-badge-size) !important;
+}
+
+/* ─── TÍTULOS DE SECCIÓN (DUPLICADOS) ───
+   .section-header: antes 12px → 22px
+   .chart-title:    antes 11px → 22px */
+.section-header{
+  font-size: var(--section-header-size) !important;
+  letter-spacing: .08em !important;
+  font-weight: 700 !important;
+  margin-bottom: 8px !important;
+}
+.section-header::before{
+  width: 6px !important;
+  height: 28px !important;
+  border-radius: 3px !important;
+}
+.section-subheader{
+  font-size: var(--section-sub-size) !important;
+  padding-left: 20px !important;
+  margin-bottom: 18px !important;
+}
+.chart-title{
+  font-size: var(--chart-title-size) !important;
+  letter-spacing: .08em !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+  margin-bottom: 10px !important;
+}
+.chart-title .num{
+  font-size: 20px !important;
+  padding: 3px 10px !important;
+}
+.chart-subtitle{
+  font-size: var(--section-sub-size) !important;
+  margin: -2px 0 12px !important;
+}
+
+/* ─── NOTA: banner superior, sidebar, header global, tablas y badges NO son tocados
+   por los selectores unificadores de arriba porque no incluyen ninguna de sus clases.
+   Los valores originales de .r-banner, .sidebar, .header, th, .badge, etc. se mantienen. */
 
 @media(max-width:900px){
   .app{grid-template-columns:1fr;}
