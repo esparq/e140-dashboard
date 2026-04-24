@@ -354,8 +354,11 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .modal-head p{font-size:11px;color:var(--baby-blue);margin-top:2px;letter-spacing:.05em;text-transform:uppercase;}
 .modal-close{background:rgba(255,255,255,.15);border:none;color:var(--white);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:inline-flex;align-items:center;justify-content:center;}
 .modal-close:hover{background:rgba(255,255,255,.28);}
-.modal-body{padding:24px;overflow-y:auto;flex:1;}
-.modal-foot{background:var(--alice-blue);border-top:1px solid var(--border);padding:14px 24px;display:flex;gap:10px;justify-content:flex-end;align-items:center;}
+.modal-body{padding:24px;overflow-y:auto;flex:1 1 auto;min-height:400px;}
+.modal-foot{background:var(--alice-blue);border-top:1px solid var(--border);padding:14px 24px;display:flex;gap:10px;justify-content:flex-end;align-items:center;flex-shrink:0;}
+
+/* Forzar step1 visible por defecto */
+#step1{min-height:350px;}
 
 /* Drop zone */
 .dropzone{border:3px dashed var(--border-mid);border-radius:10px;padding:40px 30px;text-align:center;transition:all .2s;background:var(--alice-blue);cursor:pointer;}
@@ -3761,23 +3764,56 @@ let cargaState = {
 // ABRIR / CERRAR MODAL
 // ────────────────────────────────────────
 function openCargaModal(){
-  // Prefill con semana siguiente a la actual
-  const weekSelect = document.getElementById('weekSelect');
-  const currentSem = weekSelect ? weekSelect.value : 'S36';
-  const numAct = parseInt(currentSem.replace(/\D/g,''), 10) || 36;
-  const nextSem = 'S' + (numAct + 1);
-  document.getElementById('inSemanaCod').value = nextSem;
-  // Fecha: siguiente sábado
-  const today = new Date();
-  const dow = today.getDay();
-  const daysToSat = (6 - dow + 7) % 7 || 7;
-  const nextSat = new Date(today.getTime() + daysToSat*24*60*60*1000);
-  document.getElementById('inSemanaFecha').value = nextSat.toISOString().split('T')[0];
+  try {
+    // 1. Reset estado
+    cargaState = {step:1, archivos:{}, datos:null};
 
-  cargaState = {step:1, archivos:{}, datos:null};
-  document.getElementById('cargaModal').classList.add('show');
-  renderCargaStep();
-  setupDropzone();
+    // 2. Mostrar modal PRIMERO (aunque algo falle después, el modal queda abierto)
+    const modal = document.getElementById('cargaModal');
+    if(!modal){
+      alert('Error: modal no encontrado en el DOM');
+      return;
+    }
+    modal.classList.add('show');
+
+    // 3. Prefill de semana (con fallbacks seguros)
+    try {
+      const weekSelect = document.getElementById('weekSelect');
+      const currentSem = weekSelect && weekSelect.value ? weekSelect.value : 'S36';
+      const match = currentSem.match(/\d+/);
+      const numAct = match ? parseInt(match[0], 10) : 36;
+      const nextSem = 'S' + (numAct + 1);
+      const inputSem = document.getElementById('inSemanaCod');
+      if(inputSem) inputSem.value = nextSem;
+    } catch(e){ console.warn('Error prellenando semana:', e); }
+
+    // 4. Prefill de fecha (siguiente sábado)
+    try {
+      const today = new Date();
+      const dow = today.getDay();
+      const daysToSat = (6 - dow + 7) % 7 || 7;
+      const nextSat = new Date(today.getTime() + daysToSat*24*60*60*1000);
+      const inputFecha = document.getElementById('inSemanaFecha');
+      if(inputFecha) inputFecha.value = nextSat.toISOString().split('T')[0];
+    } catch(e){ console.warn('Error prellenando fecha:', e); }
+
+    // 5. Renderizar paso inicial
+    try { renderCargaStep(); } catch(e){ console.error('Error en renderCargaStep:', e); }
+
+    // 6. Configurar dropzone
+    try { setupDropzone(); } catch(e){ console.error('Error en setupDropzone:', e); }
+
+    // 7. Forzar visibilidad del step1 (failsafe)
+    const s1 = document.getElementById('step1');
+    const s2 = document.getElementById('step2');
+    const s3 = document.getElementById('step3');
+    if(s1) s1.style.display = 'block';
+    if(s2) s2.style.display = 'none';
+    if(s3) s3.style.display = 'none';
+  } catch(err){
+    console.error('[Cargar Semana] Error al abrir modal:', err);
+    alert('Error al abrir modal: ' + err.message);
+  }
 }
 
 function closeCargaModal(){
