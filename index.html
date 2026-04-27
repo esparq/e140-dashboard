@@ -1991,22 +1991,148 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
       <!-- ═══════════════════════════════════════════
            SECCIÓN 5 — ENCOFRADO
            ═══════════════════════════════════════════ -->
+      <!-- ═══════════════════════════════════════════
+           LOGÍSTICA · 1. CONTROL DE ACERO
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-acero">
+        <div class="section-header">Control de Acero</div>
+        <div class="section-subheader">Fuente: <b>07 · Control de Acero (Esparq 140)</b></div>
+
+        <!-- Panel KPIs cantidades (kg) -->
+        <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+          <div class="kpi-card k-primary">
+            <div class="kpi-label">PPTO TOTAL</div>
+            <div class="kpi-value" id="aceroPptoKg">—</div>
+            <div class="kpi-sublabel">Kg presupuestado</div>
+          </div>
+          <div class="kpi-card k-orange">
+            <div class="kpi-label">CONSUMIDO</div>
+            <div class="kpi-value" id="aceroConsumidoKg">—</div>
+            <div class="kpi-sublabel">Kg ejecutado a la fecha</div>
+          </div>
+          <div class="kpi-card k-green">
+            <div class="kpi-label">SALDO</div>
+            <div class="kpi-value" id="aceroSaldoKg">—</div>
+            <div class="kpi-sublabel">Kg pendientes</div>
+          </div>
+          <div class="kpi-card k-dark">
+            <div class="kpi-label">% AVANCE</div>
+            <div class="kpi-value" id="aceroAvancePct">—</div>
+            <div class="kpi-sublabel">Ratio de consumo</div>
+          </div>
+        </div>
+
+        <!-- Panel KPIs económicos (S/) -->
+        <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
+          <div class="kpi-card k-primary">
+            <div class="kpi-label">VALOR PPTO</div>
+            <div class="kpi-value" id="aceroValorPpto">—</div>
+            <div class="kpi-sublabel">S/ presupuestado</div>
+          </div>
+          <div class="kpi-card k-orange">
+            <div class="kpi-label">VALOR CONSUMIDO</div>
+            <div class="kpi-value" id="aceroValorConsumido">—</div>
+            <div class="kpi-sublabel">S/ ejecutado</div>
+          </div>
+          <div class="kpi-card k-green">
+            <div class="kpi-label">SALDO ECONÓMICO</div>
+            <div class="kpi-value" id="aceroValorSaldo">—</div>
+            <div class="kpi-sublabel">S/ pendientes</div>
+          </div>
+          <div class="kpi-card k-dark">
+            <div class="kpi-label">% EJECUCIÓN $</div>
+            <div class="kpi-value" id="aceroAvanceValorPct">—</div>
+            <div class="kpi-sublabel">Sobre presupuesto</div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-title"><span class="num">17</span> Avance de consumo de acero</div>
+          <div class="chart-subtitle">Comparativo ppto vs consumido · cantidades y soles</div>
+          <div style="position:relative;height:300px"><canvas id="chartAcero"></canvas></div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           LOGÍSTICA · 2. CONTROL DE ENCOFRADO (KARDEX)
+           ═══════════════════════════════════════════ -->
       <section class="section" id="sec-encofrado">
-        <div class="section-header">Control de Encofrado</div>
-        <div class="section-subheader">Fuente: <b>08 · Arrendamiento F1-F2 (Unispan)</b> y <b>09 · Kardex Encofrado</b></div>
+        <div class="section-header">Control de Encofrado · Kardex</div>
+        <div class="section-subheader">Fuente: <b>09 · Kardex Encofrado</b> (UNISPAN + Casa + Consumibles)</div>
+
+        <!-- Panel KPIs costos -->
+        <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
+          <div class="kpi-card k-primary">
+            <div class="kpi-label">COSTO TOTAL EN OBRA</div>
+            <div class="kpi-value" id="kardexCostoTotal">—</div>
+            <div class="kpi-sublabel">Inventario activo (S/)</div>
+          </div>
+          <div class="kpi-card k-green">
+            <div class="kpi-label">COSTO UNISPAN</div>
+            <div class="kpi-value" id="kardexCostoUnispan">—</div>
+            <div class="kpi-sublabel">Material alquilado</div>
+          </div>
+          <div class="kpi-card k-orange">
+            <div class="kpi-label">COSTO CASA</div>
+            <div class="kpi-value" id="kardexCostoCasa">—</div>
+            <div class="kpi-sublabel">Material propio ESPARQ</div>
+          </div>
+          <div class="kpi-card k-dark">
+            <div class="kpi-label">COSTO CONSUMIBLES</div>
+            <div class="kpi-value" id="kardexCostoConsum">—</div>
+            <div class="kpi-sublabel">Acumulado consumido</div>
+          </div>
+        </div>
 
         <div class="charts-row c2-1">
           <div class="chart-card">
-            <div class="chart-title"><span class="num">17</span> Ingreso de material de encofrado Unispan</div>
-            <div class="chart-subtitle">Eventos de despacho/recepción · histórico de recepciones</div>
-            <div style="position:relative;height:280px"><canvas id="chartEncofIng"></canvas></div>
+            <div class="chart-title"><span class="num">18</span> Movimientos por fuente</div>
+            <div class="chart-subtitle">Ingresos vs Devoluciones vs Stock actual</div>
+            <div style="position:relative;height:300px"><canvas id="chartKardexMov"></canvas></div>
           </div>
           <div class="chart-card">
-            <div class="chart-title"><span class="num">18</span> Composición encofrado</div>
-            <div class="chart-subtitle">Unispan (arrendado) · Casa (propio) · Consumibles</div>
-            <div class="mini-row" id="encofMinis" style="grid-template-columns:1fr;gap:8px;margin-top:6px"></div>
-            <div id="encofExtra" style="margin-top:14px;padding:10px 12px;background:#EEF5FA;border-left:3px solid var(--twitter-blue);border-radius:4px;font-size:11px;color:var(--text-muted);line-height:1.5"></div>
+            <div class="chart-title"><span class="num">19</span> Composición del costo</div>
+            <div class="chart-subtitle">UNISPAN · Casa · Consumibles</div>
+            <div class="mini-row" id="kardexMinis" style="grid-template-columns:1fr;gap:8px;margin-top:6px"></div>
           </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           LOGÍSTICA · 3. CONTROL DE ARRENDAMIENTO
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-arrendamiento">
+        <div class="section-header">Control de Arrendamiento de Encofrado</div>
+        <div class="section-subheader">Fuente: <b>08 · Arrendamiento F1-F2 (Unispan)</b></div>
+
+        <!-- Panel KPIs F1 -->
+        <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
+          <div class="kpi-card k-primary">
+            <div class="kpi-label">CONTRACTUAL F1</div>
+            <div class="kpi-value" id="arrContractual">—</div>
+            <div class="kpi-sublabel">Monto cotización (S/)</div>
+          </div>
+          <div class="kpi-card k-orange">
+            <div class="kpi-label">VALORIZADO</div>
+            <div class="kpi-value" id="arrValorizado">—</div>
+            <div class="kpi-sublabel">Acumulado a la fecha (S/)</div>
+          </div>
+          <div class="kpi-card k-green">
+            <div class="kpi-label">SALDO</div>
+            <div class="kpi-value" id="arrSaldo">—</div>
+            <div class="kpi-sublabel">Pendiente por valorizar (S/)</div>
+          </div>
+          <div class="kpi-card k-dark">
+            <div class="kpi-label">% AVANCE</div>
+            <div class="kpi-value" id="arrAvancePct">—</div>
+            <div class="kpi-sublabel">Ratio de avance</div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-title"><span class="num">20</span> Valorizaciones mensuales F1</div>
+          <div class="chart-subtitle">Evolución mensual de los pagos al arrendador (Unispan)</div>
+          <div style="position:relative;height:320px"><canvas id="chartArrMensual"></canvas></div>
         </div>
       </section>
 
@@ -3000,6 +3126,57 @@ function mergeJsonIntoWeek(week, json){
     }
   }
 
+  // ─── 07 Control de Acero (opcional) ───
+  const acero = json.archivos.acero;
+  if(acero){
+    week.acero = {
+      ppto_kg:           acero.acero_ppto_kg,
+      consumido_kg:      acero.acero_consumido_kg,
+      saldo_kg:          acero.acero_saldo_kg,
+      avance_pct:        acero.acero_avance_pct,
+      valor_ppto:        acero.acero_valor_ppto,
+      valor_consumido:   acero.acero_valor_consumido,
+      valor_saldo:       acero.acero_valor_saldo,
+      avance_valor_pct:  acero.acero_avance_valor_pct,
+    };
+  }
+
+  // ─── 08 Control de Arrendamiento de Encofrado (opcional) ───
+  const arr = json.archivos.arrendamiento;
+  if(arr){
+    week.arrendamiento = {
+      f1_contractual_sol:  arr.f1_contractual_sol,
+      f1_valorizado_sol:   arr.f1_valorizado_sol,
+      f1_saldo_sol:        arr.f1_saldo_sol,
+      f1_avance_pct:       arr.f1_avance_pct,
+      f1_val_setiembre:    arr.f1_val_setiembre,
+      f1_val_octubre:      arr.f1_val_octubre,
+      f1_val_noviembre:    arr.f1_val_noviembre,
+      f1_val_diciembre:    arr.f1_val_diciembre,
+      f1_val_enero:        arr.f1_val_enero,
+      f1_val_febrero:      arr.f1_val_febrero,
+    };
+  }
+
+  // ─── 09 Kardex Encofrado (opcional) ───
+  const kardex = json.archivos.kardex;
+  if(kardex){
+    week.kardex = {
+      costo_total_obra:         kardex.costo_total_obra,
+      costo_unispan_obra:       kardex.costo_unispan_obra,
+      costo_casa_obra:          kardex.costo_casa_obra,
+      costo_consumibles_acum:   kardex.costo_consumibles_acum,
+      unispan_cant_ingresos:    kardex.unispan_cant_ingresos,
+      unispan_cant_devoluciones:kardex.unispan_cant_devoluciones,
+      unispan_cant_en_obra:     kardex.unispan_cant_en_obra,
+      casa_cant_ingresos:       kardex.casa_cant_ingresos,
+      casa_cant_devoluciones:   kardex.casa_cant_devoluciones,
+      casa_cant_en_obra:        kardex.casa_cant_en_obra,
+      consumibles_cant_acum:    kardex.consumibles_cant_acum,
+      consumibles_items:        kardex.consumibles_items,
+    };
+  }
+
   // ─── 10 Adicionales (opcional) ───
   // Parsea las tablas de especialidades y arma porEspecialidad + top
   const adic = json.archivos.adicionales;
@@ -3676,11 +3853,8 @@ function setTab(tab){
   document.querySelectorAll('.sb-item').forEach(el=>el.classList.toggle('active', el.dataset.tab===tab));
   // Auto-expandir el área padre si el tab pertenece a una
   expandAreaForTab(tab);
-  // Mapeo de tabs a secciones (por ahora acero/encofrado/arrendamiento comparten una sola sección)
-  const sectionMap = {acero:'encofrado', arrendamiento:'encofrado'};
-  const sectionId = 'sec-' + (sectionMap[tab] || tab);
   // Mostrar sección
-  document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active', s.id===sectionId));
+  document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active', s.id==='sec-'+tab));
   // Scroll top
   document.getElementById('scrollArea').scrollTop = 0;
   // Cerrar sidebar en móvil
@@ -3857,15 +4031,17 @@ function renderCurrentWeek(){
 
   // Render según pestaña
   switch(currentTab){
-    case 'resumen':   renderResumen(); break;
-    case 'avance':    renderAvance(); break;
-    case 'personal':  renderPersonal(); break;
-    case 'mo':        renderMO(); break;
-    case 'adq':       renderAdq(); break;
-    case 'encofrado': renderEncofrado(); break;
-    case 'adic':      renderAdic(); break;
-    case 'crono':     renderCrono(); break;
-    case 'fotos':     renderFotos(); break;
+    case 'resumen':       renderResumen(); break;
+    case 'avance':        renderAvance(); break;
+    case 'personal':      renderPersonal(); break;
+    case 'mo':            renderMO(); break;
+    case 'adq':           renderAdq(); break;
+    case 'acero':         renderAcero(); break;
+    case 'encofrado':     renderKardex(); break;
+    case 'arrendamiento': renderArrendamiento(); break;
+    case 'adic':          renderAdic(); break;
+    case 'crono':         renderCrono(); break;
+    case 'fotos':         renderFotos(); break;
   }
 }
 
@@ -4571,33 +4747,167 @@ function renderAdq(){
    RENDER: SECCIÓN 5 — ENCOFRADO
    ═══════════════════════════════════════════════════════════════════ */
 
-function renderEncofrado(){
+function renderAcero(){
   const d = wk();
+  // Datos del archivo 07
+  const ac = d.acero || {};
+  
+  // Helpers de formato
+  const fmtKg = v => (v == null || isNaN(v)) ? '—' : Math.round(v).toLocaleString('es-PE') + ' kg';
+  const fmtSol = v => (v == null || isNaN(v)) ? '—' : 'S/ ' + Math.round(v).toLocaleString('es-PE');
+  const fmtPct = v => (v == null || isNaN(v)) ? '—' : v.toFixed(1) + '%';
 
-  // 17 · Ingresos
-  destroyChart('chartEncofIng');
-  CHART_INSTANCES['chartEncofIng'] = new Chart(document.getElementById('chartEncofIng'),{
-    type:'bar',
-    data:{labels:d.encofrado.ingresos.labels,
-      datasets:[{label:'Eventos de recepción',data:d.encofrado.ingresos.data,
-        backgroundColor:COLORS.blueMid,borderRadius:3}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Recepción '+c.label}}},
-      scales:{y:{beginAtZero:true,max:2,ticks:{stepSize:1,callback:v=>v===1?'✔':''},grid:{color:'#EEF5FA'}},x:{grid:{display:false}}}
-    }
-  });
+  // KPI cards
+  document.getElementById('aceroPptoKg').textContent = fmtKg(ac.ppto_kg);
+  document.getElementById('aceroConsumidoKg').textContent = fmtKg(ac.consumido_kg);
+  document.getElementById('aceroSaldoKg').textContent = fmtKg(ac.saldo_kg);
+  document.getElementById('aceroAvancePct').textContent = fmtPct(ac.avance_pct);
+  document.getElementById('aceroValorPpto').textContent = fmtSol(ac.valor_ppto);
+  document.getElementById('aceroValorConsumido').textContent = fmtSol(ac.valor_consumido);
+  document.getElementById('aceroValorSaldo').textContent = fmtSol(ac.valor_saldo);
+  document.getElementById('aceroAvanceValorPct').textContent = fmtPct(ac.avance_valor_pct);
 
-  // 18 · Composición
-  const em = document.getElementById('encofMinis');
-  em.innerHTML = '';
-  d.encofrado.composicion.forEach(c=>{
-    const el = document.createElement('div');
-    el.className = 'mini';
-    el.style.background = c.bg;
-    el.innerHTML = `<div class="mini-lbl">${c.lbl}</div><div class="mini-val ${c.cls}">${c.val}</div>`;
-    em.appendChild(el);
-  });
-  document.getElementById('encofExtra').innerHTML = d.encofrado.nota;
+  // Chart comparativo: Ppto vs Consumido (kg y S/)
+  destroyChart('chartAcero');
+  const ctx = document.getElementById('chartAcero');
+  if(ctx){
+    CHART_INSTANCES['chartAcero'] = new Chart(ctx, {
+      type:'bar',
+      data:{
+        labels:['Cantidad (kg)', 'Valor (S/)'],
+        datasets:[
+          {label:'Presupuestado',
+            data:[ac.ppto_kg||0, ac.valor_ppto||0],
+            backgroundColor:COLORS.blue, borderRadius:4},
+          {label:'Consumido',
+            data:[ac.consumido_kg||0, ac.valor_consumido||0],
+            backgroundColor:COLORS.orange, borderRadius:4}
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{
+          legend:{position:'top'},
+          tooltip:{callbacks:{label:c=>{
+            const v = c.parsed.y;
+            return c.dataset.label+': '+(c.dataIndex===0 ? Math.round(v).toLocaleString('es-PE')+' kg' : 'S/ '+Math.round(v).toLocaleString('es-PE'));
+          }}}
+        },
+        scales:{y:{beginAtZero:true, grid:{color:'#EEF5FA'}, ticks:{callback:v=>v>=1000?(v/1000).toFixed(0)+'K':v}}, x:{grid:{display:false}}}
+      }
+    });
+  }
+}
+
+function renderKardex(){
+  const d = wk();
+  const kx = d.kardex || {};
+  
+  const fmtSol = v => (v == null || isNaN(v)) ? '—' : 'S/ ' + Math.round(v).toLocaleString('es-PE');
+
+  // KPI cards de costo
+  document.getElementById('kardexCostoTotal').textContent = fmtSol(kx.costo_total_obra);
+  document.getElementById('kardexCostoUnispan').textContent = fmtSol(kx.costo_unispan_obra);
+  document.getElementById('kardexCostoCasa').textContent = fmtSol(kx.costo_casa_obra);
+  document.getElementById('kardexCostoConsum').textContent = fmtSol(kx.costo_consumibles_acum);
+
+  // Chart movimientos: Ingresos / Devoluciones / En obra por fuente (UNISPAN, Casa, Consumibles)
+  destroyChart('chartKardexMov');
+  const ctx = document.getElementById('chartKardexMov');
+  if(ctx){
+    CHART_INSTANCES['chartKardexMov'] = new Chart(ctx, {
+      type:'bar',
+      data:{
+        labels:['UNISPAN', 'Casa', 'Consumibles'],
+        datasets:[
+          {label:'Ingresos',
+            data:[kx.unispan_cant_ingresos||0, kx.casa_cant_ingresos||0, kx.consumibles_cant_acum||0],
+            backgroundColor:COLORS.blue, borderRadius:3},
+          {label:'Devoluciones',
+            data:[kx.unispan_cant_devoluciones||0, kx.casa_cant_devoluciones||0, 0],
+            backgroundColor:COLORS.orange, borderRadius:3},
+          {label:'En obra (stock)',
+            data:[kx.unispan_cant_en_obra||0, kx.casa_cant_en_obra||0, kx.consumibles_cant_acum||0],
+            backgroundColor:COLORS.green, borderRadius:3}
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{position:'top'}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+Math.round(c.parsed.y).toLocaleString('es-PE')+' uds'}}},
+        scales:{y:{beginAtZero:true, grid:{color:'#EEF5FA'}}, x:{grid:{display:false}}}
+      }
+    });
+  }
+
+  // Mini cards de composición de costo
+  const km = document.getElementById('kardexMinis');
+  if(km){
+    km.innerHTML = '';
+    const items = [
+      {lbl:'UNISPAN (alquilado)', val:fmtSol(kx.costo_unispan_obra), bg:'#EEF5FA', cls:'k-blue'},
+      {lbl:'Encofrado Casa (propio)', val:fmtSol(kx.costo_casa_obra), bg:'#FFF4DD', cls:'k-orange'},
+      {lbl:'Consumibles acumulado', val:fmtSol(kx.costo_consumibles_acum), bg:'#E6F4EE', cls:'k-green'}
+    ];
+    items.forEach(c=>{
+      const el = document.createElement('div');
+      el.className = 'mini';
+      el.style.background = c.bg;
+      el.innerHTML = `<div class="mini-lbl">${c.lbl}</div><div class="mini-val ${c.cls}">${c.val}</div>`;
+      km.appendChild(el);
+    });
+  }
+}
+
+function renderArrendamiento(){
+  const d = wk();
+  const ar = d.arrendamiento || {};
+  
+  const fmtSol = v => (v == null || isNaN(v)) ? '—' : 'S/ ' + Math.round(v).toLocaleString('es-PE');
+  const fmtPct = v => (v == null || isNaN(v)) ? '—' : v.toFixed(1) + '%';
+
+  // KPI cards
+  document.getElementById('arrContractual').textContent = fmtSol(ar.f1_contractual_sol);
+  document.getElementById('arrValorizado').textContent = fmtSol(ar.f1_valorizado_sol);
+  document.getElementById('arrSaldo').textContent = fmtSol(ar.f1_saldo_sol);
+  document.getElementById('arrAvancePct').textContent = fmtPct(ar.f1_avance_pct);
+
+  // Chart valorizaciones mensuales
+  destroyChart('chartArrMensual');
+  const ctx = document.getElementById('chartArrMensual');
+  if(ctx){
+    const meses = ['Setiembre','Octubre','Noviembre','Diciembre','Enero','Febrero'];
+    const vals = [
+      ar.f1_val_setiembre||0,
+      ar.f1_val_octubre||0,
+      ar.f1_val_noviembre||0,
+      ar.f1_val_diciembre||0,
+      ar.f1_val_enero||0,
+      ar.f1_val_febrero||0
+    ];
+    CHART_INSTANCES['chartArrMensual'] = new Chart(ctx, {
+      type:'bar',
+      data:{
+        labels:meses,
+        datasets:[{
+          label:'Valorización mensual (S/)',
+          data:vals,
+          backgroundColor:COLORS.blueMid,
+          borderRadius:4
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:c=>'Valorización: S/ '+Math.round(c.parsed.y).toLocaleString('es-PE')}}
+        },
+        scales:{
+          y:{beginAtZero:true, grid:{color:'#EEF5FA'}, ticks:{callback:v=>'S/ '+(v/1000).toFixed(0)+'K'}},
+          x:{grid:{display:false}}
+        }
+      }
+    });
+  }
 }
 
 
