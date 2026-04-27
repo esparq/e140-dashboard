@@ -231,9 +231,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
   opacity:.75;
 }
 
-/* En sidebar colapsado, ocultar áreas y submenús */
-.app.sidebar-collapsed .sb-area,
-.app.sidebar-collapsed .sb-submenu{display:none;}
+/* En sidebar colapsado, ocultar SOLO los submenús (las áreas siguen visibles como íconos) */
+.app.sidebar-collapsed .sb-submenu{display:none !important;}
 
 /* ═════════ CONTENT AREA ═════════ */
 .content-area{display:flex;flex-direction:column;overflow:hidden;background:var(--bg);}
