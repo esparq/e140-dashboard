@@ -8,6 +8,47 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- ═══════════════════════════════════════════
+     FIREBASE SDK — Para guardar metadata de fotos en Firestore
+     ═══════════════════════════════════════════ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import {
+    getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, query, orderBy
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  // ─── Configuración del proyecto E140 ───
+  const firebaseConfig = {
+    apiKey: "AIzaSyBzd71D4hpc8O-6s9kmoV2-ybxAC9_MyhU",
+    authDomain: "e140-dashboard.firebaseapp.com",
+    projectId: "e140-dashboard",
+    storageBucket: "e140-dashboard.firebasestorage.app",
+    messagingSenderId: "667983141370",
+    appId: "1:667983141370:web:2a16353f2c7c14b06b6c43"
+  };
+
+  // ─── Cloudinary (para hospedar las fotos) ───
+  const cloudinaryConfig = {
+    cloudName:    "dgekyeapv",
+    uploadPreset: "e140_fotos",
+    folder:       "e140-fotos"
+  };
+
+  // Inicializar Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Exponer al ámbito global para que el resto del código lo use
+  window.E140_DB = {
+    db, doc, setDoc, getDoc, getDocs, deleteDoc, collection, query, orderBy
+  };
+  window.E140_CLOUDINARY = cloudinaryConfig;
+
+  // Avisar a otros scripts que Firebase está listo
+  window.dispatchEvent(new Event('firebase-ready'));
+  window._E140_FIREBASE_READY = true;
+</script>
 <style>
 :root{
   /* ═══════════════════════════════════════════════════════════
@@ -1334,6 +1375,19 @@ body.role-viewer .admin-only{display:none !important;}
   .fotos-grid{grid-template-columns:repeat(2,1fr);}
 }
 
+/* Banner de progreso de publicación de fotos */
+.fotos-progress-banner{margin-top:14px;padding:14px 16px;background:linear-gradient(90deg,#E6F2FB 0%,#F4F9FD 100%);border:1px solid #BFE0F5;border-left:3px solid var(--twitter-blue);border-radius:6px;}
+.fotos-progress-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.fotos-progress-icon{font-size:18px;}
+.fotos-progress-text{font-size:13px;font-weight:600;color:var(--twitter-blue);}
+.fotos-progress-bar{height:6px;background:#D6E8F2;border-radius:3px;overflow:hidden;}
+.fotos-progress-fill{height:100%;background:linear-gradient(90deg,var(--twitter-blue),#4DA0CE);border-radius:3px;transition:width .3s ease;}
+.fotos-progress-detail{margin-top:6px;font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.fotos-progress-banner.success{background:linear-gradient(90deg,#E7F4EE 0%,#F0F9F4 100%);border-color:#9DCEB7;border-left-color:#2D936C;}
+.fotos-progress-banner.success .fotos-progress-text{color:#1A6B4A;}
+.fotos-progress-banner.error{background:linear-gradient(90deg,#FBEAEA 0%,#FEF1F0 100%);border-color:#E5A4A6;border-left-color:#D64045;}
+.fotos-progress-banner.error .fotos-progress-text{color:#8A2A2D;}
+
 .area-summary-bar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px;padding:10px 14px;background:#FBFDFE;border:1px dashed var(--border-mid);border-radius:6px;font-size:11px;color:var(--text-muted);}
 .area-summary-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:4px;background:var(--white);border:1px solid var(--border);font-weight:600;}
 .area-summary-pill.loaded{border-color:var(--green);color:#1A6B4A;background:#F0F9F4;}
@@ -1745,14 +1799,24 @@ body.role-viewer .admin-only{display:none !important;}
       <div class="fotos-grid" id="fotosGrid"></div>
 
       <div class="modal-msg info" style="margin-top:14px;font-size:11.5px;">
-        💡 <b>Importante:</b> Cada semana es independiente. Si cargas fotos para S38, no afecta las fotos de S37 ni anteriores.
+        💡 <b>Importante:</b> Cada semana es independiente. Si cargas fotos para S38, no afecta las fotos de S37 ni anteriores. Las fotos se publican automáticamente para todos los usuarios.
+      </div>
+
+      <!-- Banner de progreso (oculto por defecto) -->
+      <div class="fotos-progress-banner" id="fotosProgressBanner" style="display:none;">
+        <div class="fotos-progress-header">
+          <span class="fotos-progress-icon" id="fotosProgressIcon">⏳</span>
+          <span class="fotos-progress-text" id="fotosProgressText">Iniciando publicación…</span>
+        </div>
+        <div class="fotos-progress-bar"><div class="fotos-progress-fill" id="fotosProgressFill" style="width:0%"></div></div>
+        <div class="fotos-progress-detail" id="fotosProgressDetail"></div>
       </div>
     </div>
 
     <div class="modal-foot">
       <button class="hdr-btn" onclick="closeFotosModal()">Cancelar</button>
-      <button class="hdr-btn hdr-btn-primary" id="fotosPublishBtn" onclick="descargarFotosJSON()" disabled>
-        💾 Descargar JSON de fotos
+      <button class="hdr-btn hdr-btn-primary" id="fotosPublishBtn" onclick="publicarFotosOnline()" disabled>
+        🚀 Publicar fotos
       </button>
     </div>
   </div>
@@ -4421,6 +4485,8 @@ async function initDashboard(){
       setSyncState('ok', `Modo JSON activo`, `Última sync: ${LAST_SYNC.toLocaleTimeString('es-PE')} · Datos desde data/`);
       populateWeekSelector();
       renderCurrentWeek();
+      // Cargar fotos desde Firestore (en paralelo, sin bloquear)
+      cargarFotosFirestoreAsync();
       return;
     }
   } catch(e){
@@ -4432,6 +4498,8 @@ async function initDashboard(){
     // No hay URLs: ir directo a demo (con banner avisando)
     console.info('[E140] Sin JSON publicado. Usando DEMO_DATA.');
     useDemoData(true);
+    // Cargar fotos desde Firestore aunque estemos en demo
+    cargarFotosFirestoreAsync();
     return;
   }
   try{
@@ -4451,6 +4519,7 @@ async function initDashboard(){
     setSyncState('ok', `Datos actualizados`, `Última sync: ${LAST_SYNC.toLocaleTimeString('es-PE')} · Modo en vivo`);
     populateWeekSelector();
     renderCurrentWeek();
+    cargarFotosFirestoreAsync();
   } catch(e){
     console.error('[E140] Error crítico cargando Sheet:', e);
     // Intentar cache
@@ -4464,11 +4533,13 @@ async function initDashboard(){
       setSyncState('warn', 'Offline (cache)', `Cache del ${LAST_SYNC.toLocaleString('es-PE')}`);
       populateWeekSelector();
       renderCurrentWeek();
+      cargarFotosFirestoreAsync();
     } else {
       hideLoading();
       // Sin JSONs ni cache → mostrar demo automáticamente (sin modal molesto)
       console.warn('[E140] Sin data publicada. Activando demo.');
       useDemoData(true);
+      cargarFotosFirestoreAsync();
     }
   }
 }
@@ -7609,8 +7680,8 @@ function saveFotoEdit(){
   renderFotosGrid();
 }
 
-// ─── Descargar JSON de fotos para subir al repo ───
-function descargarFotosJSON(){
+// ─── Subir las fotos a Cloudinary + guardar metadata en Firestore ───
+async function publicarFotosOnline(){
   const sem = (fotosState.semana || '').trim().toUpperCase();
   if(!/^S\d{1,3}$/.test(sem)){
     alert('Código de semana inválido. Formato esperado: S37');
@@ -7625,32 +7696,204 @@ function descargarFotosJSON(){
     return;
   }
 
-  const data = {
-    tipo:        'fotos',
-    semana:      sem,
-    corte_fecha: fotosState.fecha,
-    fotos:       fotosState.fotos.map((f, i) => ({
-      n:     i + 1,
-      desc:  f.desc,
-      url:   f.url,
-      color: f.color || '#509BC9',
-      ...(f.badge ? { badge: f.badge } : {})
-    })),
-  };
+  // Verificar que Firebase esté inicializado
+  if(!window.E140_DB || !window.E140_CLOUDINARY){
+    alert('El servicio de publicación no está disponible. Verifica tu conexión a internet y recarga la página.');
+    return;
+  }
 
-  const json = JSON.stringify(data, null, 2);
-  const filename = `fotos-${sem.toLowerCase()}.json`;
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  // ─── UI de progreso ───
+  const btn      = document.getElementById('fotosPublishBtn');
+  const cancel   = document.querySelector('#fotosModal .hdr-btn:not(.hdr-btn-primary)');
+  const banner   = document.getElementById('fotosProgressBanner');
+  const bIcon    = document.getElementById('fotosProgressIcon');
+  const bText    = document.getElementById('fotosProgressText');
+  const bFill    = document.getElementById('fotosProgressFill');
+  const bDetail  = document.getElementById('fotosProgressDetail');
 
-  alert(`✓ Archivo descargado: ${filename}\n\nSube este archivo a la carpeta data/ del repositorio en GitHub.\nEl panel fotográfico de la semana ${sem} se actualizará automáticamente.`);
+  btn.disabled = true;
+  if(cancel) cancel.disabled = true;
+  banner.style.display = 'block';
+  banner.classList.remove('success', 'error');
+
+  const total = fotosState.fotos.length;
+  const fotosSubidas = [];
+  let errorEnSubida = null;
+
+  try {
+    // ─── PASO 1: Subir cada foto a Cloudinary ───
+    for(let i = 0; i < total; i++){
+      const f = fotosState.fotos[i];
+      const numStr = i + 1;
+
+      bIcon.textContent = '⏳';
+      bText.textContent = `Subiendo foto ${numStr} de ${total}…`;
+      bFill.style.width = ((numStr - 1) / total * 90).toFixed(0) + '%';
+      bDetail.textContent = `${f.desc} (${formatBytes(estimateBase64Size(f.url))})`;
+
+      // Si ya tiene URL de Cloudinary (porque era una foto pre-existente), no la re-subimos
+      if(f.url && f.url.startsWith('https://res.cloudinary.com/')){
+        fotosSubidas.push({ ...f });
+        continue;
+      }
+
+      // Subida real a Cloudinary
+      const cloudinaryUrl = await uploadToCloudinary(f.url, sem, numStr);
+      fotosSubidas.push({
+        n:     numStr,
+        desc:  f.desc,
+        url:   cloudinaryUrl,
+        color: f.color || '#509BC9',
+        ...(f.badge ? { badge: f.badge } : {})
+      });
+    }
+
+    bFill.style.width = '95%';
+    bText.textContent = 'Guardando metadata en Firestore…';
+    bDetail.textContent = '';
+
+    // ─── PASO 2: Guardar metadata en Firestore ───
+    const { db, doc, setDoc } = window.E140_DB;
+    const docRef = doc(db, 'fotos', sem);
+    await setDoc(docRef, {
+      semana:      sem,
+      corte_fecha: fotosState.fecha,
+      fotos:       fotosSubidas,
+      actualizado_en: new Date().toISOString(),
+    });
+
+    // ─── ÉXITO ───
+    bFill.style.width = '100%';
+    banner.classList.add('success');
+    bIcon.textContent = '✓';
+    bText.textContent = `¡Publicación completa! ${total} foto${total === 1 ? '' : 's'} de ${sem}.`;
+    bDetail.textContent = 'Las fotos ya están visibles para todos los usuarios. Cierra este diálogo y refresca el dashboard para verlas.';
+
+    // Aplicar las fotos a la semana actual del dashboard inmediatamente
+    if(DATA.weeks[sem]){
+      DATA.weeks[sem].fotos = fotosSubidas.map(f => ({ ...f }));
+    } else {
+      // Si la semana no existe aún en el dashboard, crearla con esqueleto
+      DATA.weeks[sem] = JSON.parse(JSON.stringify(DEMO_DATA.weeks['S36'] || {}));
+      DATA.weeks[sem].fotos = fotosSubidas.map(f => ({ ...f }));
+    }
+    // Si la pestaña activa es fotos, re-renderizar
+    if(currentTab === 'fotos' && DATA.currentWeek === sem){
+      try { renderFotos(); } catch(e){}
+    }
+
+    // Reactivar cerrar después de 2.5s
+    setTimeout(() => {
+      if(cancel) cancel.disabled = false;
+    }, 1000);
+
+  } catch(err){
+    console.error('[E140] Error publicando fotos:', err);
+    errorEnSubida = err;
+    banner.classList.add('error');
+    bIcon.textContent = '✕';
+    bText.textContent = 'Error al publicar las fotos';
+    bDetail.textContent = (err && err.message) ? err.message : 'Verifica tu conexión y vuelve a intentar.';
+    btn.disabled = false;
+    if(cancel) cancel.disabled = false;
+  }
+}
+
+// ─── Subir un Data URL (base64) a Cloudinary ───
+async function uploadToCloudinary(dataUrl, semana, numero){
+  const cfg = window.E140_CLOUDINARY;
+  const url = `https://api.cloudinary.com/v1_1/${cfg.cloudName}/image/upload`;
+
+  // Cloudinary acepta Data URLs directamente en el campo "file"
+  const formData = new FormData();
+  formData.append('file', dataUrl);
+  formData.append('upload_preset', cfg.uploadPreset);
+  formData.append('folder', `${cfg.folder}/${semana.toLowerCase()}`);
+  formData.append('public_id', `${semana.toLowerCase()}_foto_${String(numero).padStart(2,'0')}_${Date.now()}`);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    body: formData
+  });
+
+  if(!response.ok){
+    const errorText = await response.text();
+    throw new Error(`Cloudinary respondió ${response.status}: ${errorText.slice(0, 200)}`);
+  }
+
+  const data = await response.json();
+  if(!data.secure_url){
+    throw new Error('Cloudinary no devolvió URL de la imagen');
+  }
+  return data.secure_url;
+}
+
+// ─── Helpers ───
+function estimateBase64Size(dataUrl){
+  if(!dataUrl) return 0;
+  if(dataUrl.startsWith('data:')){
+    const base64 = dataUrl.split(',')[1] || '';
+    return Math.ceil(base64.length * 3 / 4);
+  }
+  return 0;
+}
+
+function formatBytes(bytes){
+  if(bytes < 1024) return bytes + ' B';
+  if(bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+
+// ─── Cargar fotos desde Firestore al iniciar el dashboard ───
+async function loadFotosFromFirestore(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs } = window.E140_DB;
+    const snapshot = await getDocs(collection(db, 'fotos'));
+    if(snapshot.empty) return;
+    snapshot.forEach(docSnap => {
+      const sem = docSnap.id;
+      const data = docSnap.data();
+      if(!data || !Array.isArray(data.fotos)) return;
+      // Asegurarnos que la semana existe en DATA
+      if(!DATA.weeks[sem]){
+        DATA.weeks[sem] = JSON.parse(JSON.stringify(DEMO_DATA.weeks['S36'] || {}));
+      }
+      DATA.weeks[sem].fotos = data.fotos.map((f, i) => ({
+        n:     f.n != null ? f.n : (i + 1),
+        desc:  f.desc || `Foto ${i + 1}`,
+        url:   f.url || '',
+        color: f.color || '#509BC9',
+        ...(f.badge ? { badge: f.badge } : {})
+      }));
+    });
+    console.log(`[E140] Fotos cargadas desde Firestore: ${snapshot.size} semana(s)`);
+    // Si hay una pestaña fotos activa, re-renderizar
+    if(typeof currentTab !== 'undefined' && currentTab === 'fotos'){
+      try { renderFotos(); } catch(e){}
+    }
+  } catch(err){
+    console.warn('[E140] No se pudieron cargar las fotos desde Firestore:', err.message || err);
+  }
+}
+
+// ─── Esperar a que Firebase SDK esté listo y luego cargar ───
+function cargarFotosFirestoreAsync(){
+  if(window._E140_FIREBASE_READY){
+    loadFotosFromFirestore();
+  } else {
+    // Esperar al evento firebase-ready (máximo 10 segundos)
+    let waited = 0;
+    const interval = setInterval(() => {
+      if(window._E140_FIREBASE_READY){
+        clearInterval(interval);
+        loadFotosFromFirestore();
+      } else if((waited += 200) >= 10000){
+        clearInterval(interval);
+        console.warn('[E140] Firebase SDK no se cargó en 10s. Las fotos no estarán disponibles.');
+      }
+    }, 200);
+  }
 }
 
 function handleAreaFiles(area, files){
