@@ -83,28 +83,42 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .app.sidebar-collapsed .sb-item .sb-label,
 .app.sidebar-collapsed .sb-item .sb-icon{display:none;}
 
+/* En modo colapsado: ocultar texto y chevron del área pero MANTENER el ícono */
+.app.sidebar-collapsed .sb-area-label,
+.app.sidebar-collapsed .sb-area-chevron{display:none;}
+.app.sidebar-collapsed .sb-area{justify-content:center;padding:11px 6px;margin-bottom:4px;}
+.app.sidebar-collapsed .sb-area-icon{font-size:20px;line-height:1;}
+
+/* Submenús: ocultos al colapsar (el área se vuelve un botón directo) */
+.app.sidebar-collapsed .sb-submenu{display:none;}
+
 /* Layout del nav cuando está colapsado */
 .app.sidebar-collapsed .sidebar{padding-top:50px;}
 .app.sidebar-collapsed .sb-nav{padding:0 6px;}
 .app.sidebar-collapsed .sb-item{justify-content:center;padding:11px 6px;margin-bottom:4px;}
-.app.sidebar-collapsed .sb-item .sb-num{font-size:12px;opacity:.75;min-width:auto;font-weight:700;}
+.app.sidebar-collapsed .sb-item .sb-num{font-size:14px;opacity:.85;min-width:auto;font-weight:700;}
 .app.sidebar-collapsed .sb-item.active .sb-num{opacity:1;}
 
-/* Tooltip al hacer hover en modo colapsado */
-.app.sidebar-collapsed .sb-item{position:relative;}
-.app.sidebar-collapsed .sb-item::after{
+/* Tooltip al hacer hover en modo colapsado (para .sb-item Y .sb-area) */
+.app.sidebar-collapsed .sb-item,
+.app.sidebar-collapsed .sb-area{position:relative;}
+.app.sidebar-collapsed .sb-item::after,
+.app.sidebar-collapsed .sb-area::after{
   content:attr(data-tooltip);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);
   background:var(--text);color:var(--white);padding:6px 10px;border-radius:5px;font-size:11px;font-weight:600;
   white-space:nowrap;letter-spacing:.03em;text-transform:none;pointer-events:none;opacity:0;visibility:hidden;
   transition:opacity .15s, visibility .15s;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.15);
 }
-.app.sidebar-collapsed .sb-item:hover::after{opacity:1;visibility:visible;}
-.app.sidebar-collapsed .sb-item::before{
+.app.sidebar-collapsed .sb-item:hover::after,
+.app.sidebar-collapsed .sb-area:hover::after{opacity:1;visibility:visible;}
+.app.sidebar-collapsed .sb-item::before,
+.app.sidebar-collapsed .sb-area::before{
   content:'';position:absolute;left:calc(100% + 4px);top:50%;transform:translateY(-50%);
   border:5px solid transparent;border-right-color:var(--text);pointer-events:none;opacity:0;visibility:hidden;
   transition:opacity .15s, visibility .15s;z-index:100;
 }
-.app.sidebar-collapsed .sb-item:hover::before{opacity:1;visibility:visible;}
+.app.sidebar-collapsed .sb-item:hover::before,
+.app.sidebar-collapsed .sb-area:hover::before{opacity:1;visibility:visible;}
 
 .sb-brand{padding:22px 18px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
 .sb-badge{background:var(--twitter-blue);color:var(--white);font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;padding:6px 10px;border-radius:6px;line-height:1;}
@@ -1394,7 +1408,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
     <div class="sb-group-label">Áreas</div>
     <div class="sb-nav">
       <!-- 🏗 OPERACIONES (con submenús) -->
-      <button class="sb-area" data-area="operaciones" onclick="toggleArea('operaciones')">
+      <button class="sb-area" data-area="operaciones" data-tooltip="Operaciones" onclick="toggleArea('operaciones')">
         <span class="sb-area-icon">📈</span>
         <span class="sb-area-label">Operaciones</span>
         <span class="sb-area-chevron">▾</span>
@@ -1431,7 +1445,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
       </div>
 
       <!-- 🏛 ARQUITECTURA (pendiente) -->
-      <button class="sb-area" data-area="arquitectura" onclick="toggleArea('arquitectura')">
+      <button class="sb-area" data-area="arquitectura" data-tooltip="Arquitectura" onclick="toggleArea('arquitectura')">
         <span class="sb-area-icon">🏛️</span>
         <span class="sb-area-label">Arquitectura</span>
         <span class="sb-area-chevron">▾</span>
@@ -1441,7 +1455,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
       </div>
 
       <!-- ⛑ SSOMA (pendiente) -->
-      <button class="sb-area" data-area="ssoma" onclick="toggleArea('ssoma')">
+      <button class="sb-area" data-area="ssoma" data-tooltip="SSOMA" onclick="toggleArea('ssoma')">
         <span class="sb-area-icon">⛑️</span>
         <span class="sb-area-label">SSOMA</span>
         <span class="sb-area-chevron">▾</span>
@@ -1451,7 +1465,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
       </div>
 
       <!-- 🚛 LOGÍSTICA -->
-      <button class="sb-area" data-area="logistica" onclick="toggleArea('logistica')">
+      <button class="sb-area" data-area="logistica" data-tooltip="Logística" onclick="toggleArea('logistica')">
         <span class="sb-area-icon">🚛</span>
         <span class="sb-area-label">Logística</span>
         <span class="sb-area-chevron">▾</span>
@@ -1472,7 +1486,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
       </div>
 
       <!-- ✅ CALIDAD (pendiente) -->
-      <button class="sb-area" data-area="calidad" onclick="toggleArea('calidad')">
+      <button class="sb-area" data-area="calidad" data-tooltip="Calidad" onclick="toggleArea('calidad')">
         <span class="sb-area-icon">✅</span>
         <span class="sb-area-label">Calidad</span>
         <span class="sb-area-chevron">▾</span>
@@ -3820,6 +3834,21 @@ const TAB_AREA_MAP = {
 };
 
 function toggleArea(area){
+  // Si el sidebar está colapsado, expandirlo primero
+  const app = document.querySelector('.app');
+  if(app && app.classList.contains('sidebar-collapsed')){
+    sidebarCollapsed = false;
+    app.classList.remove('sidebar-collapsed');
+    // Forzar resize de los charts
+    setTimeout(() => {
+      try {
+        if(typeof CHART_INSTANCES !== 'undefined'){
+          Object.values(CHART_INSTANCES).forEach(ch => { if(ch && ch.resize) ch.resize(); });
+        }
+      } catch(e){}
+    }, 300);
+  }
+  
   const btn = document.querySelector(`.sb-area[data-area="${area}"]`);
   const sub = document.getElementById('submenu-'+area);
   if(!btn || !sub) return;
