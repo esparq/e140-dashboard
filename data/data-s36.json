@@ -3,19 +3,12 @@
   "corte_fecha": "2026-04-18",
   "archivos": {
     "histograma": {
-      "avance_obra_pct": "meta_dimension_campo",
-      "cpi_mo": null,
-      "spi_meta": null,
-      "spi_contractual": null,
-      "mo_consumida": null,
       "personal_obra": null,
-      "costo_directo": null,
-      "pct_mo": null,
-      "mo_real_acum": null,
-      "sectores_prog_sem": null,
-      "sectores_ejec_sem": null,
-      "sectores_prog_acum": null,
-      "sectores_ejec_acum": null
+      "meta_dimension_ger": null,
+      "meta_dimension_campo": null,
+      "hh_prestamo_total": null,
+      "semana": null,
+      "promedio_4sem": null
     },
     "casco_sot": {
       "partidas": [
