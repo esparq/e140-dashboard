@@ -7331,6 +7331,7 @@ async function handleFotosFiles(files){
   dzTitle.textContent = titleOriginal;
   renderFotosGrid();
   updateAreaTabsStatus();
+  updateNextButton();
 
   if(errores.length){
     alert('Algunos archivos no se cargaron:\n\n' + errores.join('\n'));
@@ -7433,6 +7434,7 @@ function removerFoto(index){
   fotos.forEach((f, i) => f.n = i + 1);
   renderFotosGrid();
   updateAreaTabsStatus();
+  updateNextButton();
 }
 
 function openFotoEditModal(index){
