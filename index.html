@@ -234,6 +234,41 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 /* En sidebar colapsado, ocultar SOLO los submenús (las áreas siguen visibles como íconos) */
 .app.sidebar-collapsed .sb-submenu{display:none !important;}
 
+/* ═════════ SSOMA · Notas y Alcance ═════════ */
+.ssoma-note{
+  background:#FEF3E8;
+  border:1px solid #F0C894;
+  border-left:4px solid #E07B39;
+  border-radius:8px;
+  padding:12px 16px;
+  margin-bottom:14px;
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  font-size:12.5px;
+  color:#6B4519;
+  line-height:1.5;
+}
+.ssoma-note-icon{font-size:18px;flex-shrink:0;line-height:1.2;}
+.ssoma-note b{color:#9E5215;}
+
+.ssoma-alcance{
+  background:var(--alice-blue);
+  border:1px solid var(--border);
+  border-left:3px solid var(--twitter-blue);
+  border-radius:6px;
+  padding:10px 14px;
+  margin-bottom:18px;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  font-size:12px;
+  color:var(--text-muted);
+  line-height:1.5;
+}
+.ssoma-alcance-icon{font-size:14px;flex-shrink:0;color:var(--twitter-blue);font-weight:700;}
+.ssoma-alcance b{color:var(--text);}
+
 /* ═════════ CONTENT AREA ═════════ */
 .content-area{display:flex;flex-direction:column;overflow:hidden;background:var(--bg);}
 
@@ -1453,14 +1488,21 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
         <div class="sb-pendiente">⏳ Pendiente de implementación</div>
       </div>
 
-      <!-- ⛑ SSOMA (pendiente) -->
+      <!-- ⛑ SSOMA -->
       <button class="sb-area" data-area="ssoma" data-tooltip="SSOMA" onclick="toggleArea('ssoma')">
         <span class="sb-area-icon">⛑️</span>
         <span class="sb-area-label">SSOMA</span>
         <span class="sb-area-chevron">▾</span>
       </button>
       <div class="sb-submenu" id="submenu-ssoma">
-        <div class="sb-pendiente">⏳ Pendiente de implementación</div>
+        <button class="sb-item sb-subitem" data-tab="ssoma-sst" data-tooltip="Seguridad y Salud en el Trabajo">
+          <span class="sb-icon"></span>
+          <span class="sb-label">Seguridad y Salud (SST)</span>
+        </button>
+        <button class="sb-item sb-subitem" data-tab="ssoma-ambiental" data-tooltip="Gestión Ambiental">
+          <span class="sb-icon"></span>
+          <span class="sb-label">Gestión Ambiental</span>
+        </button>
       </div>
 
       <!-- 🚛 LOGÍSTICA -->
@@ -2146,6 +2188,140 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           <div class="chart-title"><span class="num">20</span> Valorizaciones mensuales F1</div>
           <div class="chart-subtitle">Evolución mensual de los pagos al arrendador (Unispan)</div>
           <div style="position:relative;height:320px"><canvas id="chartArrMensual"></canvas></div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           SSOMA · 1. SEGURIDAD Y SALUD EN EL TRABAJO (ISO 45001)
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-ssoma-sst">
+        <div class="section-header">Seguridad y Salud en el Trabajo · ISO 45001</div>
+        <div class="section-subheader">Fuente: <b>Reporte mensual SSOMA</b></div>
+
+        <div class="ssoma-note">
+          <span class="ssoma-note-icon">📅</span>
+          <div>
+            <b>Indicador mensual</b> — Los datos mostrados corresponden al cierre mensual SSOMA, no al cierre semanal del proyecto. Se actualizan al cierre de cada mes.
+          </div>
+        </div>
+
+        <div class="ssoma-alcance" style="background:#FFF8E1;border-left-color:#F57C00;">
+          <span class="ssoma-alcance-icon" style="color:#F57C00;">⏳</span>
+          <span><b>Información pendiente:</b> los indicadores SSOMA del proyecto E140 ESPARQ 140 quedan en <b>estado pendiente hasta la Semana 38</b>, fecha en la cual se cargará la información oficial actualizada por el responsable SSOMA.</span>
+        </div>
+
+        <!-- Panel KPIs SST -->
+        <div class="kpi-strip" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px">
+          <div class="kpi-card k-orange">
+            <div class="kpi-label">IF · Tasa de Frecuencia de Accidentes</div>
+            <div class="kpi-value" id="ssomaIF">—</div>
+            <div class="kpi-sublabel">Accidentes con tiempo perdido × 1,000,000 / HH trabajadas</div>
+            <div class="kpi-meta-footer" style="margin-top:10px">
+              <span class="kpi-meta-target">▲ Meta: ≤ 5</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="ssomaIFStatus">⚠ En seguimiento</span>
+            </div>
+          </div>
+          <div class="kpi-card k-green">
+            <div class="kpi-label">% Inspecciones y Reportes SST</div>
+            <div class="kpi-value" id="ssomaInsp">—</div>
+            <div class="kpi-sublabel" id="ssomaInspDetalle">Inspecciones ejecutadas / programadas</div>
+            <div class="kpi-meta-footer" style="margin-top:10px">
+              <span class="kpi-meta-target">▲ Meta: ≥ 95%</span>
+              <span class="kpi-meta-status kpi-meta-cumple" id="ssomaInspStatus">✓ Cumple</span>
+            </div>
+          </div>
+          <div class="kpi-card" style="border-top:4px solid var(--red)">
+            <div class="kpi-label">Accidentes / Días Perdidos</div>
+            <div class="kpi-value" id="ssomaAcc">—</div>
+            <div class="kpi-sublabel">Accidentes con tiempo perdido / Días perdidos totales</div>
+            <div class="kpi-meta-footer" style="margin-top:10px">
+              <span class="kpi-meta-target">▲ Meta: 0 accidentes</span>
+              <span class="kpi-meta-status kpi-meta-nocumple" id="ssomaAccStatus">✗ No cumple</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel KPIs adicionales SST -->
+        <div class="kpi-strip" style="grid-template-columns:repeat(2,1fr);margin-bottom:18px">
+          <div class="kpi-card k-primary">
+            <div class="kpi-label">Trabajadores Totales</div>
+            <div class="kpi-value" id="ssomaTrab">—</div>
+            <div class="kpi-sublabel">Personal en obra con reporte SSOMA activo</div>
+          </div>
+          <div class="kpi-card k-dark">
+            <div class="kpi-label">HH Trabajadas</div>
+            <div class="kpi-value" id="ssomaHH">—</div>
+            <div class="kpi-sublabel">Horas-hombre acumuladas en el período</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           SSOMA · 2. GESTIÓN AMBIENTAL (ISO 14001)
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-ssoma-ambiental">
+        <div class="section-header">Gestión Ambiental · ISO 14001</div>
+        <div class="section-subheader">Fuente: <b>Reporte mensual SSOMA</b></div>
+
+        <div class="ssoma-note">
+          <span class="ssoma-note-icon">📅</span>
+          <div>
+            <b>Indicador mensual</b> — Los datos mostrados corresponden al cierre mensual SSOMA, no al cierre semanal del proyecto. Se actualizan al cierre de cada mes.
+          </div>
+        </div>
+
+        <div class="ssoma-alcance" style="background:#FFF8E1;border-left-color:#F57C00;">
+          <span class="ssoma-alcance-icon" style="color:#F57C00;">⏳</span>
+          <span><b>Información pendiente:</b> los indicadores ambientales del proyecto E140 ESPARQ 140 quedan en <b>estado pendiente hasta la Semana 38</b>, fecha en la cual se cargará la información oficial actualizada por el responsable SSOMA.</span>
+        </div>
+
+        <!-- Panel KPIs Ambiental -->
+        <div class="kpi-strip" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px">
+          <div class="kpi-card k-green">
+            <div class="kpi-label">% Requisitos Ambientales</div>
+            <div class="kpi-value" id="ssomaAmbReq">—</div>
+            <div class="kpi-sublabel" id="ssomaAmbReqDetalle">Requisitos cumplidos / totales</div>
+            <div class="kpi-meta-footer" style="margin-top:10px">
+              <span class="kpi-meta-target">▲ Meta: 100%</span>
+              <span class="kpi-meta-status kpi-meta-cumple" id="ssomaAmbReqStatus">✓ Cumple</span>
+            </div>
+          </div>
+          <div class="kpi-card k-green">
+            <div class="kpi-label"># Incidentes Ambientales</div>
+            <div class="kpi-value" id="ssomaAmbInc">—</div>
+            <div class="kpi-sublabel">Incidentes registrados en el período</div>
+            <div class="kpi-meta-footer" style="margin-top:10px">
+              <span class="kpi-meta-target">▲ Meta: 0</span>
+              <span class="kpi-meta-status kpi-meta-cumple" id="ssomaAmbIncStatus">✓ Cumple</span>
+            </div>
+          </div>
+          <div class="kpi-card k-green">
+            <div class="kpi-label">% Gestión de Residuos</div>
+            <div class="kpi-value" id="ssomaAmbRes">—</div>
+            <div class="kpi-sublabel" id="ssomaAmbResDetalle">Residuos dispuestos con EO-RS</div>
+            <div class="kpi-meta-footer" style="margin-top:10px">
+              <span class="kpi-meta-target">▲ Meta: ≥ 95%</span>
+              <span class="kpi-meta-status kpi-meta-cumple" id="ssomaAmbResStatus">✓ Cumple</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel KPIs Cobertura -->
+        <div class="kpi-strip" style="grid-template-columns:repeat(2,1fr);margin-bottom:18px">
+          <div class="kpi-card k-primary">
+            <div class="kpi-label">Residuos Gestionados</div>
+            <div class="kpi-value" id="ssomaAmbResVol">—</div>
+            <div class="kpi-sublabel">Total dispuesto con EO-RS (m³)</div>
+            <div class="kpi-meta-footer" style="margin-top:10px">
+              <span class="kpi-meta-target">▲ Meta cumplida</span>
+              <span class="kpi-meta-status kpi-meta-cumple">✓</span>
+            </div>
+          </div>
+          <div class="kpi-card k-dark">
+            <div class="kpi-label">Cobertura SSOMA</div>
+            <div class="kpi-value" id="ssomaAmbCob">—</div>
+            <div class="kpi-sublabel">Indicador contextual del período</div>
+          </div>
         </div>
       </section>
 
@@ -3830,6 +4006,7 @@ const TAB_AREA_MAP = {
   avance:'operaciones', personal:'operaciones', mo:'operaciones',
   adq:'operaciones', adic:'operaciones', crono:'operaciones', fotos:'operaciones',
   acero:'logistica', encofrado:'logistica', arrendamiento:'logistica',
+  'ssoma-sst':'ssoma', 'ssoma-ambiental':'ssoma',
 };
 
 function toggleArea(area){
@@ -4067,6 +4244,8 @@ function renderCurrentWeek(){
     case 'acero':         renderAcero(); break;
     case 'encofrado':     renderKardex(); break;
     case 'arrendamiento': renderArrendamiento(); break;
+    case 'ssoma-sst':       renderSsomaSST(); break;
+    case 'ssoma-ambiental': renderSsomaAmbiental(); break;
     case 'adic':          renderAdic(); break;
     case 'crono':         renderCrono(); break;
     case 'fotos':         renderFotos(); break;
@@ -4936,6 +5115,71 @@ function renderArrendamiento(){
       }
     });
   }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RENDER: SSOMA · 1. SEGURIDAD Y SALUD EN EL TRABAJO (ISO 45001)
+   Datos mensuales (cierre del mes anterior por ahora hardcoded)
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderSsomaSST(){
+  // ⚠ DATA PENDIENTE — Todos los indicadores SSOMA quedan en estado pendiente
+  // hasta la SEMANA 38. No se muestran cifras hasta que se reciba la información
+  // oficial actualizada del responsable SSOMA.
+
+  // Valores en placeholder
+  document.getElementById('ssomaIF').textContent = '—';
+  document.getElementById('ssomaInsp').textContent = '—';
+  document.getElementById('ssomaInspDetalle').textContent = 'Pendiente · se actualiza en Semana 38';
+  document.getElementById('ssomaAcc').textContent = '—';
+  document.getElementById('ssomaTrab').textContent = '—';
+  document.getElementById('ssomaHH').textContent = '—';
+
+  // Estados: todos en "pendiente" (estilo seguimiento)
+  const setPendiente = (id) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
+    el.classList.add('kpi-meta-seguimiento');
+    el.textContent = '⏳ Pendiente Sem 38';
+  };
+  setPendiente('ssomaIFStatus');
+  setPendiente('ssomaInspStatus');
+  setPendiente('ssomaAccStatus');
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RENDER: SSOMA · 2. GESTIÓN AMBIENTAL (ISO 14001)
+   Datos mensuales (cierre del mes anterior por ahora hardcoded)
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderSsomaAmbiental(){
+  // ⚠ DATA PENDIENTE — Todos los indicadores Ambientales quedan en estado pendiente
+  // hasta la SEMANA 38. No se muestran cifras hasta que se reciba la información
+  // oficial actualizada del responsable SSOMA.
+
+  // Valores en placeholder
+  document.getElementById('ssomaAmbReq').textContent = '—';
+  document.getElementById('ssomaAmbReqDetalle').textContent = 'Pendiente · se actualiza en Semana 38';
+  document.getElementById('ssomaAmbInc').textContent = '—';
+  document.getElementById('ssomaAmbRes').textContent = '—';
+  document.getElementById('ssomaAmbResDetalle').textContent = 'Pendiente · se actualiza en Semana 38';
+  document.getElementById('ssomaAmbResVol').textContent = '—';
+  document.getElementById('ssomaAmbCob').textContent = '—';
+
+  // Estados: todos en "pendiente"
+  const setPendiente = (id) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
+    el.classList.add('kpi-meta-seguimiento');
+    el.textContent = '⏳ Pendiente Sem 38';
+  };
+  setPendiente('ssomaAmbReqStatus');
+  setPendiente('ssomaAmbIncStatus');
+  setPendiente('ssomaAmbResStatus');
 }
 
 
