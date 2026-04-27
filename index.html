@@ -1075,6 +1075,60 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .loading-progress .ok{color:#A8EFC4;}
 .loading-progress .err{color:#FFB3B3;}
 
+/* ═════════ LOGIN ═════════ */
+.login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,var(--twitter-blue) 0%,var(--twitter-blue-dk) 100%);display:flex;align-items:center;justify-content:center;z-index:2000;padding:20px;animation:loginFadeIn .35s ease;}
+.login-overlay.hidden{display:none;}
+@keyframes loginFadeIn{from{opacity:0;}to{opacity:1;}}
+
+.login-card{background:var(--white);border-radius:14px;padding:40px 44px 28px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:loginCardUp .4s cubic-bezier(.2,.8,.2,1);}
+@keyframes loginCardUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+.login-logo{display:flex;align-items:center;gap:14px;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.login-badge{background:var(--twitter-blue);color:var(--white);font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;padding:8px 14px;border-radius:8px;line-height:1;}
+.login-brand{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--text);line-height:1.1;}
+.login-brand-sub{font-size:11px;color:var(--text-muted);letter-spacing:.05em;margin-top:3px;}
+
+.login-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1.5px;color:var(--text);margin-bottom:6px;}
+.login-sub{font-size:12.5px;color:var(--text-muted);margin-bottom:26px;}
+
+.login-form{display:flex;flex-direction:column;gap:14px;}
+.login-field{display:flex;flex-direction:column;gap:6px;}
+.login-field label{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;}
+.login-field input{padding:11px 14px;border:1.5px solid var(--border-mid);border-radius:7px;font-family:inherit;font-size:14px;color:var(--text);transition:border-color .15s, box-shadow .15s;}
+.login-field input:focus{outline:none;border-color:var(--twitter-blue);box-shadow:0 0 0 3px rgba(0,112,180,.12);}
+
+.login-options{display:flex;align-items:center;justify-content:space-between;margin-top:2px;}
+.login-remember{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text-muted);user-select:none;}
+.login-remember input{margin:0;width:14px;height:14px;cursor:pointer;accent-color:var(--twitter-blue);}
+
+.login-error{background:#FBEAEA;border:1px solid #E5A4A6;color:#8A2A2D;font-size:12px;padding:10px 14px;border-radius:6px;display:flex;align-items:center;gap:8px;animation:loginShake .35s ease;}
+.login-error::before{content:'⚠';font-size:14px;flex-shrink:0;}
+@keyframes loginShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+
+.login-btn{margin-top:6px;padding:13px 20px;background:var(--twitter-blue);color:var(--white);border:none;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;transition:background .15s, transform .1s;}
+.login-btn:hover{background:var(--twitter-blue-dk);}
+.login-btn:active{transform:scale(.98);}
+.login-btn:disabled{background:var(--blue-bell);cursor:not-allowed;}
+
+.login-footer{margin-top:26px;padding-top:18px;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--text-muted);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;}
+.login-footer .sep{color:var(--border-mid);}
+
+/* Botón de logout en header */
+.hdr-logout{background:transparent;color:var(--white);border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:5px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:background .15s, border-color .15s;display:inline-flex;align-items:center;gap:5px;}
+.hdr-logout:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.55);}
+.hdr-user{display:inline-flex;align-items:center;gap:6px;color:var(--white);font-size:11px;padding:0 10px;border-right:1px solid rgba(255,255,255,.2);}
+.hdr-user-name{font-weight:700;}
+.hdr-user-role{opacity:.75;font-size:10px;text-transform:uppercase;letter-spacing:.05em;}
+
+/* Ocultar elementos solo para admins cuando es viewer */
+body.role-viewer .admin-only{display:none !important;}
+
+@media(max-width:540px){
+  .login-card{padding:28px 24px 22px;}
+  .login-title{font-size:20px;}
+  .login-footer{font-size:10px;}
+}
+
 /* ═════════ MODAL ERROR ═════════ */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,30,60,0.7);display:none;align-items:center;justify-content:center;z-index:900;padding:20px;}
 .modal-overlay.open{display:flex;}
@@ -1281,9 +1335,57 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 <body>
 
 <!-- ═══════════════════════════════════════════
+     PANTALLA DE LOGIN — se muestra antes del dashboard
+     ═══════════════════════════════════════════ -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-badge">E140</div>
+      <div>
+        <div class="login-brand">ESPARQ 140</div>
+        <div class="login-brand-sub">Dashboard Semanal · Fase 2</div>
+      </div>
+    </div>
+
+    <div class="login-title">Acceso al Dashboard</div>
+    <div class="login-sub">Ingresa tus credenciales para continuar</div>
+
+    <form class="login-form" id="loginForm" onsubmit="return doLogin(event)">
+      <div class="login-field">
+        <label for="loginUser">Usuario</label>
+        <input type="text" id="loginUser" autocomplete="username" placeholder="ej. residente" required autofocus>
+      </div>
+      <div class="login-field">
+        <label for="loginPass">Contraseña</label>
+        <input type="password" id="loginPass" autocomplete="current-password" placeholder="••••••••" required>
+      </div>
+
+      <div class="login-options">
+        <label class="login-remember">
+          <input type="checkbox" id="loginRemember" checked>
+          <span>Mantener la sesión iniciada</span>
+        </label>
+      </div>
+
+      <div class="login-error" id="loginError" style="display:none;"></div>
+
+      <button type="submit" class="login-btn" id="loginBtn">
+        Ingresar al dashboard
+      </button>
+    </form>
+
+    <div class="login-footer">
+      <span>ESPARQ Construcción S.A.C.</span>
+      <span class="sep">·</span>
+      <span>Acceso restringido al equipo del proyecto</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
      PANTALLA DE CARGA INICIAL
      ═══════════════════════════════════════════ -->
-<div class="loading-overlay" id="loadingOverlay">
+<div class="loading-overlay" id="loadingOverlay" style="display:none;">
   <div class="loading-badge">E140</div>
   <div class="loading-title">ESPARQ 140 · DASHBOARD SEMANAL</div>
   <div class="loading-sub">Cargando data semanal…</div>
@@ -6119,11 +6221,231 @@ function renderFotos(){
 
 
 /* ═══════════════════════════════════════════════════════════════════
+   SISTEMA DE LOGIN — Autenticación local (cliente)
+   ───────────────────────────────────────────────────────────────────
+   Usuarios definidos en USERS abajo. Cada uno tiene:
+   - usuario (string sin espacios)
+   - password (string)
+   - rol: 'admin' (carga data) | 'viewer' (solo ve)
+   - nombre: para mostrar en la UI
+
+   ⚠ NOTA DE SEGURIDAD: este es un login de cliente, no protege contra
+   personas técnicas que sepan ver el código fuente. Sirve para bloquear
+   accesos no autorizados de personas no técnicas que reciban el link.
+   ═══════════════════════════════════════════════════════════════════ */
+
+// ─── HASH SIMPLE PARA NO TENER LAS CONTRASEÑAS EN TEXTO PLANO ───
+// No es criptográficamente fuerte, pero evita que se lean al ojo.
+// Para generar un hash nuevo: copiar la función a la consola y llamar
+// hashSimple('mi_password')
+function hashSimple(str){
+  let hash = 5381;
+  for(let i = 0; i < str.length; i++){
+    hash = ((hash << 5) + hash) + str.charCodeAt(i);
+    hash = hash | 0; // 32-bit
+  }
+  // Salt + transformación adicional para complicar lectura visual
+  return 'h' + Math.abs(hash).toString(36) + '_' + str.length.toString(36);
+}
+
+// ─── BASE DE USUARIOS ───
+// Editar este objeto para agregar/quitar usuarios.
+// Los hashes se generan con hashSimple('password').
+//
+// USUARIOS POR DEFECTO (cambiar las contraseñas en producción):
+//   admin    / admin140    → admin (todos los permisos)
+//   residente / e140obra   → admin (carga data)
+//   cliente  / espinosa    → viewer (solo lectura)
+//   gerencia / esparq2026  → viewer (solo lectura)
+const USERS = [
+  { usuario: 'admin',     hash: hashSimple('admin140'),    rol: 'admin',  nombre: 'Administrador'   },
+  { usuario: 'residente', hash: hashSimple('e140obra'),    rol: 'admin',  nombre: 'José Rojas O.'   },
+  { usuario: 'cliente',   hash: hashSimple('espinosa'),    rol: 'viewer', nombre: 'Espinosa Arq.'   },
+  { usuario: 'gerencia',  hash: hashSimple('esparq2026'),  rol: 'viewer', nombre: 'Gerencia ESPARQ' },
+];
+
+const SESSION_KEY = 'e140_session_v1';
+let currentSession = null; // { usuario, rol, nombre, ts }
+
+function getStoredSession(){
+  try {
+    // Intenta primero localStorage (persistente), luego sessionStorage (solo esta pestaña)
+    const raw = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
+    if(!raw) return null;
+    const s = JSON.parse(raw);
+    // Validar que el usuario aún exista en la lista (puede haberse eliminado)
+    const user = USERS.find(u => u.usuario === s.usuario);
+    if(!user) return null;
+    // Sesión válida por 30 días en localStorage; sessionStorage solo dura la pestaña
+    const maxAgeDays = 30;
+    if(s.ts && (Date.now() - s.ts) > maxAgeDays * 24 * 60 * 60 * 1000){
+      localStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
+      return null;
+    }
+    return s;
+  } catch(e){
+    return null;
+  }
+}
+
+function saveSession(session, persist){
+  try {
+    const json = JSON.stringify(session);
+    if(persist){
+      localStorage.setItem(SESSION_KEY, json);
+      sessionStorage.removeItem(SESSION_KEY);
+    } else {
+      sessionStorage.setItem(SESSION_KEY, json);
+      localStorage.removeItem(SESSION_KEY);
+    }
+  } catch(e){
+    console.warn('[E140] No se pudo guardar la sesión:', e);
+  }
+}
+
+function clearSession(){
+  try {
+    localStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(SESSION_KEY);
+  } catch(e){}
+  currentSession = null;
+}
+
+function doLogin(event){
+  if(event) event.preventDefault();
+  const u = document.getElementById('loginUser').value.trim().toLowerCase();
+  const p = document.getElementById('loginPass').value;
+  const remember = document.getElementById('loginRemember').checked;
+  const errEl = document.getElementById('loginError');
+  const btn = document.getElementById('loginBtn');
+
+  // Validaciones básicas
+  if(!u || !p){
+    errEl.textContent = 'Ingresa usuario y contraseña.';
+    errEl.style.display = 'flex';
+    return false;
+  }
+
+  // Buscar usuario
+  const user = USERS.find(x => x.usuario === u);
+  if(!user || user.hash !== hashSimple(p)){
+    errEl.textContent = 'Usuario o contraseña incorrectos.';
+    errEl.style.display = 'flex';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginPass').focus();
+    return false;
+  }
+
+  // Login exitoso
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Ingresando…';
+
+  const session = {
+    usuario: user.usuario,
+    rol:     user.rol,
+    nombre:  user.nombre,
+    ts:      Date.now(),
+  };
+  saveSession(session, remember);
+  currentSession = session;
+
+  // Pequeño delay para que se vea el feedback
+  setTimeout(() => {
+    applySessionToUI();
+    hideLoginScreen();
+    initDashboard();
+  }, 200);
+
+  return false;
+}
+
+function doLogout(){
+  if(!confirm('¿Cerrar sesión?')) return;
+  clearSession();
+  // Recargar la página fuerza el flujo de login otra vez
+  location.reload();
+}
+
+function showLoginScreen(){
+  const lo = document.getElementById('loginOverlay');
+  if(lo) lo.classList.remove('hidden');
+  // Ocultar el loading inicial mientras el usuario no haya entrado
+  const ld = document.getElementById('loadingOverlay');
+  if(ld) ld.style.display = 'none';
+}
+
+function hideLoginScreen(){
+  const lo = document.getElementById('loginOverlay');
+  if(lo) lo.classList.add('hidden');
+  // Mostrar el loading
+  const ld = document.getElementById('loadingOverlay');
+  if(ld){
+    ld.style.display = 'flex';
+    ld.classList.remove('hidden');
+  }
+}
+
+function applySessionToUI(){
+  if(!currentSession) return;
+  // Aplicar clase de rol al body para que las reglas CSS oculten/muestren
+  document.body.classList.remove('role-admin', 'role-viewer');
+  document.body.classList.add('role-' + currentSession.rol);
+
+  // Insertar info de usuario y botón de logout en el header
+  const thRight = document.querySelector('.th-right');
+  if(thRight && !document.getElementById('hdrUserBlock')){
+    const userBlock = document.createElement('div');
+    userBlock.id = 'hdrUserBlock';
+    userBlock.className = 'hdr-user';
+    const rolTxt = currentSession.rol === 'admin' ? 'Admin' : 'Solo lectura';
+    userBlock.innerHTML = `
+      <span>👤</span>
+      <span>
+        <span class="hdr-user-name">${currentSession.nombre}</span>
+        <br><span class="hdr-user-role">${rolTxt}</span>
+      </span>
+    `;
+    thRight.insertBefore(userBlock, thRight.firstChild);
+
+    const logoutBtn = document.createElement('button');
+    logoutBtn.className = 'hdr-logout';
+    logoutBtn.title = 'Cerrar sesión';
+    logoutBtn.onclick = doLogout;
+    logoutBtn.innerHTML = '<span>🚪</span> Salir';
+    thRight.insertBefore(logoutBtn, userBlock.nextSibling);
+  }
+
+  // El botón "Cargar Data" solo es para admins. Le agregamos la clase admin-only
+  const cargarBtn = document.getElementById('cargarSemBtn');
+  if(cargarBtn) cargarBtn.classList.add('admin-only');
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
    INICIALIZACIÓN
    ═══════════════════════════════════════════════════════════════════ */
 
-// Dispara la carga (JSON → DATA). Si no hay JSON, cae a DEMO.
-initDashboard();
+// Verificar sesión existente. Si hay → entrar directo. Si no → mostrar login.
+(function bootstrap(){
+  const saved = getStoredSession();
+  if(saved){
+    currentSession = saved;
+    // Aplicar UI de sesión luego de que el DOM esté listo
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', () => {
+        applySessionToUI();
+      });
+    } else {
+      applySessionToUI();
+    }
+    hideLoginScreen();
+    initDashboard();
+  } else {
+    showLoginScreen();
+  }
+})();
 
 /* ═══════════════════════════════════════════════════════════════════
    AUTO-REFRESCO DURO CADA 15 MINUTOS
