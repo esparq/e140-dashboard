@@ -4,7 +4,7 @@
   "archivos": {
     "histograma": {
       "avance_obra_pct": "meta_dimension_campo",
-      "cpi_mo": 50,
+      "cpi_mo": null,
       "spi_meta": null,
       "spi_contractual": null,
       "mo_consumida": null,
