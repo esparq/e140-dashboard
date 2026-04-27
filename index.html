@@ -2803,9 +2803,58 @@ function mergeJsonIntoWeek(week, json){
         ahorro: (Number(c.mo_base)||0) - (Number(c.mo_meta)||0),
         incid: 0
       }));
-      // incidencia sobre total real
       const totReal = week.mo.cuadrillas.reduce((s,c)=>s+c.real,0);
       week.mo.cuadrillas.forEach(c=>{ c.incid = totReal>0 ? (c.real/totReal*100) : 0; });
+    }
+  }
+
+  // ─── 10 Adicionales (opcional) ───
+  // Parsea las tablas de especialidades y arma porEspecialidad + top
+  const adic = json.archivos.adicionales;
+  if(adic){
+    if(!week.adicionales) week.adicionales = {subheader:"Fuente: <b>10 · Status de Adicionales y Deductivos</b>", porEspecialidad:{labels:[],data:[]}, top:[]};
+    // KPIs principales (los renderizan otras secciones del dashboard)
+    week.adicionales.totalSol     = adic.adicionales_sol;
+    week.adicionales.totalUsd     = adic.adicionales_usd;
+    week.adicionales.deductivosSol = adic.deductivos_sol;
+    week.adicionales.netoSol      = adic.neto_sol;
+    week.adicionales.optNetaSol   = adic.optimizacion_neta_sol;
+    week.adicionales.cantidad     = adic.cantidad_items;
+    week.adicionales.aprobados    = adic.items_aprobados;
+    week.adicionales.pendientes   = adic.items_pendientes;
+    // Especialidades CONTROL: vienen como array de filas con {esp_ctrl, adic_sol, adic_usd, deduc_sol, items, neto_sol, incidencia_pct}
+    if(Array.isArray(adic.especialidades_control)){
+      week.adicionales.porEspecialidad = {
+        labels: adic.especialidades_control.filter(e => Number(e.adic_sol)>0).map(e => String(e.esp_ctrl||'').trim()),
+        data:   adic.especialidades_control.filter(e => Number(e.adic_sol)>0).map(e => Number(e.adic_sol)||0),
+        deduc:  adic.especialidades_control.filter(e => Number(e.adic_sol)>0).map(e => Number(e.deduc_sol)||0),
+        items:  adic.especialidades_control.filter(e => Number(e.adic_sol)>0).map(e => Number(e.items)||0),
+        incid:  adic.especialidades_control.filter(e => Number(e.adic_sol)>0).map(e => Number(e.incidencia_pct)||0),
+      };
+    }
+    // Especialidades OPTIMIZACIÓN
+    if(Array.isArray(adic.especialidades_opt)){
+      week.adicionales.porEspecialidadOpt = {
+        labels: adic.especialidades_opt.filter(e => (Number(e.adic_sol)+Number(e.deduc_sol))>0).map(e => String(e.esp_opt||'').trim()),
+        adic:   adic.especialidades_opt.filter(e => (Number(e.adic_sol)+Number(e.deduc_sol))>0).map(e => Number(e.adic_sol)||0),
+        deduc:  adic.especialidades_opt.filter(e => (Number(e.adic_sol)+Number(e.deduc_sol))>0).map(e => Number(e.deduc_sol)||0),
+        items:  adic.especialidades_opt.filter(e => (Number(e.adic_sol)+Number(e.deduc_sol))>0).map(e => Number(e.items)||0),
+        incid:  adic.especialidades_opt.filter(e => (Number(e.adic_sol)+Number(e.deduc_sol))>0).map(e => Number(e.incidencia_pct)||0),
+      };
+    }
+    // Top items: armar a partir de las especialidades (top monto)
+    if(week.adicionales.porEspecialidad && week.adicionales.porEspecialidad.labels.length){
+      const sorted = week.adicionales.porEspecialidad.labels.map((lbl, i) => ({
+        num: i+1,
+        desc: 'Adicionales ' + lbl,
+        esp:  lbl,
+        monto: week.adicionales.porEspecialidad.data[i],
+      })).sort((a,b) => b.monto - a.monto).slice(0, 8);
+      // Subtotales y totales
+      const subtotalAdic = sorted.reduce((s,it) => s+it.monto, 0);
+      sorted.push({subtotal:true, desc:'Subtotal adicionales aprobados', monto: subtotalAdic});
+      sorted.push({total:true, desc:'TOTAL ADICIONALES S/', monto: Number(adic.adicionales_sol)||0, highlight:true});
+      week.adicionales.top = sorted;
     }
   }
 }
@@ -4608,11 +4657,11 @@ const ARCHIVOS_ESPERADOS = [
   {prefijo:'02_02', key:'casco_sup',     label:'Casco SUP',     hoja:'_DASHBOARD_DATA'},
   {prefijo:'02_03', key:'albanileria',   label:'Albañilería',   hoja:'_DASHBOARD_DATA'},
   {prefijo:'03',    key:'adquisiciones', label:'Adquisiciones', hoja:'_DASHBOARD_DATA'},
-  {prefijo:'05',    key:'cronograma',    label:'Cronograma',    hoja:'RESUMEN'},
+  {prefijo:'05',    key:'cronograma',    label:'Cronograma',    hoja:'_DASHBOARD_DATA'},
   {prefijo:'06',    key:'mo',            label:'MO',            hoja:'_DASHBOARD_DATA'},
-  {prefijo:'07',    key:'acero',         label:'Acero',         hoja:'RESUMEN'},
-  {prefijo:'08',    key:'arrendamiento', label:'Arrendamiento', hoja:'RESUMEN'},
-  {prefijo:'09',    key:'kardex',        label:'Kardex',        hoja:'RESUMEN'},
+  {prefijo:'07',    key:'acero',         label:'Acero',         hoja:'_DASHBOARD_DATA'},
+  {prefijo:'08',    key:'arrendamiento', label:'Arrendamiento', hoja:'_DASHBOARD_DATA'},
+  {prefijo:'09',    key:'kardex',        label:'Kardex',        hoja:'_DASHBOARD_DATA'},
   {prefijo:'10',    key:'adicionales',   label:'Adicionales',   hoja:'_DASHBOARD_DATA'},
 ];
 
@@ -5210,13 +5259,13 @@ const EXTRACTORES = {
   // 07 Acero
   acero: (sheet) => {
     const datos = {};
-    for(let r = 15; r <= 40; r++){
+    for(let r = 3; r <= 50; r++){
       const key = getCell(sheet, 'B'+r);
       const val = getCell(sheet, 'C'+r);
       if(key && typeof key === 'string'){
         const k = key.toLowerCase().trim();
         if(['acero_ppto_kg','acero_consumido_kg','acero_saldo_kg','acero_avance_pct',
-            'acero_valor_ppto','acero_valor_consumido','acero_valor_saldo'].includes(k)){
+            'acero_valor_ppto','acero_valor_consumido','acero_valor_saldo','acero_avance_valor_pct'].includes(k)){
           datos[k] = val;
         }
       }
@@ -5227,12 +5276,13 @@ const EXTRACTORES = {
   // 08 Arrendamiento
   arrendamiento: (sheet) => {
     const datos = {};
-    for(let r = 15; r <= 40; r++){
+    for(let r = 3; r <= 45; r++){
       const key = getCell(sheet, 'B'+r);
       const val = getCell(sheet, 'C'+r);
       if(key && typeof key === 'string'){
         const k = key.toLowerCase().trim();
-        if(k.startsWith('tipo_cambio') || k.startsWith('f1_')){
+        // Acepta: tipo_cambio_*, f1_*, val_* (formato viejo) y los nuevos v2
+        if(k.startsWith('tipo_cambio') || k.startsWith('f1_') || k.startsWith('val_')){
           datos[k] = val;
         }
       }
@@ -5243,12 +5293,15 @@ const EXTRACTORES = {
   // 09 Kardex
   kardex: (sheet) => {
     const datos = {};
-    for(let r = 15; r <= 50; r++){
+    for(let r = 3; r <= 50; r++){
       const key = getCell(sheet, 'B'+r);
       const val = getCell(sheet, 'C'+r);
       if(key && typeof key === 'string'){
         const k = key.toLowerCase().trim();
-        if(k.includes('unispan') || k.includes('casa') || k.includes('consumibles') || k === 'total_encofrado_sol'){
+        // Acepta llaves legacy (unispan/casa/consumibles) y las nuevas v3 (costo_*)
+        if(k.includes('unispan') || k.includes('casa') || k.includes('consumibles') ||
+           k.startsWith('costo_') ||
+           k === 'total_encofrado_sol' || k === 'total_items' || k === 'peso_total_kg' || k === 'items_distintos'){
           datos[k] = val;
         }
       }
@@ -5256,9 +5309,9 @@ const EXTRACTORES = {
     return datos;
   },
 
-  // 10 Adicionales: KPIs + lista
+  // 10 Adicionales: KPIs + lista + 2 tablas de especialidades
   adicionales: (sheet) => {
-    const datos = {items: []};
+    const datos = {items: [], especialidades_control: [], especialidades_opt: []};
     // KPIs clave-valor - rango amplio: soporta RESUMEN (filas 40+) y _DASHBOARD_DATA (filas 5+)
     for(let r = 3; r <= 60; r++){
       const key = getCell(sheet, 'B'+r);
@@ -5266,12 +5319,17 @@ const EXTRACTORES = {
       if(key && typeof key === 'string'){
         const k = key.toLowerCase().trim();
         if(['adicionales_sol','adicionales_usd','deductivos_sol','deductivos_usd',
-            'neto_sol','neto_usd','cantidad_items'].includes(k)){
+            'neto_sol','neto_usd','cantidad_items',
+            'optimizacion_neta_sol','optimizacion_neta_usd',
+            'items_aprobados','items_pendientes',
+            'control_adic_cantidad','control_adic_sol','control_adic_aprobados','control_adic_pendientes',
+            'control_deduc_cantidad','control_deduc_sol','control_eval_cantidad',
+            'opt_adic_cantidad','opt_adic_sol','opt_deduc_cantidad','opt_deduc_sol','opt_eval_cantidad'].includes(k)){
           datos[k] = val;
         }
       }
     }
-    // Items - buscar header 'n' 'descripcion' 'especialidad' 'monto_sol'...
+    // Items legacy - buscar header 'n'
     for(let r = 3; r <= 70; r++){
       const h = getCell(sheet, 'B'+r);
       if(h && typeof h === 'string' && h.toLowerCase().trim() === 'n'){
@@ -5285,6 +5343,46 @@ const EXTRACTORES = {
             monto_sol:    getCell(sheet, 'E'+(r+i)),
             monto_usd:    getCell(sheet, 'F'+(r+i)),
             tipo:         getCell(sheet, 'G'+(r+i)),
+          });
+        }
+        break;
+      }
+    }
+    // Tabla ESPECIALIDADES CONTROL - buscar header 'esp_ctrl'
+    for(let r = 3; r <= 70; r++){
+      const h = getCell(sheet, 'B'+r);
+      if(h && typeof h === 'string' && h.toLowerCase().trim() === 'esp_ctrl'){
+        for(let i = 1; i <= 10; i++){
+          const esp = getCell(sheet, 'B'+(r+i));
+          if(!esp || esp === '') break;
+          datos.especialidades_control.push({
+            esp_ctrl:        esp,
+            adic_sol:        getCell(sheet, 'C'+(r+i)),
+            adic_usd:        getCell(sheet, 'D'+(r+i)),
+            deduc_sol:       getCell(sheet, 'E'+(r+i)),
+            items:           getCell(sheet, 'F'+(r+i)),
+            neto_sol:        getCell(sheet, 'G'+(r+i)),
+            incidencia_pct:  getCell(sheet, 'H'+(r+i)),
+          });
+        }
+        break;
+      }
+    }
+    // Tabla ESPECIALIDADES OPTIMIZACIÓN - buscar header 'esp_opt'
+    for(let r = 3; r <= 70; r++){
+      const h = getCell(sheet, 'B'+r);
+      if(h && typeof h === 'string' && h.toLowerCase().trim() === 'esp_opt'){
+        for(let i = 1; i <= 10; i++){
+          const esp = getCell(sheet, 'B'+(r+i));
+          if(!esp || esp === '') break;
+          datos.especialidades_opt.push({
+            esp_opt:         esp,
+            adic_sol:        getCell(sheet, 'C'+(r+i)),
+            adic_usd:        getCell(sheet, 'D'+(r+i)),
+            deduc_sol:       getCell(sheet, 'E'+(r+i)),
+            items:           getCell(sheet, 'F'+(r+i)),
+            neto_sol:        getCell(sheet, 'G'+(r+i)),
+            incidencia_pct:  getCell(sheet, 'H'+(r+i)),
           });
         }
         break;
