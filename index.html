@@ -1289,6 +1289,51 @@ body.role-viewer .admin-only{display:none !important;}
 .area-info-banner{background:var(--alice-blue);border:1px solid var(--border-mid);border-left:4px solid var(--twitter-blue);border-radius:6px;padding:12px 16px;margin-bottom:16px;font-size:12px;line-height:1.5;color:var(--text);}
 .area-info-banner b{color:var(--twitter-blue);}
 
+/* ─── Panel fotográfico (dentro del cargador, solo Operaciones) ─── */
+.fotos-section{margin-top:24px;padding-top:20px;border-top:2px dashed var(--border-mid);}
+.fotos-header{margin-bottom:14px;}
+.fotos-title{display:flex;align-items:center;gap:10px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:var(--twitter-blue);}
+.fotos-icon{font-size:18px;}
+.fotos-count{font-size:11px;font-family:inherit;font-weight:600;letter-spacing:.05em;color:var(--text-muted);background:var(--alice-blue);padding:3px 9px;border-radius:4px;text-transform:none;}
+.fotos-count.has-fotos{background:#E7F4EE;color:#1A6B4A;}
+.fotos-count.full{background:#FFF1E5;color:#A0521E;}
+.fotos-sub{font-size:11.5px;color:var(--text-muted);margin-top:2px;}
+
+.fotos-dropzone{margin-top:12px;padding:24px 16px !important;}
+.fotos-dropzone.disabled{opacity:.5;pointer-events:none;}
+
+.fotos-grid{margin-top:14px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+.foto-thumb{position:relative;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--alice-blue);aspect-ratio:4/3;}
+.foto-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.foto-thumb-overlay{position:absolute;inset:auto 0 0 0;background:linear-gradient(transparent,rgba(0,0,0,.85));padding:18px 8px 6px;display:flex;flex-direction:column;gap:3px;}
+.foto-thumb-num{font-family:'Bebas Neue',sans-serif;font-size:11px;color:#fff;letter-spacing:1px;line-height:1;}
+.foto-thumb-desc{font-size:9.5px;color:#fff;line-height:1.25;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.foto-thumb-actions{position:absolute;top:4px;right:4px;display:flex;gap:3px;}
+.foto-thumb-btn{width:22px;height:22px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;transition:background .15s;}
+.foto-thumb-btn:hover{background:rgba(214,64,69,.95);}
+.foto-thumb-edit{background:rgba(0,112,180,.85);}
+.foto-thumb-edit:hover{background:rgba(0,112,180,1);}
+.foto-thumb-badge{position:absolute;top:4px;left:4px;background:var(--orange);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.05em;text-transform:uppercase;}
+
+.foto-edit-modal{position:fixed;inset:0;background:rgba(0,30,60,.7);display:none;align-items:center;justify-content:center;z-index:3000;padding:20px;}
+.foto-edit-modal.show{display:flex;}
+.foto-edit-card{background:#fff;border-radius:10px;padding:24px;max-width:420px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.3);}
+.foto-edit-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;color:var(--twitter-blue);margin-bottom:14px;}
+.foto-edit-field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.foto-edit-field label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;}
+.foto-edit-field input[type=text]{padding:9px 12px;border:1.5px solid var(--border-mid);border-radius:6px;font-family:inherit;font-size:13px;}
+.foto-edit-field input:focus{outline:none;border-color:var(--twitter-blue);}
+.foto-edit-checkbox{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;color:var(--text);user-select:none;}
+.foto-edit-checkbox input{margin:0;width:14px;height:14px;cursor:pointer;accent-color:var(--orange);}
+.foto-edit-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+
+@media(max-width:899px){
+  .fotos-grid{grid-template-columns:repeat(3,1fr);}
+}
+@media(max-width:540px){
+  .fotos-grid{grid-template-columns:repeat(2,1fr);}
+}
+
 .area-summary-bar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px;padding:10px 14px;background:#FBFDFE;border:1px dashed var(--border-mid);border-radius:6px;font-size:11px;color:var(--text-muted);}
 .area-summary-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:4px;background:var(--white);border:1px solid var(--border);font-weight:600;}
 .area-summary-pill.loaded{border-color:var(--green);color:#1A6B4A;background:#F0F9F4;}
@@ -1488,6 +1533,28 @@ body.role-viewer .admin-only{display:none !important;}
             <input type="file" class="area-file-input" data-area="operaciones" id="fileInput-operaciones" multiple accept=".xlsx,.xlsb,.xls" style="display:none">
           </div>
           <div class="area-file-list" data-area="operaciones"></div>
+
+          <!-- ─── PANEL FOTOGRÁFICO (solo Operaciones) ─── -->
+          <div class="fotos-section">
+            <div class="fotos-header">
+              <div class="fotos-title">
+                <span class="fotos-icon">📷</span>
+                <span>Panel Fotográfico de la Semana</span>
+                <span class="fotos-count" id="fotosCount">0 fotos</span>
+              </div>
+              <div class="fotos-sub">Sube las fotografías de la semana · cada semana tiene su propio panel</div>
+            </div>
+
+            <div class="dropzone fotos-dropzone" id="fotosDropzone" onclick="document.getElementById('fileInputFotos').click()">
+              <div class="dropzone-icon" style="font-size:32px;">📷</div>
+              <div class="dropzone-title" style="font-size:14px;">ARRASTRA O SELECCIONA FOTOS</div>
+              <div class="dropzone-subtitle">JPG · PNG · WebP · Máximo 10 fotos · Hasta 2 MB cada una</div>
+              <button class="dropzone-btn" type="button">Seleccionar fotos</button>
+              <input type="file" id="fileInputFotos" multiple accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none">
+            </div>
+
+            <div class="fotos-grid" id="fotosGrid"></div>
+          </div>
         </div>
 
         <!-- ═══ Pane: LOGÍSTICA ═══ -->
@@ -1621,6 +1688,29 @@ body.role-viewer .admin-only{display:none !important;}
       <div style="flex:1"></div>
       <button class="hdr-btn" onclick="closeCargaModal()">Cancelar</button>
       <button class="hdr-btn hdr-btn-primary" id="cargaNextBtn" onclick="cargaStepNext()" disabled>Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL DE EDICIÓN DE FOTO (descripción + hito)
+     ═══════════════════════════════════════════ -->
+<div class="foto-edit-modal" id="fotoEditModal">
+  <div class="foto-edit-card">
+    <div class="foto-edit-title">📷 Editar foto</div>
+    <div class="foto-edit-field">
+      <label>Descripción</label>
+      <input type="text" id="fotoEditDesc" placeholder="ej. Vaciado de losa Sector 2 - Sót 3" maxlength="80">
+    </div>
+    <div class="foto-edit-field">
+      <label class="foto-edit-checkbox">
+        <input type="checkbox" id="fotoEditHito">
+        <span>Marcar como <b>Hito</b> de la semana (etiqueta naranja)</span>
+      </label>
+    </div>
+    <div class="foto-edit-actions">
+      <button class="hdr-btn" onclick="closeFotoEditModal()">Cancelar</button>
+      <button class="hdr-btn hdr-btn-primary" onclick="saveFotoEdit()">Guardar</button>
     </div>
   </div>
 </div>
@@ -3708,7 +3798,14 @@ async function loadFromJSONs(){
 
   // Sobrescribir con los datos de JSONs reales
   foundOrdenado.forEach(({sem, area, data}) => {
-    if(!weeks[sem]) weeks[sem] = JSON.parse(JSON.stringify(DEMO_DATA.weeks['S36'] || {}));
+    if(!weeks[sem]){
+      // Clonamos el esqueleto de S36 pero VACIAMOS las fotos.
+      // Las fotos son específicas de cada semana — si el JSON nuevo no las trae,
+      // el panel debe quedar en blanco (no heredar del demo).
+      const skeleton = JSON.parse(JSON.stringify(DEMO_DATA.weeks['S36'] || {}));
+      skeleton.fotos = [];
+      weeks[sem] = skeleton;
+    }
     if(area === 'legacy'){
       // JSON legacy: aplica todas las áreas que contenga
       mergeJsonIntoWeek(weeks[sem], data);
@@ -4059,6 +4156,19 @@ function mergeJsonIntoWeek(week, json){
       sorted.push({total:true, desc:'TOTAL ADICIONALES S/', monto: Number(adic.adicionales_sol)||0, highlight:true});
       week.adicionales.top = sorted;
     }
+  }
+
+  // ─── PANEL FOTOGRÁFICO ───
+  // Si el JSON trae fotos (cargadas con el panel fotográfico del cargador),
+  // sobrescribir las fotos de la semana. Si viene vacío o sin atributo, no tocar.
+  if(Array.isArray(json.fotos)){
+    week.fotos = json.fotos.map((f, i) => ({
+      n:     f.n != null ? f.n : (i + 1),
+      desc:  f.desc || `Foto ${i + 1}`,
+      url:   f.url || '',
+      color: f.color || '#509BC9',
+      ...(f.badge ? { badge: f.badge } : {})
+    }));
   }
 
   // ─── PANEL EJECUTIVO CONSOLIDADO ───
@@ -6720,7 +6830,7 @@ let cargaState = {
   activeArea: 'operaciones',
   // Por área: {file, info, status} indexado por key
   porArea: {
-    operaciones:  { archivos:{}, semana:'', fecha:'', datos:null },
+    operaciones:  { archivos:{}, fotos:[], semana:'', fecha:'', datos:null },
     logistica:    { archivos:{}, semana:'', fecha:'', datos:null },
     arquitectura: { archivos:{}, semana:'', fecha:'', datos:null },
     ssoma:        { archivos:{}, semana:'', fecha:'', datos:null },
@@ -6938,7 +7048,7 @@ function resetCargaState(){
     step: 1,
     activeArea: 'operaciones',
     porArea: {
-      operaciones:  { archivos:{}, semana:'', fecha:'', datos:null },
+      operaciones:  { archivos:{}, fotos:[], semana:'', fecha:'', datos:null },
       logistica:    { archivos:{}, semana:'', fecha:'', datos:null },
       arquitectura: { archivos:{}, semana:'', fecha:'', datos:null },
       ssoma:        { archivos:{}, semana:'', fecha:'', datos:null },
@@ -6947,6 +7057,16 @@ function resetCargaState(){
     archivos: {},
     datos: null,
   };
+  // Limpiar UI de fotos
+  const grid = document.getElementById('fotosGrid');
+  if(grid) grid.innerHTML = '';
+  const counter = document.getElementById('fotosCount');
+  if(counter){
+    counter.textContent = '0 fotos';
+    counter.classList.remove('has-fotos', 'full');
+  }
+  const dz = document.getElementById('fotosDropzone');
+  if(dz) dz.classList.remove('disabled');
 }
 
 function closeCargaModal(){
@@ -6971,7 +7091,12 @@ function switchAreaTab(area){
 function updateAreaTabsStatus(){
   AREAS_CARGADOR.forEach(area => {
     const archivos = cargaState.porArea[area].archivos;
-    const count = Object.keys(archivos).filter(k => !k.startsWith('unknown_')).length;
+    const countArchivos = Object.keys(archivos).filter(k => !k.startsWith('unknown_')).length;
+    // Para Operaciones, sumar también las fotos cargadas
+    const fotos = (area === 'operaciones') ? (cargaState.porArea.operaciones.fotos || []) : [];
+    const countFotos = fotos.length;
+    const count = countArchivos + countFotos;
+
     // Contador en la tab
     const stat = document.getElementById('atStat-' + area);
     if(stat) stat.textContent = count;
@@ -6985,7 +7110,12 @@ function updateAreaTabsStatus(){
       pill.classList.toggle('empty', count === 0);
       const iconMap = {operaciones:'🏗️', logistica:'🚛', arquitectura:'📐', ssoma:'⛑️', calidad:'✅'};
       const nameMap = {operaciones:'Operaciones', logistica:'Logística', arquitectura:'Arquitectura', ssoma:'SSOMA', calidad:'Calidad'};
-      pill.textContent = `${iconMap[area]} ${nameMap[area]} · ${count} archivo${count===1?'':'s'}`;
+      // Operaciones muestra desglose archivos + fotos
+      if(area === 'operaciones' && countFotos > 0){
+        pill.textContent = `${iconMap[area]} ${nameMap[area]} · ${countArchivos} archivo${countArchivos===1?'':'s'} + ${countFotos} foto${countFotos===1?'':'s'}`;
+      } else {
+        pill.textContent = `${iconMap[area]} ${nameMap[area]} · ${count} archivo${count===1?'':'s'}`;
+      }
     }
   });
 }
@@ -7104,6 +7234,243 @@ function setupAreaDropzones(){
     });
     input.onchange = e => handleAreaFiles(area, e.target.files);
   });
+
+  // ─── Setup del dropzone de FOTOS (solo Operaciones) ───
+  setupFotosDropzone();
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PANEL FOTOGRÁFICO — Carga de fotos en el modal
+   ═══════════════════════════════════════════════════════════════════ */
+
+const MAX_FOTOS         = 10;        // Máximo de fotos por semana
+const MAX_FOTO_SIZE     = 2 * 1024 * 1024; // 2 MB por foto
+const MAX_FOTO_WIDTH    = 1600;      // Redimensionar fotos grandes a este ancho máximo
+const FOTO_JPEG_QUALITY = 0.82;      // Calidad JPEG al comprimir
+
+let fotoEditingIndex = -1; // Índice de la foto que se está editando
+
+function setupFotosDropzone(){
+  const dz = document.getElementById('fotosDropzone');
+  const input = document.getElementById('fileInputFotos');
+  if(!dz || !input) return;
+  if(dz._setupDone) return;
+  dz._setupDone = true;
+
+  ['dragenter','dragover'].forEach(ev => {
+    dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); });
+  });
+  ['dragleave','drop'].forEach(ev => {
+    dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); });
+  });
+  dz.addEventListener('drop', e => {
+    handleFotosFiles(e.dataTransfer.files);
+  });
+  input.onchange = e => {
+    handleFotosFiles(e.target.files);
+    input.value = ''; // Reset para poder seleccionar la misma foto otra vez
+  };
+}
+
+async function handleFotosFiles(files){
+  if(!files || !files.length) return;
+
+  // Inicializar arreglo de fotos en cargaState si no existe
+  if(!cargaState.porArea.operaciones.fotos){
+    cargaState.porArea.operaciones.fotos = [];
+  }
+  const fotos = cargaState.porArea.operaciones.fotos;
+
+  const arr = Array.from(files);
+  const errores = [];
+  const dz = document.getElementById('fotosDropzone');
+  const dzTitle = dz.querySelector('.dropzone-title');
+  const titleOriginal = dzTitle.textContent;
+
+  for(const file of arr){
+    if(fotos.length >= MAX_FOTOS){
+      errores.push(`Solo se permiten ${MAX_FOTOS} fotos por semana. Las restantes se ignoraron.`);
+      break;
+    }
+    // Validar tipo
+    if(!/^image\/(jpeg|jpg|png|webp)$/i.test(file.type)){
+      errores.push(`${file.name}: formato no soportado (solo JPG, PNG, WebP).`);
+      continue;
+    }
+    // Validar tamaño antes de comprimir
+    if(file.size > 20 * 1024 * 1024){
+      errores.push(`${file.name}: archivo excede 20 MB. Reduce su tamaño antes de subirlo.`);
+      continue;
+    }
+
+    dzTitle.textContent = `Procesando ${file.name}…`;
+
+    try {
+      const dataUrl = await fileToCompressedDataURL(file);
+      // Tamaño aproximado del base64
+      const sizeBytes = Math.ceil((dataUrl.length - 22) * 3 / 4);
+      if(sizeBytes > MAX_FOTO_SIZE){
+        errores.push(`${file.name}: la foto comprimida sigue siendo > 2 MB. Reduce su tamaño antes de subirla.`);
+        continue;
+      }
+      fotos.push({
+        n:    fotos.length + 1,
+        desc: file.name.replace(/\.[^.]+$/, ''),
+        url:  dataUrl,
+        color:'#509BC9',
+        // badge: opcional, solo si el usuario marca "Hito"
+      });
+    } catch(err){
+      errores.push(`${file.name}: ${err.message || 'error al procesar'}`);
+    }
+  }
+
+  // Renumerar
+  fotos.forEach((f, i) => f.n = i + 1);
+
+  dzTitle.textContent = titleOriginal;
+  renderFotosGrid();
+  updateAreaTabsStatus();
+
+  if(errores.length){
+    alert('Algunos archivos no se cargaron:\n\n' + errores.join('\n'));
+  }
+}
+
+/**
+ * Convierte un File de imagen a Data URL comprimida (JPEG).
+ * Si el ancho es mayor que MAX_FOTO_WIDTH, redimensiona manteniendo aspect ratio.
+ */
+function fileToCompressedDataURL(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        // Calcular dimensiones finales
+        let w = img.naturalWidth;
+        let h = img.naturalHeight;
+        if(w > MAX_FOTO_WIDTH){
+          h = Math.round(h * (MAX_FOTO_WIDTH / w));
+          w = MAX_FOTO_WIDTH;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        // Fondo blanco para PNGs con transparencia (al pasar a JPEG)
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        try {
+          const dataUrl = canvas.toDataURL('image/jpeg', FOTO_JPEG_QUALITY);
+          resolve(dataUrl);
+        } catch(e){
+          reject(new Error('No se pudo comprimir'));
+        }
+      };
+      img.onerror = () => reject(new Error('No se pudo leer la imagen'));
+      img.src = reader.result;
+    };
+    reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderFotosGrid(){
+  const grid = document.getElementById('fotosGrid');
+  const counter = document.getElementById('fotosCount');
+  const dz = document.getElementById('fotosDropzone');
+  if(!grid) return;
+
+  const fotos = (cargaState.porArea.operaciones.fotos || []);
+  grid.innerHTML = '';
+
+  // Actualizar contador
+  if(counter){
+    counter.textContent = `${fotos.length} foto${fotos.length === 1 ? '' : 's'}`;
+    counter.classList.toggle('has-fotos', fotos.length > 0 && fotos.length < MAX_FOTOS);
+    counter.classList.toggle('full', fotos.length >= MAX_FOTOS);
+  }
+
+  // Bloquear dropzone si llegó al máximo
+  if(dz){
+    if(fotos.length >= MAX_FOTOS){
+      dz.classList.add('disabled');
+    } else {
+      dz.classList.remove('disabled');
+    }
+  }
+
+  // Renderizar miniaturas
+  fotos.forEach((f, i) => {
+    const el = document.createElement('div');
+    el.className = 'foto-thumb';
+    const escDesc = (f.desc || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    const badge = f.badge ? `<span class="foto-thumb-badge">${f.badge}</span>` : '';
+    el.innerHTML = `
+      ${badge}
+      <img src="${f.url}" alt="${escDesc}">
+      <div class="foto-thumb-actions">
+        <button class="foto-thumb-btn foto-thumb-edit" onclick="openFotoEditModal(${i})" title="Editar descripción">✎</button>
+        <button class="foto-thumb-btn" onclick="removerFoto(${i})" title="Eliminar foto">✕</button>
+      </div>
+      <div class="foto-thumb-overlay">
+        <div class="foto-thumb-num">FOTO ${String(f.n).padStart(2,'0')}</div>
+        <div class="foto-thumb-desc">${escDesc}</div>
+      </div>
+    `;
+    grid.appendChild(el);
+  });
+}
+
+function removerFoto(index){
+  const fotos = cargaState.porArea.operaciones.fotos || [];
+  if(index < 0 || index >= fotos.length) return;
+  if(!confirm(`¿Eliminar la foto "${fotos[index].desc}"?`)) return;
+  fotos.splice(index, 1);
+  // Renumerar
+  fotos.forEach((f, i) => f.n = i + 1);
+  renderFotosGrid();
+  updateAreaTabsStatus();
+}
+
+function openFotoEditModal(index){
+  const fotos = cargaState.porArea.operaciones.fotos || [];
+  if(index < 0 || index >= fotos.length) return;
+  fotoEditingIndex = index;
+  const f = fotos[index];
+  document.getElementById('fotoEditDesc').value = f.desc || '';
+  document.getElementById('fotoEditHito').checked = f.badge === 'Hito';
+  document.getElementById('fotoEditModal').classList.add('show');
+  setTimeout(() => document.getElementById('fotoEditDesc').focus(), 50);
+}
+
+function closeFotoEditModal(){
+  document.getElementById('fotoEditModal').classList.remove('show');
+  fotoEditingIndex = -1;
+}
+
+function saveFotoEdit(){
+  if(fotoEditingIndex < 0) return;
+  const fotos = cargaState.porArea.operaciones.fotos || [];
+  if(fotoEditingIndex >= fotos.length) return;
+  const desc = document.getElementById('fotoEditDesc').value.trim();
+  const esHito = document.getElementById('fotoEditHito').checked;
+  if(!desc){
+    alert('La descripción no puede estar vacía.');
+    return;
+  }
+  fotos[fotoEditingIndex].desc = desc;
+  if(esHito){
+    fotos[fotoEditingIndex].badge = 'Hito';
+    fotos[fotoEditingIndex].color = '#E07B39';
+  } else {
+    delete fotos[fotoEditingIndex].badge;
+    fotos[fotoEditingIndex].color = '#509BC9';
+  }
+  closeFotoEditModal();
+  renderFotosGrid();
 }
 
 function handleAreaFiles(area, files){
@@ -7197,8 +7564,16 @@ function updateNextButton(){
   const next = document.getElementById('cargaNextBtn');
   if(!next) return;
   // Habilitar si HAY al menos un área con archivos cargados
+  // Operaciones también vale si solo tiene fotos (sin Excel)
   const algunaArea = AREAS_CARGADOR.some(area => {
-    return Object.keys(cargaState.porArea[area].archivos).filter(k => !k.startsWith('unknown_')).length > 0;
+    const hasArchivos = Object.keys(cargaState.porArea[area].archivos).filter(k => !k.startsWith('unknown_')).length > 0;
+    if(hasArchivos) return true;
+    // Solo Operaciones puede tener fotos sin archivos
+    if(area === 'operaciones'){
+      const fotos = cargaState.porArea.operaciones.fotos || [];
+      return fotos.length > 0;
+    }
+    return false;
   });
   next.disabled = !algunaArea;
 }
@@ -7235,16 +7610,22 @@ function renderFileList(){
 // VALIDACIÓN PASO 1 — POR ÁREA
 // ────────────────────────────────────────
 function validarPaso1(){
-  // Validar al menos un área con archivos
-  const areasConArchivos = AREAS_CARGADOR.filter(area => {
-    return Object.keys(cargaState.porArea[area].archivos).filter(k => !k.startsWith('unknown_')).length > 0;
+  // Validar al menos un área con archivos (o Operaciones con fotos)
+  const areasConContenido = AREAS_CARGADOR.filter(area => {
+    const hasArchivos = Object.keys(cargaState.porArea[area].archivos).filter(k => !k.startsWith('unknown_')).length > 0;
+    if(hasArchivos) return true;
+    if(area === 'operaciones'){
+      const fotos = cargaState.porArea.operaciones.fotos || [];
+      return fotos.length > 0;
+    }
+    return false;
   });
-  if(areasConArchivos.length === 0){
+  if(areasConContenido.length === 0){
     alert('Carga archivos en al menos un área antes de continuar.');
     return false;
   }
-  // Validar que cada área con archivos tenga código de semana y fecha
-  for(const area of areasConArchivos){
+  // Validar que cada área con contenido tenga código de semana y fecha
+  for(const area of areasConContenido){
     const sem = (cargaState.porArea[area].semana || '').trim().toUpperCase();
     const fecha = cargaState.porArea[area].fecha || '';
     const nombre = {operaciones:'Operaciones',logistica:'Logística',arquitectura:'Arquitectura',ssoma:'SSOMA',calidad:'Calidad'}[area];
@@ -7274,7 +7655,12 @@ async function procesarArchivos(){
   for(const area of AREAS_CARGADOR){
     const archivos = cargaState.porArea[area].archivos;
     const keys = Object.keys(archivos).filter(k => !k.startsWith('unknown_'));
-    if(keys.length === 0){
+
+    // Operaciones tiene fotos como contenido válido aunque no tenga Excels
+    const fotos = (area === 'operaciones') ? (cargaState.porArea.operaciones.fotos || []) : [];
+    const tieneContenido = keys.length > 0 || fotos.length > 0;
+
+    if(!tieneContenido){
       cargaState.porArea[area].datos = null;  // Sin data para esta área
       continue;
     }
@@ -7287,6 +7673,18 @@ async function procesarArchivos(){
       errores: [],
       advertencias: [],
     };
+
+    // Si es Operaciones y hay fotos, incluirlas en el JSON
+    if(area === 'operaciones' && fotos.length > 0){
+      // Las fotos se almacenan tal cual (con su data URL) para que se serialicen al JSON
+      resultadoArea.fotos = fotos.map((f, i) => ({
+        n:     i + 1,
+        desc:  f.desc,
+        url:   f.url,
+        color: f.color || '#509BC9',
+        ...(f.badge ? { badge: f.badge } : {})
+      }));
+    }
 
     for(const k of keys){
       const a = archivos[k];
@@ -7329,6 +7727,10 @@ async function procesarArchivos(){
       Object.assign(resultado.archivos, dat.archivos);
       resultado.errores.push(...dat.errores);
       resultado.advertencias.push(...dat.advertencias);
+      // Incluir fotos del área Operaciones en el resultado global
+      if(area === 'operaciones' && dat.fotos){
+        resultado.fotos = dat.fotos;
+      }
     }
   });
 
