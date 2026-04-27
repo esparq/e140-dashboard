@@ -1589,7 +1589,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
         <div class="r-evos">
           <div class="r-evo-card">
             <div class="r-evo-title"><span>▸</span>PERSONAL EN OBRA POR SEMANA</div>
-            <div class="r-evo-sub">Trabajadores en obra vs. meta dimensionamiento gerencia (46 pax)</div>
+            <div class="r-evo-sub">Trabajadores en obra vs. meta dimensionamiento gerencia (86 pax)</div>
             <div style="position:relative;height:260px"><canvas id="rChartPersonal"></canvas></div>
           </div>
           <div class="r-evo-card">
@@ -3241,7 +3241,7 @@ const DEMO_DATA = {
         {color:"blue", text:"Contratación: <b>60.1% de avance</b> (79 ítems), margen de adquisiciones <b>S/ 2,621,904 (16.5%)</b>, rentabilidad total estimada <b>16.4%</b>."},
         {color:"orange", text:"<b>Alerta Cuadrillas</b>: VIGÍAS (-136%), ALMACENERO (-25%), RIGGERS (-10%) excedidos. <b>IIEE</b> rentabilidad negativa (-19.9%)."},
         {color:"green", text:"Adicionales aprobados: <b>20 ítems por S/ 894,602</b> (3.3% del CD). 4 optimizaciones por S/ -18,288. 0 deductivos."},
-        {color:"blue", text:"Personal actual: <b>75 trabajadores</b> (pico histórico). Dimensionamiento meta: 46 pax."}
+        {color:"blue", text:"Personal actual: <b>75 trabajadores</b> (pico histórico). Dimensionamiento meta: 86 pax."}
       ],
 
       kpis: {
@@ -3701,7 +3701,7 @@ function renderRKpis(d, dPrev){
     spiMeta:        { tipo:'spi',      meta:1.00, texto:'SPI ≥ 1.00' },
     spiContractual: { tipo:'spi',      meta:1.00, texto:'SPI ≥ 1.00' },
     moConsumida:    { tipo:'mo_pct',   meta:25,   texto:'≤ 25% costo directo' },
-    personal:       { tipo:'pax',      meta:46,   texto:'≤ 46 pax (dimensionado)' },
+    personal:       { tipo:'pax',      meta:86,   texto:'≤ 86 pax (dimensionado)' },
   };
 
   /* ─── Función evaluadora de metas ───
@@ -3834,8 +3834,13 @@ function renderRKpis(d, dPrev){
       if(kpi.k === 'moConsumida') ctx.costoDirecto = cur.costoDirecto;
       // Para personal: usar meta dinámica del histograma si está disponible
       let reglaActual = regla;
-      if(kpi.k === 'personal' && cur.metaPersonalGer != null && cur.metaPersonalGer > 0){
-        reglaActual = {...regla, meta: cur.metaPersonalGer, texto: `≤ ${cur.metaPersonalGer} pax (dimensionado)`};
+      if(kpi.k === 'personal'){
+        // Default 86 (suma completa de subestructura+superestructura aprobado por gerencia)
+        // Si el archivo Histograma envía un valor válido > 70, usarlo
+        // Si envía un valor incorrecto (< 70), usar default 86 para no mostrar meta errónea
+        const metaArchivo = cur.metaPersonalGer;
+        const metaUsar = (metaArchivo != null && metaArchivo >= 70) ? metaArchivo : 86;
+        reglaActual = {...regla, meta: metaUsar, texto: `≤ ${metaUsar} pax (dimensionado)`};
       }
       metaEval = evaluarMetaKPI(kpi.raw, reglaActual, ctx);
       // Override especial: si es MO y salió "sindato" por falta de CD → en seguimiento
