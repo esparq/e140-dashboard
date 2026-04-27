@@ -1494,7 +1494,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           <div class="ef-header">
             <div>
               <div class="ef-title"><span>▸</span>EFICIENCIA PRODUCTIVA</div>
-              <div class="ef-sub">Balance entre avance físico y consumo de MO · mide si se está "comprando avance caro"</div>
+              <div class="ef-sub">SPI Contractual × CPI MO Acumulado · mide salud combinada de tiempo y costo</div>
             </div>
             <div class="ef-value" id="efValue">—</div>
           </div>
@@ -1502,22 +1502,50 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
             <div class="ef-aguja" id="efAguja" style="left:50%"></div>
           </div>
           <div class="ef-labels">
-            <span>0.50 (ineficiente)</span>
-            <span>1.00 (balance)</span>
-            <span>1.50+ (eficiente)</span>
+            <span>0.50 (crítico)</span>
+            <span>1.00 (en balance)</span>
+            <span>1.20+ (eficiente)</span>
           </div>
           <div class="ef-legenda">
             <div class="ef-leg-block lb-bad">
-              <div class="ef-leg-lbl">&lt; 1.00</div>
-              <div class="ef-leg-desc">Se compra avance caro — alerta</div>
+              <div class="ef-leg-lbl">&lt; 0.85</div>
+              <div class="ef-leg-desc">Crítico — atrasado y/o sobrecostos</div>
             </div>
             <div class="ef-leg-block lb-warn">
-              <div class="ef-leg-lbl">= 1.00</div>
-              <div class="ef-leg-desc">Balance perfecto — según plan</div>
+              <div class="ef-leg-lbl">0.85 – 1.19</div>
+              <div class="ef-leg-desc">En balance — según plan</div>
             </div>
             <div class="ef-leg-block lb-ok">
-              <div class="ef-leg-lbl">&gt; 1.00</div>
-              <div class="ef-leg-desc">Se avanza más rápido de lo que se gasta</div>
+              <div class="ef-leg-lbl">≥ 1.20</div>
+              <div class="ef-leg-desc">Eficiente — adelantado y bajo presupuesto</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel colapsable con fórmula y desglose de Eficiencia Productiva -->
+        <div class="formula-panel" id="formulaPanelEf">
+          <div class="formula-header" onclick="toggleFormulaEf()">
+            <div class="formula-title">
+              <span class="formula-icon">ƒ</span>
+              <span>Fórmula de Eficiencia Productiva</span>
+            </div>
+            <div class="formula-subtitle-collapsed">
+              Ver cálculo detallado
+            </div>
+            <button class="formula-toggle" aria-label="Expandir fórmula" onclick="event.stopPropagation();toggleFormulaEf()">
+              <span class="chevron">▼</span>
+            </button>
+          </div>
+          <div class="formula-body" id="formulaBodyEf">
+            <div class="formula-eq-line">
+              <b>IEP</b> = SPI<sub>Contractual</sub> × CPI<sub>MO Acumulado</sub>
+              <span style="color:var(--text-muted)"> · variante del CSI (Cost-Schedule Index) del PMBOK</span>
+            </div>
+            <div class="ur-breakdown" id="efBreakdown">
+              <!-- Se llena dinámicamente desde v2RenderEficiencia -->
+            </div>
+            <div class="ur-formula-total" id="efFormulaTotal">
+              <!-- Se llena dinámicamente -->
             </div>
           </div>
         </div>
@@ -3511,6 +3539,11 @@ function toggleSidebarCollapsed(){
    ═══════════════════════════════════════════════════════════════════ */
 function toggleFormula(){
   const panel = document.getElementById('formulaPanel');
+  if(panel) panel.classList.toggle('expanded');
+}
+
+function toggleFormulaEf(){
+  const panel = document.getElementById('formulaPanelEf');
   if(panel) panel.classList.toggle('expanded');
 }
 
@@ -6045,37 +6078,81 @@ function v2RenderProyecciones(){
  * ═══════════════════════════════════════════════════════════════════
  * MÓDULO 3 · EFICIENCIA PRODUCTIVA (termómetro)
  * ═══════════════════════════════════════════════════════════════════
- * IEP = % Avance real / % MO real consumida
+ * IEP = SPI Contractual × CPI MO Acumulado
+ * Variante del CSI (Cost-Schedule Index) del PMBOK
+ *   ≥ 1.20 = EFICIENTE (adelantado + bajo presupuesto)
+ *   0.85-1.19 = EN BALANCE
+ *   < 0.85 = CRÍTICO
  */
 function v2RenderEficiencia(){
   const card = document.getElementById('eficienciaCard');
   if(!card) return;
   const cw = DATA.currentWeek;
-  const avance = v2GetKpi(cw, 'avance');
-  const moReal = v2GetKpi(cw, 'moConsumida');
-  const cd = v2GetKpi(cw, 'costoDirecto');
+  const spi = v2GetKpi(cw, 'spiContractual');
+  const cpi = v2GetKpi(cw, 'cpi');
 
-  if(avance == null || moReal == null || cd == null){
-    document.getElementById('efValue').textContent = '—';
+  const valueEl = document.getElementById('efValue');
+
+  if(spi == null || cpi == null){
+    valueEl.textContent = '—';
     return;
   }
 
-  const moPct = (moReal / (cd * 0.25)) * 100;
-  const iep = moPct > 0 ? avance / moPct : 0;
+  // IEP = SPI × CPI
+  const iep = spi * cpi;
 
-  document.getElementById('efValue').textContent = iep.toFixed(2);
-  const valueEl = document.getElementById('efValue');
+  valueEl.textContent = iep.toFixed(2);
   valueEl.classList.remove('ef-ok','ef-warn','ef-bad');
 
-  const u = CONFIG_V2.eficiencia;
-  if(iep >= u.umbralMedio) valueEl.classList.add('ef-ok');
-  else if(iep >= u.umbralBajo) valueEl.classList.add('ef-warn');
-  else valueEl.classList.add('ef-bad');
+  // Umbrales nuevos: ≥1.20 verde · 0.85-1.19 amarillo · <0.85 rojo
+  if(iep >= 1.20)      valueEl.classList.add('ef-ok');
+  else if(iep >= 0.85) valueEl.classList.add('ef-warn');
+  else                 valueEl.classList.add('ef-bad');
 
   // Aguja del termómetro: mapear 0.5-1.5 a 0%-100%
   const clamp = Math.min(Math.max(iep, 0.5), 1.5);
   const pct = ((clamp - 0.5) / 1.0) * 100;
   document.getElementById('efAguja').style.left = pct + '%';
+
+  // ─── Caja de fórmula: desglose detallado del cálculo ───
+  const breakdownEl = document.getElementById('efBreakdown');
+  if(breakdownEl){
+    // Lectura textual
+    let lectura, claseLectura;
+    if(iep >= 1.20)      { lectura = '✓ Eficiente — adelantado y bajo presupuesto'; claseLectura = 'contrib'; }
+    else if(iep >= 0.85) { lectura = '◐ En balance — según plan'; claseLectura = ''; }
+    else                 { lectura = '✗ Crítico — atrasado y/o sobrecostos'; claseLectura = ''; }
+
+    breakdownEl.innerHTML = `
+      <div class="ur-break-col bc-spi">
+        <div class="ur-break-label">SPI Contractual</div>
+        <div class="ur-break-metric">Avance Real / Avance Programado</div>
+        <div class="ur-break-metric">Valor: <b>${spi.toFixed(2)}</b> · ideal <b>1.00</b></div>
+        <div class="ur-break-calc">${spi >= 1 ? '✓ En cronograma' : '⚠ Atrasado'}</div>
+      </div>
+      <div class="ur-break-col bc-mo">
+        <div class="ur-break-label">CPI MO Acumulado</div>
+        <div class="ur-break-metric">MO Base (25% CD) / MO Real Acumulado</div>
+        <div class="ur-break-metric">Valor: <b>${cpi.toFixed(2)}</b> · ideal <b>≥ 1.00</b></div>
+        <div class="ur-break-calc">${cpi >= 1 ? '✓ Bajo presupuesto' : '⚠ Sobrecosto'}</div>
+      </div>
+      <div class="ur-break-col bc-avance">
+        <div class="ur-break-label">Lectura combinada</div>
+        <div class="ur-break-metric">${lectura}</div>
+        <div class="ur-break-metric">Umbrales: <b>≥1.20</b> verde · <b>0.85-1.19</b> amarillo · <b>&lt;0.85</b> rojo</div>
+        <div class="ur-break-calc"><span class="${claseLectura}">IEP = ${iep.toFixed(2)}</span></div>
+      </div>
+    `;
+  }
+
+  const totalEl = document.getElementById('efFormulaTotal');
+  if(totalEl){
+    totalEl.innerHTML = `
+      <span>Cálculo:</span>
+      <span>SPI ${spi.toFixed(2)} × CPI ${cpi.toFixed(2)} =</span>
+      <b>${iep.toFixed(2)}</b>
+    `;
+  }
 }
 
 /**
