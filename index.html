@@ -5785,11 +5785,13 @@ function v2GetKpi(weekKey, field){
   const pe = w.panelEjecutivo || {};
   const kp = w.kpis || {};
   switch(field){
-    case 'avance':        return pe.avance != null ? pe.avance : kp.avanceObra;
-    case 'cpi':           return pe.cpi != null ? pe.cpi : kp.cpi;
-    case 'spiMeta':       return pe.spiMeta != null ? pe.spiMeta : kp.spiMeta;
-    case 'moConsumida':   return pe.moConsumida != null ? pe.moConsumida : kp.moConsumida;
-    case 'costoDirecto':  return w.kpis ? w.kpis.costoDirecto : null;
+    case 'avance':         return pe.avance != null ? pe.avance : kp.avanceObra;
+    case 'cpi':            return pe.cpi != null ? pe.cpi : kp.cpi;
+    case 'spiMeta':        return pe.spiMeta != null ? pe.spiMeta : kp.spiMeta;
+    case 'spiContractual': return pe.spiContractual != null ? pe.spiContractual : kp.spiContractual;
+    case 'moConsumida':    return pe.moConsumida != null ? pe.moConsumida : kp.moConsumida;
+    case 'personal':       return pe.personal != null ? pe.personal : kp.personal;
+    case 'costoDirecto':   return w.kpis ? w.kpis.costoDirecto : null;
   }
   return null;
 }
