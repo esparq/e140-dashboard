@@ -1154,11 +1154,20 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .dropzone-btn:hover{background:var(--twitter-blue-dk);}
 
 /* Semana input */
-.sem-input-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0;}
+.sem-input-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0 0;}
 .sem-input{display:flex;flex-direction:column;gap:6px;}
 .sem-input label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:600;}
 .sem-input input{padding:8px 12px;border:1px solid var(--border-mid);border-radius:5px;font-family:inherit;font-size:14px;font-weight:600;color:var(--text);}
 .sem-input input:focus{outline:none;border-color:var(--twitter-blue);}
+
+/* Chip que muestra el rango de la semana detectada (lunes a domingo) */
+.sem-rango-chip{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 16px;padding:8px 14px;background:linear-gradient(90deg,#E6F2FB 0%,#F4F9FD 100%);border:1px solid #BFE0F5;border-left:3px solid var(--twitter-blue);border-radius:6px;font-size:12px;color:var(--text);}
+.sem-rango-chip .src-icon{font-size:14px;}
+.sem-rango-chip .src-label{color:var(--twitter-blue);font-weight:600;}
+.sem-rango-chip .src-label b{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.5px;}
+.sem-rango-chip .src-sep{color:var(--border-mid);}
+.sem-rango-chip .src-rango{color:var(--text);font-size:11.5px;}
+.sem-rango-chip .src-rango b{color:var(--twitter-blue);font-weight:700;}
 
 /* File list */
 .file-list{margin-top:18px;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
@@ -1361,11 +1370,11 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           </div>
           <div class="sem-input-row">
             <div class="sem-input">
-              <label>Código semana (ej. S37)</label>
+              <label>Semana del proyecto <span style="color:var(--twitter-blue);font-weight:700;">(auto)</span></label>
               <input type="text" class="sem-cod-input" data-area="operaciones" placeholder="S37" autocomplete="off">
             </div>
             <div class="sem-input">
-              <label>Fecha de corte</label>
+              <label>Fecha de corte (cualquier día)</label>
               <input type="date" class="sem-fecha-input" data-area="operaciones">
             </div>
           </div>
@@ -1386,11 +1395,11 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           </div>
           <div class="sem-input-row">
             <div class="sem-input">
-              <label>Código semana (ej. S37)</label>
+              <label>Semana del proyecto <span style="color:var(--twitter-blue);font-weight:700;">(auto)</span></label>
               <input type="text" class="sem-cod-input" data-area="logistica" placeholder="S37" autocomplete="off">
             </div>
             <div class="sem-input">
-              <label>Fecha de corte</label>
+              <label>Fecha de corte (cualquier día)</label>
               <input type="date" class="sem-fecha-input" data-area="logistica">
             </div>
           </div>
@@ -1411,11 +1420,11 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           </div>
           <div class="sem-input-row">
             <div class="sem-input">
-              <label>Código de visita / semana (ej. S38)</label>
+              <label>Semana del proyecto <span style="color:var(--twitter-blue);font-weight:700;">(auto)</span></label>
               <input type="text" class="sem-cod-input" data-area="arquitectura" placeholder="S38" autocomplete="off">
             </div>
             <div class="sem-input">
-              <label>Fecha de visita</label>
+              <label>Fecha de visita (cualquier día)</label>
               <input type="date" class="sem-fecha-input" data-area="arquitectura">
             </div>
           </div>
@@ -1436,11 +1445,11 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           </div>
           <div class="sem-input-row">
             <div class="sem-input">
-              <label>Código de visita / semana (ej. S38)</label>
+              <label>Semana del proyecto <span style="color:var(--twitter-blue);font-weight:700;">(auto)</span></label>
               <input type="text" class="sem-cod-input" data-area="ssoma" placeholder="S38" autocomplete="off">
             </div>
             <div class="sem-input">
-              <label>Fecha de visita</label>
+              <label>Fecha de visita (cualquier día)</label>
               <input type="date" class="sem-fecha-input" data-area="ssoma">
             </div>
           </div>
@@ -1461,11 +1470,11 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           </div>
           <div class="sem-input-row">
             <div class="sem-input">
-              <label>Código de visita / semana (ej. S38)</label>
+              <label>Semana del proyecto <span style="color:var(--twitter-blue);font-weight:700;">(auto)</span></label>
               <input type="text" class="sem-cod-input" data-area="calidad" placeholder="S38" autocomplete="off">
             </div>
             <div class="sem-input">
-              <label>Fecha de visita</label>
+              <label>Fecha de visita (cualquier día)</label>
               <input type="date" class="sem-fecha-input" data-area="calidad">
             </div>
           </div>
@@ -6399,6 +6408,121 @@ let cargaState = {
 };
 
 // ────────────────────────────────────────
+// CALENDARIO DE SEMANAS DEL PROYECTO E140
+// S01 = lunes 11/08/2025 (inicio de obra)
+// Cada semana corre de LUNES a DOMINGO.
+// S36 = lunes 13/04/2026 a domingo 19/04/2026.
+// ────────────────────────────────────────
+const PROYECTO_INICIO = new Date(2025, 7, 11); // mes 7 = agosto (0-indexed). Lunes 11/08/2025 = S01
+
+// Convierte una fecha (Date o string YYYY-MM-DD) al código de semana del proyecto.
+// Devuelve { codigo, semNum, lunes, domingo, cierreSabado, rangoFmt } o null si está fuera de rango.
+function fechaASemana(fechaInput){
+  let f;
+  if(fechaInput instanceof Date){
+    f = new Date(fechaInput.getFullYear(), fechaInput.getMonth(), fechaInput.getDate());
+  } else if(typeof fechaInput === 'string'){
+    // Soporta YYYY-MM-DD (input type=date)
+    const m = fechaInput.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(!m) return null;
+    f = new Date(parseInt(m[1],10), parseInt(m[2],10)-1, parseInt(m[3],10));
+  } else {
+    return null;
+  }
+  if(isNaN(f.getTime())) return null;
+
+  // Días desde el inicio del proyecto (en días enteros, sin DST issues)
+  const msPerDay = 24*60*60*1000;
+  const diasDesdeInicio = Math.floor((f - PROYECTO_INICIO) / msPerDay);
+  if(diasDesdeInicio < 0) return null; // fecha previa al inicio de obra
+
+  // Número de semana (S01 = días 0-6, S02 = días 7-13, etc.)
+  const semNum = Math.floor(diasDesdeInicio / 7) + 1;
+  if(semNum > 200) return null; // sanity check
+
+  // Lunes y domingo de esa semana
+  const lunes = new Date(PROYECTO_INICIO.getTime() + (semNum - 1) * 7 * msPerDay);
+  const domingo = new Date(lunes.getTime() + 6 * msPerDay);
+  const sabado = new Date(lunes.getTime() + 5 * msPerDay);
+
+  return {
+    codigo:        'S' + (semNum < 10 ? '0' + semNum : semNum),
+    semNum:        semNum,
+    lunes:         lunes,
+    domingo:       domingo,
+    cierreSabado:  sabado.toISOString().split('T')[0], // formato YYYY-MM-DD
+    rangoFmt:      fmtFechaCorta(lunes) + ' al ' + fmtFechaCorta(domingo),
+    lunesFmt:      fmtFechaCorta(lunes),
+    domingoFmt:    fmtFechaCorta(domingo),
+  };
+}
+
+// Convierte un código de semana (ej. "S37") a su rango de fechas.
+function semanaAFecha(codigo){
+  if(!codigo) return null;
+  const m = String(codigo).trim().toUpperCase().match(/^S(\d{1,3})$/);
+  if(!m) return null;
+  const semNum = parseInt(m[1], 10);
+  if(semNum < 1 || semNum > 200) return null;
+
+  const msPerDay = 24*60*60*1000;
+  const lunes = new Date(PROYECTO_INICIO.getTime() + (semNum - 1) * 7 * msPerDay);
+  const domingo = new Date(lunes.getTime() + 6 * msPerDay);
+  const sabado = new Date(lunes.getTime() + 5 * msPerDay);
+
+  return {
+    codigo:        'S' + (semNum < 10 ? '0' + semNum : semNum),
+    semNum:        semNum,
+    lunes:         lunes,
+    domingo:       domingo,
+    cierreSabado:  sabado.toISOString().split('T')[0],
+    rangoFmt:      fmtFechaCorta(lunes) + ' al ' + fmtFechaCorta(domingo),
+    lunesFmt:      fmtFechaCorta(lunes),
+    domingoFmt:    fmtFechaCorta(domingo),
+  };
+}
+
+// Helper de formato dd/mm/aa (corto, sin año si es del año actual)
+function fmtFechaCorta(d){
+  if(!(d instanceof Date) || isNaN(d.getTime())) return '';
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yy = String(d.getFullYear()).slice(-2);
+  return `${dd}/${mm}/${yy}`;
+}
+
+// Pinta o actualiza el chip que muestra el rango de la semana detectada
+// debajo de los inputs de un área dada.
+function mostrarRangoSemana(area, info){
+  if(!info || !area) return;
+  const pane = document.getElementById('pane-' + area);
+  if(!pane) return;
+  let chip = pane.querySelector('.sem-rango-chip');
+  if(!chip){
+    // Insertar después del bloque sem-input-row
+    const row = pane.querySelector('.sem-input-row');
+    if(!row) return;
+    chip = document.createElement('div');
+    chip.className = 'sem-rango-chip';
+    row.parentNode.insertBefore(chip, row.nextSibling);
+  }
+  const dowLunes = info.lunes.toLocaleDateString('es-PE', { weekday: 'long' });
+  const dowDom = info.domingo.toLocaleDateString('es-PE', { weekday: 'long' });
+  chip.innerHTML = `
+    <span class="src-icon">📅</span>
+    <span class="src-label">Semana <b>${info.codigo}</b> del proyecto</span>
+    <span class="src-sep">·</span>
+    <span class="src-rango">${capitalize(dowLunes)} <b>${info.lunesFmt}</b> al ${capitalize(dowDom)} <b>${info.domingoFmt}</b></span>
+  `;
+}
+
+function capitalize(s){
+  if(!s) return '';
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+
+// ────────────────────────────────────────
 // ABRIR / CERRAR MODAL — SISTEMA POR ÁREAS
 // ────────────────────────────────────────
 function openCargaModal(){
@@ -6410,23 +6534,25 @@ function openCargaModal(){
   if(!modal){ alert('Error: modal no encontrado en el DOM'); return; }
   modal.classList.add('show');
 
-  // Prefill: detectar próxima semana basada en la actual
+  // ─── PREFILL INTELIGENTE: detectar próxima semana basada en hoy ───
+  // El proyecto E140 inicia el lunes 11/08/2025 → S01.
+  // Cada semana corre de LUNES a DOMINGO.
+  // Si hoy es viernes 24/04/2026, estamos en S37 (20/04 - 26/04).
   let nextSem = 'S37';
   let nextFecha = '';
   try {
-    const weekSelect = document.getElementById('weekSelect');
-    const currentSem = weekSelect && weekSelect.value ? weekSelect.value : 'S36';
-    const match = currentSem.match(/\d+/);
-    const numAct = match ? parseInt(match[0], 10) : 36;
-    nextSem = 'S' + (numAct + 1);
-  } catch(e){}
-  try {
-    const today = new Date();
-    const dow = today.getDay();
-    const daysToSat = (6 - dow + 7) % 7 || 7;
-    const nextSat = new Date(today.getTime() + daysToSat*24*60*60*1000);
-    nextFecha = nextSat.toISOString().split('T')[0];
-  } catch(e){}
+    const hoyInfo = fechaASemana(new Date());
+    if(hoyInfo){
+      nextSem = hoyInfo.codigo;
+      nextFecha = hoyInfo.cierreSabado; // sábado de la semana detectada
+    } else {
+      // Fallback: día de hoy si está fuera del calendario de obra
+      const today = new Date();
+      nextFecha = today.toISOString().split('T')[0];
+    }
+  } catch(e){
+    console.warn('[E140] Error detectando semana actual:', e);
+  }
 
   // Aplicar prefill a TODAS las áreas
   AREAS_CARGADOR.forEach(area => {
@@ -6437,9 +6563,41 @@ function openCargaModal(){
     cargaState.porArea[area].semana = nextSem;
     cargaState.porArea[area].fecha = nextFecha;
 
-    // Listener para sincronizar inputs con estado
-    if(codInput) codInput.oninput = e => { cargaState.porArea[area].semana = e.target.value.trim().toUpperCase(); };
-    if(fechaInput) fechaInput.oninput = e => { cargaState.porArea[area].fecha = e.target.value; };
+    // ─── AUTO-CÁLCULO BIDIRECCIONAL ───
+    // Cuando el usuario CAMBIA LA FECHA → auto-detecta y muestra la semana
+    if(fechaInput){
+      fechaInput.oninput = e => {
+        const f = e.target.value;
+        cargaState.porArea[area].fecha = f;
+        if(f){
+          const info = fechaASemana(f);
+          if(info && codInput){
+            codInput.value = info.codigo;
+            cargaState.porArea[area].semana = info.codigo;
+            mostrarRangoSemana(area, info);
+          }
+        }
+      };
+    }
+    // Cuando el usuario CAMBIA EL CÓDIGO DE SEMANA → auto-completa la fecha (sábado)
+    if(codInput){
+      codInput.oninput = e => {
+        const cod = e.target.value.trim().toUpperCase();
+        cargaState.porArea[area].semana = cod;
+        const info = semanaAFecha(cod);
+        if(info && fechaInput){
+          fechaInput.value = info.cierreSabado;
+          cargaState.porArea[area].fecha = info.cierreSabado;
+          mostrarRangoSemana(area, info);
+        }
+      };
+    }
+
+    // Render inicial del rango de la semana detectada
+    if(nextSem){
+      const info = semanaAFecha(nextSem);
+      if(info) mostrarRangoSemana(area, info);
+    }
   });
 
   // Setup dropzones (uno por área)
