@@ -6252,16 +6252,18 @@ function hashSimple(str){
 // Editar este objeto para agregar/quitar usuarios.
 // Los hashes se generan con hashSimple('password').
 //
-// USUARIOS POR DEFECTO (cambiar las contraseñas en producción):
-//   admin    / admin140    → admin (todos los permisos)
-//   residente / e140obra   → admin (carga data)
-//   cliente  / espinosa    → viewer (solo lectura)
-//   gerencia / esparq2026  → viewer (solo lectura)
+// USUARIOS CONFIGURADOS:
+//   adm        / innovacion  → admin  (acceso completo)
+//   residente  / esparq2026  → admin  (carga data)
+//   oficina    / esparq2026  → admin  (carga data)
+//   staff      / e140obra    → viewer (solo lectura)
+//   gerencia   / esparq2026  → viewer (solo lectura)
 const USERS = [
-  { usuario: 'admin',     hash: hashSimple('admin140'),    rol: 'admin',  nombre: 'Administrador'   },
-  { usuario: 'residente', hash: hashSimple('e140obra'),    rol: 'admin',  nombre: 'José Rojas O.'   },
-  { usuario: 'cliente',   hash: hashSimple('espinosa'),    rol: 'viewer', nombre: 'Espinosa Arq.'   },
-  { usuario: 'gerencia',  hash: hashSimple('esparq2026'),  rol: 'viewer', nombre: 'Gerencia ESPARQ' },
+  { usuario: 'adm',       hash: hashSimple('innovacion'), rol: 'admin',  nombre: 'Administrador'   },
+  { usuario: 'residente', hash: hashSimple('esparq2026'), rol: 'admin',  nombre: 'Residente · José Rojas O.' },
+  { usuario: 'oficina',   hash: hashSimple('esparq2026'), rol: 'admin',  nombre: 'Oficina Técnica' },
+  { usuario: 'staff',     hash: hashSimple('e140obra'),   rol: 'viewer', nombre: 'Staff de Obra'   },
+  { usuario: 'gerencia',  hash: hashSimple('esparq2026'), rol: 'viewer', nombre: 'Gerencia ESPARQ' },
 ];
 
 const SESSION_KEY = 'e140_session_v1';
