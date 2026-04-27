@@ -362,15 +362,23 @@ async function parsear(file, info){
 function getCell(sheet, ref){ const cell = sheet[ref]; return cell ? cell.v : null; }
 
 const EXTRACTORES = {
-  histograma: (sheet) => ({
-    avance_obra_pct: getCell(sheet, 'B7'), cpi_mo: getCell(sheet, 'C7'),
-    spi_meta: getCell(sheet, 'D7'), spi_contractual: getCell(sheet, 'E7'),
-    mo_consumida: getCell(sheet, 'F7'), personal_obra: getCell(sheet, 'G7'),
-    costo_directo: getCell(sheet, 'C29'), pct_mo: getCell(sheet, 'C30'),
-    mo_real_acum: getCell(sheet, 'C32'),
-    sectores_prog_sem: getCell(sheet, 'C37'), sectores_ejec_sem: getCell(sheet, 'C38'),
-    sectores_prog_acum: getCell(sheet, 'C39'), sectores_ejec_acum: getCell(sheet, 'C40'),
-  }),
+  histograma: (sheet) => {
+    const d = {};
+    for(let r = 3; r <= 40; r++){
+      const k = getCell(sheet, 'B'+r); const v = getCell(sheet, 'C'+r);
+      if(k && typeof k === 'string'){
+        const kl = k.toLowerCase().trim();
+        if(['personal_obra','meta_dimension_ger','meta_dimension_campo','hh_prestamo_total',
+            'avance_obra_pct','cpi_mo','spi_meta','spi_contractual','mo_consumida',
+            'costo_directo','pct_mo','mo_real_acum',
+            'sectores_prog_sem','sectores_ejec_sem','sectores_prog_acum','sectores_ejec_acum',
+            'semana','promedio_4sem'].includes(kl)){
+          d[kl] = v;
+        }
+      }
+    }
+    return d;
+  },
   casco_sot: (sheet) => extraerAvance(sheet),
   casco_sup: (sheet) => extraerAvance(sheet),
   albanileria: (sheet) => extraerAvance(sheet),
