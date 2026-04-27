@@ -2672,6 +2672,8 @@ function mergeJsonIntoWeek(week, json){
   if(h){
     if(!week.kpis) week.kpis = {};
     if(h.personal_obra != null)    week.kpis.personal = Math.round(h.personal_obra);
+    // Meta de personal (gerencia) - dimensionamiento aprobado
+    if(h.meta_dimension_ger != null) week.kpis.metaPersonalGer = Math.round(h.meta_dimension_ger);
 
     // Personal dotación
     if(week.personal){
@@ -3788,6 +3790,7 @@ function renderRKpis(d, dPrev){
     moConsumida:    getKpi(DATA.currentWeek, 'moConsumida'),
     personal:       getKpi(DATA.currentWeek, 'personal'),
     costoDirecto:   getKpi(DATA.currentWeek, 'costoDirecto'),
+    metaPersonalGer: DATA.weeks[DATA.currentWeek]?.kpis?.metaPersonalGer || null,
   };
   const prev = dPrev ? {
     avance:         getKpi(getPrevWeek(DATA.currentWeek), 'avance'),
@@ -3829,24 +3832,30 @@ function renderRKpis(d, dPrev){
       // Contexto para MO (necesita costo directo) y avance (necesita programado)
       const ctx = {};
       if(kpi.k === 'moConsumida') ctx.costoDirecto = cur.costoDirecto;
-      // Para MO consumida: valor "en seguimiento" según indicación del usuario
-      // si no hay costo directo disponible
-      metaEval = evaluarMetaKPI(kpi.raw, regla, ctx);
+      // Para personal: usar meta dinámica del histograma si está disponible
+      let reglaActual = regla;
+      if(kpi.k === 'personal' && cur.metaPersonalGer != null && cur.metaPersonalGer > 0){
+        reglaActual = {...regla, meta: cur.metaPersonalGer, texto: `≤ ${cur.metaPersonalGer} pax (dimensionado)`};
+      }
+      metaEval = evaluarMetaKPI(kpi.raw, reglaActual, ctx);
       // Override especial: si es MO y salió "sindato" por falta de CD → en seguimiento
       if(kpi.k === 'moConsumida' && metaEval.estado === 'sindato' && kpi.raw != null){
         metaEval = {estado:'seguimiento', icono:'⚠', label:'En seguimiento'};
       }
+      // Actualizar la regla para que el footer muestre el texto dinámico
+      kpi._reglaShow = reglaActual;
     }
 
     const div = document.createElement('div');
     div.className = 'r-kpi '+kpi.cls;
+    const reglaShow = kpi._reglaShow || regla;
     div.innerHTML = `
       <div class="r-kpi-label">${kpi.label}</div>
       <div class="r-kpi-value">${kpi.value}</div>
       <div class="r-kpi-delta ${delta.cls}"><span class="arrow">${delta.arrow}</span>${delta.txt} <span class="vs">vs sem ant.</span></div>
       <div class="r-kpi-spark"><canvas id="rSpark_${i}"></canvas></div>
       <div class="kpi-meta-footer">
-        <span class="kpi-meta-target" title="Meta: ${regla ? regla.texto : '—'}">▲ Meta: <b>${regla ? regla.texto : '—'}</b></span>
+        <span class="kpi-meta-target" title="Meta: ${reglaShow ? reglaShow.texto : '—'}">▲ Meta: <b>${reglaShow ? reglaShow.texto : '—'}</b></span>
         <span class="kpi-meta-status kpi-meta-${metaEval.estado}">${metaEval.icono} ${metaEval.label}</span>
       </div>`;
     cont.appendChild(div);
