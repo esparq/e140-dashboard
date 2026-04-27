@@ -5165,8 +5165,9 @@ const EXTRACTORES = {
       if(key && typeof key === 'string'){
         const k = key.toLowerCase().trim();
         if(k === 'personal_obra' && (panel.personal_obra == null || isNaN(panel.personal_obra))) panel.personal_obra = val;
-        if(k === 'meta_dimension_ger' && !inputs.personal) inputs.meta_dimension_ger = val;
-        if(k === 'hh_prestamo_total') inputs.hh_prestamo_total = val;
+        if(k === 'meta_dimension_ger')   inputs.meta_dimension_ger = val;
+        if(k === 'meta_dimension_campo') inputs.meta_dimension_campo = val;
+        if(k === 'hh_prestamo_total')    inputs.hh_prestamo_total = val;
         if(k === 'avance_obra_pct' && (panel.avance_obra_pct == null || isNaN(panel.avance_obra_pct))) panel.avance_obra_pct = val;
         if(k === 'cpi_mo' && (panel.cpi_mo == null || isNaN(panel.cpi_mo))) panel.cpi_mo = val;
         if(k === 'spi_meta' && (panel.spi_meta == null || isNaN(panel.spi_meta))) panel.spi_meta = val;
@@ -5236,6 +5237,9 @@ const EXTRACTORES = {
       costo_directo:      inputs.costo_directo,
       pct_mo:             inputs.pct_mo,
       mo_real_acum:       inputs.mo_real_acum,
+      meta_dimension_ger: inputs.meta_dimension_ger,
+      meta_dimension_campo: inputs.meta_dimension_campo,
+      hh_prestamo_total:  inputs.hh_prestamo_total,
       sectores_prog_sem:  inputs.sectores_prog_sem,
       sectores_ejec_sem:  inputs.sectores_ejec_sem,
       sectores_prog_acum: inputs.sectores_prog_acum,
