@@ -2667,41 +2667,16 @@ function mergeJsonIntoWeek(week, json){
     if(!isNaN(n)) week.semNum = n;
   }
 
-  // ─── 01 Histograma ───
+  // ─── 01 Histograma (personal y dotación) ───
   const h = json.archivos.histograma;
   if(h){
     if(!week.kpis) week.kpis = {};
     if(h.personal_obra != null)    week.kpis.personal = Math.round(h.personal_obra);
-    if(h.mo_consumida != null)     week.kpis.moConsumida = h.mo_consumida;
-    if(h.cpi_mo != null)           week.kpis.cpi = h.cpi_mo;
-    if(h.spi_meta != null)         week.kpis.spiMeta = h.spi_meta;
-    if(h.spi_contractual != null && h.spi_contractual !== '—') week.kpis.spiContractual = h.spi_contractual;
-    if(h.avance_obra_pct != null)  week.kpis.avanceObra = Math.round(h.avance_obra_pct * 1000)/10;  // 51.8
-    if(h.costo_directo != null)    week.kpis.costoDirecto = h.costo_directo;
-    if(h.mo_real_acum != null)     week.kpis.moReal = h.mo_real_acum;
 
     // Personal dotación
     if(week.personal){
       if(h.personal_obra != null) week.personal.dotacion = Math.round(h.personal_obra);
     }
-
-    // Panel ejecutivo: los 6 KPIs grandes
-    week.panelEjecutivo = {
-      avance:          h.avance_obra_pct != null ? Math.round(h.avance_obra_pct * 1000)/10 : null,
-      cpi:             h.cpi_mo,
-      spiMeta:         h.spi_meta,
-      spiContractual:  h.spi_contractual,
-      moConsumida:     h.mo_consumida,
-      personal:        h.personal_obra,
-    };
-
-    // Sectores consolidados
-    week.sectores = {
-      progSem:  h.sectores_prog_sem,
-      ejecSem:  h.sectores_ejec_sem,
-      progAcum: h.sectores_prog_acum,
-      ejecAcum: h.sectores_ejec_acum,
-    };
   }
 
   // ─── 02 Casco SOT, SUP, Albañilería: reconstruir partidas ───
@@ -2729,6 +2704,48 @@ function mergeJsonIntoWeek(week, json){
     if(!week.avanceFisico) week.avanceFisico = {};
     week.avanceFisico.partidas = partidas;
   }
+
+  // ─── PANEL EJECUTIVO: KPIs principales del cronograma general ───
+  // ⚠ TEMPORALMENTE HARDCODED hasta que el archivo 05 Cronograma exponga estos valores
+  // Estos vienen del CRONOGRAMA GENERAL del proyecto (resumen ejecutivo de obra)
+  const AVANCE_REAL_PROYECTO       = 17.85;  // % avance real (cronograma general)
+  const AVANCE_PROGRAMADO_PROYECTO = 17.15;  // % avance programado (cronograma general)
+  
+  const avanceObraFinal = AVANCE_REAL_PROYECTO;
+  // SPI Contractual = Avance Real / Avance Programado (sobre cronograma general)
+  const spiContractualFinal = AVANCE_PROGRAMADO_PROYECTO > 0 
+    ? (AVANCE_REAL_PROYECTO / AVANCE_PROGRAMADO_PROYECTO) 
+    : null;
+  
+  // SPI Meta = promedio ponderado de spi_semanal de los frentes activos
+  const sot = json.archivos.casco_sot;
+  const sup = json.archivos.casco_sup;
+  const alb = json.archivos.albanileria;
+  const PESO_SOT = 0.50;
+  const PESO_SUP = 0.30;
+  const PESO_ALB = 0.20;
+  
+  let spiMeta = 0, sumPesosSpi = 0;
+  if(sot && sot.spi_semanal != null && Number(sot.spi_semanal) > 0){
+    spiMeta += Number(sot.spi_semanal) * PESO_SOT;
+    sumPesosSpi += PESO_SOT;
+  }
+  if(sup && sup.spi_semanal != null && Number(sup.spi_semanal) > 0){
+    spiMeta += Number(sup.spi_semanal) * PESO_SUP;
+    sumPesosSpi += PESO_SUP;
+  }
+  if(alb && alb.spi_semanal != null && Number(alb.spi_semanal) > 0){
+    spiMeta += Number(alb.spi_semanal) * PESO_ALB;
+    sumPesosSpi += PESO_ALB;
+  }
+  const spiMetaFinal = sumPesosSpi > 0 ? spiMeta / sumPesosSpi : null;
+
+  // Sectores consolidados (suma de los 3 frentes)
+  const sectoresProgSem  = (sot?.sectores_prog_sem||0) + (sup?.sectores_prog_sem||0) + (alb?.sectores_prog_sem||0);
+  const sectoresEjecSem  = (sot?.sectores_ejec_sem||0) + (sup?.sectores_ejec_sem||0) + (alb?.sectores_ejec_sem||0);
+  const sectoresProgAcum = (sot?.sectores_prog_acum||0) + (sup?.sectores_prog_acum||0) + (alb?.sectores_prog_acum||0);
+  const sectoresEjecAcum = (sot?.sectores_ejec_acum||0) + (sup?.sectores_ejec_acum||0) + (alb?.sectores_ejec_acum||0);
+  week.sectores = {progSem:sectoresProgSem, ejecSem:sectoresEjecSem, progAcum:sectoresProgAcum, ejecAcum:sectoresEjecAcum};
 
   // Frentes resumidos
   const resumenFrentes = [];
@@ -2857,6 +2874,43 @@ function mergeJsonIntoWeek(week, json){
       week.adicionales.top = sorted;
     }
   }
+
+  // ─── PANEL EJECUTIVO CONSOLIDADO ───
+  // Después de procesar todos los archivos, calcular los 6 KPIs principales
+  if(!week.kpis) week.kpis = {};
+  
+  // Costo Directo (de Adquisiciones)
+  const cdProyecto = week.kpis.costoDirecto || 26445788;
+  
+  // MO Real Acumulada (de MO)
+  const moRealAcum = week.mo?.acumulado || null;
+  
+  // MO Proyectada = 25% × CD × avance% (en decimal)
+  const avanceDec = avanceObraFinal != null ? (avanceObraFinal/100) : null;
+  const moProyectada = (avanceDec != null && cdProyecto) ? (cdProyecto * 0.25 * avanceDec) : null;
+  
+  // CPI = MO Proyectada / MO Real
+  const cpiCalc = (moProyectada != null && moRealAcum && moRealAcum > 0) ? (moProyectada / moRealAcum) : null;
+  
+  // Avance final (con redondeo a 1 decimal)
+  const avanceFinal = avanceObraFinal != null ? Math.round(avanceObraFinal*10)/10 : null;
+  
+  // Asignar al panel ejecutivo
+  week.panelEjecutivo = {
+    avance:          avanceFinal,
+    cpi:             cpiCalc != null ? Math.round(cpiCalc*100)/100 : null,
+    spiMeta:         spiMetaFinal != null ? Math.round(spiMetaFinal*100)/100 : null,
+    spiContractual:  spiContractualFinal != null ? Math.round(spiContractualFinal*100)/100 : null,
+    moConsumida:     moRealAcum,
+    personal:        week.kpis.personal,
+  };
+  
+  // Mantener compat con sistema legacy (fallback en getKpi)
+  if(avanceFinal != null) week.kpis.avanceObra = avanceFinal;
+  if(cpiCalc != null)     week.kpis.cpi = Math.round(cpiCalc*100)/100;
+  if(spiMetaFinal != null) week.kpis.spiMeta = Math.round(spiMetaFinal*100)/100;
+  if(spiContractualFinal != null) week.kpis.spiContractual = Math.round(spiContractualFinal*100)/100;
+  if(moRealAcum != null)  week.kpis.moConsumida = moRealAcum;
 }
 
 
