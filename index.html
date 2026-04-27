@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>E140 · ESPARQ 140 — Dashboard Vivo v1 (Google Sheets)</title>
+<title>E140 · ESPARQ 140 — Dashboard Semanal</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -1064,8 +1064,8 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
      ═══════════════════════════════════════════ -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-badge">E140</div>
-  <div class="loading-title">ESPARQ 140 · DASHBOARD VIVO</div>
-  <div class="loading-sub">Sincronizando con Google Sheets…</div>
+  <div class="loading-title">ESPARQ 140 · DASHBOARD SEMANAL</div>
+  <div class="loading-sub">Cargando data semanal…</div>
   <div class="loading-spin"></div>
   <div class="loading-progress" id="loadingProgress">Iniciando…</div>
 </div>
@@ -1076,13 +1076,12 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 <div class="modal-overlay" id="modalError">
   <div class="modal">
     <div class="modal-icon">📡</div>
-    <div class="modal-title">NO SE PUDO CONECTAR AL GOOGLE SHEET</div>
+    <div class="modal-title">NO SE PUDO CARGAR LA DATA SEMANAL</div>
     <div class="modal-text" id="modalErrorText">La carga inicial falló. Por favor verifica lo siguiente:</div>
     <ul class="modal-list">
       <li data-num="1">Tienes conexión a <b>internet</b>.</li>
-      <li data-num="2">El Google Sheet sigue publicado en la web (<b>Archivo › Compartir › Publicar en la web</b>).</li>
-      <li data-num="3">Las URLs dentro de la constante <code style="background:var(--alice-blue);padding:1px 4px;border-radius:3px;font-family:'DM Mono',monospace;font-size:11px">SHEET_URLS</code> del HTML son correctas.</li>
-      <li data-num="4">La hoja <code style="background:var(--alice-blue);padding:1px 4px;border-radius:3px;font-family:'DM Mono',monospace;font-size:11px">SEMANAS</code> existe y tiene al menos una fila.</li>
+      <li data-num="2">El archivo <code style="background:var(--alice-blue);padding:1px 4px;border-radius:3px;font-family:'DM Mono',monospace;font-size:11px">data/data-sXX.json</code> existe en el repo.</li>
+      <li data-num="3">Si no hay JSON publicado todavía, sube los Excel desde el cargador (<b>Cargar Semana</b>).</li>
     </ul>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="useDemoData()">Usar datos demo</button>
@@ -1265,7 +1264,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
       <div class="sb-badge">E140</div>
       <div class="sb-brand-info">
         <h2>ESPARQ 140</h2>
-        <p>Fase 2 · Dashboard Vivo</p>
+        <p>Fase 2 · Dashboard Semanal</p>
       </div>
     </div>
 
@@ -2093,45 +2092,30 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
         <span class="sync-dot" id="syncDot"></span>
         <span id="syncState">Sin sincronizar aún</span>
       </div>
-      <div id="syncDetail">Dashboard Vivo · Google Sheets · v1</div>
+      <div id="syncDetail">Dashboard Semanal · JSON · v2</div>
     </div>
   </div>
 </div>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════
-   CONFIGURACIÓN DE URLs DE GOOGLE SHEETS
+   CONFIGURACIÓN DE FUENTES DE DATOS
    ───────────────────────────────────────────────────────────────────
-   Cómo obtener estas URLs:
-   1) Abre el Google Sheet.
-   2) Archivo › Compartir › Publicar en la web.
-   3) En la pestaña "Enlace", selecciona cada hoja individualmente y
-      formato "Valores separados por coma (.csv)".
-   4) Click en "Publicar" y copia la URL generada.
-   5) Pega cada URL en el slot correspondiente abajo.
-
-   ⚠ IMPORTANTE: Debes publicar cada hoja por separado (no todo el
-   documento). Cada URL tiene un "gid" único por hoja.
-
-   Para empezar SIN Sheet, deja las URLs en "" y el dashboard cargará
-   con DATOS DEMO (Sem 35 + Sem 36). Útil para pruebas.
+   El dashboard se alimenta de archivos JSON publicados en /data/
+   (data/data-s36.json, data-s37.json, etc.)
+   
+   Para generar un nuevo JSON: usa el cargador (cargar.html) con los
+   11 Excel del cierre semanal y publica vía GitHub.
    ═══════════════════════════════════════════════════════════════════ */
 
+// Configuración legacy mantenida por compatibilidad de código (sin URLs)
 const SHEET_URLS = {
-  CONFIG:           "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7YDTfjIh1T1ln2QLpuwRmT3UCI1gf5iPXs0BTvyjNARgKfhsxz3lROirji96tVbprfvj70DxbZlXE/pub?gid=984154123&single=true&output=csv",
-  SEMANAS:          "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7YDTfjIh1T1ln2QLpuwRmT3UCI1gf5iPXs0BTvyjNARgKfhsxz3lROirji96tVbprfvj70DxbZlXE/pub?gid=303305950&single=true&output=csv",
-  KPIS:             "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7YDTfjIh1T1ln2QLpuwRmT3UCI1gf5iPXs0BTvyjNARgKfhsxz3lROirji96tVbprfvj70DxbZlXE/pub?gid=791942812&single=true&output=csv",
-  AVANCE_FISICO:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7YDTfjIh1T1ln2QLpuwRmT3UCI1gf5iPXs0BTvyjNARgKfhsxz3lROirji96tVbprfvj70DxbZlXE/pub?gid=560203088&single=true&output=csv",
-  FRENTES:          "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7YDTfjIh1T1ln2QLpuwRmT3UCI1gf5iPXs0BTvyjNARgKfhsxz3lROirji96tVbprfvj70DxbZlXE/pub?gid=1953077962&single=true&output=csv",
-  PERSONAL:         "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7YDTfjIh1T1ln2QLpuwRmT3UCI1gf5iPXs0BTvyjNARgKfhsxz3lROirji96tVbprfvj70DxbZlXE/pub?gid=2071414154&single=true&output=csv",
-  MO:               "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7YDTfjIh1T1ln2QLpuwRmT3UCI1gf5iPXs0BTvyjNARgKfhsxz3lROirji96tVbprfvj70DxbZlXE/pub?gid=1631082635&single=true&output=csv",
-  ADQUISICIONES:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7YDTfjIh1T1ln2QLpuwRmT3UCI1gf5iPXs0BTvyjNARgKfhsxz3lROirji96tVbprfvj70DxbZlXE/pub?gid=667524752&single=true&output=csv",
-  ADICIONALES:      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7YDTfjIh1T1ln2QLpuwRmT3UCI1gf5iPXs0BTvyjNARgKfhsxz3lROirji96tVbprfvj70DxbZlXE/pub?gid=1824496965&single=true&output=csv",
-  RESUMEN_BULLETS:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7YDTfjIh1T1ln2QLpuwRmT3UCI1gf5iPXs0BTvyjNARgKfhsxz3lROirji96tVbprfvj70DxbZlXE/pub?gid=861380124&single=true&output=csv",
-  FOTOS:            "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7YDTfjIh1T1ln2QLpuwRmT3UCI1gf5iPXs0BTvyjNARgKfhsxz3lROirji96tVbprfvj70DxbZlXE/pub?gid=1427197055&single=true&output=csv"
+  CONFIG: "", SEMANAS: "", KPIS: "", AVANCE_FISICO: "", FRENTES: "",
+  PERSONAL: "", MO: "", ADQUISICIONES: "", ADICIONALES: "",
+  RESUMEN_BULLETS: "", FOTOS: ""
 };
 
-// Flag para saber si hay al menos una URL configurada
+// Flag para saber si hay al menos una URL configurada (siempre false ahora)
 function hasSheetUrls(){
   return Object.values(SHEET_URLS).some(u => u && u.trim().length > 0);
 }
@@ -2604,7 +2588,7 @@ const HOJAS = Object.keys(SHEET_URLS);
 const LS_KEY = "e140_dashboard_cache_v1";
 
 /* ═══════════════════════════════════════════════════════════════════
-   CARGA DESDE JSONs DE data/  (prioritario sobre Google Sheet)
+   CARGA DESDE JSONs DE data/
    ═══════════════════════════════════════════════════════════════════ */
 
 /**
@@ -2947,7 +2931,7 @@ function mergeJsonIntoWeek(week, json){
 
 
 async function loadFromSheets(){
-  setLoadingProgress("Conectando a Google Sheets…", 0);
+  setLoadingProgress("Cargando data semanal…", 0);
   const raw = {};
   const errors = {};
   let okCount = 0;
@@ -3075,7 +3059,7 @@ let MODE = 'unknown'; // 'live' | 'demo' | 'cache' | 'offline'
 async function initDashboard(){
   // ─── CAPA NUEVA: leer primero JSONs de data/ ───
   // Si hay al menos un JSON semanal subido al repo, se usa.
-  // Si no hay JSONs o fallan todos, cae al flujo original (Google Sheet).
+  // Si no hay JSONs o fallan todos, cae a DEMO_DATA.
   try {
     const jsonData = await loadFromJSONs();
     if(jsonData && jsonData.currentWeek){
@@ -3090,13 +3074,13 @@ async function initDashboard(){
       return;
     }
   } catch(e){
-    console.warn('[E140] JSONs no disponibles, cayendo a Google Sheet:', e.message);
+    console.warn('[E140] JSONs no disponibles, cayendo a DEMO:', e.message);
   }
 
-  // ─── FLUJO ORIGINAL (Google Sheet) ───
+  // ─── FALLBACK (DEMO) ───
   if(!hasSheetUrls()){
     // No hay URLs: ir directo a demo (con banner avisando)
-    console.info('[E140] Sin URLs de Google Sheets configuradas. Usando DEMO_DATA.');
+    console.info('[E140] Sin JSON publicado. Usando DEMO_DATA.');
     useDemoData(true);
     return;
   }
@@ -3132,8 +3116,9 @@ async function initDashboard(){
       renderCurrentWeek();
     } else {
       hideLoading();
-      showModalError(`${e.message||'Error desconocido'}`);
-      setSyncState('err', 'Sin conexión', 'No se pudo cargar el Sheet');
+      // Sin JSONs ni cache → mostrar demo automáticamente (sin modal molesto)
+      console.warn('[E140] Sin data publicada. Activando demo.');
+      useDemoData(true);
     }
   }
 }
@@ -3161,7 +3146,7 @@ async function refreshData(){
   btn.disabled = true;
   btn.classList.add('spinning');
   clearBanners();
-  setSyncState('warn', 'Sincronizando…', MODE === 'json' ? 'Reconsultando data/' : 'Reconsultando Google Sheets');
+  setSyncState('warn', 'Sincronizando…', 'Reconsultando data/');
 
   // ─── Si estamos en modo JSON, recargar JSONs ───
   if(MODE === 'json'){
@@ -3185,10 +3170,10 @@ async function refreshData(){
     return;
   }
 
-  // ─── Flujo original (Google Sheet) ───
+  // ─── Fallback (DEMO) ───
   try{
     if(!hasSheetUrls()){
-      showBanner('warn', 'No hay URLs de Google Sheets configuradas. Configura <code>SHEET_URLS</code> en el HTML para activar el modo en vivo.');
+      showBanner('warn', 'No hay datos publicados. Sube los Excel desde el cargador para generar la semana.');
       btn.disabled = false;
       btn.classList.remove('spinning');
       return;
@@ -3228,9 +3213,9 @@ function useDemoData(silent=false){
   MODE = 'demo';
   hideLoading();
   if(!silent){
-    showBanner('warn', '🧪 <b>Modo DEMO</b>. Estás viendo datos de ejemplo (Sem 35 + Sem 36). Configura <code>SHEET_URLS</code> para conectar tu Google Sheet.');
+    showBanner('warn', '🧪 <b>Modo DEMO</b>. Estás viendo datos de ejemplo. Sube tu data semanal desde el cargador para reemplazarlos.');
   } else {
-    showBanner('warn', '🧪 <b>Modo DEMO</b>. No hay URLs de Google Sheets configuradas. Configura <code>SHEET_URLS</code> al inicio del HTML para activar la carga en vivo. Mientras tanto, se muestran datos de ejemplo.');
+    showBanner('warn', '🧪 <b>Modo DEMO</b>. No hay data publicada todavía. Sube los Excel desde el cargador para generar la semana real.');
   }
   setSyncState('warn', 'Modo demo', 'Datos hardcodeados (Sem 35 + Sem 36)');
   populateWeekSelector();
@@ -4520,7 +4505,7 @@ function renderFotos(){
    INICIALIZACIÓN
    ═══════════════════════════════════════════════════════════════════ */
 
-// Dispara la carga (Google Sheets → DATA). Si no hay URLs, cae a DEMO.
+// Dispara la carga (JSON → DATA). Si no hay JSON, cae a DEMO.
 initDashboard();
 
 /* ═══════════════════════════════════════════════════════════════════
