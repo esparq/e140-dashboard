@@ -15,7 +15,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import {
-    getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, query, orderBy
+    getFirestore, collection, doc, setDoc, addDoc, getDoc, getDocs, deleteDoc, query, where, orderBy, limit, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   // ─── Configuración del proyecto E140 ───
@@ -32,7 +32,10 @@
   const cloudinaryConfig = {
     cloudName:    "dgekyeapv",
     uploadPreset: "e140_fotos",
-    folder:       "e140-fotos"
+    folder:       "e140-fotos",
+    // Preset y folder específicos para Excel (auditoría/trazabilidad)
+    excelPreset:  "e140_excel",
+    excelFolder:  "e140-excel"
   };
 
   // Inicializar Firebase
@@ -41,7 +44,7 @@
 
   // Exponer al ámbito global para que el resto del código lo use
   window.E140_DB = {
-    db, doc, setDoc, getDoc, getDocs, deleteDoc, collection, query, orderBy
+    db, doc, setDoc, addDoc, getDoc, getDocs, deleteDoc, collection, query, where, orderBy, limit, serverTimestamp
   };
   window.E140_CLOUDINARY = cloudinaryConfig;
 
@@ -208,6 +211,55 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 /* Botón "Guía de uso" */
 .sb-item.sb-help{border:1px solid var(--border);margin:4px 0;color:var(--text);}
 .sb-item.sb-help:hover{background:var(--alice-blue);color:var(--twitter-blue);border-color:var(--baby-blue);}
+
+/* Botón "Auditoría" (solo visible para adm y oficina) */
+.sb-item.sb-auditoria{border:1px solid #B8732B;margin:4px 0 0;color:#A0521E;background:#FFF8EE;}
+.sb-item.sb-auditoria:hover{background:#FFE9CC;color:#7A3F18;border-color:#A0521E;}
+.sb-item.sb-auditoria.active{background:#FFE0B3;color:#7A3F18;border-color:#A0521E;font-weight:700;}
+
+/* Regla aplicada al body cuando el usuario es 'adm' u 'oficina' */
+body.audit-allowed .audit-only{display:flex !important;}
+
+/* ─── Sección Auditoría ─── */
+.aud-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.aud-stat-card{background:linear-gradient(135deg,#FFF8EE 0%,#FFFCF5 100%);border:1px solid #E5C792;border-left:3px solid #A0521E;border-radius:6px;padding:14px 16px;}
+.aud-stat-num{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;color:#7A3F18;letter-spacing:1px;}
+.aud-stat-label{font-size:10.5px;color:#A0521E;letter-spacing:.05em;text-transform:uppercase;font-weight:600;margin-top:4px;}
+
+.aud-filters{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:end;margin-bottom:16px;padding:14px 16px !important;}
+.aud-filter-group{display:flex;flex-direction:column;gap:5px;}
+.aud-filter-group label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;}
+.aud-filter-group select, .aud-filter-group input{padding:7px 10px;border:1px solid var(--border-mid);border-radius:5px;font-family:inherit;font-size:12px;color:var(--text);background:#fff;}
+.aud-filter-group select:focus, .aud-filter-group input:focus{outline:none;border-color:#A0521E;box-shadow:0 0 0 2px rgba(160,82,30,.12);}
+
+.aud-table-wrap{overflow-x:auto;}
+.aud-table{width:100%;border-collapse:collapse;font-size:11.5px;}
+.aud-table th{background:#FFF8EE;color:#7A3F18;font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;padding:10px 10px;text-align:left;border-bottom:2px solid #E5C792;white-space:nowrap;}
+.aud-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.aud-table tr:hover td{background:#FFFCF5;}
+.aud-table .aud-sem{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:var(--twitter-blue);}
+.aud-table .aud-area{display:inline-block;padding:2px 8px;border-radius:3px;font-weight:600;font-size:10px;letter-spacing:.04em;text-transform:uppercase;background:#EFEFEF;color:#555;}
+.aud-table .aud-area.aud-area-operaciones{background:#E6F2FB;color:#0070B4;}
+.aud-table .aud-area.aud-area-logistica{background:#FBEAE5;color:#A04018;}
+.aud-table .aud-area.aud-area-arquitectura{background:#F5F5F5;color:#333;}
+.aud-table .aud-area.aud-area-ssoma{background:#FBEAEA;color:#8A2A2D;}
+.aud-table .aud-area.aud-area-calidad{background:#E7F4EE;color:#1A6B4A;}
+.aud-table .aud-archivo{font-weight:600;color:var(--text);}
+.aud-table .aud-nombre{color:var(--text-muted);font-family:'DM Mono',monospace;font-size:11px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;}
+.aud-table .aud-tamano{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);white-space:nowrap;}
+.aud-table .aud-usuario{font-weight:600;color:#7A3F18;font-size:11px;}
+.aud-table .aud-fecha{color:var(--text-muted);font-size:11px;font-family:'DM Mono',monospace;white-space:nowrap;}
+
+.aud-btn-download{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:var(--twitter-blue);color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;transition:background .15s, transform .1s;}
+.aud-btn-download:hover{background:var(--twitter-blue-dk);transform:translateY(-1px);}
+.aud-btn-download:active{transform:translateY(0);}
+
+.aud-table-foot{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border-mid);font-size:11px;color:var(--text-muted);text-align:center;}
+
+@media(max-width:899px){
+  .aud-stats{grid-template-columns:repeat(2,1fr);}
+  .aud-filters{grid-template-columns:repeat(2,1fr);}
+}
 
 /* Footer del sidebar */
 .sb-footer{padding:14px 18px;font-size:10px;color:var(--text-muted);border-top:1px solid var(--border);margin-top:auto;line-height:1.5;}
@@ -2088,6 +2140,10 @@ body.role-viewer .admin-only{display:none !important;}
 
     <div class="sb-divider" style="margin-top:auto"></div>
     <div class="sb-nav" style="padding-top:4px;padding-bottom:4px">
+      <button class="sb-item sb-auditoria audit-only" id="sbAuditoria" data-tab="auditoria" onclick="setTab('auditoria')" style="display:none;">
+        <span class="sb-num">🔍</span>
+        <span class="sb-label">Auditoría</span>
+      </button>
       <button class="sb-item sb-help" onclick="toggleHelp()">
         <span class="sb-num">❓</span>
         <span class="sb-label">Guía de uso</span>
@@ -3356,6 +3412,95 @@ body.role-viewer .admin-only{display:none !important;}
         </div>
       </section>
 
+      <!-- ═══════════════════════════════════════════
+           SECCIÓN — AUDITORÍA / TRAZABILIDAD
+           Solo visible para usuarios 'adm' y 'oficina'
+           ═══════════════════════════════════════════ -->
+      <section class="section audit-only" id="sec-auditoria" style="display:none;">
+        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <span>🔍 Auditoría · Trazabilidad de Archivos</span>
+          <button class="hdr-btn" onclick="cargarAuditoria(true)" style="padding:7px 14px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">
+            <span>🔄</span> Actualizar
+          </button>
+        </div>
+        <div class="section-subheader">Registro completo de archivos Excel cargados al dashboard · Acceso restringido a <b>Administración</b> y <b>Oficina Técnica</b></div>
+
+        <!-- Tarjetas resumen -->
+        <div class="aud-stats" id="audStats">
+          <div class="aud-stat-card">
+            <div class="aud-stat-num" id="audStatTotal">—</div>
+            <div class="aud-stat-label">Archivos registrados</div>
+          </div>
+          <div class="aud-stat-card">
+            <div class="aud-stat-num" id="audStatSemanas">—</div>
+            <div class="aud-stat-label">Semanas con carga</div>
+          </div>
+          <div class="aud-stat-card">
+            <div class="aud-stat-num" id="audStatTamano">—</div>
+            <div class="aud-stat-label">Tamaño total</div>
+          </div>
+          <div class="aud-stat-card">
+            <div class="aud-stat-num" id="audStatUsuarios">—</div>
+            <div class="aud-stat-label">Usuarios que cargaron</div>
+          </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="chart-card aud-filters">
+          <div class="aud-filter-group">
+            <label>Semana</label>
+            <select id="audFilterSemana" onchange="renderAuditoriaTabla()">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div class="aud-filter-group">
+            <label>Área</label>
+            <select id="audFilterArea" onchange="renderAuditoriaTabla()">
+              <option value="">Todas</option>
+              <option value="operaciones">Operaciones</option>
+              <option value="logistica">Logística</option>
+              <option value="arquitectura">Arquitectura</option>
+              <option value="ssoma">SSOMA</option>
+              <option value="calidad">Calidad</option>
+            </select>
+          </div>
+          <div class="aud-filter-group">
+            <label>Usuario</label>
+            <select id="audFilterUsuario" onchange="renderAuditoriaTabla()">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <div class="aud-filter-group">
+            <label>Buscar</label>
+            <input type="text" id="audFilterBuscar" placeholder="Nombre del archivo…" oninput="renderAuditoriaTabla()">
+          </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="chart-card">
+          <div class="aud-table-wrap">
+            <table class="aud-table" id="audTable">
+              <thead>
+                <tr>
+                  <th>Sem</th>
+                  <th>Área</th>
+                  <th>Archivo</th>
+                  <th>Nombre original</th>
+                  <th>Tamaño</th>
+                  <th>Subido por</th>
+                  <th>Fecha y hora</th>
+                  <th class="td-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="audTableBody">
+                <tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:40px;font-size:12px;">⏳ Cargando registros de auditoría…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="aud-table-foot" id="audTableFoot"></div>
+        </div>
+      </section>
+
     </div>
 
     <!-- FOOTER DE SINCRONIZACIÓN -->
@@ -3912,7 +4057,23 @@ async function loadFromJSONs(){
     );
   }
   const results = await Promise.all(promises);
-  const found = results.filter(r => r !== null);
+  let found = results.filter(r => r !== null);
+
+  // ─── Agregar también los datos guardados en Firestore (más recientes que GitHub) ───
+  // Espera a Firebase si está disponible (máximo 3s)
+  if(window.E140_DB || (window._E140_FIREBASE_READY === false)){
+    let waitMs = 0;
+    while(!window._E140_FIREBASE_READY && waitMs < 3000){
+      await new Promise(r => setTimeout(r, 200));
+      waitMs += 200;
+    }
+    if(window.E140_DB){
+      const datosFirestore = await loadDatosFromFirestore();
+      // Mezclar: Firestore tiene prioridad sobre los JSON de GitHub
+      // (los JSON de GitHub se aplican primero, luego Firestore los sobrescribe)
+      found = [...found, ...datosFirestore];
+    }
+  }
 
   if(found.length === 0){
     setLoadingProgress("No se encontraron JSONs en data/", 0, false);
@@ -4985,7 +5146,14 @@ function setTab(tab){
   // Auto-expandir el área padre si el tab pertenece a una
   expandAreaForTab(tab);
   // Mostrar sección
-  document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active', s.id==='sec-'+tab));
+  document.querySelectorAll('.section').forEach(s=>{
+    const isActive = s.id==='sec-'+tab;
+    s.classList.toggle('active', isActive);
+    // Para secciones audit-only, forzar display:flex cuando están activas (su style inline es display:none)
+    if(s.classList.contains('audit-only')){
+      s.style.display = isActive ? '' : 'none';
+    }
+  });
   // Scroll top
   document.getElementById('scrollArea').scrollTop = 0;
   // Cerrar sidebar en móvil
@@ -5178,6 +5346,7 @@ function renderCurrentWeek(){
     case 'adic':          renderAdic(); break;
     case 'crono':         renderCrono(); break;
     case 'fotos':         renderFotos(); break;
+    case 'auditoria':     cargarAuditoria(false); break;
   }
 }
 
@@ -6775,8 +6944,13 @@ function hideLoginScreen(){
 function applySessionToUI(){
   if(!currentSession) return;
   // Aplicar clase de rol al body para que las reglas CSS oculten/muestren
-  document.body.classList.remove('role-admin', 'role-viewer');
+  document.body.classList.remove('role-admin', 'role-viewer', 'audit-allowed');
   document.body.classList.add('role-' + currentSession.rol);
+
+  // Solo 'adm' y 'oficina' pueden ver la sección de Auditoría/Trazabilidad
+  if(currentSession.usuario === 'adm' || currentSession.usuario === 'oficina'){
+    document.body.classList.add('audit-allowed');
+  }
 
   // Insertar info de usuario y botón de logout en el header
   const thRight = document.querySelector('.th-right');
@@ -7962,6 +8136,312 @@ async function uploadToCloudinary(dataUrl, semana, numero){
   return data.secure_url;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   AUDITORÍA — Subida de Excel a Cloudinary + registro en Firestore
+   ═══════════════════════════════════════════════════════════════════ */
+
+/**
+ * Sube un archivo Excel a Cloudinary como recurso raw.
+ * @param {File} file - Archivo Excel del usuario
+ * @param {string} semana - Código de semana (ej. "S37")
+ * @param {string} area - Área (ej. "operaciones")
+ * @param {string} archivoKey - Clave del archivo (ej. "histograma")
+ * @returns {Promise<{url, public_id, bytes, format}>}
+ */
+async function uploadExcelToCloudinary(file, semana, area, archivoKey){
+  const cfg = window.E140_CLOUDINARY;
+  // resource_type "raw" para archivos no-imagen (Excel)
+  const url = `https://api.cloudinary.com/v1_1/${cfg.cloudName}/raw/upload`;
+
+  // Para archivos raw, Cloudinary requiere que el public_id incluya la extensión
+  const ext = (file.name.match(/\.[^.]+$/) || ['.xlsx'])[0]; // .xlsx, .xlsb, .xls
+  const safeKey = (archivoKey || 'archivo').replace(/[^a-zA-Z0-9_-]/g, '_');
+  const timestamp = Date.now();
+  const publicId = `${semana.toLowerCase()}_${area}_${safeKey}_${timestamp}${ext}`;
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', cfg.excelPreset);
+  formData.append('folder', `${cfg.excelFolder}/${semana.toLowerCase()}/${area}`);
+  formData.append('public_id', publicId);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    body: formData
+  });
+
+  if(!response.ok){
+    const errorText = await response.text();
+    throw new Error(`Cloudinary respondió ${response.status}: ${errorText.slice(0, 200)}`);
+  }
+
+  const data = await response.json();
+  if(!data.secure_url){
+    throw new Error('Cloudinary no devolvió URL del archivo');
+  }
+  return {
+    url:       data.secure_url,
+    public_id: data.public_id,
+    bytes:     data.bytes,
+    format:    data.format || ext.replace('.', ''),
+  };
+}
+
+/**
+ * Registra un archivo subido en la colección 'auditoria' de Firestore.
+ * Se invoca después de que cada Excel se sube exitosamente a Cloudinary.
+ */
+async function registrarAuditoria(registro){
+  if(!window.E140_DB) return null;
+  try {
+    const { db, collection, addDoc } = window.E140_DB;
+    const docRef = await addDoc(collection(db, 'auditoria'), {
+      ...registro,
+      // Timestamp ISO + millis (para ordenar y mostrar)
+      subido_en: new Date().toISOString(),
+      subido_ts: Date.now(),
+    });
+    return docRef.id;
+  } catch(err){
+    console.warn('[E140] No se pudo registrar en auditoría:', err);
+    return null;
+  }
+}
+
+/**
+ * Guarda el JSON procesado de un área/semana en Firestore (colección 'datos').
+ * Reemplaza el documento existente si ya hay uno para esa combinación.
+ * @param {string} semana - "S37"
+ * @param {string} area - "operaciones" | "logistica" | etc.
+ * @param {object} datos - Resultado del parseo (resultadoArea de procesarArchivos)
+ */
+async function guardarDatosFirestore(semana, area, datos){
+  if(!window.E140_DB) return false;
+  try {
+    const { db, doc, setDoc } = window.E140_DB;
+    const docId = `${semana.toLowerCase()}_${area}`;
+    const docRef = doc(db, 'datos', docId);
+    await setDoc(docRef, {
+      semana:          semana,
+      area:            area,
+      corte_fecha:     datos.corte_fecha,
+      archivos:        datos.archivos,
+      errores:         datos.errores || [],
+      advertencias:    datos.advertencias || [],
+      actualizado_en:  new Date().toISOString(),
+      actualizado_por: (currentSession && currentSession.usuario) || 'desconocido',
+    });
+    return true;
+  } catch(err){
+    console.warn(`[E140] No se pudo guardar datos de ${area} ${semana} en Firestore:`, err);
+    return false;
+  }
+}
+
+/**
+ * Carga los datos procesados desde Firestore al iniciar el dashboard.
+ * Combina con los JSONs de GitHub (Firestore tiene prioridad por ser más reciente).
+ */
+async function loadDatosFromFirestore(){
+  if(!window.E140_DB) return [];
+  try {
+    const { db, collection, getDocs } = window.E140_DB;
+    const snapshot = await getDocs(collection(db, 'datos'));
+    if(snapshot.empty) return [];
+    const resultados = [];
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      if(!data || !data.semana || !data.area) return;
+      resultados.push({
+        sem:  data.semana,
+        area: data.area,
+        data: {
+          area:        data.area,
+          semana:      data.semana,
+          corte_fecha: data.corte_fecha,
+          archivos:    data.archivos || {},
+        }
+      });
+    });
+    console.log(`[E140] Datos cargados desde Firestore: ${resultados.length} bloque(s)`);
+    return resultados;
+  } catch(err){
+    console.warn('[E140] No se pudieron cargar datos desde Firestore:', err.message || err);
+    return [];
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   AUDITORÍA — Vista de trazabilidad (solo adm/oficina)
+   ═══════════════════════════════════════════════════════════════════ */
+
+let auditoriaData = []; // Cache de los registros cargados
+
+async function cargarAuditoria(force = false){
+  // Validación: solo adm y oficina
+  if(!currentSession || (currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina')){
+    const tbody = document.getElementById('audTableBody');
+    if(tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#8A2A2D;padding:40px;">⛔ Sin permisos para ver esta sección.</td></tr>';
+    return;
+  }
+
+  if(!window.E140_DB){
+    const tbody = document.getElementById('audTableBody');
+    if(tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:40px;">⚠ El servicio de Firestore no está disponible. Verifica tu conexión.</td></tr>';
+    return;
+  }
+
+  // Si ya cargamos antes y no se fuerza recarga, solo re-render
+  if(auditoriaData.length > 0 && !force){
+    renderAuditoriaTabla();
+    return;
+  }
+
+  const tbody = document.getElementById('audTableBody');
+  if(tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:40px;">⏳ Cargando registros desde Firestore…</td></tr>';
+
+  try {
+    const { db, collection, getDocs, query, orderBy } = window.E140_DB;
+    // Ordenar por timestamp descendente (más recientes primero)
+    const q = query(collection(db, 'auditoria'), orderBy('subido_ts', 'desc'));
+    const snapshot = await getDocs(q);
+    auditoriaData = [];
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      auditoriaData.push({
+        id: docSnap.id,
+        ...data,
+      });
+    });
+    console.log(`[E140] Auditoría: ${auditoriaData.length} registro(s)`);
+    renderAuditoriaTabla();
+    actualizarFiltrosAuditoria();
+    actualizarStatsAuditoria();
+  } catch(err){
+    console.error('[E140] Error cargando auditoría:', err);
+    if(tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#8A2A2D;padding:40px;">❌ Error: ${err.message}</td></tr>`;
+  }
+}
+
+function actualizarFiltrosAuditoria(){
+  // Llenar dropdowns con valores únicos de los datos
+  const semanas = [...new Set(auditoriaData.map(r => r.semana).filter(Boolean))].sort((a, b) => {
+    const na = parseInt((a||'').replace(/\D/g, ''), 10) || 0;
+    const nb = parseInt((b||'').replace(/\D/g, ''), 10) || 0;
+    return nb - na; // descendente
+  });
+  const usuarios = [...new Set(auditoriaData.map(r => r.subido_por).filter(Boolean))].sort();
+
+  const selSem = document.getElementById('audFilterSemana');
+  const selUsr = document.getElementById('audFilterUsuario');
+  if(selSem){
+    const cur = selSem.value;
+    selSem.innerHTML = '<option value="">Todas</option>' +
+      semanas.map(s => `<option value="${s}">${s}</option>`).join('');
+    if(semanas.includes(cur)) selSem.value = cur;
+  }
+  if(selUsr){
+    const cur = selUsr.value;
+    selUsr.innerHTML = '<option value="">Todos</option>' +
+      usuarios.map(u => `<option value="${u}">${u}</option>`).join('');
+    if(usuarios.includes(cur)) selUsr.value = cur;
+  }
+}
+
+function actualizarStatsAuditoria(){
+  const total = auditoriaData.length;
+  const semanas = new Set(auditoriaData.map(r => r.semana).filter(Boolean)).size;
+  const usuarios = new Set(auditoriaData.map(r => r.subido_por).filter(Boolean)).size;
+  const tamanoTotal = auditoriaData.reduce((s, r) => s + (Number(r.tamano_bytes) || 0), 0);
+
+  const elTotal = document.getElementById('audStatTotal');
+  const elSem = document.getElementById('audStatSemanas');
+  const elTam = document.getElementById('audStatTamano');
+  const elUsr = document.getElementById('audStatUsuarios');
+  if(elTotal) elTotal.textContent = total;
+  if(elSem) elSem.textContent = semanas;
+  if(elTam) elTam.textContent = formatBytes(tamanoTotal);
+  if(elUsr) elUsr.textContent = usuarios;
+}
+
+function renderAuditoriaTabla(){
+  const tbody = document.getElementById('audTableBody');
+  const foot  = document.getElementById('audTableFoot');
+  if(!tbody) return;
+
+  const fSemana = (document.getElementById('audFilterSemana')?.value || '').toUpperCase();
+  const fArea   = (document.getElementById('audFilterArea')?.value || '').toLowerCase();
+  const fUsr    = (document.getElementById('audFilterUsuario')?.value || '').toLowerCase();
+  const fTxt    = (document.getElementById('audFilterBuscar')?.value || '').toLowerCase().trim();
+
+  const filtrados = auditoriaData.filter(r => {
+    if(fSemana && (r.semana || '').toUpperCase() !== fSemana) return false;
+    if(fArea && (r.area || '').toLowerCase() !== fArea) return false;
+    if(fUsr && (r.subido_por || '').toLowerCase() !== fUsr) return false;
+    if(fTxt){
+      const blob = `${r.nombre_original || ''} ${r.archivo_label || ''} ${r.archivo_key || ''}`.toLowerCase();
+      if(!blob.includes(fTxt)) return false;
+    }
+    return true;
+  });
+
+  if(filtrados.length === 0){
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:40px;font-size:12px;">No hay registros que coincidan con los filtros.</td></tr>';
+    if(foot) foot.textContent = `0 registros (de ${auditoriaData.length} total)`;
+    return;
+  }
+
+  tbody.innerHTML = filtrados.map(r => {
+    const semHtml = r.semana ? `<span class="aud-sem">${r.semana}</span>` : '<span style="color:var(--text-muted);">—</span>';
+    const areaHtml = r.area ? `<span class="aud-area aud-area-${r.area}">${r.area}</span>` : '—';
+    const archivoHtml = `<span class="aud-archivo">${escapeHtml(r.archivo_label || r.archivo_key || 'Sin nombre')}</span>`;
+    const nombreHtml = `<span class="aud-nombre" title="${escapeHtml(r.nombre_original || '')}">${escapeHtml(r.nombre_original || '—')}</span>`;
+    const tamanoHtml = `<span class="aud-tamano">${formatBytes(r.tamano_bytes || 0)}</span>`;
+    const usrHtml = `<span class="aud-usuario">${escapeHtml(r.subido_por_nombre || r.subido_por || 'Sin sesión')}</span>`;
+    const fechaHtml = `<span class="aud-fecha">${formatFechaAud(r.subido_en || r.subido_ts)}</span>`;
+    const downloadHtml = r.cloudinary_url
+      ? `<a class="aud-btn-download" href="${escapeHtml(r.cloudinary_url)}" target="_blank" rel="noopener" download>⬇ Descargar</a>`
+      : '<span style="color:var(--text-muted);font-size:11px;">No disponible</span>';
+
+    return `<tr>
+      <td>${semHtml}</td>
+      <td>${areaHtml}</td>
+      <td>${archivoHtml}</td>
+      <td>${nombreHtml}</td>
+      <td>${tamanoHtml}</td>
+      <td>${usrHtml}</td>
+      <td>${fechaHtml}</td>
+      <td class="td-center">${downloadHtml}</td>
+    </tr>`;
+  }).join('');
+
+  if(foot){
+    foot.textContent = filtrados.length === auditoriaData.length
+      ? `${filtrados.length} registro${filtrados.length === 1 ? '' : 's'}`
+      : `${filtrados.length} registro${filtrados.length === 1 ? '' : 's'} (de ${auditoriaData.length} total) · filtros aplicados`;
+  }
+}
+
+function formatFechaAud(input){
+  if(!input) return '—';
+  let d;
+  if(typeof input === 'number') d = new Date(input);
+  else d = new Date(input);
+  if(isNaN(d.getTime())) return '—';
+  // dd/mm/yyyy hh:mm
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mn = String(d.getMinutes()).padStart(2,'0');
+  return `${dd}/${mm}/${yy} ${hh}:${mn}`;
+}
+
+function escapeHtml(str){
+  if(str == null) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 // ─── Helpers ───
 function estimateBase64Size(dataUrl){
   if(!dataUrl) return 0;
@@ -8194,6 +8674,12 @@ async function procesarArchivos(){
   body.style.opacity = '.5';
   body.style.pointerEvents = 'none';
 
+  // Verificar si el sistema cloud está disponible
+  const cloudOk = !!(window.E140_DB && window.E140_CLOUDINARY);
+  if(!cloudOk){
+    console.warn('[E140] Firebase/Cloudinary no disponibles. Procesando solo localmente.');
+  }
+
   // Procesar área por área. Cada una genera su propio paquete de datos.
   for(const area of AREAS_CARGADOR){
     const archivos = cargaState.porArea[area].archivos;
@@ -8221,6 +8707,37 @@ async function procesarArchivos(){
         resultadoArea.archivos[a.info.key] = datos;
         a.status = 'ok';
         a.parsed = datos;
+
+        // ─── AUDITORÍA: Subir el Excel original a Cloudinary y registrar ───
+        if(cloudOk){
+          try {
+            const uploadResult = await uploadExcelToCloudinary(
+              a.file,
+              resultadoArea.semana,
+              area,
+              a.info.key
+            );
+            // Registrar en Firestore (colección 'auditoria')
+            await registrarAuditoria({
+              semana:        resultadoArea.semana,
+              area:          area,
+              archivo_key:   a.info.key,
+              archivo_label: a.info.label,
+              nombre_original: a.file.name,
+              tamano_bytes:  a.file.size,
+              cloudinary_url:       uploadResult.url,
+              cloudinary_public_id: uploadResult.public_id,
+              corte_fecha:   resultadoArea.corte_fecha,
+              subido_por:    (currentSession && currentSession.usuario) || 'desconocido',
+              subido_por_nombre: (currentSession && currentSession.nombre) || 'Sin sesión',
+              estado:        'ok',
+            });
+            a.cloudUrl = uploadResult.url;
+          } catch(cloudErr){
+            console.warn(`[E140] No se pudo subir a Cloudinary ${a.info.label}:`, cloudErr.message);
+            // No bloqueamos el flujo si falla la auditoría — el dato local sigue siendo válido
+          }
+        }
       } catch(err){
         resultadoArea.errores.push(`${a.info.label}: ${err.message}`);
         a.status = 'err';
@@ -8237,6 +8754,15 @@ async function procesarArchivos(){
     }
 
     cargaState.porArea[area].datos = resultadoArea;
+
+    // ─── PERSISTENCIA: Guardar JSON procesado en Firestore para que todos lo vean ───
+    if(cloudOk && Object.keys(resultadoArea.archivos).length > 0){
+      try {
+        await guardarDatosFirestore(resultadoArea.semana, area, resultadoArea);
+      } catch(saveErr){
+        console.warn(`[E140] No se pudieron guardar datos de ${area} en Firestore:`, saveErr);
+      }
+    }
   }
 
   // Compatibilidad: armar también el resultado global usando Operaciones+Logística
