@@ -419,28 +419,36 @@ body.audit-allowed .sb-item.audit-only{display:flex !important;}
 }
 .th-left h1{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--white);line-height:1;}
 .th-left p{font-size:10px;color:rgba(255,255,255,0.75);margin-top:3px;letter-spacing:.05em;}
-.th-right{display:flex;align-items:center;gap:14px;}
+.th-right{display:flex;align-items:center;gap:10px;}
 
-/* Selector de semana — estilo pill con fondo translúcido */
-.week-selector{display:flex;flex-direction:column;align-items:center;}
-.week-selector label{font-size:9px;color:rgba(255,255,255,0.75);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;font-weight:600;}
+/* Selector de semana — estilo pill alineado horizontalmente con los botones */
+.week-selector{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.35);border-radius:22px;padding:0 8px 0 14px;height:38px;transition:background .15s, border-color .15s;}
+.week-selector:hover{background:rgba(255,255,255,0.28);border-color:rgba(255,255,255,0.5);}
+.week-selector label{font-size:9px;color:rgba(255,255,255,0.75);letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin:0;white-space:nowrap;border-right:1px solid rgba(255,255,255,0.25);padding-right:8px;}
 .week-selector select{
-  background:rgba(255,255,255,0.18);
+  background:transparent;
   color:var(--white);
-  border:1px solid rgba(255,255,255,0.35);
-  border-radius:22px;
-  padding:8px 16px;
+  border:none;
+  border-radius:18px;
+  padding:0 6px;
+  height:36px;
   font-size:12px;
   font-family:inherit;
   cursor:pointer;
   outline:none;
   font-weight:700;
   letter-spacing:.05em;
-  min-width:170px;
+  min-width:140px;
   text-align:center;
-  transition:background .15s, border-color .15s;
+  text-align-last:center;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%23ffffff' d='M5 6L0 0h10z'/></svg>");
+  background-repeat:no-repeat;
+  background-position:right 6px center;
+  padding-right:20px;
 }
-.week-selector select:hover{background:rgba(255,255,255,0.28);border-color:rgba(255,255,255,0.5);}
 .week-selector select option{background:var(--twitter-blue);color:var(--white);}
 
 /* Bloque fecha derecha — sin border-left, todo en blanco */
@@ -1247,9 +1255,9 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .login-footer .sep{color:var(--border-mid);}
 
 /* Botón de logout en header */
-.hdr-logout{background:transparent;color:var(--white);border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:5px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:background .15s, border-color .15s;display:inline-flex;align-items:center;gap:5px;}
-.hdr-logout:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.55);}
-.hdr-user{display:inline-flex;align-items:center;gap:6px;color:var(--white);font-size:11px;padding:0 10px;border-right:1px solid rgba(255,255,255,.2);}
+.hdr-logout{background:rgba(255,255,255,0.18);color:var(--white);border:1px solid rgba(255,255,255,.35);padding:0 14px;height:38px;border-radius:22px;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:background .15s, border-color .15s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;box-sizing:border-box;}
+.hdr-logout:hover{background:rgba(255,255,255,.28);border-color:rgba(255,255,255,.55);}
+.hdr-user{display:inline-flex;align-items:center;gap:8px;color:var(--white);font-size:11px;padding:0 12px 0 6px;height:38px;border-right:1px solid rgba(255,255,255,.2);box-sizing:border-box;line-height:1.15;}
 .hdr-user-name{font-weight:700;}
 .hdr-user-role{opacity:.75;font-size:10px;text-transform:uppercase;letter-spacing:.05em;}
 
@@ -1294,7 +1302,8 @@ body.role-viewer .admin-only{display:none !important;}
   color:var(--white);
   border:1px solid rgba(255,255,255,0.35);
   border-radius:22px;
-  padding:9px 18px;
+  padding:0 18px;
+  height:38px;
   cursor:pointer;
   font-family:inherit;
   font-size:12px;
@@ -1305,6 +1314,7 @@ body.role-viewer .admin-only{display:none !important;}
   gap:7px;
   transition:background .15s, border-color .15s, transform .1s;
   white-space:nowrap;
+  box-sizing:border-box;
 }
 .hdr-btn:hover{background:rgba(255,255,255,0.28);border-color:rgba(255,255,255,0.55);}
 .hdr-btn:active{transform:translateY(1px);}
