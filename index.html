@@ -1207,7 +1207,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
     <table class="help-tbl">
       <tr><th>KPI</th><th>Fórmula</th><th>Lectura</th></tr>
       <tr><td>Avance de Obra</td><td>Promedio ponderado por MO Base</td><td>% físico consolidado</td></tr>
-      <tr><td>CPI Mano Obra</td><td>MO Proyectada / MO Real<br><small>(MO Proy = 25% × Costo Directo)</small></td><td>&gt;1 = ahorro · &lt;1 = sobrecosto</td></tr>
+      <tr><td>CPI Mano de Obra Acumulado</td><td>MO Base / MO Real Acumulado<br><small>(MO Base = 25% × Costo Directo)</small></td><td>&gt;1 = ahorro · &lt;1 = sobrecosto</td></tr>
       <tr><td>SPI Meta</td><td>Sectores ejecutados / programados (acumulados)</td><td>0.92 = 92% del plan cumplido</td></tr>
       <tr><td>SPI Contractual</td><td>Pendiente definir fuente</td><td>Muestra "—" por ahora</td></tr>
       <tr><td>MO Consumida</td><td>Real acumulado (archivo 06 col O)</td><td>Gasto real hasta la fecha</td></tr>
@@ -3815,7 +3815,7 @@ function renderRKpis(d, dPrev){
 
   const kpis = [
     {k:'avance',         label:'Avance de Obra',    value:fmtAv(cur.avance),            raw:cur.avance,         prevRaw:prev?prev.avance:null,         esPct:false, cls:clsAv(cur.avance),    color:COLORS.orange, spark:series.avance,      subLabel:'Ponderado físico'},
-    {k:'cpi',            label:'CPI Mano Obra',     value:fmtCPI(cur.cpi),              raw:cur.cpi,            prevRaw:prev?prev.cpi:null,            esPct:false, cls:clsCPI(cur.cpi),      color:COLORS.green,  spark:series.cpi,         subLabel:'MO Proy. / MO Real'},
+    {k:'cpi',            label:'CPI Mano de Obra Acumulado', value:fmtCPI(cur.cpi),              raw:cur.cpi,            prevRaw:prev?prev.cpi:null,            esPct:false, cls:clsCPI(cur.cpi),      color:COLORS.green,  spark:series.cpi,         subLabel:'MO Base (25% CD) / MO Real'},
     {k:'spiMeta',        label:'SPI Meta',          value:fmtSPI(cur.spiMeta),          raw:cur.spiMeta,        prevRaw:prev?prev.spiMeta:null,        esPct:false, cls:clsSPI(cur.spiMeta),  color:COLORS.blueMid,spark:series.spiMeta,     subLabel:'Sec ejec / prog acum.'},
     {k:'spiContractual', label:'SPI Contractual',   value:fmtSPI(cur.spiContractual),   raw:cur.spiContractual, prevRaw:prev?prev.spiContractual:null, esPct:false, cls:clsSPI(cur.spiContractual), color:COLORS.blue, spark:series.spiContractual, subLabel:'Pendiente fuente'},
     {k:'moConsumida',    label:'MO Consumida',      value:fmtMO(cur.moConsumida),       raw:cur.moConsumida,    prevRaw:prev?prev.moConsumida:null,    esPct:false, cls:'',                   color:COLORS.blue,   spark:series.moConsumida, subLabel:'S/ · Acum. real'},
@@ -5777,18 +5777,25 @@ function v2RenderUtilidadRiesgo(){
   if(!card) return;
 
   const cw = DATA.currentWeek;
-  const spi = v2GetKpi(cw, 'spiMeta');
+  // SPI CONTRACTUAL (no SPI Meta) - ratio Avance Real / Avance Programado del cronograma
+  const spi = v2GetKpi(cw, 'spiContractual');
+  // CPI MO ACUMULADO - ratio MO Base (25% CD) / MO Real Acumulado
   const cpi = v2GetKpi(cw, 'cpi');
   const avance = v2GetKpi(cw, 'avance');
-  const diasPct = CONFIG_V2.proyecciones.diasTranscurridos / CONFIG_V2.proyecciones.plazoTotalDias * 100;
+  
+  // Avance programado del cronograma general (TODO: leer dinámicamente del archivo 05)
+  // Por ahora hardcoded del cronograma de obra: 17.15%
+  const avanceProgramado = 17.15;
 
   // Cálculos de desviación (en puntos porcentuales)
-  // Desviación SPI: cuánto me aleja de 1.0 (100%)
+  // Desviación SPI: cuánto me aleja de 1.0 (100%). Si SPI > 1 = no hay desviación
   const desvSpi = spi != null ? Math.max(0, (1 - spi) * 100) : 0;
-  // Desviación CPI: si CPI < 1 (sobrecosto) penaliza, si >1 no penaliza
+  // Desviación CPI: si CPI < 1 (sobrecosto) penaliza, si >= 1 no penaliza
   const desvCpi = cpi != null ? Math.max(0, (1 - Math.min(cpi, 1)) * 100) : 0;
-  // Desviación avance: diferencia entre %avance y %tiempo transcurrido
-  const desvAvance = avance != null ? Math.max(0, diasPct - avance) : 0;
+  // Desviación AVANCE: Avance Programado − Avance Real (en pp)
+  // Si vamos retrasados (programado > real) → hay desviación positiva
+  // Si vamos adelantados (real > programado) → desviación = 0
+  const desvAvance = (avance != null) ? Math.max(0, avanceProgramado - avance) : 0;
 
   // Cálculo ponderado
   const w = CONFIG_V2.utilidadRiesgo.pesos;
@@ -5814,11 +5821,11 @@ function v2RenderUtilidadRiesgo(){
   // Componentes compactos (chips de la tarjeta principal)
   document.getElementById('urComponentes').innerHTML = `
     <div class="ur-componente">
-      <div class="ur-componente-lbl">Desv. SPI</div>
+      <div class="ur-componente-lbl">Desv. SPI Contractual</div>
       <div class="ur-componente-val">${desvSpi.toFixed(1)}%</div>
     </div>
     <div class="ur-componente">
-      <div class="ur-componente-lbl">Desv. MO</div>
+      <div class="ur-componente-lbl">Desv. CPI MO Acum.</div>
       <div class="ur-componente-val">${desvCpi.toFixed(1)}%</div>
     </div>
     <div class="ur-componente">
@@ -5839,21 +5846,21 @@ function v2RenderUtilidadRiesgo(){
   if(breakdownEl){
     breakdownEl.innerHTML = `
       <div class="ur-break-col bc-spi">
-        <div class="ur-break-label">Desv. SPI · Peso ${pesoPctSpi}%</div>
-        <div class="ur-break-metric">SPI actual: <b>${spi != null ? spi.toFixed(2) : '—'}</b> · ideal <b>1.00</b></div>
+        <div class="ur-break-label">Desv. SPI Contractual · Peso ${pesoPctSpi}%</div>
+        <div class="ur-break-metric">SPI Contractual: <b>${spi != null ? spi.toFixed(2) : '—'}</b> · ideal <b>1.00</b></div>
         <div class="ur-break-metric">Desviación: (1 − ${spi != null ? spi.toFixed(2) : '0'}) × 100 = <b>${desvSpi.toFixed(1)}%</b></div>
         <div class="ur-break-calc">${pesoPctSpi}% × ${desvSpi.toFixed(1)}% = <span class="contrib">${contribSpi.toFixed(2)} pp</span></div>
       </div>
       <div class="ur-break-col bc-mo">
-        <div class="ur-break-label">Desv. MO · Peso ${pesoPctMo}%</div>
-        <div class="ur-break-metric">CPI actual: <b>${cpi != null ? cpi.toFixed(2) : '—'}</b> · ideal <b>1.00</b></div>
+        <div class="ur-break-label">Desv. CPI MO Acumulado · Peso ${pesoPctMo}%</div>
+        <div class="ur-break-metric">CPI MO Acum.: <b>${cpi != null ? cpi.toFixed(2) : '—'}</b> · ideal <b>≥ 1.00</b></div>
         <div class="ur-break-metric">Desviación: (1 − ${cpi != null ? Math.min(cpi, 1).toFixed(2) : '0'}) × 100 = <b>${desvCpi.toFixed(1)}%</b></div>
         <div class="ur-break-calc">${pesoPctMo}% × ${desvCpi.toFixed(1)}% = <span class="contrib">${contribMo.toFixed(2)} pp</span></div>
       </div>
       <div class="ur-break-col bc-avance">
         <div class="ur-break-label">Desv. Avance · Peso ${pesoPctAvance}%</div>
-        <div class="ur-break-metric">Avance real: <b>${avance != null ? avance.toFixed(1) : '—'}%</b> · tiempo transcurrido <b>${diasPct.toFixed(1)}%</b></div>
-        <div class="ur-break-metric">Desviación: ${diasPct.toFixed(1)}% − ${avance != null ? avance.toFixed(1) : '0'}% = <b>${desvAvance.toFixed(1)}%</b></div>
+        <div class="ur-break-metric">Avance real: <b>${avance != null ? avance.toFixed(1) : '—'}%</b> · programado: <b>${avanceProgramado.toFixed(1)}%</b></div>
+        <div class="ur-break-metric">Desviación: ${avanceProgramado.toFixed(1)}% − ${avance != null ? avance.toFixed(1) : '0'}% = <b>${desvAvance.toFixed(1)}%</b></div>
         <div class="ur-break-calc">${pesoPctAvance}% × ${desvAvance.toFixed(1)}% = <span class="contrib">${contribAvance.toFixed(2)} pp</span></div>
       </div>
     `;
