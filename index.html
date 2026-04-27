@@ -1177,17 +1177,17 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
       <li>Completa el <b>código de semana</b> (ej. <code>S37</code>) y la <b>fecha de corte</b> (sábado del cierre).</li>
       <li>Arrastra los 11 Excel al dropzone (o click en "Seleccionar archivos").</li>
       <li>Click en <b>"Procesar archivos →"</b>.</li>
-      <li>Revisa los 6 KPIs del <b>preview</b>: Avance · CPI · SPI Meta · SPI Contractual · MO · Personal.</li>
+      <li>Revisa los KPIs del <b>preview</b>: Avance · CPI MO Acumulado · SPI Contractual · MO · Personal · Costo en obra.</li>
       <li>Si todo luce bien, click en <b>"🚀 Publicar al dashboard"</b>.</li>
       <li>Vuelve a este dashboard y espera 1-2 minutos. Apreta <b>Ctrl+F5</b>.</li>
     </ol>
     <div class="help-ok"><b>💡 Tiempo total: ~3 minutos</b>. Los archivos se procesan en tu navegador — nada se sube hasta que confirmas "Publicar".</div>
 
     <h4>2 · CONFIGURAR EL TOKEN (SOLO LA PRIMERA VEZ)</h4>
-    <p style="margin-bottom:8px">Para que puedas publicar directamente sin entrar a GitHub, necesitas configurar un token una sola vez en tu navegador.</p>
+    <p style="margin-bottom:8px">Para poder publicar directamente sin entrar a GitHub, necesitas configurar un token una sola vez en tu navegador.</p>
     <ol>
       <li>Abre <code>cargar.html</code>. Verás una caja azul pidiendo el token.</li>
-      <li>Genera el token en <a href="https://github.com/settings/tokens?type=beta" target="_blank" style="color:var(--twitter-blue);font-weight:600">GitHub › Fine-grained tokens</a> con permiso <b>Contents: Read & Write</b> sobre el repo <code>esparq/e140-dashboard</code>.</li>
+      <li>Genera el token en <a href="https://github.com/settings/tokens?type=beta" target="_blank" style="color:var(--twitter-blue);font-weight:600">GitHub › Fine-grained tokens</a> con permiso <b>Contents: Read & Write</b> sobre el repo del dashboard.</li>
       <li>Pégalo en el campo y click en <b>"Guardar token"</b>.</li>
       <li>El estado cambia a <b>✓ Token OK</b> (verde) en la parte superior.</li>
     </ol>
@@ -1205,50 +1205,54 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
     <h4>4 · LOS 6 KPIs DEL PANEL EJECUTIVO</h4>
     <table class="help-tbl">
       <tr><th>KPI</th><th>Fórmula</th><th>Lectura</th></tr>
-      <tr><td>Avance de Obra</td><td>Promedio ponderado por MO Base</td><td>% físico consolidado</td></tr>
+      <tr><td>Avance de Obra</td><td>% Avance Real del cronograma general</td><td>% físico consolidado del proyecto</td></tr>
       <tr><td>CPI Mano de Obra Acumulado</td><td>MO Base / MO Real Acumulado<br><small>(MO Base = 25% × Costo Directo)</small></td><td>&gt;1 = ahorro · &lt;1 = sobrecosto</td></tr>
-      <tr><td>SPI Meta</td><td>Sectores ejecutados / programados (acumulados)</td><td>0.92 = 92% del plan cumplido</td></tr>
-      <tr><td>SPI Contractual</td><td>Pendiente definir fuente</td><td>Muestra "—" por ahora</td></tr>
-      <tr><td>MO Consumida</td><td>Real acumulado (archivo 06 col O)</td><td>Gasto real hasta la fecha</td></tr>
-      <tr><td>Personal en Obra</td><td>Dotación actual</td><td>Personas físicas hoy</td></tr>
+      <tr><td>SPI Meta</td><td>Promedio ponderado de SPI semanal de los frentes</td><td>0.92 = 92% del plan semanal cumplido</td></tr>
+      <tr><td>SPI Contractual</td><td>Avance Real / Avance Programado del cronograma</td><td>≥1 = en cronograma · &lt;1 = atrasado</td></tr>
+      <tr><td>MO Consumida</td><td>Real acumulado del archivo 06 (S/)</td><td>Gasto real hasta la fecha</td></tr>
+      <tr><td>Personal en Obra</td><td>Dotación actual vs meta dimensionamiento gerencia</td><td>Personas físicas hoy vs meta de 86 pax</td></tr>
     </table>
     <div class="help-ok"><b>💡 Colores:</b> verde = saludable · naranja = atento · rojo = alerta. Cada KPI tiene sus propios umbrales.</div>
 
-    <h4>5 · ACTUALIZACIÓN Y SINCRONIZACIÓN</h4>
+    <h4>5 · UTILIDAD EN RIESGO Y EFICIENCIA PRODUCTIVA</h4>
+    <table class="help-tbl">
+      <tr><th>Indicador</th><th>Fórmula</th><th>Lectura</th></tr>
+      <tr><td>Utilidad en Riesgo</td><td>⅓ Desv. SPI Contractual + ⅓ Desv. CPI MO + ⅓ Desv. Avance<br><small>Pesos iguales (33.3% cada uno)</small></td><td>≤ 5% verde · 5–12% amarillo · &gt;12% rojo</td></tr>
+      <tr><td>Eficiencia Productiva (IEP)</td><td>SPI Contractual × CPI MO Acumulado<br><small>Variante del CSI del PMBOK</small></td><td>≥1.20 eficiente · 0.85–1.19 balance · &lt;0.85 crítico</td></tr>
+    </table>
+    <div class="help-ok"><b>💡 Cada panel tiene un botón "ƒ Ver cálculo detallado"</b> que muestra el desglose completo: valor de cada componente, peso, contribución y suma final. Útil para auditar el cálculo.</div>
+
+    <h4>6 · ACTUALIZACIÓN Y SINCRONIZACIÓN</h4>
     <p style="margin-bottom:8px">El botón <b>🔄 Actualizar</b> del header recarga los datos desde GitHub sin recargar la página entera. Úsalo cuando:</p>
     <ul style="padding-left:20px">
       <li>Acabas de publicar una semana nueva y quieres verla inmediatamente.</li>
       <li>La sync está en rojo y quieres reintentar.</li>
     </ul>
-    <div class="help-note"><b>📡 Origen de datos:</b> el dashboard lee prioritariamente los JSONs de la carpeta <code>data/</code> del repo de GitHub. Si eso falla, cae automáticamente a datos demo.</div>
+    <div class="help-note"><b>📡 Origen de datos:</b> el dashboard lee los JSONs de la carpeta <code>data/</code> del repo de GitHub. Si eso falla, cae automáticamente a datos demo.</div>
 
-    <h4>6 · ARCHIVOS EXCEL DE FUENTE</h4>
+    <h4>7 · ARCHIVOS EXCEL DE FUENTE</h4>
     <p style="margin-bottom:8px">Los 11 Excel que alimentan el dashboard son:</p>
     <ol style="font-size:12px">
-      <li><code>01 Histograma</code> — Panel Ejecutivo + personal + HH préstamo</li>
+      <li><code>01 Histograma</code> — Personal en obra + meta dimensionamiento + HH préstamo</li>
       <li><code>02.01 Casco SOT</code> — Avance por partida + sectores</li>
       <li><code>02.02 Casco SUP</code> — Avance por partida + sectores</li>
       <li><code>02.03 Albañilería</code> — Avance por partida + sectores</li>
-      <li><code>03 Adquisiciones</code> — KPIs económicos</li>
-      <li><code>05 Cronograma</code> — Plazos y fechas</li>
-      <li><code>06 Control MO</code> — Cuadrillas + MO real/meta</li>
-      <li><code>07 Acero</code> — Consumos y valorizaciones</li>
-      <li><code>08 Arrendamiento</code> — Encofrado F1 (S/ + US$)</li>
-      <li><code>09 Kardex</code> — UNISPAN + Casa + consumibles</li>
-      <li><code>10 Adicionales</code> — Adicionales + deductivos + USD</li>
+      <li><code>03 Adquisiciones</code> — Costo directo + contratado + margen + items</li>
+      <li><code>05 Cronograma</code> — Plazos · días transcurridos · % avance plazo</li>
+      <li><code>06 Control MO</code> — Cuadrillas + MO Base/Meta/Real + rentabilidad</li>
+      <li><code>07 Acero</code> — Presupuesto vs consumido por diámetro (kg + S/)</li>
+      <li><code>08 Arrendamiento</code> — Cotización UNISPAN + valorizaciones mensuales</li>
+      <li><code>09 Kardex</code> — Costos en obra: UNISPAN + Casa + Consumibles</li>
+      <li><code>10 Adicionales</code> — Adicionales/Deductivos + Optimizaciones por especialidad</li>
     </ol>
-    <div class="help-note"><b>⚠ Importante:</b> cada archivo debe tener una hoja llamada <code>RESUMEN</code> (o <code>RESUMEN_DASH</code> para el 06) con la estructura correcta. Si cambias la estructura del Excel, los datos no se leerán bien.</div>
+    <div class="help-note"><b>⚠ Importante:</b> cada archivo tiene una hoja oculta <code>_DASHBOARD_DATA</code> que contiene las fórmulas que lee el dashboard. NO la modifiques manualmente — está vinculada al RESUMEN del archivo.</div>
 
-    <h4>7 · ACCESO Y USUARIOS</h4>
+    <h4>8 · ACCESO Y USUARIOS</h4>
     <p style="margin-bottom:8px">El dashboard tiene 2 roles:</p>
     <ul style="padding-left:20px;font-size:12px">
       <li style="margin-bottom:4px"><b>Visualizador:</b> cualquiera con el link ve el dashboard. No necesita login.</li>
       <li style="margin-bottom:4px"><b>Publicador:</b> solo con token configurado puede subir semanas desde <code>cargar.html</code>.</li>
     </ul>
-    <div class="help-ok"><b>🔗 Links clave:</b><br>
-      • Dashboard: <code>https://esparq.github.io/e140-dashboard/</code><br>
-      • Cargar: <code>https://esparq.github.io/e140-dashboard/cargar.html</code>
-    </div>
 
   </div>
 </div>
