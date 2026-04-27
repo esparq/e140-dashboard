@@ -1210,6 +1210,27 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .step.done{background:var(--green);color:var(--white);}
 .step .step-num{display:inline-block;margin-right:5px;opacity:.7;}
 
+/* ─── Tabs por área en modal de carga ─── */
+.area-tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:2px solid var(--border);padding-bottom:0;flex-wrap:wrap;}
+.area-tab{padding:10px 14px;background:transparent;border:none;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);position:relative;display:flex;align-items:center;gap:6px;transition:color .15s;border-bottom:3px solid transparent;margin-bottom:-2px;}
+.area-tab:hover{color:var(--twitter-blue);}
+.area-tab.active{color:var(--twitter-blue);border-bottom-color:var(--twitter-blue);}
+.area-tab .at-icon{font-size:14px;line-height:1;}
+.area-tab .at-status{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:11px;font-weight:700;background:#EEF1F8;color:#5A6B8A;margin-left:4px;}
+.area-tab.area-loaded .at-status{background:#E7F4EE;color:#1A6B4A;}
+.area-tab.area-loaded::after{content:'';position:absolute;top:8px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 2px #fff;}
+
+.area-pane{display:none;}
+.area-pane.active{display:block;animation:fadeIn .2s ease;}
+
+.area-info-banner{background:var(--alice-blue);border:1px solid var(--border-mid);border-left:4px solid var(--twitter-blue);border-radius:6px;padding:12px 16px;margin-bottom:16px;font-size:12px;line-height:1.5;color:var(--text);}
+.area-info-banner b{color:var(--twitter-blue);}
+
+.area-summary-bar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px;padding:10px 14px;background:#FBFDFE;border:1px dashed var(--border-mid);border-radius:6px;font-size:11px;color:var(--text-muted);}
+.area-summary-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:4px;background:var(--white);border:1px solid var(--border);font-weight:600;}
+.area-summary-pill.loaded{border-color:var(--green);color:#1A6B4A;background:#F0F9F4;}
+.area-summary-pill.empty{border-color:var(--border-mid);color:var(--text-muted);}
+
 /* ═════════ FOOTER SYNC ═════════ */
 .sync-footer{background:var(--white);border-top:1px solid var(--border);padding:6px 28px;font-size:10px;color:var(--text-muted);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
 .sync-footer .sync-state{display:inline-flex;align-items:center;gap:6px;}
@@ -1282,14 +1303,14 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 </div>
 
 <!-- ═══════════════════════════════════════════
-     MODAL CARGAR SEMANA DESDE EXCEL
+     MODAL CARGAR SEMANA DESDE EXCEL — POR ÁREA
      ═══════════════════════════════════════════ -->
 <div class="modal-backdrop" id="cargaModal">
   <div class="modal-card">
     <div class="modal-head">
       <div>
-        <h2>📂 CARGAR SEMANA DESDE EXCEL</h2>
-        <p>Parseá los 11 archivos de cierre · previsualizá · publicá</p>
+        <h2>📂 CARGAR DATA POR ÁREA</h2>
+        <p>Cada área tiene su propia data y su propio cierre · cargá lo que tengas listo</p>
       </div>
       <button class="modal-close" onclick="closeCargaModal()" aria-label="Cerrar">✕</button>
     </div>
@@ -1301,32 +1322,175 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
         <div class="step" data-step="3"><span class="step-num">3</span>Publicar</div>
       </div>
 
-      <!-- PASO 1: DROPZONE -->
+      <!-- ─── TABS POR ÁREA ─── -->
+      <div class="area-tabs" id="areaTabs">
+        <button class="area-tab active" data-area="operaciones" onclick="switchAreaTab('operaciones')">
+          <span class="at-icon">🏗️</span>
+          <span>Operaciones</span>
+          <span class="at-status" id="atStat-operaciones">0</span>
+        </button>
+        <button class="area-tab" data-area="logistica" onclick="switchAreaTab('logistica')">
+          <span class="at-icon">🚛</span>
+          <span>Logística</span>
+          <span class="at-status" id="atStat-logistica">0</span>
+        </button>
+        <button class="area-tab" data-area="arquitectura" onclick="switchAreaTab('arquitectura')">
+          <span class="at-icon">📐</span>
+          <span>Arquitectura</span>
+          <span class="at-status" id="atStat-arquitectura">0</span>
+        </button>
+        <button class="area-tab" data-area="ssoma" onclick="switchAreaTab('ssoma')">
+          <span class="at-icon">⛑️</span>
+          <span>SSOMA</span>
+          <span class="at-status" id="atStat-ssoma">0</span>
+        </button>
+        <button class="area-tab" data-area="calidad" onclick="switchAreaTab('calidad')">
+          <span class="at-icon">✅</span>
+          <span>Calidad</span>
+          <span class="at-status" id="atStat-calidad">0</span>
+        </button>
+      </div>
+
+      <!-- PASO 1: ÁREAS (cada una con su código, fecha y dropzone) -->
       <div id="step1">
-        <div class="sem-input-row">
-          <div class="sem-input">
-            <label>Código semana (ej. S37)</label>
-            <input type="text" id="inSemanaCod" placeholder="S37" autocomplete="off">
+
+        <!-- ═══ Pane: OPERACIONES ═══ -->
+        <div class="area-pane active" data-area="operaciones" id="pane-operaciones">
+          <div class="area-info-banner">
+            <b>🏗️ Operaciones</b> · Avance físico, Histograma, MO, Adquisiciones, Adicionales, Cronograma. <b>7 archivos</b> esperados (Excel del cierre semanal).
           </div>
-          <div class="sem-input">
-            <label>Fecha de corte</label>
-            <input type="date" id="inSemanaFecha">
+          <div class="sem-input-row">
+            <div class="sem-input">
+              <label>Código semana (ej. S37)</label>
+              <input type="text" class="sem-cod-input" data-area="operaciones" placeholder="S37" autocomplete="off">
+            </div>
+            <div class="sem-input">
+              <label>Fecha de corte</label>
+              <input type="date" class="sem-fecha-input" data-area="operaciones">
+            </div>
           </div>
+          <div class="dropzone area-dropzone" data-area="operaciones" onclick="document.getElementById('fileInput-operaciones').click()">
+            <div class="dropzone-icon">📂</div>
+            <div class="dropzone-title">ARRASTRÁ ARCHIVOS DE OPERACIONES</div>
+            <div class="dropzone-subtitle">Histograma · Casco SOT/SUP · Albañilería · Adquisiciones · MO · Adicionales · Cronograma</div>
+            <button class="dropzone-btn" type="button">Seleccionar archivos</button>
+            <input type="file" class="area-file-input" data-area="operaciones" id="fileInput-operaciones" multiple accept=".xlsx,.xlsb,.xls" style="display:none">
+          </div>
+          <div class="area-file-list" data-area="operaciones"></div>
         </div>
 
-        <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
-          <div class="dropzone-icon">📂</div>
-          <div class="dropzone-title">ARRASTRÁ LOS 11 ARCHIVOS ACÁ</div>
-          <div class="dropzone-subtitle">O hacé click para seleccionarlos manualmente. Los archivos se procesan en tu navegador — nada se sube a internet.</div>
-          <button class="dropzone-btn" type="button">Seleccionar archivos</button>
-          <input type="file" id="fileInput" multiple accept=".xlsx,.xlsb,.xls" style="display:none">
+        <!-- ═══ Pane: LOGÍSTICA ═══ -->
+        <div class="area-pane" data-area="logistica" id="pane-logistica">
+          <div class="area-info-banner">
+            <b>🚛 Logística</b> · Acero, Encofrado (Kardex), Arrendamiento de encofrado. <b>3 archivos</b> esperados.
+          </div>
+          <div class="sem-input-row">
+            <div class="sem-input">
+              <label>Código semana (ej. S37)</label>
+              <input type="text" class="sem-cod-input" data-area="logistica" placeholder="S37" autocomplete="off">
+            </div>
+            <div class="sem-input">
+              <label>Fecha de corte</label>
+              <input type="date" class="sem-fecha-input" data-area="logistica">
+            </div>
+          </div>
+          <div class="dropzone area-dropzone" data-area="logistica" onclick="document.getElementById('fileInput-logistica').click()">
+            <div class="dropzone-icon">🚛</div>
+            <div class="dropzone-title">ARRASTRÁ ARCHIVOS DE LOGÍSTICA</div>
+            <div class="dropzone-subtitle">Control de Acero · Kardex de Encofrado · Arrendamiento F1F2</div>
+            <button class="dropzone-btn" type="button">Seleccionar archivos</button>
+            <input type="file" class="area-file-input" data-area="logistica" id="fileInput-logistica" multiple accept=".xlsx,.xlsb,.xls" style="display:none">
+          </div>
+          <div class="area-file-list" data-area="logistica"></div>
         </div>
 
-        <div id="fileListContainer"></div>
+        <!-- ═══ Pane: ARQUITECTURA ═══ -->
+        <div class="area-pane" data-area="arquitectura" id="pane-arquitectura">
+          <div class="area-info-banner">
+            <b>📐 Arquitectura</b> · % avance de planos, observaciones, alertas de postventa. Carga independiente del cierre semanal de Operaciones — <b>según visitas del responsable de Arquitectura</b>.
+          </div>
+          <div class="sem-input-row">
+            <div class="sem-input">
+              <label>Código de visita / semana (ej. S38)</label>
+              <input type="text" class="sem-cod-input" data-area="arquitectura" placeholder="S38" autocomplete="off">
+            </div>
+            <div class="sem-input">
+              <label>Fecha de visita</label>
+              <input type="date" class="sem-fecha-input" data-area="arquitectura">
+            </div>
+          </div>
+          <div class="dropzone area-dropzone" data-area="arquitectura" onclick="document.getElementById('fileInput-arquitectura').click()">
+            <div class="dropzone-icon">📐</div>
+            <div class="dropzone-title">ARRASTRÁ ARCHIVOS DE ARQUITECTURA</div>
+            <div class="dropzone-subtitle">Reporte de avance de planos · Observaciones · Alertas postventa</div>
+            <button class="dropzone-btn" type="button">Seleccionar archivos</button>
+            <input type="file" class="area-file-input" data-area="arquitectura" id="fileInput-arquitectura" multiple accept=".xlsx,.xlsb,.xls,.pdf" style="display:none">
+          </div>
+          <div class="area-file-list" data-area="arquitectura"></div>
+        </div>
 
-        <div class="modal-msg info" style="margin-top:14px">
-          <b>💡 Archivos esperados (puede faltar alguno — usará la semana previa):</b><br>
-          01 Histograma · 02.01 SOT · 02.02 SUP · 02.03 Albañilería · 03 Adquisiciones · 05 Cronograma · 06 MO · 07 Acero · 08 Arrendamiento · 09 Kardex · 10 Adicionales
+        <!-- ═══ Pane: SSOMA ═══ -->
+        <div class="area-pane" data-area="ssoma" id="pane-ssoma">
+          <div class="area-info-banner">
+            <b>⛑️ SSOMA</b> · Indicadores SST (ISO 45001), Gestión Ambiental (ISO 14001). Carga independiente — <b>según visitas del responsable SSOMA</b>.
+          </div>
+          <div class="sem-input-row">
+            <div class="sem-input">
+              <label>Código de visita / semana (ej. S38)</label>
+              <input type="text" class="sem-cod-input" data-area="ssoma" placeholder="S38" autocomplete="off">
+            </div>
+            <div class="sem-input">
+              <label>Fecha de visita</label>
+              <input type="date" class="sem-fecha-input" data-area="ssoma">
+            </div>
+          </div>
+          <div class="dropzone area-dropzone" data-area="ssoma" onclick="document.getElementById('fileInput-ssoma').click()">
+            <div class="dropzone-icon">⛑️</div>
+            <div class="dropzone-title">ARRASTRÁ ARCHIVOS DE SSOMA</div>
+            <div class="dropzone-subtitle">Reporte SST · Reporte Ambiental · Inspecciones · Accidentes / Incidentes</div>
+            <button class="dropzone-btn" type="button">Seleccionar archivos</button>
+            <input type="file" class="area-file-input" data-area="ssoma" id="fileInput-ssoma" multiple accept=".xlsx,.xlsb,.xls,.pdf" style="display:none">
+          </div>
+          <div class="area-file-list" data-area="ssoma"></div>
+        </div>
+
+        <!-- ═══ Pane: CALIDAD ═══ -->
+        <div class="area-pane" data-area="calidad" id="pane-calidad">
+          <div class="area-info-banner">
+            <b>✅ Calidad</b> · Gestión SIG, Control de NC, Capacitaciones. Carga independiente — <b>según visitas programadas de Calidad</b>.
+          </div>
+          <div class="sem-input-row">
+            <div class="sem-input">
+              <label>Código de visita / semana (ej. S38)</label>
+              <input type="text" class="sem-cod-input" data-area="calidad" placeholder="S38" autocomplete="off">
+            </div>
+            <div class="sem-input">
+              <label>Fecha de visita</label>
+              <input type="date" class="sem-fecha-input" data-area="calidad">
+            </div>
+          </div>
+          <div class="dropzone area-dropzone" data-area="calidad" onclick="document.getElementById('fileInput-calidad').click()">
+            <div class="dropzone-icon">✅</div>
+            <div class="dropzone-title">ARRASTRÁ ARCHIVOS DE CALIDAD</div>
+            <div class="dropzone-subtitle">Reporte SIG · No Conformidades · Plan de Capacitaciones · Dossier</div>
+            <button class="dropzone-btn" type="button">Seleccionar archivos</button>
+            <input type="file" class="area-file-input" data-area="calidad" id="fileInput-calidad" multiple accept=".xlsx,.xlsb,.xls,.pdf" style="display:none">
+          </div>
+          <div class="area-file-list" data-area="calidad"></div>
+        </div>
+
+        <!-- Resumen global de áreas cargadas -->
+        <div class="area-summary-bar" id="areaSummaryBar">
+          <span style="font-weight:700;color:var(--text);">Estado de carga:</span>
+          <span class="area-summary-pill empty" id="sumPill-operaciones">🏗️ Operaciones · 0 archivos</span>
+          <span class="area-summary-pill empty" id="sumPill-logistica">🚛 Logística · 0 archivos</span>
+          <span class="area-summary-pill empty" id="sumPill-arquitectura">📐 Arquitectura · 0 archivos</span>
+          <span class="area-summary-pill empty" id="sumPill-ssoma">⛑️ SSOMA · 0 archivos</span>
+          <span class="area-summary-pill empty" id="sumPill-calidad">✅ Calidad · 0 archivos</span>
+        </div>
+
+        <div class="modal-msg info" style="margin-top:10px;font-size:11.5px;">
+          💡 <b>Carga independiente por área:</b> podés cargar una sola área (ej. solo Calidad esta semana), o todas. Cada área se publica como un JSON separado <code>data/data-sXX-{area}.json</code>. El dashboard combina automáticamente la última versión de cada área.
         </div>
       </div>
 
@@ -1361,34 +1525,36 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
   </div>
   <div class="help-body">
 
-    <h4>1 · CÓMO PUBLICAR UNA NUEVA SEMANA</h4>
+    <h4>1 · CÓMO PUBLICAR DATA POR ÁREA</h4>
+    <p style="margin-bottom:10px;font-size:13px;">Cada área del proyecto se carga por separado: Operaciones, Logística, Arquitectura, SSOMA y Calidad. Cargá solo las áreas que tengas listas — no es necesario tener todo a la vez.</p>
     <ol>
-      <li>Asegúrate que los <b>11 archivos Excel</b> del cierre estén actualizados en tu PC o SharePoint.</li>
-      <li>Abre la página de carga: <a href="./cargar.html" target="_blank" style="color:var(--twitter-blue);font-weight:600"><code>cargar.html</code></a>.</li>
-      <li>Completa el <b>código de semana</b> (ej. <code>S37</code>) y la <b>fecha de corte</b> (sábado del cierre).</li>
-      <li>Arrastra los 11 Excel al dropzone (o click en "Seleccionar archivos").</li>
-      <li>Click en <b>"Procesar archivos →"</b>.</li>
-      <li>Revisa los KPIs del <b>preview</b>: Avance · CPI MO Acumulado · SPI Contractual · MO · Personal · Costo en obra.</li>
-      <li>Si todo luce bien, click en <b>"🚀 Publicar al dashboard"</b>.</li>
-      <li>Vuelve a este dashboard y espera 1-2 minutos. Apreta <b>Ctrl+F5</b>.</li>
+      <li>Click en <b>"📂 Cargar Data"</b> arriba a la derecha del header.</li>
+      <li>Seleccioná la <b>tab del área</b> que querés cargar (ej. Calidad).</li>
+      <li>Completá el <b>código de semana/visita</b> (ej. <code>S38</code>) y la <b>fecha</b>. Cada área tiene su propio código y fecha porque las visitas no siempre coinciden con el cierre de Operaciones.</li>
+      <li>Arrastrá los archivos al dropzone (o click en "Seleccionar archivos").</li>
+      <li>Repetí para otras áreas si tenés data lista (las tabs muestran ✓ verde cuando están cargadas).</li>
+      <li>Click en <b>"Procesar archivos →"</b> (procesa todas las áreas con archivos).</li>
+      <li>Revisá el <b>preview por área</b>.</li>
+      <li>En el paso de Publicar, descargá los <b>JSON de cada área</b> (uno por archivo: <code>data-sXX-{area}.json</code>).</li>
+      <li>Subí los JSONs a la carpeta <code>data/</code> del repo en GitHub.</li>
+      <li>El dashboard combina automáticamente la última versión de cada área en ~1 minuto.</li>
     </ol>
-    <div class="help-ok"><b>💡 Tiempo total: ~3 minutos</b>. Los archivos se procesan en tu navegador — nada se sube hasta que confirmas "Publicar".</div>
+    <div class="help-ok"><b>💡 Carga independiente:</b> Si solo cargás Calidad esta semana, las demás áreas mantienen su última data publicada. No se borra nada.</div>
 
-    <h4>2 · CONFIGURAR EL TOKEN (SOLO LA PRIMERA VEZ)</h4>
-    <p style="margin-bottom:8px">Para poder publicar directamente sin entrar a GitHub, necesitas configurar un token una sola vez en tu navegador.</p>
-    <ol>
-      <li>Abre <code>cargar.html</code>. Verás una caja azul pidiendo el token.</li>
-      <li>Genera el token en <a href="https://github.com/settings/tokens?type=beta" target="_blank" style="color:var(--twitter-blue);font-weight:600">GitHub › Fine-grained tokens</a> con permiso <b>Contents: Read & Write</b> sobre el repo del dashboard.</li>
-      <li>Pégalo en el campo y click en <b>"Guardar token"</b>.</li>
-      <li>El estado cambia a <b>✓ Token OK</b> (verde) en la parte superior.</li>
-    </ol>
-    <div class="help-note"><b>⚠ Seguridad:</b> el token se guarda solo en tu navegador. No lo compartas por canales públicos (grupos de WhatsApp, correo sin cifrado). Si sospechas que se filtró, revócalo en GitHub y genera uno nuevo.</div>
+    <h4>2 · ÁREAS Y SUS ARCHIVOS ESPERADOS</h4>
+    <table class="help-tbl">
+      <tr><th>Área</th><th>Archivos esperados</th><th>Cadencia</th></tr>
+      <tr><td>🏗️ Operaciones</td><td>01 Histograma · 02.01 SOT · 02.02 SUP · 02.03 Albañilería · 03 Adquisiciones · 05 Cronograma · 06 MO · 10 Adicionales</td><td>Semanal</td></tr>
+      <tr><td>🚛 Logística</td><td>07 Acero · 08 Arrendamiento · 09 Kardex (Encofrado)</td><td>Semanal</td></tr>
+      <tr><td>📐 Arquitectura</td><td>Reportes de avance, observaciones</td><td>Por visita</td></tr>
+      <tr><td>⛑️ SSOMA</td><td>SST + Ambiental</td><td>Por visita</td></tr>
+      <tr><td>✅ Calidad</td><td>SIG · NC · Capacitaciones</td><td>Por visita</td></tr>
+    </table>
 
     <h4>3 · QUÉ HACER SI ALGO NO CARGA</h4>
     <ul style="padding-left:20px;margin-bottom:10px">
       <li style="margin-bottom:6px"><b>Banner "Archivos faltantes":</b> falta algún Excel al cargar. El dashboard usará los datos de la semana anterior para ese archivo. Puedes volver a publicar con el archivo completo después.</li>
       <li style="margin-bottom:6px"><b>Celdas con "—":</b> ese campo está vacío o no se pudo leer del Excel. No es un error, es un placeholder.</li>
-      <li style="margin-bottom:6px"><b>Error "Token inválido o expirado":</b> el token de GitHub expiró. Genera uno nuevo y reemplázalo en ⚙ Config de <code>cargar.html</code>.</li>
       <li style="margin-bottom:6px"><b>Semana no aparece en el dashboard:</b> GitHub Pages tarda 1-2 minutos en publicar. Apreta Ctrl+F5 o espera.</li>
       <li style="margin-bottom:6px"><b>Modo offline:</b> sin internet, el dashboard muestra los últimos datos cacheados con un aviso.</li>
     </ul>
@@ -1616,9 +1782,9 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
         <button class="hdr-btn" id="refreshBtn" onclick="refreshData()" title="Recarga los datos más recientes desde GitHub">
           <span class="ico">🔄</span> Actualizar
         </button>
-        <a href="./cargar.html" target="_blank" class="hdr-btn hdr-btn-primary" id="cargarSemBtn" title="Abre la página para cargar y publicar una nueva semana" style="text-decoration:none">
-          <span class="ico">📂</span> Cargar Semana
-        </a>
+        <button class="hdr-btn hdr-btn-primary" id="cargarSemBtn" onclick="openCargaModal()" title="Cargar y publicar data por área">
+          <span class="ico">📂</span> Cargar Data
+        </button>
         <div class="th-date">
           <div class="dl">Semana</div>
           <div class="dv" id="hdrSem">SEM 36</div>
@@ -3361,17 +3527,36 @@ const LS_KEY = "e140_dashboard_cache_v1";
 async function loadFromJSONs(){
   setLoadingProgress("Buscando JSONs semanales en data/…", 0);
 
+  // ─── Áreas soportadas (en orden de aplicación: legacy primero, después por área) ───
+  const AREAS_JSON = ['operaciones', 'logistica', 'arquitectura', 'ssoma', 'calidad'];
+
   // Barrer semanas 1-100 con fetch paralelo
+  // Para cada semana se busca:
+  //   1) data-sXX.json           (formato legacy, todas las áreas mezcladas)
+  //   2) data-sXX-{area}.json    (formato por área, una por archivo)
   const promises = [];
   for(let i = 1; i <= 100; i++){
     const sem = 'S' + (i < 10 ? '0' + i : i);
-    const url = `./data/data-${sem.toLowerCase()}.json?v=${Date.now()}`;
+
+    // Legacy: una semana = un archivo
+    const urlLegacy = `./data/data-${sem.toLowerCase()}.json?v=${Date.now()}`;
     promises.push(
-      fetch(url)
+      fetch(urlLegacy)
         .then(r => r.ok ? r.json() : null)
-        .then(j => j ? {sem, data: j} : null)
+        .then(j => j ? {sem, area:'legacy', data: j} : null)
         .catch(() => null)
     );
+
+    // Por área: una semana puede tener hasta 5 archivos (uno por área)
+    AREAS_JSON.forEach(area => {
+      const urlArea = `./data/data-${sem.toLowerCase()}-${area}.json?v=${Date.now()}`;
+      promises.push(
+        fetch(urlArea)
+          .then(r => r.ok ? r.json() : null)
+          .then(j => j ? {sem, area, data: j} : null)
+          .catch(() => null)
+      );
+    });
   }
   const results = await Promise.all(promises);
   const found = results.filter(r => r !== null);
@@ -3381,9 +3566,12 @@ async function loadFromJSONs(){
     return null;
   }
 
-  setLoadingProgress(`✓ Encontrados ${found.length} JSON(s) en data/`, found.length);
+  // Conteo segregado para el banner informativo
+  const cntLegacy = found.filter(f => f.area === 'legacy').length;
+  const cntPorArea = found.filter(f => f.area !== 'legacy').length;
+  setLoadingProgress(`✓ Encontrados ${cntLegacy} JSON(s) legacy + ${cntPorArea} JSON(s) por área`, found.length);
 
-  // Construir estructura weeks mezclando JSONs encontrados con el esqueleto DEMO
+  // ─── Construir estructura weeks mezclando JSONs con esqueleto DEMO ───
   const weeks = {};
   const order = [];
 
@@ -3392,10 +3580,31 @@ async function loadFromJSONs(){
     weeks[k] = JSON.parse(JSON.stringify(DEMO_DATA.weeks[k]));  // deep clone
   });
 
-  // Luego: sobrescribir con los datos de JSONs reales
-  found.forEach(({sem, data}) => {
+  // Aplicar JSONs en orden: primero legacy, después por área (las áreas sobrescriben legacy)
+  // Ordenamos: legacy primero, luego por área en el orden de AREAS_JSON
+  const ordenAplicacion = (a, b) => {
+    if(a.area === 'legacy' && b.area !== 'legacy') return -1;
+    if(a.area !== 'legacy' && b.area === 'legacy') return 1;
+    return AREAS_JSON.indexOf(a.area) - AREAS_JSON.indexOf(b.area);
+  };
+  const foundOrdenado = [...found].sort((a, b) => {
+    // Primero por semana ascendente, luego por orden de aplicación
+    const semA = parseInt(a.sem.replace(/\D/g,''), 10);
+    const semB = parseInt(b.sem.replace(/\D/g,''), 10);
+    if(semA !== semB) return semA - semB;
+    return ordenAplicacion(a, b);
+  });
+
+  // Sobrescribir con los datos de JSONs reales
+  foundOrdenado.forEach(({sem, area, data}) => {
     if(!weeks[sem]) weeks[sem] = JSON.parse(JSON.stringify(DEMO_DATA.weeks['S36'] || {}));
-    mergeJsonIntoWeek(weeks[sem], data);
+    if(area === 'legacy'){
+      // JSON legacy: aplica todas las áreas que contenga
+      mergeJsonIntoWeek(weeks[sem], data);
+    } else {
+      // JSON por área: aplica solo el bloque de esa área
+      mergeAreaJsonIntoWeek(weeks[sem], data, area);
+    }
   });
 
   // Ordenar semanas (S01 < S02 < ... < S36, S37...)
@@ -3407,8 +3616,9 @@ async function loadFromJSONs(){
     return na - nb;
   });
 
-  // Semana actual = la más reciente con JSON propio (no demo)
-  const realSems = found.map(f => f.sem).sort((a,b) => {
+  // Semana actual = la más reciente con JSON propio (no demo).
+  // Usa la semana más alta entre todos los JSONs encontrados (legacy o por área).
+  const realSems = [...new Set(found.map(f => f.sem))].sort((a,b) => {
     return parseInt(b.replace(/\D/g,''), 10) - parseInt(a.replace(/\D/g,''), 10);
   });
   const currentWeek = realSems[0] || order[order.length - 1];
@@ -3418,6 +3628,44 @@ async function loadFromJSONs(){
     weeks,
     order,
   };
+}
+
+/**
+ * Mergea un JSON por área en la estructura de una semana.
+ * Cada JSON tiene forma: { semana, area, corte_fecha, archivos: {...} }
+ * Solo aplica los archivos que correspondan a esa área (filtrado defensivo).
+ */
+function mergeAreaJsonIntoWeek(week, json, area){
+  if(!json || !json.archivos) return;
+  // Mapeo: qué archivos pertenecen a cada área
+  const archivosPorArea = {
+    operaciones:  ['histograma', 'casco_sot', 'casco_sup', 'albanileria', 'adquisiciones', 'cronograma', 'mo', 'adicionales'],
+    logistica:    ['acero', 'arrendamiento', 'kardex'],
+    arquitectura: ['arquitectura'],
+    ssoma:        ['ssoma_sst', 'ssoma_ambiental'],
+    calidad:      ['calidad_sig', 'calidad_nc', 'calidad_cap']
+  };
+  const allowed = archivosPorArea[area] || [];
+
+  // Filtrar archivos del JSON para que solo aplique los de su área
+  const filtrados = { archivos: {} };
+  Object.keys(json.archivos).forEach(k => {
+    if(allowed.includes(k)) filtrados.archivos[k] = json.archivos[k];
+  });
+  // Pasar también la metadata de corte por si la usa el merge legacy
+  if(json.semana) filtrados.semana = json.semana;
+  if(json.corte_fecha) filtrados.corte_fecha = json.corte_fecha;
+
+  // Reusar el merge legacy con archivos filtrados (Operaciones+Logística usan ese flujo)
+  if(area === 'operaciones' || area === 'logistica'){
+    mergeJsonIntoWeek(week, filtrados);
+  } else {
+    // Áreas nuevas (arq, ssoma, calidad): guardamos los datos crudos en una rama
+    // dedicada de la semana para que renderArquitectura/Ssoma/Calidad los lean.
+    if(!week.areasData) week.areasData = {};
+    week.areasData[area] = filtrados.archivos;
+    if(json.corte_fecha) week.areasData[area]._corte = json.corte_fecha;
+  }
 }
 
 /**
@@ -6098,139 +6346,166 @@ setInterval(() => location.reload(), 15 * 60 * 1000); // 15 minutos
    ═  lo commitea manualmente al repo de GitHub (3 clicks).                  ═
    ═══════════════════════════════════════════════════════════════════════════ */
 
-// Archivos esperados con su identificador y la hoja a leer
-const ARCHIVOS_ESPERADOS = [
-  {prefijo:'01',    key:'histograma',    label:'Histograma',    hoja:'_DASHBOARD_DATA'},
-  {prefijo:'02_01', key:'casco_sot',     label:'Casco SOT',     hoja:'_DASHBOARD_DATA'},
-  {prefijo:'02_02', key:'casco_sup',     label:'Casco SUP',     hoja:'_DASHBOARD_DATA'},
-  {prefijo:'02_03', key:'albanileria',   label:'Albañilería',   hoja:'_DASHBOARD_DATA'},
-  {prefijo:'03',    key:'adquisiciones', label:'Adquisiciones', hoja:'_DASHBOARD_DATA'},
-  {prefijo:'05',    key:'cronograma',    label:'Cronograma',    hoja:'_DASHBOARD_DATA'},
-  {prefijo:'06',    key:'mo',            label:'MO',            hoja:'_DASHBOARD_DATA'},
-  {prefijo:'07',    key:'acero',         label:'Acero',         hoja:'_DASHBOARD_DATA'},
-  {prefijo:'08',    key:'arrendamiento', label:'Arrendamiento', hoja:'_DASHBOARD_DATA'},
-  {prefijo:'09',    key:'kardex',        label:'Kardex',        hoja:'_DASHBOARD_DATA'},
-  {prefijo:'10',    key:'adicionales',   label:'Adicionales',   hoja:'_DASHBOARD_DATA'},
-];
+// ─── ÁREAS DEL CARGADOR (cada una se carga independientemente) ───
+const AREAS_CARGADOR = ['operaciones', 'logistica', 'arquitectura', 'ssoma', 'calidad'];
 
-// Estado del modal
+// Archivos esperados por área. Cada archivo se identifica por un PREFIJO
+// numérico al inicio del nombre del archivo (ej. "01_..." → histograma).
+const ARCHIVOS_POR_AREA = {
+  operaciones: [
+    {prefijo:'01',    key:'histograma',    label:'Histograma'},
+    {prefijo:'02_01', key:'casco_sot',     label:'Casco SOT'},
+    {prefijo:'02_02', key:'casco_sup',     label:'Casco SUP'},
+    {prefijo:'02_03', key:'albanileria',   label:'Albañilería'},
+    {prefijo:'03',    key:'adquisiciones', label:'Adquisiciones'},
+    {prefijo:'05',    key:'cronograma',    label:'Cronograma'},
+    {prefijo:'06',    key:'mo',            label:'MO'},
+    {prefijo:'10',    key:'adicionales',   label:'Adicionales'},
+  ],
+  logistica: [
+    {prefijo:'07',    key:'acero',         label:'Acero'},
+    {prefijo:'08',    key:'arrendamiento', label:'Arrendamiento'},
+    {prefijo:'09',    key:'kardex',        label:'Kardex / Encofrado'},
+  ],
+  arquitectura: [
+    // Sin prefijos definidos aún — se aceptan todos y se etiquetan genéricamente
+  ],
+  ssoma: [],
+  calidad: [],
+};
+
+// Mantenemos ARCHIVOS_ESPERADOS por compatibilidad con el código de parseo existente
+// (es la unión de operaciones + logistica)
+const ARCHIVOS_ESPERADOS = [
+  ...ARCHIVOS_POR_AREA.operaciones,
+  ...ARCHIVOS_POR_AREA.logistica,
+].map(a => ({...a, hoja:'_DASHBOARD_DATA'}));
+
+// Estado del modal — ahora segregado por área
 let cargaState = {
   step: 1,
-  archivos: {},   // key → {file, parsed, status}
-  datos: null,    // resultado del parsing
+  activeArea: 'operaciones',
+  // Por área: {file, info, status} indexado por key
+  porArea: {
+    operaciones:  { archivos:{}, semana:'', fecha:'', datos:null },
+    logistica:    { archivos:{}, semana:'', fecha:'', datos:null },
+    arquitectura: { archivos:{}, semana:'', fecha:'', datos:null },
+    ssoma:        { archivos:{}, semana:'', fecha:'', datos:null },
+    calidad:      { archivos:{}, semana:'', fecha:'', datos:null },
+  },
+  // Compat: archivos consolidados (para que el código de parseo legacy siga funcionando)
+  archivos: {},
+  datos: null,
 };
 
 // ────────────────────────────────────────
-// ABRIR / CERRAR MODAL
+// ABRIR / CERRAR MODAL — SISTEMA POR ÁREAS
 // ────────────────────────────────────────
 function openCargaModal(){
-  console.log('═══ [DEBUG] openCargaModal INICIADO ═══');
+  // Reset estado
+  resetCargaState();
+
+  // Mostrar modal
+  const modal = document.getElementById('cargaModal');
+  if(!modal){ alert('Error: modal no encontrado en el DOM'); return; }
+  modal.classList.add('show');
+
+  // Prefill: detectar próxima semana basada en la actual
+  let nextSem = 'S37';
+  let nextFecha = '';
   try {
-    // 1. Reset estado
-    cargaState = {step:1, archivos:{}, datos:null};
-    console.log('[DEBUG] 1. Estado reseteado');
+    const weekSelect = document.getElementById('weekSelect');
+    const currentSem = weekSelect && weekSelect.value ? weekSelect.value : 'S36';
+    const match = currentSem.match(/\d+/);
+    const numAct = match ? parseInt(match[0], 10) : 36;
+    nextSem = 'S' + (numAct + 1);
+  } catch(e){}
+  try {
+    const today = new Date();
+    const dow = today.getDay();
+    const daysToSat = (6 - dow + 7) % 7 || 7;
+    const nextSat = new Date(today.getTime() + daysToSat*24*60*60*1000);
+    nextFecha = nextSat.toISOString().split('T')[0];
+  } catch(e){}
 
-    // 2. Mostrar modal
-    const modal = document.getElementById('cargaModal');
-    console.log('[DEBUG] 2. Modal element:', modal);
-    if(!modal){
-      alert('Error: modal no encontrado en el DOM');
-      return;
-    }
-    modal.classList.add('show');
-    console.log('[DEBUG] 3. Modal marcado como show');
+  // Aplicar prefill a TODAS las áreas
+  AREAS_CARGADOR.forEach(area => {
+    const codInput = document.querySelector(`.sem-cod-input[data-area="${area}"]`);
+    const fechaInput = document.querySelector(`.sem-fecha-input[data-area="${area}"]`);
+    if(codInput) codInput.value = nextSem;
+    if(fechaInput) fechaInput.value = nextFecha;
+    cargaState.porArea[area].semana = nextSem;
+    cargaState.porArea[area].fecha = nextFecha;
 
-    // 3. Verificar step1
-    const s1 = document.getElementById('step1');
-    console.log('[DEBUG] 4. step1 element:', s1);
-    if(s1){
-      console.log('[DEBUG] 4a. step1.innerHTML length:', s1.innerHTML.length);
-      console.log('[DEBUG] 4b. step1.offsetHeight:', s1.offsetHeight);
-      console.log('[DEBUG] 4c. step1.offsetWidth:', s1.offsetWidth);
-      const style = window.getComputedStyle(s1);
-      console.log('[DEBUG] 4d. step1 computed display:', style.display);
-      console.log('[DEBUG] 4e. step1 computed visibility:', style.visibility);
-      console.log('[DEBUG] 4f. step1 computed opacity:', style.opacity);
-      console.log('[DEBUG] 4g. step1 computed height:', style.height);
-    }
+    // Listener para sincronizar inputs con estado
+    if(codInput) codInput.oninput = e => { cargaState.porArea[area].semana = e.target.value.trim().toUpperCase(); };
+    if(fechaInput) fechaInput.oninput = e => { cargaState.porArea[area].fecha = e.target.value; };
+  });
 
-    // 4. Verificar inputs
-    const inputSem = document.getElementById('inSemanaCod');
-    const inputFecha = document.getElementById('inSemanaFecha');
-    console.log('[DEBUG] 5a. inSemanaCod:', inputSem);
-    console.log('[DEBUG] 5b. inSemanaFecha:', inputFecha);
+  // Setup dropzones (uno por área)
+  setupAreaDropzones();
 
-    // 5. Verificar dropzone
-    const dz = document.getElementById('dropzone');
-    console.log('[DEBUG] 6. dropzone:', dz);
-    if(dz){
-      console.log('[DEBUG] 6a. dropzone.offsetHeight:', dz.offsetHeight);
-      const dzStyle = window.getComputedStyle(dz);
-      console.log('[DEBUG] 6b. dropzone computed display:', dzStyle.display);
-    }
+  // Render
+  renderCargaStep();
+  updateAreaTabsStatus();
+  switchAreaTab(cargaState.activeArea);
+}
 
-    // 6. Prefill (con errores capturados)
-    try {
-      const weekSelect = document.getElementById('weekSelect');
-      const currentSem = weekSelect && weekSelect.value ? weekSelect.value : 'S36';
-      const match = currentSem.match(/\d+/);
-      const numAct = match ? parseInt(match[0], 10) : 36;
-      const nextSem = 'S' + (numAct + 1);
-      if(inputSem) inputSem.value = nextSem;
-      console.log('[DEBUG] 7. Semana prefill:', nextSem);
-    } catch(e){ console.warn('[DEBUG] Error prefill semana:', e); }
-
-    try {
-      const today = new Date();
-      const dow = today.getDay();
-      const daysToSat = (6 - dow + 7) % 7 || 7;
-      const nextSat = new Date(today.getTime() + daysToSat*24*60*60*1000);
-      if(inputFecha) inputFecha.value = nextSat.toISOString().split('T')[0];
-      console.log('[DEBUG] 8. Fecha prefill:', nextSat.toISOString().split('T')[0]);
-    } catch(e){ console.warn('[DEBUG] Error prefill fecha:', e); }
-
-    // 7. Render
-    try { renderCargaStep(); console.log('[DEBUG] 9. renderCargaStep OK'); } catch(e){ console.error('[DEBUG] Error renderCargaStep:', e); }
-    try { setupDropzone(); console.log('[DEBUG] 10. setupDropzone OK'); } catch(e){ console.error('[DEBUG] Error setupDropzone:', e); }
-
-    // 8. Failsafe de visibilidad
-    if(s1) {
-      s1.style.display = 'block';
-      s1.style.visibility = 'visible';
-      s1.style.opacity = '1';
-      s1.style.minHeight = '400px';
-    }
-    const s2 = document.getElementById('step2');
-    const s3 = document.getElementById('step3');
-    if(s2) s2.style.display = 'none';
-    if(s3) s3.style.display = 'none';
-
-    console.log('[DEBUG] 11. Failsafe aplicado');
-    console.log('═══ [DEBUG] openCargaModal TERMINADO ═══');
-
-    // 9. Verificación FINAL después de 100ms
-    setTimeout(() => {
-      const s1f = document.getElementById('step1');
-      if(s1f){
-        const sf = window.getComputedStyle(s1f);
-        console.log('═══ [DEBUG] VERIFICACIÓN POST-TIMEOUT ═══');
-        console.log('[DEBUG] step1 display final:', sf.display);
-        console.log('[DEBUG] step1 visibility final:', sf.visibility);
-        console.log('[DEBUG] step1 height final:', sf.height);
-        console.log('[DEBUG] step1 offsetHeight final:', s1f.offsetHeight);
-        console.log('[DEBUG] step1 children:', s1f.children.length);
-        console.log('[DEBUG] step1.innerHTML preview:', s1f.innerHTML.substring(0, 200));
-      }
-    }, 100);
-
-  } catch(err){
-    console.error('[DEBUG] Error CRÍTICO al abrir modal:', err);
-    alert('Error al abrir modal: ' + err.message);
-  }
+function resetCargaState(){
+  cargaState = {
+    step: 1,
+    activeArea: 'operaciones',
+    porArea: {
+      operaciones:  { archivos:{}, semana:'', fecha:'', datos:null },
+      logistica:    { archivos:{}, semana:'', fecha:'', datos:null },
+      arquitectura: { archivos:{}, semana:'', fecha:'', datos:null },
+      ssoma:        { archivos:{}, semana:'', fecha:'', datos:null },
+      calidad:      { archivos:{}, semana:'', fecha:'', datos:null },
+    },
+    archivos: {},
+    datos: null,
+  };
 }
 
 function closeCargaModal(){
   document.getElementById('cargaModal').classList.remove('show');
+}
+
+// ────────────────────────────────────────
+// CAMBIO DE TAB ENTRE ÁREAS
+// ────────────────────────────────────────
+function switchAreaTab(area){
+  cargaState.activeArea = area;
+  // Marcar tab activa
+  document.querySelectorAll('.area-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.area === area);
+  });
+  // Mostrar pane correspondiente
+  document.querySelectorAll('.area-pane').forEach(p => {
+    p.classList.toggle('active', p.dataset.area === area);
+  });
+}
+
+function updateAreaTabsStatus(){
+  AREAS_CARGADOR.forEach(area => {
+    const archivos = cargaState.porArea[area].archivos;
+    const count = Object.keys(archivos).filter(k => !k.startsWith('unknown_')).length;
+    // Contador en la tab
+    const stat = document.getElementById('atStat-' + area);
+    if(stat) stat.textContent = count;
+    // Marcar tab como cargada
+    const tab = document.querySelector(`.area-tab[data-area="${area}"]`);
+    if(tab) tab.classList.toggle('area-loaded', count > 0);
+    // Pill resumen
+    const pill = document.getElementById('sumPill-' + area);
+    if(pill){
+      pill.classList.toggle('loaded', count > 0);
+      pill.classList.toggle('empty', count === 0);
+      const iconMap = {operaciones:'🏗️', logistica:'🚛', arquitectura:'📐', ssoma:'⛑️', calidad:'✅'};
+      const nameMap = {operaciones:'Operaciones', logistica:'Logística', arquitectura:'Arquitectura', ssoma:'SSOMA', calidad:'Calidad'};
+      pill.textContent = `${iconMap[area]} ${nameMap[area]} · ${count} archivo${count===1?'':'s'}`;
+    }
+  });
 }
 
 // ────────────────────────────────────────
@@ -6303,7 +6578,11 @@ function renderCargaStep(){
   back.style.display = cargaState.step > 1 ? 'inline-flex' : 'none';
   if(cargaState.step === 1){
     next.textContent = 'Procesar archivos →';
-    next.disabled = Object.keys(cargaState.archivos).length === 0;
+    // Habilitado si HAY al menos un área con archivos cargados
+    const algunaArea = AREAS_CARGADOR.some(area => {
+      return Object.keys(cargaState.porArea[area].archivos).filter(k => !k.startsWith('unknown_')).length > 0;
+    });
+    next.disabled = !algunaArea;
   } else if(cargaState.step === 2){
     next.textContent = 'Publicar →';
     next.disabled = false;
@@ -6320,63 +6599,94 @@ function renderCargaStep(){
 }
 
 // ────────────────────────────────────────
-// DROPZONE
+// DROPZONES POR ÁREA
 // ────────────────────────────────────────
-function setupDropzone(){
-  const dz = document.getElementById('dropzone');
-  const input = document.getElementById('fileInput');
+function setupAreaDropzones(){
+  AREAS_CARGADOR.forEach(area => {
+    const dz = document.querySelector(`.area-dropzone[data-area="${area}"]`);
+    const input = document.querySelector(`.area-file-input[data-area="${area}"]`);
+    if(!dz || !input) return;
 
-  ['dragenter','dragover'].forEach(ev => {
-    dz.addEventListener(ev, e => {
-      e.preventDefault();
-      dz.classList.add('drag');
+    // Evitar duplicar listeners en re-aperturas del modal
+    if(dz._setupDone) return;
+    dz._setupDone = true;
+
+    ['dragenter','dragover'].forEach(ev => {
+      dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); });
     });
-  });
-  ['dragleave','drop'].forEach(ev => {
-    dz.addEventListener(ev, e => {
-      e.preventDefault();
-      dz.classList.remove('drag');
+    ['dragleave','drop'].forEach(ev => {
+      dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); });
     });
+    dz.addEventListener('drop', e => {
+      handleAreaFiles(area, e.dataTransfer.files);
+    });
+    input.onchange = e => handleAreaFiles(area, e.target.files);
   });
-  dz.addEventListener('drop', e => {
-    handleFiles(e.dataTransfer.files);
-  });
-  input.onchange = e => handleFiles(e.target.files);
 }
 
-function handleFiles(files){
+function handleAreaFiles(area, files){
+  const target = cargaState.porArea[area].archivos;
   for(const f of files){
-    const info = identificarArchivo(f);
-    cargaState.archivos[info.key] = {
+    const info = identificarArchivoPorArea(f, area);
+    target[info.key] = {
       file: f,
       info: info,
-      status: info.key === 'unknown' ? 'warn' : 'ok',
+      status: info.key.startsWith('unknown_') ? 'warn' : 'ok',
     };
   }
-  renderFileList();
-  const next = document.getElementById('cargaNextBtn');
-  next.disabled = Object.keys(cargaState.archivos).filter(k => k !== 'unknown').length === 0;
+  // Sincronizar archivos consolidados (compat con código de parseo legacy)
+  sincronizarArchivosConsolidados();
+  renderAreaFileList(area);
+  updateAreaTabsStatus();
+  updateNextButton();
 }
 
-function identificarArchivo(file){
+function sincronizarArchivosConsolidados(){
+  cargaState.archivos = {};
+  AREAS_CARGADOR.forEach(area => {
+    Object.entries(cargaState.porArea[area].archivos).forEach(([k,v]) => {
+      cargaState.archivos[k] = v;
+    });
+  });
+}
+
+function identificarArchivoPorArea(file, area){
   const name = file.name.toLowerCase();
-  for(const a of ARCHIVOS_ESPERADOS){
+  // Buscar prefijo en los archivos esperados de la propia área primero
+  const expArea = ARCHIVOS_POR_AREA[area] || [];
+  for(const a of expArea){
     const pref = a.prefijo.toLowerCase();
-    // Detectar por inicio "01", "02_01.", etc.
     if(name.startsWith(pref + '_') || name.startsWith(pref + '.') || name.startsWith(pref + '__')){
       return a;
     }
   }
-  return {prefijo:'?', key:'unknown_' + Date.now() + '_' + Math.random().toString(36).substring(7), label:'No reconocido', hoja:''};
+  // Si no calza con un prefijo del área, igual lo aceptamos como genérico
+  // (útil para Arquitectura, SSOMA y Calidad que aún no tienen prefijos definidos)
+  return {
+    prefijo: '?',
+    key: 'unknown_' + area + '_' + Date.now() + '_' + Math.random().toString(36).substring(7),
+    label: 'Genérico — ' + area,
+    hoja: ''
+  };
 }
 
-function renderFileList(){
-  const container = document.getElementById('fileListContainer');
-  const keys = Object.keys(cargaState.archivos);
+function quitarArchivoArea(area, key){
+  delete cargaState.porArea[area].archivos[key];
+  sincronizarArchivosConsolidados();
+  renderAreaFileList(area);
+  updateAreaTabsStatus();
+  updateNextButton();
+}
+
+function renderAreaFileList(area){
+  const container = document.querySelector(`.area-file-list[data-area="${area}"]`);
+  if(!container) return;
+  const archivos = cargaState.porArea[area].archivos;
+  const keys = Object.keys(archivos);
   if(keys.length === 0){ container.innerHTML = ''; return; }
 
   let html = `
-    <div class="file-list">
+    <div class="file-list" style="margin-top:14px;">
       <div class="file-list-head">
         <span></span>
         <span>Archivo</span>
@@ -6384,82 +6694,161 @@ function renderFileList(){
         <span style="text-align:center">Acción</span>
       </div>`;
   for(const k of keys){
-    const a = cargaState.archivos[k];
+    const a = archivos[k];
     const iconClass = a.status === 'ok' ? 'ok' : a.status === 'err' ? 'err' : 'warn';
     const icon = a.status === 'ok' ? '✓' : a.status === 'err' ? '✕' : '!';
     const typeClass = a.info.prefijo === '?' ? 'unknown' : '';
+    const tipoTxt = a.info.prefijo === '?' ? 'Genérico' : a.info.prefijo + ' · ' + a.info.label;
     html += `
       <div class="file-row">
         <span class="file-icon ${iconClass}">${icon}</span>
         <span class="file-name" title="${a.file.name}">${a.file.name}</span>
-        <span class="file-type ${typeClass}">${a.info.prefijo === '?' ? 'No reconocido' : a.info.prefijo + ' · ' + a.info.label}</span>
-        <button class="file-remove" onclick="quitarArchivo('${k}')" title="Quitar">✕</button>
+        <span class="file-type ${typeClass}">${tipoTxt}</span>
+        <button class="file-remove" onclick="quitarArchivoArea('${area}','${k}')" title="Quitar">✕</button>
       </div>`;
   }
-  html += '</div>';
+  html += `</div>`;
   container.innerHTML = html;
 }
 
-function quitarArchivo(key){
-  delete cargaState.archivos[key];
-  renderFileList();
-  document.getElementById('cargaNextBtn').disabled = Object.keys(cargaState.archivos).filter(k => k !== 'unknown').length === 0;
+function updateNextButton(){
+  const next = document.getElementById('cargaNextBtn');
+  if(!next) return;
+  // Habilitar si HAY al menos un área con archivos cargados
+  const algunaArea = AREAS_CARGADOR.some(area => {
+    return Object.keys(cargaState.porArea[area].archivos).filter(k => !k.startsWith('unknown_')).length > 0;
+  });
+  next.disabled = !algunaArea;
 }
 
 // ────────────────────────────────────────
-// VALIDACIÓN PASO 1
+// COMPATIBILIDAD: las funciones legacy siguen disponibles pero ahora son aliases
+// ────────────────────────────────────────
+function setupDropzone(){
+  // Función legacy — ahora todo se maneja por área
+  setupAreaDropzones();
+}
+function handleFiles(files){
+  // Función legacy — usa el área activa
+  handleAreaFiles(cargaState.activeArea, files);
+}
+function quitarArchivo(key){
+  // Buscar en qué área está y quitarlo
+  for(const area of AREAS_CARGADOR){
+    if(cargaState.porArea[area].archivos[key]){
+      quitarArchivoArea(area, key);
+      return;
+    }
+  }
+}
+function identificarArchivo(file){
+  return identificarArchivoPorArea(file, cargaState.activeArea);
+}
+function renderFileList(){
+  // Función legacy — render de las 5 áreas
+  AREAS_CARGADOR.forEach(area => renderAreaFileList(area));
+}
+
+// ────────────────────────────────────────
+// VALIDACIÓN PASO 1 — POR ÁREA
 // ────────────────────────────────────────
 function validarPaso1(){
-  const sem = document.getElementById('inSemanaCod').value.trim().toUpperCase();
-  const fecha = document.getElementById('inSemanaFecha').value;
-  if(!sem || !/^S\d{1,3}$/.test(sem)){
-    alert('Código de semana inválido. Formato esperado: S37');
+  // Validar al menos un área con archivos
+  const areasConArchivos = AREAS_CARGADOR.filter(area => {
+    return Object.keys(cargaState.porArea[area].archivos).filter(k => !k.startsWith('unknown_')).length > 0;
+  });
+  if(areasConArchivos.length === 0){
+    alert('Cargá archivos en al menos un área antes de continuar.');
     return false;
   }
-  if(!fecha){
-    alert('Fecha de corte requerida');
-    return false;
+  // Validar que cada área con archivos tenga código de semana y fecha
+  for(const area of areasConArchivos){
+    const sem = (cargaState.porArea[area].semana || '').trim().toUpperCase();
+    const fecha = cargaState.porArea[area].fecha || '';
+    const nombre = {operaciones:'Operaciones',logistica:'Logística',arquitectura:'Arquitectura',ssoma:'SSOMA',calidad:'Calidad'}[area];
+    if(!sem || !/^S\d{1,3}$/.test(sem)){
+      alert(`${nombre}: Código de semana inválido. Formato esperado: S37`);
+      switchAreaTab(area);
+      return false;
+    }
+    if(!fecha){
+      alert(`${nombre}: Fecha de corte/visita requerida`);
+      switchAreaTab(area);
+      return false;
+    }
   }
   return true;
 }
 
 // ────────────────────────────────────────
-// PARSEO DE ARCHIVOS (SheetJS)
+// PARSEO DE ARCHIVOS — POR ÁREA (SheetJS)
 // ────────────────────────────────────────
 async function procesarArchivos(){
   const body = document.getElementById('cargaModalBody');
   body.style.opacity = '.5';
   body.style.pointerEvents = 'none';
 
+  // Procesar área por área. Cada una genera su propio paquete de datos.
+  for(const area of AREAS_CARGADOR){
+    const archivos = cargaState.porArea[area].archivos;
+    const keys = Object.keys(archivos).filter(k => !k.startsWith('unknown_'));
+    if(keys.length === 0){
+      cargaState.porArea[area].datos = null;  // Sin data para esta área
+      continue;
+    }
+
+    const resultadoArea = {
+      area: area,
+      semana: cargaState.porArea[area].semana.trim().toUpperCase(),
+      corte_fecha: cargaState.porArea[area].fecha,
+      archivos: {},
+      errores: [],
+      advertencias: [],
+    };
+
+    for(const k of keys){
+      const a = archivos[k];
+      if(a.info.prefijo === '?') continue; // Saltamos los genéricos sin parser
+      try {
+        const datos = await parsearArchivo(a.file, a.info);
+        resultadoArea.archivos[a.info.key] = datos;
+        a.status = 'ok';
+        a.parsed = datos;
+      } catch(err){
+        resultadoArea.errores.push(`${a.info.label}: ${err.message}`);
+        a.status = 'err';
+        a.error = err.message;
+      }
+    }
+
+    // Verificar archivos faltantes (solo para áreas con prefijos definidos)
+    const expArea = ARCHIVOS_POR_AREA[area] || [];
+    for(const exp of expArea){
+      if(!resultadoArea.archivos[exp.key]){
+        resultadoArea.advertencias.push(`Falta: ${exp.label} (se usará la semana anterior)`);
+      }
+    }
+
+    cargaState.porArea[area].datos = resultadoArea;
+  }
+
+  // Compatibilidad: armar también el resultado global usando Operaciones+Logística
+  // (mantiene el formato que el renderer del dashboard espera)
   const resultado = {
-    semana: document.getElementById('inSemanaCod').value.trim().toUpperCase(),
-    corte_fecha: document.getElementById('inSemanaFecha').value,
+    semana: (cargaState.porArea.operaciones.semana || cargaState.porArea.logistica.semana || 'S37').trim().toUpperCase(),
+    corte_fecha: cargaState.porArea.operaciones.fecha || cargaState.porArea.logistica.fecha || '',
     archivos: {},
     errores: [],
     advertencias: [],
   };
-
-  for(const k of Object.keys(cargaState.archivos)){
-    const a = cargaState.archivos[k];
-    if(a.info.key === 'unknown' || a.info.prefijo === '?') continue;
-    try {
-      const datos = await parsearArchivo(a.file, a.info);
-      resultado.archivos[a.info.key] = datos;
-      a.status = 'ok';
-      a.parsed = datos;
-    } catch(err){
-      resultado.errores.push(`${a.info.label}: ${err.message}`);
-      a.status = 'err';
-      a.error = err.message;
+  ['operaciones','logistica'].forEach(area => {
+    const dat = cargaState.porArea[area].datos;
+    if(dat){
+      Object.assign(resultado.archivos, dat.archivos);
+      resultado.errores.push(...dat.errores);
+      resultado.advertencias.push(...dat.advertencias);
     }
-  }
-
-  // Verificar archivos faltantes
-  for(const exp of ARCHIVOS_ESPERADOS){
-    if(!resultado.archivos[exp.key]){
-      resultado.advertencias.push(`Falta: ${exp.label} (se usará la semana anterior)`);
-    }
-  }
+  });
 
   cargaState.datos = resultado;
   body.style.opacity = '1';
@@ -6886,126 +7275,113 @@ function extraerAvance(sheet){
 // PREVIEW (paso 2)
 // ────────────────────────────────────────
 function renderPreview(){
-  const d = cargaState.datos;
-  if(!d){ document.getElementById('previewContent').innerHTML = '<p>Sin datos.</p>'; return; }
+  const iconMap = {operaciones:'🏗️', logistica:'🚛', arquitectura:'📐', ssoma:'⛑️', calidad:'✅'};
+  const nameMap = {operaciones:'Operaciones', logistica:'Logística', arquitectura:'Arquitectura', ssoma:'SSOMA', calidad:'Calidad'};
 
-  const h = d.archivos.histograma || {};
-  const adq = d.archivos.adquisiciones || {};
+  const areasConDatos = AREAS_CARGADOR.filter(a => cargaState.porArea[a].datos);
+  if(areasConDatos.length === 0){
+    document.getElementById('previewContent').innerHTML = '<p>Sin áreas cargadas para preview.</p>';
+    return;
+  }
 
-  // Consolidar SPI sumando los 3 archivos 02
-  const sot = d.archivos.casco_sot || {};
-  const sup = d.archivos.casco_sup || {};
-  const alb = d.archivos.albanileria || {};
-  const prog_acum = (sot.sectores_prog_acum||0) + (sup.sectores_prog_acum||0) + (alb.sectores_prog_acum||0);
-  const ejec_acum = (sot.sectores_ejec_acum||0) + (sup.sectores_ejec_acum||0) + (alb.sectores_ejec_acum||0);
-  const spi_acum_consol = prog_acum > 0 ? (ejec_acum/prog_acum) : 0;
-  const prog_sem = (sot.sectores_prog_sem||0) + (sup.sectores_prog_sem||0) + (alb.sectores_prog_sem||0);
-  const ejec_sem = (sot.sectores_ejec_sem||0) + (sup.sectores_ejec_sem||0) + (alb.sectores_ejec_sem||0);
-  const spi_sem_consol = prog_sem > 0 ? (ejec_sem/prog_sem) : 0;
-
-  // Render cards
   const fmtPct = v => v != null ? (v*100).toFixed(1)+'%' : '—';
   const fmtSol = v => v != null ? 'S/ '+Math.round(v).toLocaleString('es-PE') : '—';
   const fmtNum = v => v != null ? v.toFixed(2) : '—';
 
-  const colorCPI = h.cpi_mo >= 1 ? 'green' : 'red';
-  const colorSPI = spi_acum_consol >= 0.95 ? 'green' : spi_acum_consol >= 0.85 ? 'orange' : 'red';
-  const colorAv = h.avance_obra_pct >= 0.5 ? 'green' : 'orange';
-
   let html = `
-    <h3 style="margin-bottom:6px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--twitter-blue)">PREVIEW · ${d.semana} · Corte ${d.corte_fecha}</h3>
-    <p style="color:var(--text-muted);font-size:12px;margin-bottom:16px">Revisá que los 6 KPIs ejecutivos luzcan razonables antes de publicar.</p>
+    <h3 style="margin-bottom:6px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--twitter-blue)">PREVIEW POR ÁREA</h3>
+    <p style="color:var(--text-muted);font-size:12px;margin-bottom:18px">Revisá los KPIs procesados de cada área antes de publicar.</p>
+  `;
 
-    <div class="preview-grid">
-      <div class="preview-card highlight">
-        <div class="pc-lbl">AVANCE OBRA</div>
-        <div class="pc-val ${colorAv}">${fmtPct(h.avance_obra_pct)}</div>
-        <div class="pc-sub">Ponderado físico</div>
-      </div>
-      <div class="preview-card highlight">
-        <div class="pc-lbl">CPI MO</div>
-        <div class="pc-val ${colorCPI}">${fmtNum(h.cpi_mo)}</div>
-        <div class="pc-sub">${h.cpi_mo >= 1 ? 'Ahorrando' : 'Sobrecosto'}</div>
-      </div>
-      <div class="preview-card highlight">
-        <div class="pc-lbl">SPI META ACUM.</div>
-        <div class="pc-val ${colorSPI}">${fmtNum(spi_acum_consol)}</div>
-        <div class="pc-sub">${ejec_acum}/${prog_acum} sectores</div>
-      </div>
-      <div class="preview-card">
-        <div class="pc-lbl">SPI META SEM</div>
-        <div class="pc-val">${fmtNum(spi_sem_consol)}</div>
-        <div class="pc-sub">${ejec_sem}/${prog_sem} sectores</div>
-      </div>
-      <div class="preview-card">
-        <div class="pc-lbl">MO CONSUMIDA</div>
-        <div class="pc-val">${fmtSol(h.mo_consumida)}</div>
-        <div class="pc-sub">Acum. real</div>
-      </div>
-      <div class="preview-card">
-        <div class="pc-lbl">PERSONAL</div>
-        <div class="pc-val">${h.personal_obra || '—'}</div>
-        <div class="pc-sub">pax</div>
-      </div>
-    </div>`;
-
-  // Sección económica
-  html += `
-    <h4 style="margin-top:22px;margin-bottom:8px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:var(--twitter-blue-dk)">ECONÓMICO</h4>
-    <div class="preview-grid">
-      <div class="preview-card">
-        <div class="pc-lbl">COSTO DIRECTO</div>
-        <div class="pc-val">${fmtSol(adq.costo_directo)}</div>
-      </div>
-      <div class="preview-card">
-        <div class="pc-lbl">CONTRATADO</div>
-        <div class="pc-val">${fmtSol(adq.contratado_total)}</div>
-      </div>
-      <div class="preview-card">
-        <div class="pc-lbl">% AVANCE CONTR.</div>
-        <div class="pc-val">${adq.avance_contratacion_pct != null ? adq.avance_contratacion_pct.toFixed(1)+'%' : '—'}</div>
-      </div>
-      <div class="preview-card">
-        <div class="pc-lbl">MARGEN</div>
-        <div class="pc-val">${fmtSol(adq.margen_total)}</div>
-      </div>
-    </div>`;
-
-  // Adicionales
-  const ad = d.archivos.adicionales || {};
-  if(ad.adicionales_sol != null){
+  for(const area of areasConDatos){
+    const d = cargaState.porArea[area].datos;
     html += `
-      <h4 style="margin-top:22px;margin-bottom:8px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:var(--twitter-blue-dk)">ADICIONALES</h4>
-      <div class="preview-grid">
-        <div class="preview-card">
-          <div class="pc-lbl">ADIC. S/</div>
-          <div class="pc-val green">${fmtSol(ad.adicionales_sol)}</div>
-        </div>
-        <div class="preview-card">
-          <div class="pc-lbl">ADIC. US$</div>
-          <div class="pc-val green">$ ${ad.adicionales_usd != null ? Math.round(ad.adicionales_usd).toLocaleString('es-PE') : '—'}</div>
-        </div>
-        <div class="preview-card">
-          <div class="pc-lbl">DEDUCT. S/</div>
-          <div class="pc-val red">${fmtSol(ad.deductivos_sol)}</div>
-        </div>
-        <div class="preview-card">
-          <div class="pc-lbl">NETO S/</div>
-          <div class="pc-val">${fmtSol(ad.neto_sol)}</div>
-        </div>
-        <div class="preview-card">
-          <div class="pc-lbl">ÍTEMS</div>
-          <div class="pc-val">${ad.cantidad_items || '—'}</div>
-        </div>
-      </div>`;
-  }
+      <div style="margin-bottom:24px;padding:16px;background:#FBFDFE;border:1px solid var(--border);border-radius:8px;">
+        <h4 style="margin-bottom:14px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;color:var(--twitter-blue);border-bottom:2px solid var(--border);padding-bottom:8px;">
+          ${iconMap[area]} ${nameMap[area]} · ${d.semana} · ${d.corte_fecha}
+        </h4>
+    `;
 
-  // Errores y advertencias
-  if(d.errores.length > 0){
-    html += `<div class="modal-msg err"><b>Errores:</b><br>` + d.errores.map(e => '• ' + e).join('<br>') + '</div>';
-  }
-  if(d.advertencias.length > 0){
-    html += `<div class="modal-msg warn"><b>Archivos faltantes (se usará la semana anterior):</b><br>` + d.advertencias.map(e => '• ' + e).join('<br>') + '</div>';
+    // Preview específico para Operaciones
+    if(area === 'operaciones'){
+      const h = d.archivos.histograma || {};
+      const adq = d.archivos.adquisiciones || {};
+      const sot = d.archivos.casco_sot || {};
+      const sup = d.archivos.casco_sup || {};
+      const alb = d.archivos.albanileria || {};
+      const prog_acum = (sot.sectores_prog_acum||0) + (sup.sectores_prog_acum||0) + (alb.sectores_prog_acum||0);
+      const ejec_acum = (sot.sectores_ejec_acum||0) + (sup.sectores_ejec_acum||0) + (alb.sectores_ejec_acum||0);
+      const spi_acum_consol = prog_acum > 0 ? (ejec_acum/prog_acum) : 0;
+      const colorCPI = h.cpi_mo >= 1 ? 'green' : 'red';
+      const colorSPI = spi_acum_consol >= 0.95 ? 'green' : spi_acum_consol >= 0.85 ? 'orange' : 'red';
+      const colorAv = h.avance_obra_pct >= 0.5 ? 'green' : 'orange';
+
+      html += `
+        <div class="preview-grid">
+          <div class="preview-card highlight">
+            <div class="pc-lbl">AVANCE OBRA</div>
+            <div class="pc-val ${colorAv}">${fmtPct(h.avance_obra_pct)}</div>
+            <div class="pc-sub">Ponderado físico</div>
+          </div>
+          <div class="preview-card highlight">
+            <div class="pc-lbl">CPI MO</div>
+            <div class="pc-val ${colorCPI}">${fmtNum(h.cpi_mo)}</div>
+            <div class="pc-sub">${h.cpi_mo >= 1 ? 'Ahorrando' : 'Sobrecosto'}</div>
+          </div>
+          <div class="preview-card highlight">
+            <div class="pc-lbl">SPI META ACUM.</div>
+            <div class="pc-val ${colorSPI}">${fmtNum(spi_acum_consol)}</div>
+            <div class="pc-sub">${ejec_acum}/${prog_acum} sectores</div>
+          </div>
+          <div class="preview-card">
+            <div class="pc-lbl">MO CONSUMIDA</div>
+            <div class="pc-val">${fmtSol(h.mo_consumida)}</div>
+          </div>
+          <div class="preview-card">
+            <div class="pc-lbl">PERSONAL</div>
+            <div class="pc-val">${h.personal_obra || '—'}</div>
+            <div class="pc-sub">pax</div>
+          </div>
+          <div class="preview-card">
+            <div class="pc-lbl">CONTRATADO</div>
+            <div class="pc-val">${fmtSol(adq.contratado_total)}</div>
+          </div>
+        </div>`;
+    }
+    // Preview Logística
+    else if(area === 'logistica'){
+      const ace = d.archivos.acero || {};
+      const arr = d.archivos.arrendamiento || {};
+      const kar = d.archivos.kardex || {};
+      html += `
+        <div class="preview-grid">
+          <div class="preview-card"><div class="pc-lbl">ACERO</div><div class="pc-val">${ace.total_kg != null ? Math.round(ace.total_kg).toLocaleString('es-PE')+' kg' : '—'}</div></div>
+          <div class="preview-card"><div class="pc-lbl">ENCOFRADO (KARDEX)</div><div class="pc-val">${kar.total_m2 != null ? Math.round(kar.total_m2).toLocaleString('es-PE')+' m²' : (Object.keys(kar).length > 0 ? '✓' : '—')}</div></div>
+          <div class="preview-card"><div class="pc-lbl">ARRENDAMIENTO</div><div class="pc-val">${arr.monto_sol != null ? fmtSol(arr.monto_sol) : (Object.keys(arr).length > 0 ? '✓' : '—')}</div></div>
+        </div>`;
+    }
+    // Preview genérico para áreas sin parsers (Arquitectura, SSOMA, Calidad)
+    else {
+      const archivosCount = Object.keys(d.archivos).length;
+      const genericosCount = Object.keys(cargaState.porArea[area].archivos).filter(k => k.startsWith('unknown_')).length;
+      html += `
+        <div style="padding:14px;background:var(--white);border:1px dashed var(--border-mid);border-radius:6px;font-size:13px;color:var(--text);">
+          <p style="margin-bottom:8px;"><b>📦 ${archivosCount + genericosCount} archivo(s) listos para publicar.</b></p>
+          <p style="font-size:11.5px;color:var(--text-muted);font-style:italic;line-height:1.5;">
+            Esta área aún no tiene parsers de KPIs automáticos. Los archivos se guardarán en el JSON para que el responsable de ${nameMap[area]} pueda referenciarlos. Cuando se definan los KPIs, se podrá poblar el dashboard automáticamente.
+          </p>
+        </div>`;
+    }
+
+    // Errores y advertencias por área
+    if(d.errores.length > 0){
+      html += `<div class="modal-msg err" style="margin-top:10px;"><b>Errores:</b><br>` + d.errores.map(e => '• ' + e).join('<br>') + '</div>';
+    }
+    if(d.advertencias.length > 0){
+      html += `<div class="modal-msg warn" style="margin-top:10px;"><b>Archivos faltantes:</b><br>` + d.advertencias.map(e => '• ' + e).join('<br>') + '</div>';
+    }
+
+    html += `</div>`;  // cierre del bloque de área
   }
 
   document.getElementById('previewContent').innerHTML = html;
@@ -7015,44 +7391,75 @@ function renderPreview(){
 // PUBLICAR (paso 3): generar JSON y mostrar instrucciones
 // ────────────────────────────────────────
 function renderPublish(){
-  const d = cargaState.datos;
-  const semana = d.semana;
-  const json = JSON.stringify(d, null, 2);
-  const filename = `data-${semana.toLowerCase()}.json`;
+  // Mostrar un bloque de descarga POR cada área con datos parseados
+  const areasConDatos = AREAS_CARGADOR.filter(a => cargaState.porArea[a].datos);
+
+  const iconMap = {operaciones:'🏗️', logistica:'🚛', arquitectura:'📐', ssoma:'⛑️', calidad:'✅'};
+  const nameMap = {operaciones:'Operaciones', logistica:'Logística', arquitectura:'Arquitectura', ssoma:'SSOMA', calidad:'Calidad'};
+
+  let bloques = '';
+  for(const area of areasConDatos){
+    const dat = cargaState.porArea[area].datos;
+    const semana = dat.semana;
+    const filename = `data-${semana.toLowerCase()}-${area}.json`;
+    const archivosCount = Object.keys(dat.archivos).length;
+    bloques += `
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);">${iconMap[area]} ${nameMap[area]} · ${semana}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${archivosCount} archivo(s) procesado(s) · Fecha: ${dat.corte_fecha}</div>
+          </div>
+          <span style="font-family:'DM Mono',monospace;font-size:11px;background:var(--alice-blue);padding:4px 8px;border-radius:4px;color:var(--twitter-blue);font-weight:600;">${filename}</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button class="hdr-btn hdr-btn-primary" onclick="descargarJSONArea('${area}')">💾 Descargar JSON</button>
+          <button class="hdr-btn" onclick="copiarJSONArea('${area}')">📋 Copiar</button>
+          <span class="copyFeedback-${area}" style="font-size:11px;color:var(--green);font-weight:600"></span>
+        </div>
+      </div>`;
+  }
+
+  // Botón de descargar todo en zip lógico (descarga todos los JSONs uno por uno)
+  const allDownloadBtn = areasConDatos.length > 1 ? `
+    <div style="margin-top:18px;text-align:center;">
+      <button class="hdr-btn hdr-btn-primary" onclick="descargarTodosJSONArea()" style="padding:10px 20px;font-size:13px;">
+        💾 Descargar TODOS (${areasConDatos.length} archivos)
+      </button>
+    </div>` : '';
 
   const html = `
     <div class="modal-msg ok">
-      <b>✓ Archivo listo para publicar.</b> Descargá el JSON y subilo al repo de GitHub.
+      <b>✓ ${areasConDatos.length} área(s) lista(s) para publicar.</b> Descargá los JSONs y subilos al repo de GitHub.
     </div>
 
-    <div class="gh-steps">
-      <h4>📤 CÓMO PUBLICAR EN 3 CLICKS</h4>
+    <div class="gh-steps" style="margin-bottom:18px;">
+      <h4>📤 CÓMO PUBLICAR EN GITHUB</h4>
       <ol>
-        <li>Click en <b>"💾 Descargar JSON"</b> abajo → se baja <code>${filename}</code>.</li>
+        <li>Click en <b>"💾 Descargar JSON"</b> de cada área (o "Descargar TODOS" si hay varias).</li>
         <li>Abrí <a href="https://github.com/esparq/e140-dashboard" target="_blank" style="color:var(--twitter-blue);font-weight:600">tu repo en GitHub</a>.</li>
-        <li>Arrastrá el archivo <code>${filename}</code> dentro de la carpeta <code>data/</code> del repo → commit.</li>
-        <li>El dashboard detectará la nueva semana automáticamente en ~1 minuto.</li>
+        <li>Arrastrá los archivos JSON dentro de la carpeta <code>data/</code> del repo → commit.</li>
+        <li>El dashboard detectará la nueva data automáticamente en ~1 minuto.</li>
       </ol>
+      <p style="font-size:11.5px;color:var(--text-muted);margin-top:8px;font-style:italic;">
+        💡 Cada área se publica como un JSON separado: <code>data-sXX-{area}.json</code>. Si solo cargaste 1 área, solo se descargará ese archivo y las demás áreas mantendrán su data anterior.
+      </p>
     </div>
 
-    <div style="margin-top:18px;display:flex;gap:10px;align-items:center">
-      <button class="hdr-btn hdr-btn-primary" onclick="descargarJSON()">💾 Descargar JSON</button>
-      <button class="hdr-btn" onclick="copiarJSON()">📋 Copiar al portapapeles</button>
-      <span id="copyFeedback" style="font-size:11px;color:var(--green);font-weight:600"></span>
-    </div>
-
-    <details style="margin-top:18px">
-      <summary style="cursor:pointer;font-size:12px;color:var(--text-muted);font-weight:600">Ver contenido del JSON (avanzado)</summary>
-      <div class="json-box">${escapeHtml(json)}</div>
-    </details>
+    ${bloques}
+    ${allDownloadBtn}
   `;
   document.getElementById('publishContent').innerHTML = html;
 }
 
-function descargarJSON(){
-  const d = cargaState.datos;
-  const json = JSON.stringify(d, null, 2);
-  const filename = `data-${d.semana.toLowerCase()}.json`;
+// ────────────────────────────────────────
+// DESCARGA / COPIA POR ÁREA
+// ────────────────────────────────────────
+function descargarJSONArea(area){
+  const dat = cargaState.porArea[area].datos;
+  if(!dat) return;
+  const json = JSON.stringify(dat, null, 2);
+  const filename = `data-${dat.semana.toLowerCase()}-${area}.json`;
   const blob = new Blob([json], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -7064,17 +7471,29 @@ function descargarJSON(){
   URL.revokeObjectURL(url);
 }
 
-async function copiarJSON(){
-  const d = cargaState.datos;
-  const json = JSON.stringify(d, null, 2);
+async function copiarJSONArea(area){
+  const dat = cargaState.porArea[area].datos;
+  if(!dat) return;
+  const json = JSON.stringify(dat, null, 2);
   try {
     await navigator.clipboard.writeText(json);
-    const fb = document.getElementById('copyFeedback');
-    fb.textContent = '✓ Copiado al portapapeles';
-    setTimeout(() => fb.textContent = '', 3000);
+    const fb = document.querySelector('.copyFeedback-' + area);
+    if(fb){
+      fb.textContent = '✓ Copiado al portapapeles';
+      setTimeout(() => fb.textContent = '', 3000);
+    }
   } catch(err){
     alert('No se pudo copiar. Usá el botón de descarga.');
   }
+}
+
+function descargarTodosJSONArea(){
+  AREAS_CARGADOR.forEach((area, i) => {
+    if(cargaState.porArea[area].datos){
+      // Pequeño delay entre descargas para evitar bloqueo del navegador
+      setTimeout(() => descargarJSONArea(area), i * 250);
+    }
+  });
 }
 
 function escapeHtml(s){
