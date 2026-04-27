@@ -2885,12 +2885,14 @@ function mergeJsonIntoWeek(week, json){
   // MO Real Acumulada (de MO)
   const moRealAcum = week.mo?.acumulado || null;
   
-  // MO Proyectada = 25% × CD × avance% (en decimal)
-  const avanceDec = avanceObraFinal != null ? (avanceObraFinal/100) : null;
-  const moProyectada = (avanceDec != null && cdProyecto) ? (cdProyecto * 0.25 * avanceDec) : null;
+  // MO Base = 25% del Costo Directo (presupuesto total disponible para MO)
+  // Ya viene calculado en MO como mo_base_costo_directo, pero por si acaso lo recalculamos
+  const moBase = week.mo?.moBaseCostoDirecto || (cdProyecto * 0.25);
   
-  // CPI = MO Proyectada / MO Real
-  const cpiCalc = (moProyectada != null && moRealAcum && moRealAcum > 0) ? (moProyectada / moRealAcum) : null;
+  // CPI ACUMULADO = MO Base / MO Real Acumulada
+  // > 1.00 = Estás gastando MENOS que el presupuesto (bien)
+  // < 1.00 = Estás gastando MÁS que el presupuesto (mal)
+  const cpiCalc = (moRealAcum && moRealAcum > 0) ? (moBase / moRealAcum) : null;
   
   // Avance final (con redondeo a 1 decimal)
   const avanceFinal = avanceObraFinal != null ? Math.round(avanceObraFinal*10)/10 : null;
