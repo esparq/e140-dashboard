@@ -545,32 +545,35 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .r-frente-badge-big{font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase;}
 
 /* ─── Estado por área (% cumplimiento) ─── */
-.r-areas-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
-.r-area-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden;border-top:4px solid var(--twitter-blue);transition:transform .15s ease, box-shadow .15s ease;}
+.r-areas-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px;}
+.r-area-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden;border-top:4px solid var(--twitter-blue);transition:transform .15s ease, box-shadow .15s ease;min-width:0;}
 .r-area-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);}
 .r-area-card.ar-green{border-top-color:var(--green);}
 .r-area-card.ar-orange{border-top-color:var(--orange);}
 .r-area-card.ar-red{border-top-color:var(--red);}
 .r-area-card.ar-grey{border-top-color:var(--blue-bell);}
-.r-area-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-.r-area-icon{font-size:18px;line-height:1;}
-.r-area-name{font-size:12px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.06em;}
-.r-area-pct{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:1px;line-height:1;color:var(--twitter-blue);margin-bottom:4px;}
+.r-area-head{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.r-area-icon{font-size:16px;line-height:1;}
+.r-area-name{font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.05em;}
+.r-area-pct{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:1px;line-height:1;color:var(--twitter-blue);margin-bottom:4px;}
 .r-area-card.ar-green .r-area-pct{color:var(--green);}
 .r-area-card.ar-orange .r-area-pct{color:var(--orange);}
 .r-area-card.ar-red .r-area-pct{color:var(--red);}
 .r-area-card.ar-grey .r-area-pct{color:var(--blue-bell-dk);}
-.r-area-status{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase;margin-top:4px;}
+.r-area-status{display:inline-block;font-size:9.5px;font-weight:700;padding:3px 7px;border-radius:4px;letter-spacing:.04em;text-transform:uppercase;margin-top:4px;}
 .r-area-card.ar-green .r-area-status{background:#E7F4EE;color:#1A6B4A;}
 .r-area-card.ar-orange .r-area-status{background:#FFF1E5;color:#A0521E;}
 .r-area-card.ar-red .r-area-status{background:#FBEAEA;color:#8A2A2D;}
 .r-area-card.ar-grey .r-area-status{background:#EEF1F8;color:#5A6B8A;}
-.r-area-note{font-size:10.5px;color:var(--text-muted);margin-top:8px;line-height:1.4;font-style:italic;}
+.r-area-note{font-size:10px;color:var(--text-muted);margin-top:7px;line-height:1.35;font-style:italic;}
 
 @media(max-width:1199px){
+  .r-areas-grid{grid-template-columns:repeat(3,1fr);}
+}
+@media(max-width:767px){
   .r-areas-grid{grid-template-columns:repeat(2,1fr);}
 }
-@media(max-width:599px){
+@media(max-width:480px){
   .r-areas-grid{grid-template-columns:1fr;}
 }
 
@@ -1676,6 +1679,21 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
         </div>
 
         <!-- ═══════════════════════════════════════════
+             ESTADO POR ÁREA (% cumplimiento consolidado)
+             Primer panel — vista global del proyecto por área
+             ═══════════════════════════════════════════ -->
+        <div class="capa-header c-hoy" style="border-left-color:var(--blue-bell-dk);background:#F4F1F8;">
+          <div class="capa-num" style="color:var(--blue-bell-dk);">◉</div>
+          <div>
+            <div class="capa-title">ESTADO POR ÁREA</div>
+          </div>
+          <div class="capa-sub">% de cumplimiento consolidado por área</div>
+        </div>
+
+        <!-- Grid de áreas con % cumplimiento (5 columnas en una sola fila) -->
+        <div class="r-areas-grid" id="rAreasGrid"></div>
+
+        <!-- ═══════════════════════════════════════════
              CAPA 3 · RIESGO (KPI maestro arriba)
              ═══════════════════════════════════════════ -->
         <div class="capa-header c-riesgo">
@@ -1818,20 +1836,6 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 
         <!-- E. Alertas -->
         <div class="r-alertas" id="rAlertas"></div>
-
-        <!-- ═══════════════════════════════════════════
-             CAPA 1B · ESTADO POR ÁREA (% cumplimiento)
-             ═══════════════════════════════════════════ -->
-        <div class="capa-header c-hoy" style="border-left-color:var(--blue-bell-dk);background:#F4F1F8;">
-          <div class="capa-num" style="color:var(--blue-bell-dk);">◉</div>
-          <div>
-            <div class="capa-title">ESTADO POR ÁREA</div>
-          </div>
-          <div class="capa-sub">% de cumplimiento consolidado por área</div>
-        </div>
-
-        <!-- Grid de áreas con % cumplimiento -->
-        <div class="r-areas-grid" id="rAreasGrid"></div>
 
         <!-- ═══════════════════════════════════════════
              CAPA 2 · MAÑANA (proyecciones)
@@ -4558,6 +4562,9 @@ function renderResumen(){
   document.getElementById('rProgressFill').style.width = pctTrans.toFixed(1)+'%';
   document.getElementById('rProgressPct').textContent = pctTrans.toFixed(1)+'% TRANSCURRIDO';
 
+  // A.bis · Estado por Área (primer panel — vista global por área)
+  renderRAreas();
+
   // B. KPI Poster
   renderRKpis(d, dPrev);
 
@@ -4569,9 +4576,6 @@ function renderResumen(){
 
   // E. Alertas
   renderRAlertas(d);
-
-  // E.bis · Estado por Área (% cumplimiento por área)
-  renderRAreas();
 
   // F. Evolutivos
   renderREvoPersonal();
@@ -4947,12 +4951,13 @@ function renderRAreas(){
     }
     const pctTxt = a.pct == null ? '—' : a.pct.toFixed(0) + '%';
     const tagOpe = a.destacada
-      ? '<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;background:var(--twitter-blue);color:#fff;letter-spacing:.06em;margin-left:6px;vertical-align:middle;">PRINCIPAL</span>'
+      ? '<span style="display:inline-block;font-size:8.5px;font-weight:700;padding:2px 5px;border-radius:3px;background:var(--twitter-blue);color:#fff;letter-spacing:.05em;line-height:1.2;">PRINCIPAL</span>'
       : '';
     el.innerHTML = `
       <div class="r-area-head">
         <span class="r-area-icon">${a.icono}</span>
-        <span class="r-area-name">${a.nombre}${tagOpe}</span>
+        <span class="r-area-name">${a.nombre}</span>
+        ${tagOpe}
       </div>
       <div class="r-area-pct">${pctTxt}</div>
       <span class="r-area-status">${cls.label}</span>
