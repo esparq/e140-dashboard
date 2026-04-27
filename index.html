@@ -218,47 +218,87 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .sb-item.sb-auditoria.active{background:#FFE0B3;color:#7A3F18;border-color:#A0521E;font-weight:700;}
 
 /* Regla aplicada al body cuando el usuario es 'adm' u 'oficina' */
-body.audit-allowed .audit-only{display:flex !important;}
+body.audit-allowed .audit-only{display:revert !important;}
+body.audit-allowed .sb-item.audit-only{display:flex !important;}
 
-/* ─── Sección Auditoría ─── */
-.aud-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
-.aud-stat-card{background:linear-gradient(135deg,#FFF8EE 0%,#FFFCF5 100%);border:1px solid #E5C792;border-left:3px solid #A0521E;border-radius:6px;padding:14px 16px;}
-.aud-stat-num{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;color:#7A3F18;letter-spacing:1px;}
-.aud-stat-label{font-size:10.5px;color:#A0521E;letter-spacing:.05em;text-transform:uppercase;font-weight:600;margin-top:4px;}
+/* ═══════════════════════════════════════════
+   SECCIÓN AUDITORÍA — Diseño limpio y profesional
+   ═══════════════════════════════════════════ */
 
-.aud-filters{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:end;margin-bottom:16px;padding:14px 16px !important;}
-.aud-filter-group{display:flex;flex-direction:column;gap:5px;}
+/* Header de página */
+.aud-page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px;padding-bottom:18px;border-bottom:2px solid var(--border);}
+.aud-page-title-wrap{display:flex;align-items:center;gap:14px;}
+.aud-page-icon{width:48px;height:48px;background:linear-gradient(135deg,#A0521E 0%,#7A3F18 100%);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 12px rgba(160,82,30,.25);}
+.aud-page-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.2px;color:var(--text);line-height:1.1;}
+.aud-page-sub{font-size:12px;color:var(--text-muted);margin-top:4px;line-height:1.4;max-width:680px;}
+.aud-refresh-btn{background:#fff;color:#A0521E;border:1.5px solid #E5C792;padding:9px 16px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:all .15s;}
+.aud-refresh-btn:hover{background:#FFF8EE;border-color:#A0521E;transform:translateY(-1px);}
+.aud-refresh-btn:active{transform:translateY(0);}
+
+/* Tarjetas resumen */
+.aud-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.aud-stat-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px 18px;display:flex;align-items:center;gap:14px;transition:transform .15s, box-shadow .15s;}
+.aud-stat-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.06);border-color:#E5C792;}
+.aud-stat-icon{width:42px;height:42px;background:linear-gradient(135deg,#FFF8EE 0%,#FFE9CC 100%);color:#A0521E;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.aud-stat-content{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.aud-stat-num{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;color:#7A3F18;letter-spacing:.5px;}
+.aud-stat-label{font-size:10.5px;color:var(--text-muted);letter-spacing:.04em;text-transform:uppercase;font-weight:600;}
+
+/* Tarjetas reutilizables */
+.aud-card{background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:16px;overflow:hidden;}
+.aud-card-header{display:flex;align-items:center;gap:10px;padding:12px 18px;background:#FAFBFC;border-bottom:1px solid var(--border);}
+.aud-card-icon{font-size:14px;}
+.aud-card-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;color:var(--text);flex:1;}
+.aud-card-badge{font-size:11px;color:var(--text-muted);background:#fff;border:1px solid var(--border);padding:3px 10px;border-radius:12px;font-weight:600;}
+
+/* Filtros */
+.aud-filters{display:grid;grid-template-columns:140px 160px 160px 1fr;gap:12px;align-items:end;padding:16px 18px;}
+.aud-filter-group{display:flex;flex-direction:column;gap:5px;min-width:0;}
 .aud-filter-group label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;}
-.aud-filter-group select, .aud-filter-group input{padding:7px 10px;border:1px solid var(--border-mid);border-radius:5px;font-family:inherit;font-size:12px;color:var(--text);background:#fff;}
-.aud-filter-group select:focus, .aud-filter-group input:focus{outline:none;border-color:#A0521E;box-shadow:0 0 0 2px rgba(160,82,30,.12);}
+.aud-filter-group select, .aud-filter-group input{padding:8px 11px;border:1px solid var(--border-mid);border-radius:5px;font-family:inherit;font-size:12px;color:var(--text);background:#fff;width:100%;box-sizing:border-box;}
+.aud-filter-group select:focus, .aud-filter-group input:focus{outline:none;border-color:#A0521E;box-shadow:0 0 0 3px rgba(160,82,30,.12);}
+.aud-filter-group input::placeholder{color:#B5B8BD;}
 
-.aud-table-wrap{overflow-x:auto;}
+/* Tabla */
+.aud-table-wrap{overflow-x:auto;max-height:560px;overflow-y:auto;}
 .aud-table{width:100%;border-collapse:collapse;font-size:11.5px;}
-.aud-table th{background:#FFF8EE;color:#7A3F18;font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;padding:10px 10px;text-align:left;border-bottom:2px solid #E5C792;white-space:nowrap;}
-.aud-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.aud-table thead{position:sticky;top:0;z-index:1;}
+.aud-table th{background:#FFF8EE;color:#7A3F18;font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;padding:11px 12px;text-align:left;border-bottom:2px solid #E5C792;white-space:nowrap;}
+.aud-table th.td-center{text-align:center;}
+.aud-table td{padding:10px 12px;border-bottom:1px solid #F0F2F5;vertical-align:middle;}
 .aud-table tr:hover td{background:#FFFCF5;}
-.aud-table .aud-sem{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:var(--twitter-blue);}
-.aud-table .aud-area{display:inline-block;padding:2px 8px;border-radius:3px;font-weight:600;font-size:10px;letter-spacing:.04em;text-transform:uppercase;background:#EFEFEF;color:#555;}
-.aud-table .aud-area.aud-area-operaciones{background:#E6F2FB;color:#0070B4;}
-.aud-table .aud-area.aud-area-logistica{background:#FBEAE5;color:#A04018;}
-.aud-table .aud-area.aud-area-arquitectura{background:#F5F5F5;color:#333;}
-.aud-table .aud-area.aud-area-ssoma{background:#FBEAEA;color:#8A2A2D;}
-.aud-table .aud-area.aud-area-calidad{background:#E7F4EE;color:#1A6B4A;}
+.aud-table tr:last-child td{border-bottom:none;}
+.aud-empty{text-align:center;color:var(--text-muted);padding:60px 20px !important;font-size:12.5px;}
+.aud-empty.error{color:#8A2A2D;}
+
+.aud-table .aud-sem{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:var(--twitter-blue);background:#E6F2FB;padding:3px 8px;border-radius:4px;display:inline-block;}
+.aud-table .aud-area{display:inline-block;padding:3px 9px;border-radius:4px;font-weight:700;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;background:#EFEFEF;color:#555;}
+.aud-table .aud-area-operaciones{background:#E6F2FB;color:#0070B4;}
+.aud-table .aud-area-logistica{background:#FBEAE5;color:#A04018;}
+.aud-table .aud-area-arquitectura{background:#F0F2F5;color:#444;}
+.aud-table .aud-area-ssoma{background:#FBEAEA;color:#8A2A2D;}
+.aud-table .aud-area-calidad{background:#E7F4EE;color:#1A6B4A;}
 .aud-table .aud-archivo{font-weight:600;color:var(--text);}
-.aud-table .aud-nombre{color:var(--text-muted);font-family:'DM Mono',monospace;font-size:11px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;}
+.aud-table .aud-nombre{color:var(--text-muted);font-family:'DM Mono',monospace;font-size:10.5px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;}
 .aud-table .aud-tamano{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);white-space:nowrap;}
 .aud-table .aud-usuario{font-weight:600;color:#7A3F18;font-size:11px;}
-.aud-table .aud-fecha{color:var(--text-muted);font-size:11px;font-family:'DM Mono',monospace;white-space:nowrap;}
+.aud-table .aud-fecha{color:var(--text-muted);font-size:10.5px;font-family:'DM Mono',monospace;white-space:nowrap;}
+.aud-table .td-center{text-align:center;}
 
-.aud-btn-download{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:var(--twitter-blue);color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;transition:background .15s, transform .1s;}
+.aud-btn-download{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:var(--twitter-blue);color:#fff;border:none;border-radius:5px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;transition:background .15s, transform .1s;white-space:nowrap;}
 .aud-btn-download:hover{background:var(--twitter-blue-dk);transform:translateY(-1px);}
 .aud-btn-download:active{transform:translateY(0);}
 
-.aud-table-foot{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border-mid);font-size:11px;color:var(--text-muted);text-align:center;}
-
-@media(max-width:899px){
+@media(max-width:1100px){
   .aud-stats{grid-template-columns:repeat(2,1fr);}
-  .aud-filters{grid-template-columns:repeat(2,1fr);}
+  .aud-filters{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:600px){
+  .aud-page-header{flex-direction:column;align-items:flex-start;}
+  .aud-stats{grid-template-columns:1fr;}
+  .aud-filters{grid-template-columns:1fr;padding:12px;}
+  .aud-page-icon{width:40px;height:40px;font-size:18px;}
+  .aud-page-title{font-size:18px;}
 }
 
 /* Footer del sidebar */
@@ -3417,67 +3457,96 @@ body.role-viewer .admin-only{display:none !important;}
            Solo visible para usuarios 'adm' y 'oficina'
            ═══════════════════════════════════════════ -->
       <section class="section audit-only" id="sec-auditoria" style="display:none;">
-        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-          <span>🔍 Auditoría · Trazabilidad de Archivos</span>
-          <button class="hdr-btn" onclick="cargarAuditoria(true)" style="padding:7px 14px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">
+        <!-- Header de la sección con título y acciones -->
+        <div class="aud-page-header">
+          <div class="aud-page-title-wrap">
+            <div class="aud-page-icon">🔍</div>
+            <div>
+              <div class="aud-page-title">Auditoría · Trazabilidad de Archivos</div>
+              <div class="aud-page-sub">Registro completo de los archivos Excel cargados al dashboard · Acceso restringido a Administración y Oficina Técnica</div>
+            </div>
+          </div>
+          <button class="aud-refresh-btn" onclick="cargarAuditoria(true)" title="Recargar registros desde Firestore">
             <span>🔄</span> Actualizar
           </button>
         </div>
-        <div class="section-subheader">Registro completo de archivos Excel cargados al dashboard · Acceso restringido a <b>Administración</b> y <b>Oficina Técnica</b></div>
 
         <!-- Tarjetas resumen -->
-        <div class="aud-stats" id="audStats">
+        <div class="aud-stats">
           <div class="aud-stat-card">
-            <div class="aud-stat-num" id="audStatTotal">—</div>
-            <div class="aud-stat-label">Archivos registrados</div>
+            <div class="aud-stat-icon">📦</div>
+            <div class="aud-stat-content">
+              <div class="aud-stat-num" id="audStatTotal">—</div>
+              <div class="aud-stat-label">Archivos registrados</div>
+            </div>
           </div>
           <div class="aud-stat-card">
-            <div class="aud-stat-num" id="audStatSemanas">—</div>
-            <div class="aud-stat-label">Semanas con carga</div>
+            <div class="aud-stat-icon">📅</div>
+            <div class="aud-stat-content">
+              <div class="aud-stat-num" id="audStatSemanas">—</div>
+              <div class="aud-stat-label">Semanas con carga</div>
+            </div>
           </div>
           <div class="aud-stat-card">
-            <div class="aud-stat-num" id="audStatTamano">—</div>
-            <div class="aud-stat-label">Tamaño total</div>
+            <div class="aud-stat-icon">💾</div>
+            <div class="aud-stat-content">
+              <div class="aud-stat-num" id="audStatTamano">—</div>
+              <div class="aud-stat-label">Tamaño total</div>
+            </div>
           </div>
           <div class="aud-stat-card">
-            <div class="aud-stat-num" id="audStatUsuarios">—</div>
-            <div class="aud-stat-label">Usuarios que cargaron</div>
+            <div class="aud-stat-icon">👥</div>
+            <div class="aud-stat-content">
+              <div class="aud-stat-num" id="audStatUsuarios">—</div>
+              <div class="aud-stat-label">Usuarios activos</div>
+            </div>
           </div>
         </div>
 
         <!-- Filtros -->
-        <div class="chart-card aud-filters">
-          <div class="aud-filter-group">
-            <label>Semana</label>
-            <select id="audFilterSemana" onchange="renderAuditoriaTabla()">
-              <option value="">Todas</option>
-            </select>
+        <div class="aud-card">
+          <div class="aud-card-header">
+            <span class="aud-card-icon">🔎</span>
+            <span class="aud-card-title">Filtros de búsqueda</span>
           </div>
-          <div class="aud-filter-group">
-            <label>Área</label>
-            <select id="audFilterArea" onchange="renderAuditoriaTabla()">
-              <option value="">Todas</option>
-              <option value="operaciones">Operaciones</option>
-              <option value="logistica">Logística</option>
-              <option value="arquitectura">Arquitectura</option>
-              <option value="ssoma">SSOMA</option>
-              <option value="calidad">Calidad</option>
-            </select>
-          </div>
-          <div class="aud-filter-group">
-            <label>Usuario</label>
-            <select id="audFilterUsuario" onchange="renderAuditoriaTabla()">
-              <option value="">Todos</option>
-            </select>
-          </div>
-          <div class="aud-filter-group">
-            <label>Buscar</label>
-            <input type="text" id="audFilterBuscar" placeholder="Nombre del archivo…" oninput="renderAuditoriaTabla()">
+          <div class="aud-filters">
+            <div class="aud-filter-group">
+              <label>Semana</label>
+              <select id="audFilterSemana" onchange="renderAuditoriaTabla()">
+                <option value="">Todas</option>
+              </select>
+            </div>
+            <div class="aud-filter-group">
+              <label>Área</label>
+              <select id="audFilterArea" onchange="renderAuditoriaTabla()">
+                <option value="">Todas</option>
+                <option value="operaciones">Operaciones</option>
+                <option value="logistica">Logística</option>
+                <option value="arquitectura">Arquitectura</option>
+                <option value="ssoma">SSOMA</option>
+                <option value="calidad">Calidad</option>
+              </select>
+            </div>
+            <div class="aud-filter-group">
+              <label>Usuario</label>
+              <select id="audFilterUsuario" onchange="renderAuditoriaTabla()">
+                <option value="">Todos</option>
+              </select>
+            </div>
+            <div class="aud-filter-group aud-filter-search">
+              <label>Buscar archivo</label>
+              <input type="text" id="audFilterBuscar" placeholder="Nombre del archivo…" oninput="renderAuditoriaTabla()">
+            </div>
           </div>
         </div>
 
         <!-- Tabla -->
-        <div class="chart-card">
+        <div class="aud-card">
+          <div class="aud-card-header">
+            <span class="aud-card-icon">📋</span>
+            <span class="aud-card-title">Histórico de cargas</span>
+            <span class="aud-card-badge" id="audTableFoot">—</span>
+          </div>
           <div class="aud-table-wrap">
             <table class="aud-table" id="audTable">
               <thead>
@@ -3493,11 +3562,10 @@ body.role-viewer .admin-only{display:none !important;}
                 </tr>
               </thead>
               <tbody id="audTableBody">
-                <tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:40px;font-size:12px;">⏳ Cargando registros de auditoría…</td></tr>
+                <tr><td colspan="8" class="aud-empty">⏳ Cargando registros de auditoría…</td></tr>
               </tbody>
             </table>
           </div>
-          <div class="aud-table-foot" id="audTableFoot"></div>
         </div>
       </section>
 
@@ -8281,13 +8349,13 @@ async function cargarAuditoria(force = false){
   // Validación: solo adm y oficina
   if(!currentSession || (currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina')){
     const tbody = document.getElementById('audTableBody');
-    if(tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#8A2A2D;padding:40px;">⛔ Sin permisos para ver esta sección.</td></tr>';
+    if(tbody) tbody.innerHTML = '<tr><td colspan="8" class="aud-empty error">⛔ Sin permisos para ver esta sección.</td></tr>';
     return;
   }
 
   if(!window.E140_DB){
     const tbody = document.getElementById('audTableBody');
-    if(tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:40px;">⚠ El servicio de Firestore no está disponible. Verifica tu conexión.</td></tr>';
+    if(tbody) tbody.innerHTML = '<tr><td colspan="8" class="aud-empty error">⚠ El servicio de Firestore no está disponible. Verifica tu conexión.</td></tr>';
     return;
   }
 
@@ -8298,7 +8366,7 @@ async function cargarAuditoria(force = false){
   }
 
   const tbody = document.getElementById('audTableBody');
-  if(tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:40px;">⏳ Cargando registros desde Firestore…</td></tr>';
+  if(tbody) tbody.innerHTML = '<tr><td colspan="8" class="aud-empty">⏳ Cargando registros desde Firestore…</td></tr>';
 
   try {
     const { db, collection, getDocs, query, orderBy } = window.E140_DB;
@@ -8319,7 +8387,7 @@ async function cargarAuditoria(force = false){
     actualizarStatsAuditoria();
   } catch(err){
     console.error('[E140] Error cargando auditoría:', err);
-    if(tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#8A2A2D;padding:40px;">❌ Error: ${err.message}</td></tr>`;
+    if(tbody) tbody.innerHTML = `<tr><td colspan="8" class="aud-empty error">❌ Error: ${err.message}</td></tr>`;
   }
 }
 
@@ -8386,8 +8454,12 @@ function renderAuditoriaTabla(){
   });
 
   if(filtrados.length === 0){
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:40px;font-size:12px;">No hay registros que coincidan con los filtros.</td></tr>';
-    if(foot) foot.textContent = `0 registros (de ${auditoriaData.length} total)`;
+    if(auditoriaData.length === 0){
+      tbody.innerHTML = '<tr><td colspan="8" class="aud-empty">📭 No hay archivos registrados todavía. Cuando un admin cargue datos, aparecerán aquí.</td></tr>';
+    } else {
+      tbody.innerHTML = '<tr><td colspan="8" class="aud-empty">🔍 No hay registros que coincidan con los filtros aplicados.</td></tr>';
+    }
+    if(foot) foot.textContent = `0 de ${auditoriaData.length}`;
     return;
   }
 
@@ -8416,9 +8488,11 @@ function renderAuditoriaTabla(){
   }).join('');
 
   if(foot){
-    foot.textContent = filtrados.length === auditoriaData.length
-      ? `${filtrados.length} registro${filtrados.length === 1 ? '' : 's'}`
-      : `${filtrados.length} registro${filtrados.length === 1 ? '' : 's'} (de ${auditoriaData.length} total) · filtros aplicados`;
+    if(filtrados.length === auditoriaData.length){
+      foot.textContent = `${filtrados.length} ${filtrados.length === 1 ? 'registro' : 'registros'}`;
+    } else {
+      foot.textContent = `${filtrados.length} de ${auditoriaData.length}`;
+    }
   }
 }
 
