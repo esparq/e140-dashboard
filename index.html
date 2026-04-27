@@ -1527,10 +1527,25 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
       </div>
 
       <!-- ✅ CALIDAD -->
-      <button class="sb-item" data-tab="calidad" data-tooltip="Calidad">
-        <span class="sb-icon">✅</span>
-        <span class="sb-label">Calidad</span>
+      <button class="sb-area" data-area="calidad" data-tooltip="Calidad" onclick="toggleArea('calidad')">
+        <span class="sb-area-icon">✅</span>
+        <span class="sb-area-label">Calidad</span>
+        <span class="sb-area-chevron">▾</span>
       </button>
+      <div class="sb-submenu" id="submenu-calidad">
+        <button class="sb-item sb-subitem" data-tab="calidad-sig" data-tooltip="Gestión SIG">
+          <span class="sb-icon"></span>
+          <span class="sb-label">Gestión SIG</span>
+        </button>
+        <button class="sb-item sb-subitem" data-tab="calidad-nc" data-tooltip="Control de No Conformidades">
+          <span class="sb-icon"></span>
+          <span class="sb-label">Control de NC</span>
+        </button>
+        <button class="sb-item sb-subitem" data-tab="calidad-cap" data-tooltip="Control de Capacitaciones">
+          <span class="sb-icon"></span>
+          <span class="sb-label">Control de Capacitaciones</span>
+        </button>
+      </div>
     </div>
 
     <div class="sb-divider" style="margin-top:auto"></div>
@@ -2322,29 +2337,22 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
       </section>
 
       <!-- ═══════════════════════════════════════════
-           CALIDAD · Sistema de Gestión SIG y No Conformidades
+           CALIDAD · 1. GESTIÓN SIG (Sistema Integrado de Gestión)
            ═══════════════════════════════════════════ -->
-      <section class="section" id="sec-calidad">
-        <div class="section-header">Calidad · Sistema de Gestión SIG y No Conformidades</div>
-        <div class="section-subheader">Fuente: <b>Reporte mensual de Calidad</b> · Norma ISO 9001</div>
+      <section class="section" id="sec-calidad-sig">
+        <div class="section-header">Calidad · Gestión SIG (Sistema Integrado de Gestión)</div>
+        <div class="section-subheader">Fuente: <b>Visitas programadas de Calidad</b> · Norma ISO 9001</div>
 
         <div class="ssoma-note">
           <span class="ssoma-note-icon">📅</span>
           <div>
-            <b>Indicador mensual</b> — Los datos mostrados corresponden al cierre mensual del área de Calidad, no al cierre semanal del proyecto. Se actualizan al cierre de cada mes.
+            <b>Indicador por visita programada</b> — Los datos se actualizan de acuerdo a las visitas programadas de Calidad al proyecto, no al cierre semanal del proyecto.
           </div>
         </div>
 
         <div class="ssoma-alcance" style="background:#FFF8E1;border-left-color:#F57C00;">
           <span class="ssoma-alcance-icon" style="color:#F57C00;">⏳</span>
-          <span><b>Información pendiente:</b> los indicadores de Calidad del proyecto E140 ESPARQ 140 quedan en <b>estado pendiente hasta la Semana 38</b>, fecha en la cual se cargará la información oficial actualizada por el responsable de Calidad.</span>
-        </div>
-
-        <!-- ─────────────────────────────────────────────────
-             SECCIÓN 1 — SISTEMA DE GESTIÓN DE CALIDAD (SIG)
-             ───────────────────────────────────────────────── -->
-        <div class="section-subheader" style="margin-top:10px;font-weight:700;color:var(--twitter-blue);font-size:13px;letter-spacing:1px;text-transform:uppercase;">
-          Sección 1 — Sistema de Gestión de Calidad (ISO 9001)
+          <span><b>Información pendiente:</b> los indicadores SIG del proyecto E140 ESPARQ 140 quedan en <b>estado pendiente hasta la Semana 38</b>, fecha en la cual se cargará la información oficial actualizada por el responsable de Calidad.</span>
         </div>
 
         <!-- Panel KPIs SIG -->
@@ -2369,11 +2377,52 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           </div>
         </div>
 
-        <!-- ─────────────────────────────────────────────────
-             SECCIÓN 2 — CONTROL DE NO CONFORMIDADES
-             ───────────────────────────────────────────────── -->
-        <div class="section-subheader" style="margin-top:18px;font-weight:700;color:var(--twitter-blue);font-size:13px;letter-spacing:1px;text-transform:uppercase;">
-          Sección 2 — Control de No Conformidades
+        <!-- Detalle SIG -->
+        <div class="chart-card">
+          <div class="chart-title"><span class="num">01</span> Detalle de Inspecciones SIG</div>
+          <div class="chart-subtitle">Listado de visitas, hallazgos y observaciones registradas en obra</div>
+          <div class="table-wrap" style="border:none">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th class="td-center">Fecha de Visita</th>
+                  <th>Inspector</th>
+                  <th>Frente / Área</th>
+                  <th class="td-center">Inspecciones</th>
+                  <th class="td-center">Observaciones</th>
+                  <th class="td-center">Estado</th>
+                </tr>
+              </thead>
+              <tbody id="calSIGTblDetalle">
+                <tr>
+                  <td colspan="7" style="text-align:center;padding:30px 16px;color:var(--text-muted);font-style:italic;background:#FBFDFE;border:1px dashed var(--border-mid);">
+                    ⏳ Sin visitas SIG registradas — pendiente de actualización en Semana 38
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           CALIDAD · 2. CONTROL DE NO CONFORMIDADES
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-calidad-nc">
+        <div class="section-header">Calidad · Control de No Conformidades</div>
+        <div class="section-subheader">Fuente: <b>Visitas programadas de Calidad</b> · Norma ISO 9001</div>
+
+        <div class="ssoma-note">
+          <span class="ssoma-note-icon">📅</span>
+          <div>
+            <b>Indicador por visita programada</b> — Los datos se actualizan de acuerdo a las visitas programadas de Calidad al proyecto, no al cierre semanal del proyecto.
+          </div>
+        </div>
+
+        <div class="ssoma-alcance" style="background:#FFF8E1;border-left-color:#F57C00;">
+          <span class="ssoma-alcance-icon" style="color:#F57C00;">⏳</span>
+          <span><b>Información pendiente:</b> los indicadores de No Conformidades del proyecto E140 ESPARQ 140 quedan en <b>estado pendiente hasta la Semana 38</b>, fecha en la cual se cargará la información oficial actualizada por el responsable de Calidad.</span>
         </div>
 
         <!-- Panel KPIs NC -->
@@ -2407,15 +2456,9 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           </div>
         </div>
 
-        <!-- ─────────────────────────────────────────────────
-             SECCIÓN 3 — DETALLE
-             ───────────────────────────────────────────────── -->
-        <div class="section-subheader" style="margin-top:18px;font-weight:700;color:var(--twitter-blue);font-size:13px;letter-spacing:1px;text-transform:uppercase;">
-          Sección 3 — Detalle de No Conformidades
-        </div>
-
+        <!-- Detalle NC -->
         <div class="chart-card">
-          <div class="chart-title"><span class="num">01</span> Detalle de NC del período</div>
+          <div class="chart-title"><span class="num">01</span> Detalle de No Conformidades</div>
           <div class="chart-subtitle">Listado de hallazgos, categoría, estado y acción correctiva</div>
           <div class="table-wrap" style="border:none">
             <table>
@@ -2439,7 +2482,85 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
             </table>
           </div>
         </div>
+      </section>
 
+      <!-- ═══════════════════════════════════════════
+           CALIDAD · 3. CONTROL DE CAPACITACIONES
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-calidad-cap">
+        <div class="section-header">Calidad · Control de Capacitaciones</div>
+        <div class="section-subheader">Fuente: <b>Visitas programadas de Calidad</b> · Programa de capacitación interno</div>
+
+        <div class="ssoma-note">
+          <span class="ssoma-note-icon">📅</span>
+          <div>
+            <b>Indicador por visita programada</b> — Los datos se actualizan de acuerdo a las visitas programadas de Calidad al proyecto, no al cierre semanal del proyecto.
+          </div>
+        </div>
+
+        <div class="ssoma-alcance" style="background:#FFF8E1;border-left-color:#F57C00;">
+          <span class="ssoma-alcance-icon" style="color:#F57C00;">⏳</span>
+          <span><b>Información pendiente:</b> los indicadores de Capacitaciones del proyecto E140 ESPARQ 140 quedan en <b>estado pendiente hasta la Semana 38</b>, fecha en la cual se cargará la información oficial actualizada por el responsable de Calidad.</span>
+        </div>
+
+        <!-- Panel KPIs Capacitaciones -->
+        <div class="kpi-strip" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px">
+          <div class="kpi-card k-green">
+            <div class="kpi-label">% Cumplimiento del Plan de Capacitaciones</div>
+            <div class="kpi-value" id="calCapPct">—</div>
+            <div class="kpi-sublabel" id="calCapPctDetalle">Capacitaciones ejecutadas / programadas</div>
+            <div class="kpi-meta-footer" style="margin-top:10px">
+              <span class="kpi-meta-target">▲ Meta: ≥ 90%</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="calCapPctStatus">⏳ Pendiente Sem 38</span>
+            </div>
+          </div>
+          <div class="kpi-card k-primary">
+            <div class="kpi-label">Capacitaciones Ejecutadas</div>
+            <div class="kpi-value" id="calCapEjec">—</div>
+            <div class="kpi-sublabel">Charlas y talleres dictados en el período</div>
+            <div class="kpi-meta-footer" style="margin-top:10px">
+              <span class="kpi-meta-target">Según plan</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="calCapEjecStatus">⏳ Pendiente Sem 38</span>
+            </div>
+          </div>
+          <div class="kpi-card k-dark">
+            <div class="kpi-label">Personal Capacitado</div>
+            <div class="kpi-value" id="calCapPers">—</div>
+            <div class="kpi-sublabel">Total trabajadores asistentes acumulados</div>
+            <div class="kpi-meta-footer" style="margin-top:10px">
+              <span class="kpi-meta-target">Indicador contextual</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="calCapPersStatus">⏳ Pendiente Sem 38</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detalle Capacitaciones -->
+        <div class="chart-card">
+          <div class="chart-title"><span class="num">01</span> Detalle de Capacitaciones</div>
+          <div class="chart-subtitle">Listado de charlas, talleres y asistencia registrada</div>
+          <div class="table-wrap" style="border:none">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th class="td-center">Fecha</th>
+                  <th>Tema / Capacitación</th>
+                  <th>Instructor</th>
+                  <th class="td-center">Duración (h)</th>
+                  <th class="td-center">Asistentes</th>
+                  <th class="td-center">Estado</th>
+                </tr>
+              </thead>
+              <tbody id="calCapTblDetalle">
+                <tr>
+                  <td colspan="7" style="text-align:center;padding:30px 16px;color:var(--text-muted);font-style:italic;background:#FBFDFE;border:1px dashed var(--border-mid);">
+                    ⏳ Sin capacitaciones registradas — pendiente de actualización en Semana 38
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </section>
 
       <!-- ═══════════════════════════════════════════
@@ -4124,6 +4245,7 @@ const TAB_AREA_MAP = {
   adq:'operaciones', adic:'operaciones', crono:'operaciones', fotos:'operaciones',
   acero:'logistica', encofrado:'logistica', arrendamiento:'logistica',
   'ssoma-sst':'ssoma', 'ssoma-ambiental':'ssoma',
+  'calidad-sig':'calidad', 'calidad-nc':'calidad', 'calidad-cap':'calidad',
 };
 
 function toggleArea(area){
@@ -4363,7 +4485,9 @@ function renderCurrentWeek(){
     case 'arrendamiento': renderArrendamiento(); break;
     case 'ssoma-sst':       renderSsomaSST(); break;
     case 'ssoma-ambiental': renderSsomaAmbiental(); break;
-    case 'calidad':       renderCalidad(); break;
+    case 'calidad-sig':   renderCalidadSIG(); break;
+    case 'calidad-nc':    renderCalidadNC(); break;
+    case 'calidad-cap':   renderCalidadCap(); break;
     case 'adic':          renderAdic(); break;
     case 'crono':         renderCrono(); break;
     case 'fotos':         renderFotos(); break;
@@ -5302,31 +5426,19 @@ function renderSsomaAmbiental(){
 
 
 /* ═══════════════════════════════════════════════════════════════════
-   RENDER: CALIDAD · SIG, Dossier y No Conformidades
-   Datos mensuales — pendientes hasta Semana 38
+   RENDER: CALIDAD · 1. GESTIÓN SIG (Sistema Integrado de Gestión)
+   Datos por visita programada — pendientes hasta Semana 38
    ═══════════════════════════════════════════════════════════════════ */
 
-function renderCalidad(){
-  // ⚠ DATA PENDIENTE — Todos los indicadores de Calidad quedan en estado pendiente
-  // hasta la SEMANA 38. No se muestran cifras hasta que se reciba la información
-  // oficial actualizada del responsable de Calidad.
-  //
-  // METAS CONFIGURADAS:
-  //  · Total NC Acumuladas:  máximo 5
-  //  · NC Reincidentes:      máximo 1
-  //  · % NC Reincidentes:    se CALCULA = (NC Reincidentes / Total NC Acumuladas) × 100
-  //                          Meta: ≤ 20% (deriva de máx 1 / máx 5)
+function renderCalidadSIG(){
+  // ⚠ DATA PENDIENTE — Indicadores SIG en estado pendiente hasta Semana 38.
 
   // Variables de data (cuando lleguen los datos oficiales, asignar valores reales aquí)
   const data = {
     sigPct:         null,   // % seguimiento SIG · ej. 87
-    dossierPct:     null,   // % avance Dossier · ej. 100
-    ncTotal:        null,   // Total NC acumuladas · ej. 4
-    ncReincidentes: null,   // NC reincidentes · ej. 2
-    ncNuevas:       null    // NC nuevas · ej. 2
+    dossierPct:     null    // % avance Dossier · ej. 100
   };
 
-  // Sección 1 — SIG y Dossier
   document.getElementById('calSIG').textContent = data.sigPct == null ? '—' : data.sigPct + '%';
   document.getElementById('calSIGDetalle').textContent = data.sigPct == null
     ? 'Pendiente · se actualiza en Semana 38'
@@ -5336,7 +5448,56 @@ function renderCalidad(){
     ? 'Pendiente · se actualiza en Semana 38'
     : 'Avance del expediente / dossier del proyecto';
 
-  // Sección 2 — No Conformidades
+  // Helper común para aplicar estado según meta (modo min/max)
+  const setStatus = (id, valor, metaMax, modo) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
+    if(valor == null){
+      el.classList.add('kpi-meta-seguimiento');
+      el.textContent = '⏳ Pendiente Sem 38';
+      return;
+    }
+    if(modo === 'min'){
+      if(valor >= metaMax){ el.classList.add('kpi-meta-cumple'); el.textContent = '✓ Cumple'; }
+      else if(valor >= metaMax * 0.9){ el.classList.add('kpi-meta-seguimiento'); el.textContent = '⚠ En seguimiento'; }
+      else { el.classList.add('kpi-meta-nocumple'); el.textContent = '✗ No cumple'; }
+    } else {
+      if(valor <= metaMax){ el.classList.add('kpi-meta-cumple'); el.textContent = '✓ Cumple'; }
+      else if(valor <= metaMax * 1.5){ el.classList.add('kpi-meta-seguimiento'); el.textContent = '⚠ En seguimiento'; }
+      else { el.classList.add('kpi-meta-nocumple'); el.textContent = '✗ No cumple'; }
+    }
+  };
+
+  setStatus('calSIGStatus',     data.sigPct,     85,  'min');   // ≥ 85%
+  setStatus('calDossierStatus', data.dossierPct, 100, 'min');   // = 100%
+
+  // Tabla detalle: ya viene con placeholder estático en HTML.
+  // Cuando llegue la data, poblar #calSIGTblDetalle desde aquí.
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RENDER: CALIDAD · 2. CONTROL DE NO CONFORMIDADES
+   Datos por visita programada — pendientes hasta Semana 38
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderCalidadNC(){
+  // ⚠ DATA PENDIENTE — Indicadores de NC en estado pendiente hasta Semana 38.
+  //
+  // METAS CONFIGURADAS:
+  //  · Total NC Acumuladas:  máximo 5
+  //  · NC Reincidentes:      máximo 1
+  //  · % NC Reincidentes:    se CALCULA = (NC Reincidentes / Total NC Acumuladas) × 100
+  //                          Meta: ≤ 20% (deriva de máx 1 / máx 5)
+
+  // Variables de data (cuando lleguen los datos oficiales, asignar valores reales aquí)
+  const data = {
+    ncTotal:        null,   // Total NC acumuladas
+    ncReincidentes: null,   // NC reincidentes
+    ncNuevas:       null    // NC nuevas
+  };
+
   document.getElementById('calNCTotal').textContent = data.ncTotal == null ? '—' : data.ncTotal;
   document.getElementById('calNCReinc').textContent = data.ncReincidentes == null ? '—' : data.ncReincidentes;
   document.getElementById('calNCReincDetalle').textContent = (data.ncReincidentes == null || data.ncNuevas == null)
@@ -5352,7 +5513,6 @@ function renderCalidad(){
   }
   document.getElementById('calNCReincPct').textContent = ncPct == null ? '—' : ncPct.toFixed(1) + '%';
 
-  // Helper: aplica estado a una métrica según su valor y meta (modo "máximo permitido")
   const setStatus = (id, valor, metaMax, modo) => {
     const el = document.getElementById(id);
     if(!el) return;
@@ -5363,41 +5523,75 @@ function renderCalidad(){
       return;
     }
     if(modo === 'min'){
-      // Cumple si valor >= metaMax (es un mínimo)
-      if(valor >= metaMax){
-        el.classList.add('kpi-meta-cumple');
-        el.textContent = '✓ Cumple';
-      } else if(valor >= metaMax * 0.9){
-        el.classList.add('kpi-meta-seguimiento');
-        el.textContent = '⚠ En seguimiento';
-      } else {
-        el.classList.add('kpi-meta-nocumple');
-        el.textContent = '✗ No cumple';
-      }
+      if(valor >= metaMax){ el.classList.add('kpi-meta-cumple'); el.textContent = '✓ Cumple'; }
+      else if(valor >= metaMax * 0.9){ el.classList.add('kpi-meta-seguimiento'); el.textContent = '⚠ En seguimiento'; }
+      else { el.classList.add('kpi-meta-nocumple'); el.textContent = '✗ No cumple'; }
     } else {
-      // modo 'max' — Cumple si valor <= metaMax
-      if(valor <= metaMax){
-        el.classList.add('kpi-meta-cumple');
-        el.textContent = '✓ Cumple';
-      } else if(valor <= metaMax * 1.5){
-        el.classList.add('kpi-meta-seguimiento');
-        el.textContent = '⚠ En seguimiento';
-      } else {
-        el.classList.add('kpi-meta-nocumple');
-        el.textContent = '✗ No cumple';
-      }
+      if(valor <= metaMax){ el.classList.add('kpi-meta-cumple'); el.textContent = '✓ Cumple'; }
+      else if(valor <= metaMax * 1.5){ el.classList.add('kpi-meta-seguimiento'); el.textContent = '⚠ En seguimiento'; }
+      else { el.classList.add('kpi-meta-nocumple'); el.textContent = '✗ No cumple'; }
     }
   };
 
-  // Aplicar estados (todos quedan en "Pendiente Sem 38" mientras los valores sean null)
-  setStatus('calSIGStatus',         data.sigPct,         85,  'min');   // ≥ 85%
-  setStatus('calDossierStatus',     data.dossierPct,     100, 'min');   // = 100%
-  setStatus('calNCTotalStatus',     data.ncTotal,        5,   'max');   // máx. 5
-  setStatus('calNCReincStatus',     data.ncReincidentes, 1,   'max');   // máx. 1
-  setStatus('calNCReincPctStatus',  ncPct,               20,  'max');   // ≤ 20% (1/5)
+  setStatus('calNCTotalStatus',    data.ncTotal,        5,   'max');   // máx. 5
+  setStatus('calNCReincStatus',    data.ncReincidentes, 1,   'max');   // máx. 1
+  setStatus('calNCReincPctStatus', ncPct,               20,  'max');   // ≤ 20%
 
-  // Sección 3 — Tabla detalle: ya viene con placeholder estático en el HTML.
-  // Cuando llegue la data, poblar #calTblDetalle desde aquí.
+  // Tabla detalle: placeholder estático. Poblar #calTblDetalle cuando llegue la data.
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RENDER: CALIDAD · 3. CONTROL DE CAPACITACIONES
+   Datos por visita programada — pendientes hasta Semana 38
+   ═══════════════════════════════════════════════════════════════════ */
+
+function renderCalidadCap(){
+  // ⚠ DATA PENDIENTE — Indicadores de Capacitaciones en estado pendiente hasta Semana 38.
+
+  // Variables de data (cuando lleguen los datos oficiales, asignar valores reales aquí)
+  const data = {
+    capPct:        null,   // % cumplimiento del plan · ej. 95
+    capEjecutadas: null,   // # capacitaciones ejecutadas · ej. 12
+    capProgramadas: null,  // # capacitaciones programadas · ej. 13
+    personalCap:   null    // # personal capacitado acumulado · ej. 156
+  };
+
+  document.getElementById('calCapPct').textContent = data.capPct == null ? '—' : data.capPct + '%';
+  document.getElementById('calCapPctDetalle').textContent = (data.capEjecutadas == null || data.capProgramadas == null)
+    ? 'Pendiente · se actualiza en Semana 38'
+    : `${data.capEjecutadas} de ${data.capProgramadas} capacitaciones ejecutadas`;
+  document.getElementById('calCapEjec').textContent = data.capEjecutadas == null ? '—' : data.capEjecutadas;
+  document.getElementById('calCapPers').textContent = data.personalCap == null
+    ? '—'
+    : Number(data.personalCap).toLocaleString('es-PE');
+
+  const setStatus = (id, valor, metaMax, modo) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
+    if(valor == null){
+      el.classList.add('kpi-meta-seguimiento');
+      el.textContent = '⏳ Pendiente Sem 38';
+      return;
+    }
+    if(modo === 'min'){
+      if(valor >= metaMax){ el.classList.add('kpi-meta-cumple'); el.textContent = '✓ Cumple'; }
+      else if(valor >= metaMax * 0.9){ el.classList.add('kpi-meta-seguimiento'); el.textContent = '⚠ En seguimiento'; }
+      else { el.classList.add('kpi-meta-nocumple'); el.textContent = '✗ No cumple'; }
+    } else {
+      if(valor <= metaMax){ el.classList.add('kpi-meta-cumple'); el.textContent = '✓ Cumple'; }
+      else if(valor <= metaMax * 1.5){ el.classList.add('kpi-meta-seguimiento'); el.textContent = '⚠ En seguimiento'; }
+      else { el.classList.add('kpi-meta-nocumple'); el.textContent = '✗ No cumple'; }
+    }
+  };
+
+  setStatus('calCapPctStatus',  data.capPct,        90, 'min');   // ≥ 90%
+  // calCapEjecStatus y calCapPersStatus son contextuales — quedan en pendiente mientras data sea null
+  setStatus('calCapEjecStatus', null,               0,  'min');
+  setStatus('calCapPersStatus', null,               0,  'min');
+
+  // Tabla detalle: placeholder estático. Poblar #calCapTblDetalle cuando llegue la data.
 }
 
 
