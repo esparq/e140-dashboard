@@ -1533,28 +1533,6 @@ body.role-viewer .admin-only{display:none !important;}
             <input type="file" class="area-file-input" data-area="operaciones" id="fileInput-operaciones" multiple accept=".xlsx,.xlsb,.xls" style="display:none">
           </div>
           <div class="area-file-list" data-area="operaciones"></div>
-
-          <!-- ─── PANEL FOTOGRÁFICO (solo Operaciones) ─── -->
-          <div class="fotos-section">
-            <div class="fotos-header">
-              <div class="fotos-title">
-                <span class="fotos-icon">📷</span>
-                <span>Panel Fotográfico de la Semana</span>
-                <span class="fotos-count" id="fotosCount">0 fotos</span>
-              </div>
-              <div class="fotos-sub">Sube las fotografías de la semana · cada semana tiene su propio panel</div>
-            </div>
-
-            <div class="dropzone fotos-dropzone" id="fotosDropzone" onclick="document.getElementById('fileInputFotos').click()">
-              <div class="dropzone-icon" style="font-size:32px;">📷</div>
-              <div class="dropzone-title" style="font-size:14px;">ARRASTRA O SELECCIONA FOTOS</div>
-              <div class="dropzone-subtitle">JPG · PNG · WebP · Máximo 10 fotos · Hasta 2 MB cada una</div>
-              <button class="dropzone-btn" type="button">Seleccionar fotos</button>
-              <input type="file" id="fileInputFotos" multiple accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none">
-            </div>
-
-            <div class="fotos-grid" id="fotosGrid"></div>
-          </div>
         </div>
 
         <!-- ═══ Pane: LOGÍSTICA ═══ -->
@@ -1711,6 +1689,71 @@ body.role-viewer .admin-only{display:none !important;}
     <div class="foto-edit-actions">
       <button class="hdr-btn" onclick="closeFotoEditModal()">Cancelar</button>
       <button class="hdr-btn hdr-btn-primary" onclick="saveFotoEdit()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL INDEPENDIENTE: CARGAR FOTOS DEL PANEL FOTOGRÁFICO
+     ═══════════════════════════════════════════ -->
+<div class="modal-backdrop" id="fotosModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <h2>📷 CARGAR PANEL FOTOGRÁFICO</h2>
+        <p>Cada semana tiene su propio panel · sube las fotografías de esta semana</p>
+      </div>
+      <button class="modal-close" onclick="closeFotosModal()" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Inputs de semana y fecha (igual que las áreas) -->
+      <div class="area-info-banner" style="background:#FFF8E5;border-left-color:var(--orange);">
+        <b>📷 Panel Fotográfico</b> · Carga independiente del cierre semanal · La semana se calcula automáticamente desde la fecha. Si no se cargan fotos esa semana, el panel queda en blanco.
+      </div>
+
+      <div class="sem-input-row">
+        <div class="sem-input">
+          <label>Semana del proyecto <span style="color:var(--twitter-blue);font-weight:700;">(auto)</span></label>
+          <input type="text" id="fotosSemCod" placeholder="S37" autocomplete="off">
+        </div>
+        <div class="sem-input">
+          <label>Fecha de la semana (cualquier día)</label>
+          <input type="date" id="fotosSemFecha">
+        </div>
+      </div>
+
+      <!-- Dropzone de fotos -->
+      <div class="dropzone fotos-dropzone" id="fotosDropzone" onclick="document.getElementById('fileInputFotos').click()" style="margin-top:14px;">
+        <div class="dropzone-icon" style="font-size:32px;">📷</div>
+        <div class="dropzone-title" style="font-size:14px;">ARRASTRA O SELECCIONA FOTOS</div>
+        <div class="dropzone-subtitle">JPG · PNG · WebP · Máximo 10 fotos · Hasta 2 MB cada una</div>
+        <button class="dropzone-btn" type="button">Seleccionar fotos</button>
+        <input type="file" id="fileInputFotos" multiple accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none">
+      </div>
+
+      <!-- Header del grid -->
+      <div class="fotos-header" style="margin-top:18px;">
+        <div class="fotos-title">
+          <span class="fotos-icon">🖼️</span>
+          <span>Fotos cargadas</span>
+          <span class="fotos-count" id="fotosCount">0 fotos</span>
+        </div>
+        <div class="fotos-sub">Haz clic en ✎ para editar la descripción · ✕ para eliminar</div>
+      </div>
+
+      <div class="fotos-grid" id="fotosGrid"></div>
+
+      <div class="modal-msg info" style="margin-top:14px;font-size:11.5px;">
+        💡 <b>Importante:</b> Cada semana es independiente. Si cargas fotos para S38, no afecta las fotos de S37 ni anteriores.
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="hdr-btn" onclick="closeFotosModal()">Cancelar</button>
+      <button class="hdr-btn hdr-btn-primary" id="fotosPublishBtn" onclick="descargarFotosJSON()" disabled>
+        💾 Descargar JSON de fotos
+      </button>
     </div>
   </div>
 </div>
@@ -3088,12 +3131,17 @@ body.role-viewer .admin-only{display:none !important;}
            SECCIÓN 8 — PANEL FOTOGRÁFICO
            ═══════════════════════════════════════════ -->
       <section class="section" id="sec-fotos">
-        <div class="section-header">Panel Fotográfico de la Semana</div>
-        <div class="section-subheader">Fuente: <b>04 · Reporte gráfico</b> — Registros fotográficos documentados</div>
+        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <span>Panel Fotográfico de la Semana</span>
+          <button class="hdr-btn hdr-btn-primary admin-only" onclick="openFotosModal()" style="background:var(--twitter-blue);color:var(--white);border-color:var(--twitter-blue);padding:7px 14px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">
+            <span>📷</span> Cargar Fotos
+          </button>
+        </div>
+        <div class="section-subheader">Fuente: <b>Carga manual</b> — Registros fotográficos por semana (cada semana tiene su propio panel)</div>
 
         <div class="chart-card">
           <div id="fotoGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px"></div>
-          <div style="font-size:10px;color:var(--text-muted);font-style:italic;margin-top:10px;text-align:center">Placeholders · las fotografías originales están en el Excel fuente <b style="color:var(--twitter-blue)">04 · Reporte gráfico</b></div>
+          <div style="font-size:10px;color:var(--text-muted);font-style:italic;margin-top:10px;text-align:center" id="fotosFootnote">Si no hay fotos, el panel quedará en blanco para esa semana.</div>
         </div>
       </section>
 
@@ -3758,6 +3806,15 @@ async function loadFromJSONs(){
           .catch(() => null)
       );
     });
+
+    // Panel fotográfico: archivo independiente fotos-sXX.json
+    const urlFotos = `./data/fotos-${sem.toLowerCase()}.json?v=${Date.now()}`;
+    promises.push(
+      fetch(urlFotos)
+        .then(r => r.ok ? r.json() : null)
+        .then(j => j ? {sem, area:'fotos', data: j} : null)
+        .catch(() => null)
+    );
   }
   const results = await Promise.all(promises);
   const found = results.filter(r => r !== null);
@@ -3809,6 +3866,17 @@ async function loadFromJSONs(){
     if(area === 'legacy'){
       // JSON legacy: aplica todas las áreas que contenga
       mergeJsonIntoWeek(weeks[sem], data);
+    } else if(area === 'fotos'){
+      // JSON de panel fotográfico independiente
+      if(Array.isArray(data.fotos)){
+        weeks[sem].fotos = data.fotos.map((f, i) => ({
+          n:     f.n != null ? f.n : (i + 1),
+          desc:  f.desc || `Foto ${i + 1}`,
+          url:   f.url || '',
+          color: f.color || '#509BC9',
+          ...(f.badge ? { badge: f.badge } : {})
+        }));
+      }
     } else {
       // JSON por área: aplica solo el bloque de esa área
       mergeAreaJsonIntoWeek(weeks[sem], data, area);
@@ -6830,7 +6898,7 @@ let cargaState = {
   activeArea: 'operaciones',
   // Por área: {file, info, status} indexado por key
   porArea: {
-    operaciones:  { archivos:{}, fotos:[], semana:'', fecha:'', datos:null },
+    operaciones:  { archivos:{}, semana:'', fecha:'', datos:null },
     logistica:    { archivos:{}, semana:'', fecha:'', datos:null },
     arquitectura: { archivos:{}, semana:'', fecha:'', datos:null },
     ssoma:        { archivos:{}, semana:'', fecha:'', datos:null },
@@ -7048,7 +7116,7 @@ function resetCargaState(){
     step: 1,
     activeArea: 'operaciones',
     porArea: {
-      operaciones:  { archivos:{}, fotos:[], semana:'', fecha:'', datos:null },
+      operaciones:  { archivos:{}, semana:'', fecha:'', datos:null },
       logistica:    { archivos:{}, semana:'', fecha:'', datos:null },
       arquitectura: { archivos:{}, semana:'', fecha:'', datos:null },
       ssoma:        { archivos:{}, semana:'', fecha:'', datos:null },
@@ -7057,16 +7125,6 @@ function resetCargaState(){
     archivos: {},
     datos: null,
   };
-  // Limpiar UI de fotos
-  const grid = document.getElementById('fotosGrid');
-  if(grid) grid.innerHTML = '';
-  const counter = document.getElementById('fotosCount');
-  if(counter){
-    counter.textContent = '0 fotos';
-    counter.classList.remove('has-fotos', 'full');
-  }
-  const dz = document.getElementById('fotosDropzone');
-  if(dz) dz.classList.remove('disabled');
 }
 
 function closeCargaModal(){
@@ -7091,12 +7149,7 @@ function switchAreaTab(area){
 function updateAreaTabsStatus(){
   AREAS_CARGADOR.forEach(area => {
     const archivos = cargaState.porArea[area].archivos;
-    const countArchivos = Object.keys(archivos).filter(k => !k.startsWith('unknown_')).length;
-    // Para Operaciones, sumar también las fotos cargadas
-    const fotos = (area === 'operaciones') ? (cargaState.porArea.operaciones.fotos || []) : [];
-    const countFotos = fotos.length;
-    const count = countArchivos + countFotos;
-
+    const count = Object.keys(archivos).filter(k => !k.startsWith('unknown_')).length;
     // Contador en la tab
     const stat = document.getElementById('atStat-' + area);
     if(stat) stat.textContent = count;
@@ -7110,12 +7163,7 @@ function updateAreaTabsStatus(){
       pill.classList.toggle('empty', count === 0);
       const iconMap = {operaciones:'🏗️', logistica:'🚛', arquitectura:'📐', ssoma:'⛑️', calidad:'✅'};
       const nameMap = {operaciones:'Operaciones', logistica:'Logística', arquitectura:'Arquitectura', ssoma:'SSOMA', calidad:'Calidad'};
-      // Operaciones muestra desglose archivos + fotos
-      if(area === 'operaciones' && countFotos > 0){
-        pill.textContent = `${iconMap[area]} ${nameMap[area]} · ${countArchivos} archivo${countArchivos===1?'':'s'} + ${countFotos} foto${countFotos===1?'':'s'}`;
-      } else {
-        pill.textContent = `${iconMap[area]} ${nameMap[area]} · ${count} archivo${count===1?'':'s'}`;
-      }
+      pill.textContent = `${iconMap[area]} ${nameMap[area]} · ${count} archivo${count===1?'':'s'}`;
     }
   });
 }
@@ -7234,13 +7282,12 @@ function setupAreaDropzones(){
     });
     input.onchange = e => handleAreaFiles(area, e.target.files);
   });
-
-  // ─── Setup del dropzone de FOTOS (solo Operaciones) ───
-  setupFotosDropzone();
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   PANEL FOTOGRÁFICO — Carga de fotos en el modal
+   PANEL FOTOGRÁFICO — Carga independiente de fotos
+   Tiene su propio modal y estado, separado del cargador de Excels.
+   Las fotos se publican como archivo aparte: data/fotos-sXX.json
    ═══════════════════════════════════════════════════════════════════ */
 
 const MAX_FOTOS         = 10;        // Máximo de fotos por semana
@@ -7248,7 +7295,104 @@ const MAX_FOTO_SIZE     = 2 * 1024 * 1024; // 2 MB por foto
 const MAX_FOTO_WIDTH    = 1600;      // Redimensionar fotos grandes a este ancho máximo
 const FOTO_JPEG_QUALITY = 0.82;      // Calidad JPEG al comprimir
 
+// Estado independiente del modal de fotos
+let fotosState = {
+  semana: '',
+  fecha:  '',
+  fotos:  [],
+};
 let fotoEditingIndex = -1; // Índice de la foto que se está editando
+
+// ─── Apertura del modal de fotos ───
+function openFotosModal(){
+  // Reset
+  fotosState = { semana: '', fecha: '', fotos: [] };
+  fotoEditingIndex = -1;
+
+  const modal = document.getElementById('fotosModal');
+  if(!modal){ alert('Error: modal de fotos no encontrado'); return; }
+  modal.classList.add('show');
+
+  // Prefill: detectar la semana actual usando el calendario del proyecto
+  let nextSem = 'S37';
+  let nextFecha = '';
+  try {
+    const hoyInfo = fechaASemana(new Date());
+    if(hoyInfo){
+      nextSem = hoyInfo.codigo;
+      nextFecha = hoyInfo.cierreSabado;
+    } else {
+      nextFecha = new Date().toISOString().split('T')[0];
+    }
+  } catch(e){}
+
+  // Si la semana actual del dashboard ya tiene fotos, prefill con esa semana
+  // y precargar las fotos existentes para edición
+  try {
+    const wkSel = document.getElementById('weekSelect');
+    if(wkSel && wkSel.value){
+      nextSem = wkSel.value;
+      const info = semanaAFecha(nextSem);
+      if(info) nextFecha = info.cierreSabado;
+      // Precargar fotos existentes de la semana actual
+      const wkData = DATA.weeks[nextSem];
+      if(wkData && Array.isArray(wkData.fotos) && wkData.fotos.length > 0){
+        fotosState.fotos = wkData.fotos.map((f, i) => ({
+          n:     f.n != null ? f.n : (i + 1),
+          desc:  f.desc || '',
+          url:   f.url || '',
+          color: f.color || '#509BC9',
+          ...(f.badge ? { badge: f.badge } : {})
+        })).filter(f => f.url); // solo las que tengan url real
+      }
+    }
+  } catch(e){}
+
+  fotosState.semana = nextSem;
+  fotosState.fecha = nextFecha;
+
+  const codInput = document.getElementById('fotosSemCod');
+  const fechaInput = document.getElementById('fotosSemFecha');
+  if(codInput) codInput.value = nextSem;
+  if(fechaInput) fechaInput.value = nextFecha;
+
+  // Listeners bidireccionales fecha ↔ semana
+  if(fechaInput){
+    fechaInput.oninput = e => {
+      const f = e.target.value;
+      fotosState.fecha = f;
+      if(f){
+        const info = fechaASemana(f);
+        if(info && codInput){
+          codInput.value = info.codigo;
+          fotosState.semana = info.codigo;
+        }
+      }
+      updateFotosPublishButton();
+    };
+  }
+  if(codInput){
+    codInput.oninput = e => {
+      const cod = e.target.value.trim().toUpperCase();
+      fotosState.semana = cod;
+      const info = semanaAFecha(cod);
+      if(info && fechaInput){
+        fechaInput.value = info.cierreSabado;
+        fotosState.fecha = info.cierreSabado;
+      }
+      updateFotosPublishButton();
+    };
+  }
+
+  setupFotosDropzone();
+  renderFotosGrid();
+  updateFotosPublishButton();
+}
+
+function closeFotosModal(){
+  const modal = document.getElementById('fotosModal');
+  if(modal) modal.classList.remove('show');
+}
 
 function setupFotosDropzone(){
   const dz = document.getElementById('fotosDropzone');
@@ -7275,12 +7419,7 @@ function setupFotosDropzone(){
 async function handleFotosFiles(files){
   if(!files || !files.length) return;
 
-  // Inicializar arreglo de fotos en cargaState si no existe
-  if(!cargaState.porArea.operaciones.fotos){
-    cargaState.porArea.operaciones.fotos = [];
-  }
-  const fotos = cargaState.porArea.operaciones.fotos;
-
+  const fotos = fotosState.fotos;
   const arr = Array.from(files);
   const errores = [];
   const dz = document.getElementById('fotosDropzone');
@@ -7292,12 +7431,10 @@ async function handleFotosFiles(files){
       errores.push(`Solo se permiten ${MAX_FOTOS} fotos por semana. Las restantes se ignoraron.`);
       break;
     }
-    // Validar tipo
     if(!/^image\/(jpeg|jpg|png|webp)$/i.test(file.type)){
       errores.push(`${file.name}: formato no soportado (solo JPG, PNG, WebP).`);
       continue;
     }
-    // Validar tamaño antes de comprimir
     if(file.size > 20 * 1024 * 1024){
       errores.push(`${file.name}: archivo excede 20 MB. Reduce su tamaño antes de subirlo.`);
       continue;
@@ -7307,7 +7444,6 @@ async function handleFotosFiles(files){
 
     try {
       const dataUrl = await fileToCompressedDataURL(file);
-      // Tamaño aproximado del base64
       const sizeBytes = Math.ceil((dataUrl.length - 22) * 3 / 4);
       if(sizeBytes > MAX_FOTO_SIZE){
         errores.push(`${file.name}: la foto comprimida sigue siendo > 2 MB. Reduce su tamaño antes de subirla.`);
@@ -7318,7 +7454,6 @@ async function handleFotosFiles(files){
         desc: file.name.replace(/\.[^.]+$/, ''),
         url:  dataUrl,
         color:'#509BC9',
-        // badge: opcional, solo si el usuario marca "Hito"
       });
     } catch(err){
       errores.push(`${file.name}: ${err.message || 'error al procesar'}`);
@@ -7330,8 +7465,7 @@ async function handleFotosFiles(files){
 
   dzTitle.textContent = titleOriginal;
   renderFotosGrid();
-  updateAreaTabsStatus();
-  updateNextButton();
+  updateFotosPublishButton();
 
   if(errores.length){
     alert('Algunos archivos no se cargaron:\n\n' + errores.join('\n'));
@@ -7348,7 +7482,6 @@ function fileToCompressedDataURL(file){
     reader.onload = () => {
       const img = new Image();
       img.onload = () => {
-        // Calcular dimensiones finales
         let w = img.naturalWidth;
         let h = img.naturalHeight;
         if(w > MAX_FOTO_WIDTH){
@@ -7359,7 +7492,6 @@ function fileToCompressedDataURL(file){
         canvas.width = w;
         canvas.height = h;
         const ctx = canvas.getContext('2d');
-        // Fondo blanco para PNGs con transparencia (al pasar a JPEG)
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, w, h);
         ctx.drawImage(img, 0, 0, w, h);
@@ -7384,26 +7516,19 @@ function renderFotosGrid(){
   const dz = document.getElementById('fotosDropzone');
   if(!grid) return;
 
-  const fotos = (cargaState.porArea.operaciones.fotos || []);
+  const fotos = fotosState.fotos;
   grid.innerHTML = '';
 
-  // Actualizar contador
   if(counter){
     counter.textContent = `${fotos.length} foto${fotos.length === 1 ? '' : 's'}`;
     counter.classList.toggle('has-fotos', fotos.length > 0 && fotos.length < MAX_FOTOS);
     counter.classList.toggle('full', fotos.length >= MAX_FOTOS);
   }
 
-  // Bloquear dropzone si llegó al máximo
   if(dz){
-    if(fotos.length >= MAX_FOTOS){
-      dz.classList.add('disabled');
-    } else {
-      dz.classList.remove('disabled');
-    }
+    dz.classList.toggle('disabled', fotos.length >= MAX_FOTOS);
   }
 
-  // Renderizar miniaturas
   fotos.forEach((f, i) => {
     const el = document.createElement('div');
     el.className = 'foto-thumb';
@@ -7425,20 +7550,29 @@ function renderFotosGrid(){
   });
 }
 
+function updateFotosPublishButton(){
+  const btn = document.getElementById('fotosPublishBtn');
+  if(!btn) return;
+  // Habilitar si hay al menos 1 foto, semana válida y fecha válida
+  const sem = (fotosState.semana || '').trim().toUpperCase();
+  const semValida = /^S\d{1,3}$/.test(sem);
+  const tieneFotos = fotosState.fotos.length > 0;
+  const tieneFecha = !!fotosState.fecha;
+  btn.disabled = !(semValida && tieneFecha && tieneFotos);
+}
+
 function removerFoto(index){
-  const fotos = cargaState.porArea.operaciones.fotos || [];
+  const fotos = fotosState.fotos;
   if(index < 0 || index >= fotos.length) return;
   if(!confirm(`¿Eliminar la foto "${fotos[index].desc}"?`)) return;
   fotos.splice(index, 1);
-  // Renumerar
   fotos.forEach((f, i) => f.n = i + 1);
   renderFotosGrid();
-  updateAreaTabsStatus();
-  updateNextButton();
+  updateFotosPublishButton();
 }
 
 function openFotoEditModal(index){
-  const fotos = cargaState.porArea.operaciones.fotos || [];
+  const fotos = fotosState.fotos;
   if(index < 0 || index >= fotos.length) return;
   fotoEditingIndex = index;
   const f = fotos[index];
@@ -7455,7 +7589,7 @@ function closeFotoEditModal(){
 
 function saveFotoEdit(){
   if(fotoEditingIndex < 0) return;
-  const fotos = cargaState.porArea.operaciones.fotos || [];
+  const fotos = fotosState.fotos;
   if(fotoEditingIndex >= fotos.length) return;
   const desc = document.getElementById('fotoEditDesc').value.trim();
   const esHito = document.getElementById('fotoEditHito').checked;
@@ -7473,6 +7607,50 @@ function saveFotoEdit(){
   }
   closeFotoEditModal();
   renderFotosGrid();
+}
+
+// ─── Descargar JSON de fotos para subir al repo ───
+function descargarFotosJSON(){
+  const sem = (fotosState.semana || '').trim().toUpperCase();
+  if(!/^S\d{1,3}$/.test(sem)){
+    alert('Código de semana inválido. Formato esperado: S37');
+    return;
+  }
+  if(!fotosState.fecha){
+    alert('Fecha de la semana requerida');
+    return;
+  }
+  if(fotosState.fotos.length === 0){
+    alert('Carga al menos una foto antes de publicar');
+    return;
+  }
+
+  const data = {
+    tipo:        'fotos',
+    semana:      sem,
+    corte_fecha: fotosState.fecha,
+    fotos:       fotosState.fotos.map((f, i) => ({
+      n:     i + 1,
+      desc:  f.desc,
+      url:   f.url,
+      color: f.color || '#509BC9',
+      ...(f.badge ? { badge: f.badge } : {})
+    })),
+  };
+
+  const json = JSON.stringify(data, null, 2);
+  const filename = `fotos-${sem.toLowerCase()}.json`;
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  alert(`✓ Archivo descargado: ${filename}\n\nSube este archivo a la carpeta data/ del repositorio en GitHub.\nEl panel fotográfico de la semana ${sem} se actualizará automáticamente.`);
 }
 
 function handleAreaFiles(area, files){
@@ -7566,16 +7744,8 @@ function updateNextButton(){
   const next = document.getElementById('cargaNextBtn');
   if(!next) return;
   // Habilitar si HAY al menos un área con archivos cargados
-  // Operaciones también vale si solo tiene fotos (sin Excel)
   const algunaArea = AREAS_CARGADOR.some(area => {
-    const hasArchivos = Object.keys(cargaState.porArea[area].archivos).filter(k => !k.startsWith('unknown_')).length > 0;
-    if(hasArchivos) return true;
-    // Solo Operaciones puede tener fotos sin archivos
-    if(area === 'operaciones'){
-      const fotos = cargaState.porArea.operaciones.fotos || [];
-      return fotos.length > 0;
-    }
-    return false;
+    return Object.keys(cargaState.porArea[area].archivos).filter(k => !k.startsWith('unknown_')).length > 0;
   });
   next.disabled = !algunaArea;
 }
@@ -7612,22 +7782,16 @@ function renderFileList(){
 // VALIDACIÓN PASO 1 — POR ÁREA
 // ────────────────────────────────────────
 function validarPaso1(){
-  // Validar al menos un área con archivos (o Operaciones con fotos)
-  const areasConContenido = AREAS_CARGADOR.filter(area => {
-    const hasArchivos = Object.keys(cargaState.porArea[area].archivos).filter(k => !k.startsWith('unknown_')).length > 0;
-    if(hasArchivos) return true;
-    if(area === 'operaciones'){
-      const fotos = cargaState.porArea.operaciones.fotos || [];
-      return fotos.length > 0;
-    }
-    return false;
+  // Validar al menos un área con archivos
+  const areasConArchivos = AREAS_CARGADOR.filter(area => {
+    return Object.keys(cargaState.porArea[area].archivos).filter(k => !k.startsWith('unknown_')).length > 0;
   });
-  if(areasConContenido.length === 0){
+  if(areasConArchivos.length === 0){
     alert('Carga archivos en al menos un área antes de continuar.');
     return false;
   }
-  // Validar que cada área con contenido tenga código de semana y fecha
-  for(const area of areasConContenido){
+  // Validar que cada área con archivos tenga código de semana y fecha
+  for(const area of areasConArchivos){
     const sem = (cargaState.porArea[area].semana || '').trim().toUpperCase();
     const fecha = cargaState.porArea[area].fecha || '';
     const nombre = {operaciones:'Operaciones',logistica:'Logística',arquitectura:'Arquitectura',ssoma:'SSOMA',calidad:'Calidad'}[area];
@@ -7658,11 +7822,7 @@ async function procesarArchivos(){
     const archivos = cargaState.porArea[area].archivos;
     const keys = Object.keys(archivos).filter(k => !k.startsWith('unknown_'));
 
-    // Operaciones tiene fotos como contenido válido aunque no tenga Excels
-    const fotos = (area === 'operaciones') ? (cargaState.porArea.operaciones.fotos || []) : [];
-    const tieneContenido = keys.length > 0 || fotos.length > 0;
-
-    if(!tieneContenido){
+    if(keys.length === 0){
       cargaState.porArea[area].datos = null;  // Sin data para esta área
       continue;
     }
@@ -7675,18 +7835,6 @@ async function procesarArchivos(){
       errores: [],
       advertencias: [],
     };
-
-    // Si es Operaciones y hay fotos, incluirlas en el JSON
-    if(area === 'operaciones' && fotos.length > 0){
-      // Las fotos se almacenan tal cual (con su data URL) para que se serialicen al JSON
-      resultadoArea.fotos = fotos.map((f, i) => ({
-        n:     i + 1,
-        desc:  f.desc,
-        url:   f.url,
-        color: f.color || '#509BC9',
-        ...(f.badge ? { badge: f.badge } : {})
-      }));
-    }
 
     for(const k of keys){
       const a = archivos[k];
@@ -7729,10 +7877,6 @@ async function procesarArchivos(){
       Object.assign(resultado.archivos, dat.archivos);
       resultado.errores.push(...dat.errores);
       resultado.advertencias.push(...dat.advertencias);
-      // Incluir fotos del área Operaciones en el resultado global
-      if(area === 'operaciones' && dat.fotos){
-        resultado.fotos = dat.fotos;
-      }
     }
   });
 
