@@ -1319,7 +1319,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
     <div class="modal-head">
       <div>
         <h2>📂 CARGAR DATA POR ÁREA</h2>
-        <p>Cada área tiene su propia data y su propio cierre · cargá lo que tengas listo</p>
+        <p>Cada área tiene su propia data y su propio cierre · carga lo que tengas listo</p>
       </div>
       <button class="modal-close" onclick="closeCargaModal()" aria-label="Cerrar">✕</button>
     </div>
@@ -1380,7 +1380,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           </div>
           <div class="dropzone area-dropzone" data-area="operaciones" onclick="document.getElementById('fileInput-operaciones').click()">
             <div class="dropzone-icon">📂</div>
-            <div class="dropzone-title">ARRASTRÁ ARCHIVOS DE OPERACIONES</div>
+            <div class="dropzone-title">ARRASTRA ARCHIVOS DE OPERACIONES</div>
             <div class="dropzone-subtitle">Histograma · Casco SOT/SUP · Albañilería · Adquisiciones · MO · Adicionales · Cronograma</div>
             <button class="dropzone-btn" type="button">Seleccionar archivos</button>
             <input type="file" class="area-file-input" data-area="operaciones" id="fileInput-operaciones" multiple accept=".xlsx,.xlsb,.xls" style="display:none">
@@ -1405,7 +1405,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           </div>
           <div class="dropzone area-dropzone" data-area="logistica" onclick="document.getElementById('fileInput-logistica').click()">
             <div class="dropzone-icon">🚛</div>
-            <div class="dropzone-title">ARRASTRÁ ARCHIVOS DE LOGÍSTICA</div>
+            <div class="dropzone-title">ARRASTRA ARCHIVOS DE LOGÍSTICA</div>
             <div class="dropzone-subtitle">Control de Acero · Kardex de Encofrado · Arrendamiento F1F2</div>
             <button class="dropzone-btn" type="button">Seleccionar archivos</button>
             <input type="file" class="area-file-input" data-area="logistica" id="fileInput-logistica" multiple accept=".xlsx,.xlsb,.xls" style="display:none">
@@ -1430,7 +1430,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           </div>
           <div class="dropzone area-dropzone" data-area="arquitectura" onclick="document.getElementById('fileInput-arquitectura').click()">
             <div class="dropzone-icon">📐</div>
-            <div class="dropzone-title">ARRASTRÁ ARCHIVOS DE ARQUITECTURA</div>
+            <div class="dropzone-title">ARRASTRA ARCHIVOS DE ARQUITECTURA</div>
             <div class="dropzone-subtitle">Reporte de avance de planos · Observaciones · Alertas postventa</div>
             <button class="dropzone-btn" type="button">Seleccionar archivos</button>
             <input type="file" class="area-file-input" data-area="arquitectura" id="fileInput-arquitectura" multiple accept=".xlsx,.xlsb,.xls,.pdf" style="display:none">
@@ -1455,7 +1455,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           </div>
           <div class="dropzone area-dropzone" data-area="ssoma" onclick="document.getElementById('fileInput-ssoma').click()">
             <div class="dropzone-icon">⛑️</div>
-            <div class="dropzone-title">ARRASTRÁ ARCHIVOS DE SSOMA</div>
+            <div class="dropzone-title">ARRASTRA ARCHIVOS DE SSOMA</div>
             <div class="dropzone-subtitle">Reporte SST · Reporte Ambiental · Inspecciones · Accidentes / Incidentes</div>
             <button class="dropzone-btn" type="button">Seleccionar archivos</button>
             <input type="file" class="area-file-input" data-area="ssoma" id="fileInput-ssoma" multiple accept=".xlsx,.xlsb,.xls,.pdf" style="display:none">
@@ -1480,7 +1480,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
           </div>
           <div class="dropzone area-dropzone" data-area="calidad" onclick="document.getElementById('fileInput-calidad').click()">
             <div class="dropzone-icon">✅</div>
-            <div class="dropzone-title">ARRASTRÁ ARCHIVOS DE CALIDAD</div>
+            <div class="dropzone-title">ARRASTRA ARCHIVOS DE CALIDAD</div>
             <div class="dropzone-subtitle">Reporte SIG · No Conformidades · Plan de Capacitaciones · Dossier</div>
             <button class="dropzone-btn" type="button">Seleccionar archivos</button>
             <input type="file" class="area-file-input" data-area="calidad" id="fileInput-calidad" multiple accept=".xlsx,.xlsb,.xls,.pdf" style="display:none">
@@ -1499,7 +1499,7 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
         </div>
 
         <div class="modal-msg info" style="margin-top:10px;font-size:11.5px;">
-          💡 <b>Carga independiente por área:</b> podés cargar una sola área (ej. solo Calidad esta semana), o todas. Cada área se publica como un JSON separado <code>data/data-sXX-{area}.json</code>. El dashboard combina automáticamente la última versión de cada área.
+          💡 <b>Carga independiente por área:</b> puedes cargar una sola área (ej. solo Calidad esta semana), o todas. Cada área se publica como un JSON separado <code>data/data-sXX-{area}.json</code>. El dashboard combina automáticamente la última versión de cada área.
         </div>
       </div>
 
@@ -1535,20 +1535,20 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
   <div class="help-body">
 
     <h4>1 · CÓMO PUBLICAR DATA POR ÁREA</h4>
-    <p style="margin-bottom:10px;font-size:13px;">Cada área del proyecto se carga por separado: Operaciones, Logística, Arquitectura, SSOMA y Calidad. Cargá solo las áreas que tengas listas — no es necesario tener todo a la vez.</p>
+    <p style="margin-bottom:10px;font-size:13px;">Cada área del proyecto se carga por separado: Operaciones, Logística, Arquitectura, SSOMA y Calidad. Carga solo las áreas que tengas listas — no es necesario tener todo a la vez.</p>
     <ol>
       <li>Click en <b>"📂 Cargar Data"</b> arriba a la derecha del header.</li>
-      <li>Seleccioná la <b>tab del área</b> que querés cargar (ej. Calidad).</li>
-      <li>Completá el <b>código de semana/visita</b> (ej. <code>S38</code>) y la <b>fecha</b>. Cada área tiene su propio código y fecha porque las visitas no siempre coinciden con el cierre de Operaciones.</li>
-      <li>Arrastrá los archivos al dropzone (o click en "Seleccionar archivos").</li>
-      <li>Repetí para otras áreas si tenés data lista (las tabs muestran ✓ verde cuando están cargadas).</li>
+      <li>Selecciona la <b>tab del área</b> que quieres cargar (ej. Calidad).</li>
+      <li>Completa el <b>código de semana/visita</b> (ej. <code>S38</code>) y la <b>fecha</b>. Cada área tiene su propio código y fecha porque las visitas no siempre coinciden con el cierre de Operaciones.</li>
+      <li>Arrastra los archivos al dropzone (o click en "Seleccionar archivos").</li>
+      <li>Repite para otras áreas si tienes data lista (las tabs muestran ✓ verde cuando están cargadas).</li>
       <li>Click en <b>"Procesar archivos →"</b> (procesa todas las áreas con archivos).</li>
-      <li>Revisá el <b>preview por área</b>.</li>
-      <li>En el paso de Publicar, descargá los <b>JSON de cada área</b> (uno por archivo: <code>data-sXX-{area}.json</code>).</li>
+      <li>Revisa el <b>preview por área</b>.</li>
+      <li>En el paso de Publicar, descarga los <b>JSON de cada área</b> (uno por archivo: <code>data-sXX-{area}.json</code>).</li>
       <li>Subí los JSONs a la carpeta <code>data/</code> del repo en GitHub.</li>
       <li>El dashboard combina automáticamente la última versión de cada área en ~1 minuto.</li>
     </ol>
-    <div class="help-ok"><b>💡 Carga independiente:</b> Si solo cargás Calidad esta semana, las demás áreas mantienen su última data publicada. No se borra nada.</div>
+    <div class="help-ok"><b>💡 Carga independiente:</b> Si solo cargas Calidad esta semana, las demás áreas mantienen su última data publicada. No se borra nada.</div>
 
     <h4>2 · ÁREAS Y SUS ARCHIVOS ESPERADOS</h4>
     <table class="help-tbl">
@@ -6916,7 +6916,7 @@ function validarPaso1(){
     return Object.keys(cargaState.porArea[area].archivos).filter(k => !k.startsWith('unknown_')).length > 0;
   });
   if(areasConArchivos.length === 0){
-    alert('Cargá archivos en al menos un área antes de continuar.');
+    alert('Carga archivos en al menos un área antes de continuar.');
     return false;
   }
   // Validar que cada área con archivos tenga código de semana y fecha
@@ -7448,7 +7448,7 @@ function renderPreview(){
 
   let html = `
     <h3 style="margin-bottom:6px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--twitter-blue)">PREVIEW POR ÁREA</h3>
-    <p style="color:var(--text-muted);font-size:12px;margin-bottom:18px">Revisá los KPIs procesados de cada área antes de publicar.</p>
+    <p style="color:var(--text-muted);font-size:12px;margin-bottom:18px">Revisa los KPIs procesados de cada área antes de publicar.</p>
   `;
 
   for(const area of areasConDatos){
@@ -7588,15 +7588,15 @@ function renderPublish(){
 
   const html = `
     <div class="modal-msg ok">
-      <b>✓ ${areasConDatos.length} área(s) lista(s) para publicar.</b> Descargá los JSONs y subilos al repo de GitHub.
+      <b>✓ ${areasConDatos.length} área(s) lista(s) para publicar.</b> Descarga los JSONs y súbelos al repo de GitHub.
     </div>
 
     <div class="gh-steps" style="margin-bottom:18px;">
       <h4>📤 CÓMO PUBLICAR EN GITHUB</h4>
       <ol>
         <li>Click en <b>"💾 Descargar JSON"</b> de cada área (o "Descargar TODOS" si hay varias).</li>
-        <li>Abrí <a href="https://github.com/esparq/e140-dashboard" target="_blank" style="color:var(--twitter-blue);font-weight:600">tu repo en GitHub</a>.</li>
-        <li>Arrastrá los archivos JSON dentro de la carpeta <code>data/</code> del repo → commit.</li>
+        <li>Abre <a href="https://github.com/esparq/e140-dashboard" target="_blank" style="color:var(--twitter-blue);font-weight:600">tu repo en GitHub</a>.</li>
+        <li>Arrastra los archivos JSON dentro de la carpeta <code>data/</code> del repo → commit.</li>
         <li>El dashboard detectará la nueva data automáticamente en ~1 minuto.</li>
       </ol>
       <p style="font-size:11.5px;color:var(--text-muted);margin-top:8px;font-style:italic;">
@@ -7641,7 +7641,7 @@ async function copiarJSONArea(area){
       setTimeout(() => fb.textContent = '', 3000);
     }
   } catch(err){
-    alert('No se pudo copiar. Usá el botón de descarga.');
+    alert('No se pudo copiar. Usa el botón de descarga.');
   }
 }
 
