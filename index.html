@@ -544,6 +544,36 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .r-frente-note{font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.4;}
 .r-frente-badge-big{font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase;}
 
+/* ─── Estado por área (% cumplimiento) ─── */
+.r-areas-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.r-area-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden;border-top:4px solid var(--twitter-blue);transition:transform .15s ease, box-shadow .15s ease;}
+.r-area-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06);}
+.r-area-card.ar-green{border-top-color:var(--green);}
+.r-area-card.ar-orange{border-top-color:var(--orange);}
+.r-area-card.ar-red{border-top-color:var(--red);}
+.r-area-card.ar-grey{border-top-color:var(--blue-bell);}
+.r-area-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.r-area-icon{font-size:18px;line-height:1;}
+.r-area-name{font-size:12px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.06em;}
+.r-area-pct{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:1px;line-height:1;color:var(--twitter-blue);margin-bottom:4px;}
+.r-area-card.ar-green .r-area-pct{color:var(--green);}
+.r-area-card.ar-orange .r-area-pct{color:var(--orange);}
+.r-area-card.ar-red .r-area-pct{color:var(--red);}
+.r-area-card.ar-grey .r-area-pct{color:var(--blue-bell-dk);}
+.r-area-status{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase;margin-top:4px;}
+.r-area-card.ar-green .r-area-status{background:#E7F4EE;color:#1A6B4A;}
+.r-area-card.ar-orange .r-area-status{background:#FFF1E5;color:#A0521E;}
+.r-area-card.ar-red .r-area-status{background:#FBEAEA;color:#8A2A2D;}
+.r-area-card.ar-grey .r-area-status{background:#EEF1F8;color:#5A6B8A;}
+.r-area-note{font-size:10.5px;color:var(--text-muted);margin-top:8px;line-height:1.4;font-style:italic;}
+
+@media(max-width:1199px){
+  .r-areas-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:599px){
+  .r-areas-grid{grid-template-columns:1fr;}
+}
+
 /* Pulso (main evo chart) */
 .r-pulso{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px 22px;margin-bottom:22px;}
 .r-pulso-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--text);margin-bottom:4px;}
@@ -1702,14 +1732,14 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
         </div>
 
         <!-- ═══════════════════════════════════════════
-             CAPA 1 · HOY (control actual)
+             CAPA 1 · HOY (control actual) · OPERACIONES
              ═══════════════════════════════════════════ -->
-        <div class="capa-header c-hoy">
+        <div class="capa-header c-hoy" style="border-left-width:5px;border-left-color:var(--twitter-blue);background:linear-gradient(90deg,#E6F2FB 0%,var(--alice-blue) 100%);">
           <div class="capa-num">●</div>
           <div>
-            <div class="capa-title">HOY — CONTROL</div>
+            <div class="capa-title" style="font-size:14px;color:var(--twitter-blue);">HOY — CONTROL · OPERACIONES</div>
           </div>
-          <div class="capa-sub">Panel ejecutivo semana actual</div>
+          <div class="capa-sub" style="font-weight:600;color:var(--twitter-blue);">Panel ejecutivo de Operaciones · semana actual</div>
         </div>
 
         <!-- B. KPI Poster (6 KPIs ejecutivos) -->
@@ -1788,6 +1818,20 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 
         <!-- E. Alertas -->
         <div class="r-alertas" id="rAlertas"></div>
+
+        <!-- ═══════════════════════════════════════════
+             CAPA 1B · ESTADO POR ÁREA (% cumplimiento)
+             ═══════════════════════════════════════════ -->
+        <div class="capa-header c-hoy" style="border-left-color:var(--blue-bell-dk);background:#F4F1F8;">
+          <div class="capa-num" style="color:var(--blue-bell-dk);">◉</div>
+          <div>
+            <div class="capa-title">ESTADO POR ÁREA</div>
+          </div>
+          <div class="capa-sub">% de cumplimiento consolidado por área</div>
+        </div>
+
+        <!-- Grid de áreas con % cumplimiento -->
+        <div class="r-areas-grid" id="rAreasGrid"></div>
 
         <!-- ═══════════════════════════════════════════
              CAPA 2 · MAÑANA (proyecciones)
@@ -4526,6 +4570,9 @@ function renderResumen(){
   // E. Alertas
   renderRAlertas(d);
 
+  // E.bis · Estado por Área (% cumplimiento por área)
+  renderRAreas();
+
   // F. Evolutivos
   renderREvoPersonal();
   renderREvoMO();
@@ -4800,6 +4847,117 @@ function renderRAlertas(d){
         <div class="r-alerta-text">${a.texto}</div>
         <div class="r-alerta-num">${a.num}</div>
       </div>`;
+    cont.appendChild(el);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RENDER: ESTADO POR ÁREA (% Cumplimiento consolidado)
+   Disgrega el estado del proyecto por las áreas funcionales.
+   Operaciones queda RESALTADA porque su panel de control está arriba.
+   Las demás áreas (Arquitectura, SSOMA, Logística, Calidad) muestran
+   solo % de cumplimiento.
+   ═══════════════════════════════════════════════════════════════════ */
+function renderRAreas(){
+  const cont = document.getElementById('rAreasGrid');
+  if(!cont) return;
+  cont.innerHTML = '';
+
+  // ─── Cálculo del % Operaciones (consolidado del panel de KPIs ejecutivos) ───
+  // Tomamos los KPIs de la semana actual y promediamos su nivel de cumplimiento.
+  // Si no hay data, queda en null.
+  let opePct = null;
+  try {
+    const d = wk();
+    if(d && d.kpis){
+      const k = d.kpis;
+      const factores = [];
+      // Avance físico (% real de obra) — meta implícita 100% del programa
+      if(k.avance != null) factores.push(Math.min(100, k.avance));
+      // SPI Contractual: 1.0 = 100% cumplimiento
+      if(k.spiContractual != null) factores.push(Math.min(100, k.spiContractual * 100));
+      // CPI: 1.0 = 100% cumplimiento
+      if(k.cpi != null) factores.push(Math.min(100, k.cpi * 100));
+      if(factores.length > 0){
+        opePct = factores.reduce((a,b)=>a+b, 0) / factores.length;
+      }
+    }
+  } catch(e){ opePct = null; }
+
+  // ─── Definición de áreas a mostrar ───
+  // Todas las áreas excepto Operaciones quedan en "Pendiente Sem 38" hasta
+  // que se cargue la data oficial de cada responsable.
+  const areas = [
+    {
+      key:        'operaciones',
+      icono:      '🏗️',
+      nombre:     'Operaciones',
+      pct:        opePct,
+      nota:       'Promedio de Avance, SPI y CPI',
+      destacada:  true
+    },
+    {
+      key:        'arquitectura',
+      icono:      '📐',
+      nombre:     'Arquitectura',
+      pct:        null,
+      nota:       'Pendiente · se actualiza en Sem 38'
+    },
+    {
+      key:        'ssoma',
+      icono:      '⛑️',
+      nombre:     'SSOMA',
+      pct:        null,
+      nota:       'Pendiente · se actualiza en Sem 38'
+    },
+    {
+      key:        'logistica',
+      icono:      '🚛',
+      nombre:     'Logística',
+      pct:        null,
+      nota:       'Pendiente · se actualiza en Sem 38'
+    },
+    {
+      key:        'calidad',
+      icono:      '✅',
+      nombre:     'Calidad',
+      pct:        null,
+      nota:       'Pendiente · se actualiza en Sem 38'
+    }
+  ];
+
+  // ─── Helper: clasificar por % ───
+  const clasificar = (pct) => {
+    if(pct == null) return { color:'ar-grey', label:'⏳ Pendiente Sem 38' };
+    if(pct >= 90)   return { color:'ar-green',  label:'✓ Cumple' };
+    if(pct >= 75)   return { color:'ar-orange', label:'⚠ En seguimiento' };
+    return            { color:'ar-red',    label:'✗ No cumple' };
+  };
+
+  // ─── Renderizar cada tarjeta ───
+  areas.forEach(a => {
+    const cls = clasificar(a.pct);
+    const el = document.createElement('div');
+    el.className = 'r-area-card ' + cls.color;
+    // Operaciones lleva un borde más grueso y un fondo sutilmente distintivo
+    if(a.destacada){
+      el.style.borderTopWidth = '6px';
+      el.style.background = 'linear-gradient(135deg,#FFFFFF 0%,#EEF5FA 100%)';
+      el.style.boxShadow = '0 2px 8px rgba(0,112,180,.08)';
+    }
+    const pctTxt = a.pct == null ? '—' : a.pct.toFixed(0) + '%';
+    const tagOpe = a.destacada
+      ? '<span style="display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;background:var(--twitter-blue);color:#fff;letter-spacing:.06em;margin-left:6px;vertical-align:middle;">PRINCIPAL</span>'
+      : '';
+    el.innerHTML = `
+      <div class="r-area-head">
+        <span class="r-area-icon">${a.icono}</span>
+        <span class="r-area-name">${a.nombre}${tagOpe}</span>
+      </div>
+      <div class="r-area-pct">${pctTxt}</div>
+      <span class="r-area-status">${cls.label}</span>
+      <div class="r-area-note">${a.nota}</div>
+    `;
     cont.appendChild(el);
   });
 }
