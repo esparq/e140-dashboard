@@ -1490,6 +1490,33 @@ body.role-viewer .admin-only{display:none !important;}
 .fotos-progress-banner.error{background:linear-gradient(90deg,#FBEAEA 0%,#FEF1F0 100%);border-color:#E5A4A6;border-left-color:#D64045;}
 .fotos-progress-banner.error .fotos-progress-text{color:#8A2A2D;}
 
+/* ─── Formulario Inspección SIG ─── */
+.sig-form{display:flex;flex-direction:column;gap:14px;margin-top:12px;}
+.sig-form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.sig-form-field{display:flex;flex-direction:column;gap:5px;}
+.sig-form-field label{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;}
+.sig-form-field input, .sig-form-field textarea{padding:9px 12px;border:1.5px solid var(--border-mid);border-radius:6px;font-family:inherit;font-size:13px;color:var(--text);background:#fff;width:100%;box-sizing:border-box;}
+.sig-form-field textarea{resize:vertical;min-height:60px;font-family:inherit;}
+.sig-form-field input:focus, .sig-form-field textarea:focus{outline:none;border-color:#2D936C;box-shadow:0 0 0 3px rgba(45,147,108,.12);}
+
+.sig-input-suffix{position:relative;display:flex;align-items:center;}
+.sig-input-suffix input{padding-right:34px;}
+.sig-suffix{position:absolute;right:12px;color:var(--text-muted);font-weight:700;font-size:14px;pointer-events:none;}
+
+.sig-preview{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#F4F9FD;border:1px solid #BFE0F5;border-radius:6px;}
+.sig-preview-label{font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+.sig-preview-badge{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;padding:5px 14px;border-radius:5px;}
+.sig-preview-badge.satisfactorio{background:#E7F4EE;color:#1A6B4A;border:1px solid #2D936C;}
+.sig-preview-badge.aceptable{background:#FFF4D6;color:#7A5800;border:1px solid #E5C792;}
+.sig-preview-badge.deficiente{background:#FBEAEA;color:#8A2A2D;border:1px solid #D64045;}
+
+.sig-dropzone.has-file{border-color:#2D936C !important;background:#F0F9F4 !important;}
+.sig-dropzone.has-file .dropzone-title{color:#1A6B4A !important;}
+
+@media(max-width:600px){
+  .sig-form-row{grid-template-columns:1fr;}
+}
+
 /* ─── LIGHTBOX (visor de imagen ampliada) ─── */
 .lightbox-overlay{position:fixed;inset:0;background:rgba(0,15,30,.92);display:none;align-items:center;justify-content:center;z-index:5000;padding:30px;animation:lbFadeIn .25s ease;}
 .lightbox-overlay.show{display:flex;}
@@ -1950,6 +1977,109 @@ body.role-viewer .admin-only{display:none !important;}
       <button class="hdr-btn" onclick="closeFotosModal()">Cancelar</button>
       <button class="hdr-btn hdr-btn-primary" id="fotosPublishBtn" onclick="publicarFotosOnline()" disabled>
         🚀 Publicar fotos
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: CARGAR INSPECCIÓN SIG (Calidad)
+     ═══════════════════════════════════════════ -->
+<div class="modal-backdrop" id="sigModal">
+  <div class="modal-card" style="max-width:680px;">
+    <div class="modal-head">
+      <div>
+        <h2>📋 CARGAR INSPECCIÓN SIG</h2>
+        <p>Sistema Integrado de Gestión · Formato CAL.001-F01</p>
+      </div>
+      <button class="modal-close" onclick="closeSigModal()" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="area-info-banner" style="background:#E7F4EE;border-left-color:#2D936C;">
+        <b>✅ Inspección de Calidad</b> · Ingresa los datos de la inspección y opcionalmente adjunta el PDF del formato CAL.001-F01 como respaldo. El % de cumplimiento actualizará el indicador SIG y el gráfico histórico automáticamente.
+      </div>
+
+      <div class="sig-form">
+        <!-- Fila 1: Semana + Fecha -->
+        <div class="sig-form-row">
+          <div class="sig-form-field">
+            <label>Semana del proyecto <span style="color:var(--twitter-blue);font-weight:700;">(auto)</span></label>
+            <input type="text" id="sigSemCod" placeholder="S37" autocomplete="off">
+          </div>
+          <div class="sig-form-field">
+            <label>Fecha de inspección</label>
+            <input type="date" id="sigFecha">
+          </div>
+        </div>
+
+        <!-- Fila 2: % Cumplimiento + Inspector -->
+        <div class="sig-form-row">
+          <div class="sig-form-field">
+            <label>% Cumplimiento SIG <span style="color:#D64045;">*</span></label>
+            <div class="sig-input-suffix">
+              <input type="number" id="sigCumplimiento" placeholder="100" min="0" max="100" step="1" oninput="actualizarPreviewSIG()">
+              <span class="sig-suffix">%</span>
+            </div>
+          </div>
+          <div class="sig-form-field">
+            <label>Inspector / Responsable</label>
+            <input type="text" id="sigInspector" placeholder="Manuel Tirado" autocomplete="off" value="Manuel Tirado">
+          </div>
+        </div>
+
+        <!-- Fila 3: Puntaje obtenido y máximo -->
+        <div class="sig-form-row">
+          <div class="sig-form-field">
+            <label>Puntaje obtenido</label>
+            <input type="number" id="sigPuntajeObt" placeholder="104" min="0" step="1">
+          </div>
+          <div class="sig-form-field">
+            <label>Puntaje máximo</label>
+            <input type="number" id="sigPuntajeMax" placeholder="104" min="0" step="1" value="104">
+          </div>
+        </div>
+
+        <!-- Fila 4: Observaciones -->
+        <div class="sig-form-field">
+          <label>Observaciones / Hallazgos</label>
+          <textarea id="sigObservaciones" rows="3" placeholder="Ej: Próxima revisión se debe considerar revisión de protocolos de Arquitectura e Instalaciones."></textarea>
+        </div>
+
+        <!-- Preview de calificación -->
+        <div class="sig-preview" id="sigPreview" style="display:none;">
+          <div class="sig-preview-label">Calificación automática:</div>
+          <div class="sig-preview-badge" id="sigPreviewBadge">—</div>
+        </div>
+
+        <!-- Adjuntar PDF (opcional) -->
+        <div class="sig-form-field">
+          <label>Adjuntar PDF de la inspección (opcional pero recomendado para trazabilidad)</label>
+          <div class="dropzone sig-dropzone" id="sigDropzone" onclick="document.getElementById('sigPdfInput').click()" style="padding:20px 16px !important;">
+            <div class="dropzone-icon" style="font-size:30px;">📄</div>
+            <div class="dropzone-title" style="font-size:13px;" id="sigDropzoneTitle">CARGAR PDF DE LA INSPECCIÓN</div>
+            <div class="dropzone-subtitle" id="sigDropzoneSubtitle">Formato CAL.001-F01 · Solo PDF · Hasta 10 MB</div>
+            <button class="dropzone-btn" type="button">Seleccionar PDF</button>
+            <input type="file" id="sigPdfInput" accept="application/pdf,.pdf" style="display:none">
+          </div>
+        </div>
+      </div>
+
+      <!-- Banner de progreso (oculto por defecto) -->
+      <div class="fotos-progress-banner" id="sigProgressBanner" style="display:none;">
+        <div class="fotos-progress-header">
+          <span class="fotos-progress-icon" id="sigProgressIcon">⏳</span>
+          <span class="fotos-progress-text" id="sigProgressText">Iniciando publicación…</span>
+        </div>
+        <div class="fotos-progress-bar"><div class="fotos-progress-fill" id="sigProgressFill" style="width:0%"></div></div>
+        <div class="fotos-progress-detail" id="sigProgressDetail"></div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="hdr-btn" onclick="closeSigModal()">Cancelar</button>
+      <button class="hdr-btn hdr-btn-primary" id="sigPublishBtn" onclick="publicarInspeccionSIG()">
+        🚀 Publicar inspección
       </button>
     </div>
   </div>
@@ -2999,64 +3129,83 @@ body.role-viewer .admin-only{display:none !important;}
            CALIDAD · 1. GESTIÓN SIG (Sistema Integrado de Gestión)
            ═══════════════════════════════════════════ -->
       <section class="section" id="sec-calidad-sig">
-        <div class="section-header">Calidad · Gestión SIG (Sistema Integrado de Gestión)</div>
-        <div class="section-subheader">Fuente: <b>Visitas programadas de Calidad</b> · Norma ISO 9001</div>
+        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <span>Calidad · Gestión SIG (Sistema Integrado de Gestión)</span>
+          <button class="hdr-btn hdr-btn-primary admin-only" onclick="openSigModal()" style="background:var(--twitter-blue);color:#fff;border-color:var(--twitter-blue);padding:7px 14px;font-size:12px;height:auto;display:inline-flex;align-items:center;gap:6px;">
+            <span>📋</span> Cargar Inspección SIG
+          </button>
+        </div>
+        <div class="section-subheader">Fuente: <b>Inspecciones de Calidad CAL.001-F01</b> · Sistema Integrado de Gestión · Norma ISO 9001</div>
 
         <div class="ssoma-note">
           <span class="ssoma-note-icon">📅</span>
           <div>
-            <b>Indicador por visita programada</b> — Los datos se actualizan de acuerdo a las visitas programadas de Calidad al proyecto, no al cierre semanal del proyecto.
+            <b>Indicador por visita programada</b> — Los datos se actualizan cada vez que el responsable de Calidad realiza una nueva inspección en obra (formato CAL.001-F01).
           </div>
-        </div>
-
-        <div class="ssoma-alcance" style="background:#FFF8E1;border-left-color:#F57C00;">
-          <span class="ssoma-alcance-icon" style="color:#F57C00;">⏳</span>
-          <span><b>Información pendiente:</b> los indicadores SIG del proyecto E140 ESPARQ 140 quedan en <b>estado pendiente hasta la Semana 38</b>, fecha en la cual se cargará la información oficial actualizada por el responsable de Calidad.</span>
         </div>
 
         <!-- Panel KPIs SIG -->
-        <div class="kpi-strip" style="grid-template-columns:repeat(2,1fr);margin-bottom:18px">
+        <div class="kpi-strip" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px">
           <div class="kpi-card k-green">
-            <div class="kpi-label">% Seguimiento SIG · Inspecciones de Calidad en Obra</div>
+            <div class="kpi-label">% Cumplimiento SIG · Última Inspección</div>
             <div class="kpi-value" id="calSIG">—</div>
-            <div class="kpi-sublabel" id="calSIGDetalle">Inspecciones SIG ejecutadas en obra</div>
+            <div class="kpi-sublabel" id="calSIGDetalle">Sin inspecciones registradas</div>
             <div class="kpi-meta-footer" style="margin-top:10px">
-              <span class="kpi-meta-target">▲ Meta: ≥ 85%</span>
-              <span class="kpi-meta-status kpi-meta-seguimiento" id="calSIGStatus">⏳ Pendiente Sem 38</span>
+              <span class="kpi-meta-target">▲ Meta: ≥ 85% (Satisfactorio)</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="calSIGStatus">⏳ Pendiente</span>
             </div>
           </div>
           <div class="kpi-card k-primary">
-            <div class="kpi-label">% Avance Dossier de Calidad</div>
-            <div class="kpi-value" id="calDossier">—</div>
-            <div class="kpi-sublabel" id="calDossierDetalle">Avance del expediente / dossier del proyecto</div>
+            <div class="kpi-label">Inspecciones Realizadas</div>
+            <div class="kpi-value" id="calSIGCount">0</div>
+            <div class="kpi-sublabel" id="calSIGCountDetalle">Total acumulado en el proyecto</div>
             <div class="kpi-meta-footer" style="margin-top:10px">
-              <span class="kpi-meta-target">▲ Meta: 100% al cierre</span>
-              <span class="kpi-meta-status kpi-meta-seguimiento" id="calDossierStatus">⏳ Pendiente Sem 38</span>
+              <span class="kpi-meta-target">▲ Frecuencia: visita programada</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="calSIGCountStatus">—</span>
             </div>
+          </div>
+          <div class="kpi-card k-primary">
+            <div class="kpi-label">Promedio del Proyecto</div>
+            <div class="kpi-value" id="calSIGProm">—</div>
+            <div class="kpi-sublabel" id="calSIGPromDetalle">Promedio histórico de inspecciones</div>
+            <div class="kpi-meta-footer" style="margin-top:10px">
+              <span class="kpi-meta-target">▲ Meta: ≥ 85%</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="calSIGPromStatus">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico histórico -->
+        <div class="chart-card">
+          <div class="chart-title"><span class="num">01</span> Evolución del Cumplimiento SIG</div>
+          <div class="chart-subtitle">Histórico de % cumplimiento por inspección · Líneas de calificación: Satisfactorio (≥85%) · Aceptable (65-84%) · Deficiente (&lt;65%)</div>
+          <div style="position:relative;height:280px;margin-top:10px;">
+            <canvas id="chartSIGHistorico"></canvas>
           </div>
         </div>
 
         <!-- Detalle SIG -->
-        <div class="chart-card">
-          <div class="chart-title"><span class="num">01</span> Detalle de Inspecciones SIG</div>
-          <div class="chart-subtitle">Listado de visitas, hallazgos y observaciones registradas en obra</div>
+        <div class="chart-card" style="margin-top:14px;">
+          <div class="chart-title"><span class="num">02</span> Detalle de Inspecciones SIG</div>
+          <div class="chart-subtitle">Listado de visitas, % cumplimiento y observaciones registradas en obra · Click en "📥" para descargar el PDF original</div>
           <div class="table-wrap" style="border:none">
             <table>
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th class="td-center">Fecha de Visita</th>
+                  <th class="td-center">#</th>
+                  <th class="td-center">Sem</th>
+                  <th class="td-center">Fecha de Inspección</th>
                   <th>Inspector</th>
-                  <th>Frente / Área</th>
-                  <th class="td-center">Inspecciones</th>
-                  <th class="td-center">Observaciones</th>
-                  <th class="td-center">Estado</th>
+                  <th class="td-center">% Cumplimiento</th>
+                  <th class="td-center">Calificación</th>
+                  <th>Observaciones</th>
+                  <th class="td-center">PDF</th>
                 </tr>
               </thead>
               <tbody id="calSIGTblDetalle">
                 <tr>
-                  <td colspan="7" style="text-align:center;padding:30px 16px;color:var(--text-muted);font-style:italic;background:#FBFDFE;border:1px dashed var(--border-mid);">
-                    ⏳ Sin visitas SIG registradas — pendiente de actualización en Semana 38
+                  <td colspan="8" style="text-align:center;padding:30px 16px;color:var(--text-muted);font-style:italic;background:#FBFDFE;border:1px dashed var(--border-mid);">
+                    ⏳ Sin inspecciones SIG registradas. Para empezar, presiona <b>"📋 Cargar Inspección SIG"</b> arriba.
                   </td>
                 </tr>
               </tbody>
@@ -6479,50 +6628,196 @@ function renderSsomaAmbiental(){
    Datos por visita programada — pendientes hasta Semana 38
    ═══════════════════════════════════════════════════════════════════ */
 
+// Estado global de las inspecciones SIG (cargadas desde Firestore)
+let inspeccionesSIG = []; // Array ordenado por fecha ascendente
+
+function calificacionSIG(pct){
+  if(pct == null || isNaN(pct)) return { texto: '—', clase: '', color: '#888' };
+  if(pct >= 85) return { texto: 'SATISFACTORIO', clase: 'satisfactorio', color: '#1A6B4A' };
+  if(pct >= 65) return { texto: 'ACEPTABLE',     clase: 'aceptable',     color: '#7A5800' };
+  return                 { texto: 'DEFICIENTE',  clase: 'deficiente',    color: '#8A2A2D' };
+}
+
 function renderCalidadSIG(){
-  // ⚠ DATA PENDIENTE — Indicadores SIG en estado pendiente hasta Semana 38.
+  // Última inspección (la más reciente por fecha)
+  const ordenadas = [...inspeccionesSIG].sort((a, b) => {
+    const da = new Date(a.fecha_inspeccion || 0).getTime();
+    const db = new Date(b.fecha_inspeccion || 0).getTime();
+    return da - db;
+  });
+  const ultima = ordenadas.length > 0 ? ordenadas[ordenadas.length - 1] : null;
+  const total = ordenadas.length;
 
-  // Variables de data (cuando lleguen los datos oficiales, asignar valores reales aquí)
-  const data = {
-    sigPct:         null,   // % seguimiento SIG · ej. 87
-    dossierPct:     null    // % avance Dossier · ej. 100
-  };
+  // ─── KPI 1: % Cumplimiento última inspección ───
+  const elSig = document.getElementById('calSIG');
+  const elSigDet = document.getElementById('calSIGDetalle');
+  const elSigSt = document.getElementById('calSIGStatus');
+  if(ultima){
+    elSig.textContent = ultima.cumplimiento_pct.toFixed(0) + '%';
+    elSigDet.textContent = `${ultima.semana || ''} · ${formatFechaCorta(ultima.fecha_inspeccion)}`;
+    const cal = calificacionSIG(ultima.cumplimiento_pct);
+    elSigSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
+    if(ultima.cumplimiento_pct >= 85)      elSigSt.classList.add('kpi-meta-cumple');
+    else if(ultima.cumplimiento_pct >= 65) elSigSt.classList.add('kpi-meta-seguimiento');
+    else                                    elSigSt.classList.add('kpi-meta-nocumple');
+    elSigSt.textContent = cal.texto === 'SATISFACTORIO' ? '✓ Satisfactorio' : (cal.texto === 'ACEPTABLE' ? '⚠ Aceptable' : '✗ Deficiente');
+  } else {
+    elSig.textContent = '—';
+    elSigDet.textContent = 'Sin inspecciones registradas';
+    elSigSt.classList.remove('kpi-meta-cumple','kpi-meta-nocumple');
+    elSigSt.classList.add('kpi-meta-seguimiento');
+    elSigSt.textContent = '⏳ Pendiente';
+  }
 
-  document.getElementById('calSIG').textContent = data.sigPct == null ? '—' : data.sigPct + '%';
-  document.getElementById('calSIGDetalle').textContent = data.sigPct == null
-    ? 'Pendiente · se actualiza en Semana 38'
-    : 'Inspecciones SIG ejecutadas en obra';
-  document.getElementById('calDossier').textContent = data.dossierPct == null ? '—' : data.dossierPct + '%';
-  document.getElementById('calDossierDetalle').textContent = data.dossierPct == null
-    ? 'Pendiente · se actualiza en Semana 38'
-    : 'Avance del expediente / dossier del proyecto';
+  // ─── KPI 2: Cantidad de inspecciones ───
+  const elCnt = document.getElementById('calSIGCount');
+  const elCntDet = document.getElementById('calSIGCountDetalle');
+  const elCntSt = document.getElementById('calSIGCountStatus');
+  if(elCnt) elCnt.textContent = total;
+  if(elCntDet) elCntDet.textContent = total === 0 ? 'Aún no se ha registrado ninguna inspección' : `${total} inspección${total === 1 ? '' : 'es'} acumulada${total === 1 ? '' : 's'}`;
+  if(elCntSt){
+    elCntSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
+    if(total === 0){ elCntSt.classList.add('kpi-meta-seguimiento'); elCntSt.textContent = '⏳ Sin registros'; }
+    else { elCntSt.classList.add('kpi-meta-cumple'); elCntSt.textContent = '✓ Activo'; }
+  }
 
-  // Helper común para aplicar estado según meta (modo min/max)
-  const setStatus = (id, valor, metaMax, modo) => {
-    const el = document.getElementById(id);
-    if(!el) return;
-    el.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
-    if(valor == null){
-      el.classList.add('kpi-meta-seguimiento');
-      el.textContent = '⏳ Pendiente Sem 38';
-      return;
-    }
-    if(modo === 'min'){
-      if(valor >= metaMax){ el.classList.add('kpi-meta-cumple'); el.textContent = '✓ Cumple'; }
-      else if(valor >= metaMax * 0.9){ el.classList.add('kpi-meta-seguimiento'); el.textContent = '⚠ En seguimiento'; }
-      else { el.classList.add('kpi-meta-nocumple'); el.textContent = '✗ No cumple'; }
+  // ─── KPI 3: Promedio histórico ───
+  const elPr = document.getElementById('calSIGProm');
+  const elPrDet = document.getElementById('calSIGPromDetalle');
+  const elPrSt = document.getElementById('calSIGPromStatus');
+  if(total > 0){
+    const promedio = ordenadas.reduce((s, x) => s + (x.cumplimiento_pct || 0), 0) / total;
+    elPr.textContent = promedio.toFixed(1) + '%';
+    elPrDet.textContent = `Promedio de ${total} inspección${total === 1 ? '' : 'es'}`;
+    elPrSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
+    if(promedio >= 85)       elPrSt.classList.add('kpi-meta-cumple');
+    else if(promedio >= 65)  elPrSt.classList.add('kpi-meta-seguimiento');
+    else                     elPrSt.classList.add('kpi-meta-nocumple');
+    elPrSt.textContent = promedio >= 85 ? '✓ Cumple' : (promedio >= 65 ? '⚠ En seguimiento' : '✗ No cumple');
+  } else {
+    elPr.textContent = '—';
+    elPrDet.textContent = 'Aún no hay inspecciones para calcular el promedio';
+    elPrSt.classList.remove('kpi-meta-cumple','kpi-meta-nocumple');
+    elPrSt.classList.add('kpi-meta-seguimiento');
+    elPrSt.textContent = '—';
+  }
+
+  // ─── Gráfico histórico ───
+  destroyChart('chartSIGHistorico');
+  const ctx = document.getElementById('chartSIGHistorico');
+  if(ctx){
+    const labels = ordenadas.map(x => `${x.semana || ''} · ${formatFechaCorta(x.fecha_inspeccion)}`);
+    const valores = ordenadas.map(x => Number(x.cumplimiento_pct) || 0);
+
+    CHART_INSTANCES['chartSIGHistorico'] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: '% Cumplimiento SIG',
+            data: valores,
+            borderColor: '#0070B4',
+            backgroundColor: 'rgba(0,112,180,0.12)',
+            borderWidth: 2.5,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            pointBackgroundColor: valores.map(v => calificacionSIG(v).color),
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            tension: 0.25,
+            fill: true,
+          },
+          {
+            label: 'Meta Satisfactorio (85%)',
+            data: valores.map(() => 85),
+            borderColor: '#2D936C',
+            borderWidth: 1.5,
+            borderDash: [6, 4],
+            pointRadius: 0,
+            fill: false,
+          },
+          {
+            label: 'Meta Aceptable (65%)',
+            data: valores.map(() => 65),
+            borderColor: '#E5C792',
+            borderWidth: 1.5,
+            borderDash: [6, 4],
+            pointRadius: 0,
+            fill: false,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'top', labels: { font: { size: 11 } } },
+          tooltip: {
+            callbacks: {
+              afterLabel: (ctx) => {
+                if(ctx.datasetIndex !== 0) return '';
+                const pct = ctx.parsed.y;
+                return calificacionSIG(pct).texto;
+              }
+            }
+          },
+        },
+        scales: {
+          y: {
+            min: 0,
+            max: 100,
+            ticks: { callback: v => v + '%', font: { size: 11 } },
+            grid: { color: '#EFEFEF' },
+          },
+          x: {
+            ticks: { font: { size: 10 }, maxRotation: 30, minRotation: 0 },
+            grid: { display: false },
+          },
+        },
+      },
+    });
+  }
+
+  // ─── Tabla detalle ───
+  const tbody = document.getElementById('calSIGTblDetalle');
+  if(tbody){
+    if(total === 0){
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px 16px;color:var(--text-muted);font-style:italic;background:#FBFDFE;border:1px dashed var(--border-mid);">⏳ Sin inspecciones SIG registradas. Para empezar, presiona <b>"📋 Cargar Inspección SIG"</b> arriba.</td></tr>`;
     } else {
-      if(valor <= metaMax){ el.classList.add('kpi-meta-cumple'); el.textContent = '✓ Cumple'; }
-      else if(valor <= metaMax * 1.5){ el.classList.add('kpi-meta-seguimiento'); el.textContent = '⚠ En seguimiento'; }
-      else { el.classList.add('kpi-meta-nocumple'); el.textContent = '✗ No cumple'; }
+      // Mostrar de más reciente a más antigua
+      const filas = [...ordenadas].reverse();
+      tbody.innerHTML = filas.map((x, i) => {
+        const cal = calificacionSIG(x.cumplimiento_pct);
+        const numero = total - i;
+        const obs = (x.observaciones || '').trim() || '<span style="color:var(--text-muted);">—</span>';
+        const obsHtml = obs.length > 80 ? `<span title="${escapeHtml(x.observaciones || '')}">${escapeHtml((x.observaciones || '').slice(0, 80))}…</span>` : escapeHtml(obs === '<span style="color:var(--text-muted);">—</span>' ? '' : obs) || '<span style="color:var(--text-muted);">—</span>';
+        const pdfBtn = x.pdf_url
+          ? `<a href="${escapeHtml(x.pdf_url)}" target="_blank" rel="noopener" class="aud-btn-download" title="Descargar PDF de la inspección" style="padding:4px 10px;font-size:10px;">📥 PDF</a>`
+          : '<span style="color:var(--text-muted);font-size:10px;">—</span>';
+        return `<tr>
+          <td class="td-center"><b>${numero}</b></td>
+          <td class="td-center"><span class="aud-sem">${escapeHtml(x.semana || '—')}</span></td>
+          <td class="td-center">${formatFechaCorta(x.fecha_inspeccion)}</td>
+          <td>${escapeHtml(x.inspector || 'No registrado')}</td>
+          <td class="td-center"><b style="font-size:14px;color:${cal.color};">${(x.cumplimiento_pct || 0).toFixed(0)}%</b></td>
+          <td class="td-center"><span class="sig-preview-badge ${cal.clase}" style="font-size:10px;padding:3px 8px;">${cal.texto}</span></td>
+          <td>${obsHtml}</td>
+          <td class="td-center">${pdfBtn}</td>
+        </tr>`;
+      }).join('');
     }
-  };
+  }
+}
 
-  setStatus('calSIGStatus',     data.sigPct,     85,  'min');   // ≥ 85%
-  setStatus('calDossierStatus', data.dossierPct, 100, 'min');   // = 100%
-
-  // Tabla detalle: ya viene con placeholder estático en HTML.
-  // Cuando llegue la data, poblar #calSIGTblDetalle desde aquí.
+function formatFechaCorta(input){
+  if(!input) return '—';
+  const d = new Date(input);
+  if(isNaN(d.getTime())) return '—';
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yy = d.getFullYear();
+  return `${dd}/${mm}/${yy}`;
 }
 
 
@@ -8526,6 +8821,301 @@ function escapeHtml(str){
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   INSPECCIONES SIG · Carga de Calidad
+   - Modal con formulario (semana, fecha, % cumplimiento, inspector, obs, PDF)
+   - Sube PDF a Cloudinary (si hay)
+   - Guarda metadata en Firestore (colección 'sig_inspecciones')
+   - Refresca el dashboard al instante
+   ═══════════════════════════════════════════════════════════════════ */
+
+let sigPdfFile = null; // PDF seleccionado en el modal
+
+function openSigModal(){
+  const modal = document.getElementById('sigModal');
+  if(!modal) return;
+  // Reset
+  sigPdfFile = null;
+  document.getElementById('sigCumplimiento').value = '';
+  document.getElementById('sigPuntajeObt').value = '';
+  document.getElementById('sigPuntajeMax').value = '104';
+  document.getElementById('sigInspector').value = 'Manuel Tirado';
+  document.getElementById('sigObservaciones').value = '';
+  document.getElementById('sigPreview').style.display = 'none';
+  document.getElementById('sigProgressBanner').style.display = 'none';
+  document.getElementById('sigDropzoneTitle').textContent = 'CARGAR PDF DE LA INSPECCIÓN';
+  document.getElementById('sigDropzoneSubtitle').textContent = 'Formato CAL.001-F01 · Solo PDF · Hasta 10 MB';
+  document.getElementById('sigDropzone').classList.remove('has-file');
+  document.getElementById('sigPublishBtn').disabled = false;
+
+  // Prefill semana/fecha de hoy
+  const codInput = document.getElementById('sigSemCod');
+  const fechaInput = document.getElementById('sigFecha');
+  let nextSem = 'S38';
+  let nextFecha = new Date().toISOString().split('T')[0];
+  try {
+    const hoyInfo = fechaASemana(new Date());
+    if(hoyInfo){ nextSem = hoyInfo.codigo; nextFecha = hoyInfo.cierreSabado; }
+  } catch(e){}
+  if(codInput) codInput.value = nextSem;
+  if(fechaInput) fechaInput.value = nextFecha;
+
+  // Listeners bidireccionales fecha ↔ semana
+  if(fechaInput){
+    fechaInput.oninput = e => {
+      const f = e.target.value;
+      if(f){
+        const info = fechaASemana(f);
+        if(info && codInput) codInput.value = info.codigo;
+      }
+    };
+  }
+  if(codInput){
+    codInput.oninput = e => {
+      const cod = e.target.value.trim().toUpperCase();
+      const info = semanaAFecha(cod);
+      if(info && fechaInput) fechaInput.value = info.cierreSabado;
+    };
+  }
+
+  // Setup dropzone PDF
+  const dz = document.getElementById('sigDropzone');
+  const input = document.getElementById('sigPdfInput');
+  if(dz && input && !dz._setupDone){
+    dz._setupDone = true;
+    ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
+    ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
+    dz.addEventListener('drop', e => handleSigPdf(e.dataTransfer.files[0]));
+    input.onchange = e => { handleSigPdf(e.target.files[0]); input.value = ''; };
+  }
+
+  modal.classList.add('show');
+  setTimeout(() => document.getElementById('sigCumplimiento').focus(), 100);
+}
+
+function closeSigModal(){
+  const modal = document.getElementById('sigModal');
+  if(modal) modal.classList.remove('show');
+}
+
+function handleSigPdf(file){
+  if(!file) return;
+  if(file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')){
+    alert('Solo se acepta archivo PDF.');
+    return;
+  }
+  if(file.size > 10 * 1024 * 1024){
+    alert('El archivo excede 10 MB. Reduce su tamaño antes de subirlo.');
+    return;
+  }
+  sigPdfFile = file;
+  document.getElementById('sigDropzoneTitle').textContent = `📄 ${file.name}`;
+  document.getElementById('sigDropzoneSubtitle').textContent = `${formatBytes(file.size)} · Click aquí para cambiar el archivo`;
+  document.getElementById('sigDropzone').classList.add('has-file');
+}
+
+function actualizarPreviewSIG(){
+  const val = parseFloat(document.getElementById('sigCumplimiento').value);
+  const preview = document.getElementById('sigPreview');
+  const badge = document.getElementById('sigPreviewBadge');
+  if(isNaN(val) || val < 0 || val > 100){
+    preview.style.display = 'none';
+    return;
+  }
+  const cal = calificacionSIG(val);
+  preview.style.display = 'flex';
+  badge.className = 'sig-preview-badge ' + cal.clase;
+  badge.textContent = cal.texto;
+}
+
+async function publicarInspeccionSIG(){
+  // Validar
+  const sem = (document.getElementById('sigSemCod').value || '').trim().toUpperCase();
+  const fecha = document.getElementById('sigFecha').value;
+  const pct = parseFloat(document.getElementById('sigCumplimiento').value);
+  const inspector = document.getElementById('sigInspector').value.trim();
+  const puntajeObt = parseFloat(document.getElementById('sigPuntajeObt').value) || null;
+  const puntajeMax = parseFloat(document.getElementById('sigPuntajeMax').value) || null;
+  const observaciones = document.getElementById('sigObservaciones').value.trim();
+
+  if(!/^S\d{1,3}$/.test(sem)){ alert('Código de semana inválido. Formato esperado: S37'); return; }
+  if(!fecha){ alert('Fecha de inspección requerida.'); return; }
+  if(isNaN(pct) || pct < 0 || pct > 100){ alert('% Cumplimiento debe ser un valor entre 0 y 100.'); return; }
+  if(!inspector){ alert('Indica el nombre del inspector.'); return; }
+
+  if(!window.E140_DB){
+    alert('El servicio de Firestore no está disponible. Verifica tu conexión.');
+    return;
+  }
+
+  // UI de progreso
+  const btn      = document.getElementById('sigPublishBtn');
+  const cancel   = document.querySelector('#sigModal .hdr-btn:not(.hdr-btn-primary)');
+  const banner   = document.getElementById('sigProgressBanner');
+  const bIcon    = document.getElementById('sigProgressIcon');
+  const bText    = document.getElementById('sigProgressText');
+  const bFill    = document.getElementById('sigProgressFill');
+  const bDetail  = document.getElementById('sigProgressDetail');
+
+  btn.disabled = true;
+  if(cancel) cancel.disabled = true;
+  banner.style.display = 'block';
+  banner.classList.remove('success', 'error');
+
+  let pdfUrl = null;
+  let pdfPublicId = null;
+
+  try {
+    // PASO 1: subir PDF si hay
+    if(sigPdfFile){
+      bIcon.textContent = '⏳';
+      bText.textContent = 'Subiendo PDF a Cloudinary…';
+      bFill.style.width = '20%';
+      bDetail.textContent = `${sigPdfFile.name} (${formatBytes(sigPdfFile.size)})`;
+
+      const result = await uploadPdfToCloudinary(sigPdfFile, sem, 'calidad', 'inspeccion_sig');
+      pdfUrl = result.url;
+      pdfPublicId = result.public_id;
+    }
+
+    // PASO 2: registrar en Firestore (colección sig_inspecciones)
+    bIcon.textContent = '⏳';
+    bText.textContent = 'Guardando inspección en Firestore…';
+    bFill.style.width = '70%';
+    bDetail.textContent = '';
+
+    const { db, collection, addDoc } = window.E140_DB;
+    const docRef = await addDoc(collection(db, 'sig_inspecciones'), {
+      semana:           sem,
+      fecha_inspeccion: fecha,
+      cumplimiento_pct: pct,
+      inspector:        inspector,
+      puntaje_obtenido: puntajeObt,
+      puntaje_maximo:   puntajeMax,
+      observaciones:    observaciones,
+      pdf_url:          pdfUrl,
+      pdf_public_id:    pdfPublicId,
+      pdf_nombre:       sigPdfFile ? sigPdfFile.name : null,
+      pdf_tamano:       sigPdfFile ? sigPdfFile.size : null,
+      registrado_por:        (currentSession && currentSession.usuario) || 'desconocido',
+      registrado_por_nombre: (currentSession && currentSession.nombre) || 'Sin sesión',
+      registrado_en:    new Date().toISOString(),
+      registrado_ts:    Date.now(),
+    });
+
+    // PASO 3: registrar también en auditoría si hay PDF
+    if(pdfUrl){
+      try {
+        await registrarAuditoria({
+          semana:        sem,
+          area:          'calidad',
+          archivo_key:   'inspeccion_sig',
+          archivo_label: 'Inspección SIG (CAL.001-F01)',
+          nombre_original: sigPdfFile.name,
+          tamano_bytes:  sigPdfFile.size,
+          cloudinary_url:       pdfUrl,
+          cloudinary_public_id: pdfPublicId,
+          corte_fecha:   fecha,
+          subido_por:    (currentSession && currentSession.usuario) || 'desconocido',
+          subido_por_nombre: (currentSession && currentSession.nombre) || 'Sin sesión',
+          estado:        'ok',
+        });
+      } catch(audErr){
+        console.warn('[E140] No se pudo registrar la inspección SIG en auditoría:', audErr);
+      }
+    }
+
+    // ÉXITO
+    bFill.style.width = '100%';
+    banner.classList.add('success');
+    bIcon.textContent = '✓';
+    const cal = calificacionSIG(pct);
+    bText.textContent = `¡Inspección publicada! ${pct}% — ${cal.texto}`;
+    bDetail.textContent = `${sem} · ${formatFechaCorta(fecha)} · Inspector: ${inspector}`;
+
+    // Agregar a la cache local y re-renderizar
+    inspeccionesSIG.push({
+      id:               docRef.id,
+      semana:           sem,
+      fecha_inspeccion: fecha,
+      cumplimiento_pct: pct,
+      inspector:        inspector,
+      puntaje_obtenido: puntajeObt,
+      puntaje_maximo:   puntajeMax,
+      observaciones:    observaciones,
+      pdf_url:          pdfUrl,
+    });
+
+    if(currentTab === 'calidad-sig'){
+      try { renderCalidadSIG(); } catch(e){}
+    }
+
+    setTimeout(() => {
+      if(cancel) cancel.disabled = false;
+      btn.disabled = false;
+    }, 1200);
+
+    setTimeout(() => closeSigModal(), 2500);
+
+  } catch(err){
+    console.error('[E140] Error publicando inspección SIG:', err);
+    banner.classList.add('error');
+    bIcon.textContent = '✕';
+    bText.textContent = 'Error al publicar la inspección';
+    bDetail.textContent = (err && err.message) ? err.message : 'Verifica tu conexión y vuelve a intentar.';
+    btn.disabled = false;
+    if(cancel) cancel.disabled = false;
+  }
+}
+
+// ─── Subir un PDF a Cloudinary (resource_type: raw) ───
+async function uploadPdfToCloudinary(file, semana, area, archivoKey){
+  const cfg = window.E140_CLOUDINARY;
+  // Usamos el preset de Excel que también acepta raw uploads
+  const url = `https://api.cloudinary.com/v1_1/${cfg.cloudName}/raw/upload`;
+
+  const ext = '.pdf';
+  const safeKey = (archivoKey || 'archivo').replace(/[^a-zA-Z0-9_-]/g, '_');
+  const timestamp = Date.now();
+  const publicId = `${semana.toLowerCase()}_${area}_${safeKey}_${timestamp}${ext}`;
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', cfg.excelPreset);
+  formData.append('folder', `${cfg.excelFolder}/${semana.toLowerCase()}/${area}`);
+  formData.append('public_id', publicId);
+
+  const response = await fetch(url, { method: 'POST', body: formData });
+  if(!response.ok){
+    const errorText = await response.text();
+    throw new Error(`Cloudinary respondió ${response.status}: ${errorText.slice(0, 200)}`);
+  }
+  const data = await response.json();
+  if(!data.secure_url) throw new Error('Cloudinary no devolvió URL del archivo');
+  return { url: data.secure_url, public_id: data.public_id, bytes: data.bytes };
+}
+
+// ─── Cargar inspecciones SIG desde Firestore al iniciar ───
+async function loadInspeccionesSIGFromFirestore(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs, query, orderBy } = window.E140_DB;
+    const q = query(collection(db, 'sig_inspecciones'), orderBy('registrado_ts', 'asc'));
+    const snapshot = await getDocs(q);
+    inspeccionesSIG = [];
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      inspeccionesSIG.push({ id: docSnap.id, ...data });
+    });
+    console.log(`[E140] Inspecciones SIG cargadas: ${inspeccionesSIG.length}`);
+    if(currentTab === 'calidad-sig'){
+      try { renderCalidadSIG(); } catch(e){}
+    }
+  } catch(err){
+    console.warn('[E140] No se pudieron cargar inspecciones SIG:', err.message || err);
+  }
+}
+
 // ─── Helpers ───
 function estimateBase64Size(dataUrl){
   if(!dataUrl) return 0;
@@ -8577,18 +9167,22 @@ async function loadFotosFromFirestore(){
 
 // ─── Esperar a que Firebase SDK esté listo y luego cargar ───
 function cargarFotosFirestoreAsync(){
-  if(window._E140_FIREBASE_READY){
+  const ejecutar = () => {
     loadFotosFromFirestore();
+    loadInspeccionesSIGFromFirestore();
+  };
+  if(window._E140_FIREBASE_READY){
+    ejecutar();
   } else {
     // Esperar al evento firebase-ready (máximo 10 segundos)
     let waited = 0;
     const interval = setInterval(() => {
       if(window._E140_FIREBASE_READY){
         clearInterval(interval);
-        loadFotosFromFirestore();
+        ejecutar();
       } else if((waited += 200) >= 10000){
         clearInterval(interval);
-        console.warn('[E140] Firebase SDK no se cargó en 10s. Las fotos no estarán disponibles.');
+        console.warn('[E140] Firebase SDK no se cargó en 10s. Datos de Firestore no disponibles.');
       }
     }, 200);
   }
