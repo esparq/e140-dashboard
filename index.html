@@ -1533,6 +1533,34 @@ body.role-viewer .admin-only{display:none !important;}
 }
 
 /* ═══════════════════════════════════════════
+   CAPACITACIONES — Resumen y modal
+   ═══════════════════════════════════════════ */
+.cap-resumen-card{background:#F4F9FD;border:1.5px solid #BFE0F5;border-radius:8px;padding:14px;margin-top:8px;}
+.cap-resumen-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;color:var(--twitter-blue);}
+.cap-badge-cnt{background:var(--twitter-blue);color:#fff;font-size:12px;font-weight:700;padding:3px 10px;border-radius:12px;letter-spacing:.04em;}
+.cap-resumen-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.cap-mini-stat{background:#fff;border:1px solid var(--border);border-radius:5px;padding:8px;text-align:center;display:flex;flex-direction:column;gap:2px;}
+.cap-mini-stat.cap-mini-aprobado{border-left:3px solid #2D936C;}
+.cap-mini-stat.cap-mini-desaprobado{border-left:3px solid #D64045;}
+.cap-mini-stat.cap-mini-pendiente{border-left:3px solid #A0521E;}
+.cap-mini-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--text);line-height:1;}
+.cap-mini-aprobado .cap-mini-num{color:#1A6B4A;}
+.cap-mini-desaprobado .cap-mini-num{color:#8A2A2D;}
+.cap-mini-pendiente .cap-mini-num{color:#7A3F18;}
+.cap-mini-lab{font-size:9.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600;}
+.cap-resumen-tabla-wrap{max-height:200px;overflow-y:auto;border-radius:5px;background:#fff;}
+.cap-resumen-tabla{width:100%;border-collapse:collapse;font-size:11.5px;}
+.cap-resumen-tabla th{position:sticky;top:0;background:#FAFBFC;color:var(--text-muted);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);}
+.cap-resumen-tabla td{padding:7px 10px;border-bottom:1px solid #F0F2F5;}
+.cap-resumen-tabla tr:last-child td{border-bottom:none;}
+
+/* Estados de capacitación (badges) */
+.cap-estado-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:11px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+.cap-estado-aprobado{background:#E7F4EE;color:#1A6B4A;}
+.cap-estado-desaprobado{background:#FBEAEA;color:#8A2A2D;}
+.cap-estado-pendiente{background:#FFF8EE;color:#7A3F18;}
+
+/* ═══════════════════════════════════════════
    PENDIENTES — Sistema de tareas
    ═══════════════════════════════════════════ */
 
@@ -2242,6 +2270,119 @@ body.role-viewer .admin-only{display:none !important;}
       <button class="hdr-btn" onclick="closeSigModal()">Cancelar</button>
       <button class="hdr-btn hdr-btn-primary" id="sigPublishBtn" onclick="publicarInspeccionSIG()">
         🚀 Publicar inspección
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: CARGAR CAPACITACIÓN SIG
+     ═══════════════════════════════════════════ -->
+<div class="modal-backdrop" id="capModal">
+  <div class="modal-card" style="max-width:760px;max-height:92vh;">
+    <div class="modal-head">
+      <div>
+        <h2 id="capModalTitle">📋 CARGAR CAPACITACIÓN</h2>
+        <p id="capModalSub">Programa SIG · Filtra automáticamente personal de E140 / ESPARQ 140</p>
+      </div>
+      <button class="modal-close" onclick="closeCapModal()" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="area-info-banner" id="capModalBanner" style="background:#E7F4EE;border-left-color:#2D936C;">
+        <b>🎓 Capacitación nueva</b> · Sube el Excel de asistencia (con todos los proyectos) o ingresa los datos manualmente. El sistema filtrará automáticamente solo el personal de <b>ESPARQ 140 / E140</b> y aplicará la regla: nota ≥ 11 = Aprobado · ≤ 10 = Desaprobado.
+      </div>
+
+      <div class="sig-form">
+        <!-- Fila 1: Tema + Fecha -->
+        <div class="sig-form-field">
+          <label>Tema / Nombre de la capacitación <span style="color:#D64045;">*</span></label>
+          <input type="text" id="capTema" placeholder="Ej: 3era Capacitación SIG · Importancia del Manejo Documentario" maxlength="200">
+        </div>
+
+        <div class="sig-form-row">
+          <div class="sig-form-field">
+            <label>Fecha de la capacitación <span style="color:#D64045;">*</span></label>
+            <input type="date" id="capFecha">
+          </div>
+          <div class="sig-form-field">
+            <label>Instructor / Responsable</label>
+            <input type="text" id="capInstructor" placeholder="Manuel Tirado" autocomplete="off" value="Manuel Tirado">
+          </div>
+        </div>
+
+        <!-- Sección de carga del Excel -->
+        <div class="sig-form-field">
+          <label>📂 Cargar Excel de asistencia (formato estándar SIG)</label>
+          <div class="dropzone sig-dropzone" id="capDropzone" onclick="document.getElementById('capExcelInput').click()" style="padding:18px 14px !important;">
+            <div class="dropzone-icon" style="font-size:28px;">📊</div>
+            <div class="dropzone-title" style="font-size:13px;" id="capDropzoneTitle">CARGAR EXCEL DE ASISTENCIA</div>
+            <div class="dropzone-subtitle" id="capDropzoneSubtitle">Excel con columnas: Apellidos · Nombre · Cargo · Nota · Obra · Estado · Hasta 5 MB</div>
+            <button class="dropzone-btn" type="button" style="font-size:11px;padding:6px 12px;">Seleccionar Excel</button>
+            <input type="file" id="capExcelInput" accept=".xlsx,.xls,.xlsb" style="display:none">
+          </div>
+          <div id="capExcelInfo" style="margin-top:8px;display:none;"></div>
+        </div>
+
+        <!-- Resumen del personal detectado -->
+        <div id="capResumenPersonal" style="display:none;">
+          <div class="cap-resumen-card">
+            <div class="cap-resumen-header">
+              <span style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;">PERSONAL E140 DETECTADO</span>
+              <span class="cap-badge-cnt" id="capResumenCount">0</span>
+            </div>
+            <div class="cap-resumen-stats">
+              <div class="cap-mini-stat cap-mini-aprobado">
+                <span class="cap-mini-num" id="capCntAprobado">0</span>
+                <span class="cap-mini-lab">Aprobados</span>
+              </div>
+              <div class="cap-mini-stat cap-mini-desaprobado">
+                <span class="cap-mini-num" id="capCntDesaprobado">0</span>
+                <span class="cap-mini-lab">Desaprobados</span>
+              </div>
+              <div class="cap-mini-stat cap-mini-pendiente">
+                <span class="cap-mini-num" id="capCntPendiente">0</span>
+                <span class="cap-mini-lab">Pendientes</span>
+              </div>
+            </div>
+            <div class="cap-resumen-tabla-wrap">
+              <table class="cap-resumen-tabla">
+                <thead>
+                  <tr><th>#</th><th>Apellidos</th><th>Nombre</th><th>Cargo</th><th class="td-center">Estado</th></tr>
+                </thead>
+                <tbody id="capResumenTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Adjunto opcional (PDF/foto evidencia) -->
+        <div class="sig-form-field">
+          <label>📎 Adjunto adicional · evidencia (opcional · PDF / imagen)</label>
+          <div class="dropzone sig-dropzone" id="capEvidenciaDropzone" onclick="document.getElementById('capEvidenciaInput').click()" style="padding:14px;">
+            <div class="dropzone-icon" style="font-size:22px;">📷</div>
+            <div class="dropzone-title" style="font-size:11.5px;" id="capEvidenciaTitle">CARGAR FOTO O PDF (opcional)</div>
+            <div class="dropzone-subtitle" style="font-size:10.5px;">Foto del grupo, lista firmada, etc.</div>
+            <input type="file" id="capEvidenciaInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none">
+          </div>
+        </div>
+      </div>
+
+      <!-- Banner de progreso -->
+      <div class="fotos-progress-banner" id="capProgressBanner" style="display:none;">
+        <div class="fotos-progress-header">
+          <span class="fotos-progress-icon" id="capProgressIcon">⏳</span>
+          <span class="fotos-progress-text" id="capProgressText">Iniciando…</span>
+        </div>
+        <div class="fotos-progress-bar"><div class="fotos-progress-fill" id="capProgressFill" style="width:0%"></div></div>
+        <div class="fotos-progress-detail" id="capProgressDetail"></div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="hdr-btn" onclick="closeCapModal()">Cancelar</button>
+      <button class="hdr-btn hdr-btn-primary" id="capPublishBtn" onclick="publicarCapacitacion()" style="background:var(--twitter-blue);color:#fff;border-color:var(--twitter-blue);">
+        🚀 Publicar capacitación
       </button>
     </div>
   </div>
@@ -3756,76 +3897,109 @@ body.role-viewer .admin-only{display:none !important;}
            CALIDAD · 3. CONTROL DE CAPACITACIONES
            ═══════════════════════════════════════════ -->
       <section class="section" id="sec-calidad-cap">
-        <div class="section-header">Calidad · Control de Capacitaciones</div>
-        <div class="section-subheader">Fuente: <b>Visitas programadas de Calidad</b> · Programa de capacitación interno</div>
+        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <span>Calidad · Control de Capacitaciones</span>
+          <button class="hdr-btn hdr-btn-primary admin-only" onclick="openCapModal()" style="background:var(--twitter-blue);color:#fff;border-color:var(--twitter-blue);padding:7px 14px;font-size:12px;height:auto;display:inline-flex;align-items:center;gap:6px;">
+            <span>📋</span> Cargar Capacitación
+          </button>
+        </div>
+        <div class="section-subheader">Fuente: <b>Capacitaciones SIG · Programa de Calidad</b> · Norma ISO 9001 · Filtro: solo personal del proyecto E140 / ESPARQ 140</div>
 
         <div class="ssoma-note">
-          <span class="ssoma-note-icon">📅</span>
+          <span class="ssoma-note-icon">🎓</span>
           <div>
-            <b>Indicador por visita programada</b> — Los datos se actualizan de acuerdo a las visitas programadas de Calidad al proyecto, no al cierre semanal del proyecto.
+            <b>Sistema de calificación:</b> Los resultados se muestran como <b style="color:#1A6B4A;">Aprobado</b> (nota ≥ 11) · <b style="color:#8A2A2D;">Desaprobado</b> (nota ≤ 10) · <b style="color:#A0521E;">Pendiente</b> (no asistió aún). Las notas numéricas son confidenciales y no se publican.
           </div>
-        </div>
-
-        <div class="ssoma-alcance" style="background:#FFF8E1;border-left-color:#F57C00;">
-          <span class="ssoma-alcance-icon" style="color:#F57C00;">⏳</span>
-          <span><b>Información pendiente:</b> los indicadores de Capacitaciones del proyecto E140 ESPARQ 140 quedan en <b>estado pendiente hasta la Semana 38</b>, fecha en la cual se cargará la información oficial actualizada por el responsable de Calidad.</span>
         </div>
 
         <!-- Panel KPIs Capacitaciones -->
-        <div class="kpi-strip" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px">
-          <div class="kpi-card k-green">
-            <div class="kpi-label">% Cumplimiento del Plan de Capacitaciones</div>
-            <div class="kpi-value" id="calCapPct">—</div>
-            <div class="kpi-sublabel" id="calCapPctDetalle">Capacitaciones ejecutadas / programadas</div>
+        <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
+          <div class="kpi-card k-primary">
+            <div class="kpi-label">Capacitaciones Realizadas</div>
+            <div class="kpi-value" id="calCapTotal">—</div>
+            <div class="kpi-sublabel" id="calCapTotalDetalle">Total dictadas en el proyecto</div>
             <div class="kpi-meta-footer" style="margin-top:10px">
-              <span class="kpi-meta-target">▲ Meta: ≥ 90%</span>
-              <span class="kpi-meta-status kpi-meta-seguimiento" id="calCapPctStatus">⏳ Pendiente Sem 38</span>
+              <span class="kpi-meta-target">▲ Frecuencia: programa SIG</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="calCapTotalStatus">—</span>
             </div>
           </div>
-          <div class="kpi-card k-primary">
-            <div class="kpi-label">Capacitaciones Ejecutadas</div>
-            <div class="kpi-value" id="calCapEjec">—</div>
-            <div class="kpi-sublabel">Charlas y talleres dictados en el período</div>
+          <div class="kpi-card k-green">
+            <div class="kpi-label">% Asistencia · Última Capacitación</div>
+            <div class="kpi-value" id="calCapAsist">—</div>
+            <div class="kpi-sublabel" id="calCapAsistDetalle">Personal capacitado / total convocado</div>
             <div class="kpi-meta-footer" style="margin-top:10px">
-              <span class="kpi-meta-target">Según plan</span>
-              <span class="kpi-meta-status kpi-meta-seguimiento" id="calCapEjecStatus">⏳ Pendiente Sem 38</span>
+              <span class="kpi-meta-target">▲ Meta: ≥ 90%</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="calCapAsistStatus">—</span>
+            </div>
+          </div>
+          <div class="kpi-card k-green">
+            <div class="kpi-label">% Aprobación · Última Capacitación</div>
+            <div class="kpi-value" id="calCapAprob">—</div>
+            <div class="kpi-sublabel" id="calCapAprobDetalle">Aprobados / Capacitados (nota ≥ 11)</div>
+            <div class="kpi-meta-footer" style="margin-top:10px">
+              <span class="kpi-meta-target">▲ Meta: 100%</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="calCapAprobStatus">—</span>
             </div>
           </div>
           <div class="kpi-card k-dark">
-            <div class="kpi-label">Personal Capacitado</div>
+            <div class="kpi-label">Personal Capacitado · Acumulado</div>
             <div class="kpi-value" id="calCapPers">—</div>
-            <div class="kpi-sublabel">Total trabajadores asistentes acumulados</div>
+            <div class="kpi-sublabel" id="calCapPersDetalle">Trabajadores únicos capacitados</div>
             <div class="kpi-meta-footer" style="margin-top:10px">
               <span class="kpi-meta-target">Indicador contextual</span>
-              <span class="kpi-meta-status kpi-meta-seguimiento" id="calCapPersStatus">⏳ Pendiente Sem 38</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="calCapPersStatus">—</span>
             </div>
           </div>
         </div>
 
-        <!-- Detalle Capacitaciones -->
+        <!-- Lista de capacitaciones (resumen) -->
         <div class="chart-card">
-          <div class="chart-title"><span class="num">01</span> Detalle de Capacitaciones</div>
-          <div class="chart-subtitle">Listado de charlas, talleres y asistencia registrada</div>
+          <div class="chart-title"><span class="num">01</span> Histórico de Capacitaciones</div>
+          <div class="chart-subtitle">Capacitaciones realizadas en el proyecto E140 — click en el botón "👁 Ver detalle" para ver la lista del personal</div>
           <div class="table-wrap" style="border:none">
             <table>
               <thead>
                 <tr>
-                  <th>#</th>
+                  <th class="td-center">#</th>
                   <th class="td-center">Fecha</th>
                   <th>Tema / Capacitación</th>
                   <th>Instructor</th>
-                  <th class="td-center">Duración (h)</th>
-                  <th class="td-center">Asistentes</th>
-                  <th class="td-center">Estado</th>
+                  <th class="td-center">Convocados</th>
+                  <th class="td-center">Capacitados</th>
+                  <th class="td-center">% Aprobación</th>
+                  <th class="td-center">Detalle</th>
+                  <th class="td-center audit-only" style="display:none;">Acciones</th>
                 </tr>
               </thead>
-              <tbody id="calCapTblDetalle">
+              <tbody id="calCapTblHistorico">
                 <tr>
-                  <td colspan="7" style="text-align:center;padding:30px 16px;color:var(--text-muted);font-style:italic;background:#FBFDFE;border:1px dashed var(--border-mid);">
-                    ⏳ Sin capacitaciones registradas — pendiente de actualización en Semana 38
+                  <td colspan="9" style="text-align:center;padding:30px 16px;color:var(--text-muted);font-style:italic;background:#FBFDFE;border:1px dashed var(--border-mid);">
+                    ⏳ Cargando capacitaciones…
                   </td>
                 </tr>
               </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Detalle del personal de la capacitación seleccionada -->
+        <div class="chart-card" id="calCapPersonalCard" style="margin-top:14px;display:none;">
+          <div class="chart-title">
+            <span class="num">02</span> Personal · <span id="calCapPersonalTitulo">—</span>
+          </div>
+          <div class="chart-subtitle" id="calCapPersonalSub">—</div>
+          <div class="table-wrap" style="border:none">
+            <table>
+              <thead>
+                <tr>
+                  <th class="td-center">#</th>
+                  <th>Apellidos</th>
+                  <th>Nombre</th>
+                  <th>Cargo</th>
+                  <th class="td-center">Estado</th>
+                </tr>
+              </thead>
+              <tbody id="calCapTblPersonal"></tbody>
             </table>
           </div>
         </div>
@@ -7364,52 +7538,643 @@ function renderCalidadNC(){
    Datos por visita programada — pendientes hasta Semana 38
    ═══════════════════════════════════════════════════════════════════ */
 
+// Estado global de capacitaciones cargadas
+let capacitacionesData = [];   // Array de capacitaciones desde Firestore
+let capPersonalParseado = [];  // Personal detectado al cargar Excel en el modal
+let capExcelOriginal = null;   // Archivo Excel cargado en el modal
+let capEvidenciaFile = null;   // Archivo de evidencia opcional
+let capEditandoId = null;      // ID de la capacitación en edición
+let capDetalleAbierta = null;  // ID de la capacitación cuyo detalle se muestra
+
+// ─── Capacitación inicial (3era SIG, Marzo 2026) ───
+// Esta es la data de la 3era Capacitación SIG · Importancia del Manejo Documentario
+// Solo personal de E140 / ESPARQ 140
+const CAPACITACION_INICIAL_E140 = {
+  id:         'cap_inicial_3era_sig_marzo_2026',
+  tema:       '3era Capacitación SIG · Importancia del Manejo Documentario',
+  fecha:      '2026-03-15', // Fecha aproximada (Marzo 2026)
+  instructor: 'Manuel Tirado',
+  obra:       'ESPARQ 140',
+  esEjemplo:  true, // Bandera para distinguir de las cargadas dinámicamente
+  personal: [
+    { apellidos: 'Rodríguez De la Cruz', nombre: 'Carlos',  cargo: 'Almacenero',                    estado: 'aprobado' },
+    { apellidos: 'Odar Varona',          nombre: 'Jorge',   cargo: 'SSOMA',                         estado: 'aprobado' },
+    { apellidos: 'Alvarado Calle',       nombre: 'Eder',    cargo: 'Ing. Campo',                    estado: 'aprobado' },
+    { apellidos: 'Rodríguez Herencia',   nombre: 'Grace',   cargo: 'Administrador',                 estado: 'aprobado' },
+    { apellidos: 'Rojas Otiniano',       nombre: 'José',    cargo: 'Residente',                     estado: 'aprobado' },
+    { apellidos: 'Falcón De la Torre',   nombre: 'Lucero',  cargo: 'Arq. Producción',               estado: 'aprobado' },
+    { apellidos: 'Tellez Fernandez',     nombre: 'Ricardo', cargo: 'Ing. Producción',               estado: 'aprobado' },
+    { apellidos: 'Ramos Suarez',         nombre: 'David',   cargo: 'Coordinador de Arquitectura',   estado: 'aprobado' },
+    { apellidos: 'Atoche',               nombre: 'Jaime',   cargo: 'Administrador',                 estado: 'pendiente' },
+  ],
+  registrado_por_nombre: 'Sistema (carga inicial)',
+  creado_en: '2026-03-15T00:00:00Z',
+};
+
 function renderCalidadCap(){
-  // ⚠ DATA PENDIENTE — Indicadores de Capacitaciones en estado pendiente hasta Semana 38.
+  // Combinar capacitación inicial con las cargadas desde Firestore
+  const todasOrdenadas = obtenerCapacitacionesCombinadas();
+  const total = todasOrdenadas.length;
+  const ultima = total > 0 ? todasOrdenadas[0] : null; // La más reciente
 
-  // Variables de data (cuando lleguen los datos oficiales, asignar valores reales aquí)
-  const data = {
-    capPct:        null,   // % cumplimiento del plan · ej. 95
-    capEjecutadas: null,   // # capacitaciones ejecutadas · ej. 12
-    capProgramadas: null,  // # capacitaciones programadas · ej. 13
-    personalCap:   null    // # personal capacitado acumulado · ej. 156
-  };
+  // ─── KPI 1: Capacitaciones Realizadas ───
+  document.getElementById('calCapTotal').textContent = total;
+  document.getElementById('calCapTotalDetalle').textContent = total === 0
+    ? 'Sin capacitaciones registradas'
+    : `${total} dictada${total === 1 ? '' : 's'} en el proyecto E140`;
+  const elTotalSt = document.getElementById('calCapTotalStatus');
+  elTotalSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
+  if(total === 0){ elTotalSt.classList.add('kpi-meta-seguimiento'); elTotalSt.textContent = '⏳ Sin registros'; }
+  else { elTotalSt.classList.add('kpi-meta-cumple'); elTotalSt.textContent = '✓ Activo'; }
 
-  document.getElementById('calCapPct').textContent = data.capPct == null ? '—' : data.capPct + '%';
-  document.getElementById('calCapPctDetalle').textContent = (data.capEjecutadas == null || data.capProgramadas == null)
-    ? 'Pendiente · se actualiza en Semana 38'
-    : `${data.capEjecutadas} de ${data.capProgramadas} capacitaciones ejecutadas`;
-  document.getElementById('calCapEjec').textContent = data.capEjecutadas == null ? '—' : data.capEjecutadas;
-  document.getElementById('calCapPers').textContent = data.personalCap == null
-    ? '—'
-    : Number(data.personalCap).toLocaleString('es-PE');
+  // ─── KPI 2 y 3: Asistencia y Aprobación de la última capacitación ───
+  const elAsist = document.getElementById('calCapAsist');
+  const elAsistDet = document.getElementById('calCapAsistDetalle');
+  const elAsistSt = document.getElementById('calCapAsistStatus');
+  const elAprob = document.getElementById('calCapAprob');
+  const elAprobDet = document.getElementById('calCapAprobDetalle');
+  const elAprobSt = document.getElementById('calCapAprobStatus');
 
-  const setStatus = (id, valor, metaMax, modo) => {
-    const el = document.getElementById(id);
-    if(!el) return;
-    el.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
-    if(valor == null){
-      el.classList.add('kpi-meta-seguimiento');
-      el.textContent = '⏳ Pendiente Sem 38';
+  if(ultima && Array.isArray(ultima.personal) && ultima.personal.length > 0){
+    const tot = ultima.personal.length;
+    const cap = ultima.personal.filter(p => p.estado === 'aprobado' || p.estado === 'desaprobado').length;
+    const apr = ultima.personal.filter(p => p.estado === 'aprobado').length;
+    const pendientes = ultima.personal.filter(p => p.estado === 'pendiente').length;
+
+    const pctAsist = tot > 0 ? (cap / tot) * 100 : 0;
+    const pctAprob = cap > 0 ? (apr / cap) * 100 : 0;
+
+    elAsist.textContent = pctAsist.toFixed(0) + '%';
+    elAsistDet.textContent = `${cap} de ${tot} convocados · ${pendientes} pendiente${pendientes === 1 ? '' : 's'}`;
+    elAsistSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
+    if(pctAsist >= 90)      elAsistSt.classList.add('kpi-meta-cumple');
+    else if(pctAsist >= 70) elAsistSt.classList.add('kpi-meta-seguimiento');
+    else                    elAsistSt.classList.add('kpi-meta-nocumple');
+    elAsistSt.textContent = pctAsist >= 90 ? '✓ Cumple' : (pctAsist >= 70 ? '⚠ En seguimiento' : '✗ No cumple');
+
+    elAprob.textContent = pctAprob.toFixed(0) + '%';
+    elAprobDet.textContent = cap === 0 ? 'Sin personal capacitado aún' : `${apr} de ${cap} aprobaron (nota ≥ 11)`;
+    elAprobSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
+    if(pctAprob >= 100)     elAprobSt.classList.add('kpi-meta-cumple');
+    else if(pctAprob >= 80) elAprobSt.classList.add('kpi-meta-seguimiento');
+    else                    elAprobSt.classList.add('kpi-meta-nocumple');
+    elAprobSt.textContent = pctAprob >= 100 ? '✓ 100%' : (pctAprob >= 80 ? '⚠ En seguimiento' : '✗ Bajo');
+  } else {
+    elAsist.textContent = '—';
+    elAsistDet.textContent = 'Sin capacitaciones registradas';
+    elAsistSt.classList.remove('kpi-meta-cumple','kpi-meta-nocumple');
+    elAsistSt.classList.add('kpi-meta-seguimiento');
+    elAsistSt.textContent = '—';
+    elAprob.textContent = '—';
+    elAprobDet.textContent = 'Sin capacitaciones registradas';
+    elAprobSt.classList.remove('kpi-meta-cumple','kpi-meta-nocumple');
+    elAprobSt.classList.add('kpi-meta-seguimiento');
+    elAprobSt.textContent = '—';
+  }
+
+  // ─── KPI 4: Personal capacitado acumulado (únicos) ───
+  const elPers = document.getElementById('calCapPers');
+  const elPersDet = document.getElementById('calCapPersDetalle');
+  const elPersSt = document.getElementById('calCapPersStatus');
+  const personasUnicas = new Set();
+  todasOrdenadas.forEach(c => {
+    (c.personal || []).forEach(p => {
+      if(p.estado === 'aprobado'){
+        const key = `${(p.apellidos || '').toLowerCase()}|${(p.nombre || '').toLowerCase()}`;
+        personasUnicas.add(key);
+      }
+    });
+  });
+  elPers.textContent = personasUnicas.size;
+  elPersDet.textContent = `${personasUnicas.size} trabajador${personasUnicas.size === 1 ? '' : 'es'} único${personasUnicas.size === 1 ? '' : 's'} capacitado${personasUnicas.size === 1 ? '' : 's'}`;
+  elPersSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
+  elPersSt.classList.add(personasUnicas.size > 0 ? 'kpi-meta-cumple' : 'kpi-meta-seguimiento');
+  elPersSt.textContent = personasUnicas.size > 0 ? '✓ Acumulando' : '—';
+
+  // ─── Tabla histórico ───
+  const tbody = document.getElementById('calCapTblHistorico');
+  if(tbody){
+    if(total === 0){
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:30px 16px;color:var(--text-muted);font-style:italic;background:#FBFDFE;border:1px dashed var(--border-mid);">⏳ Sin capacitaciones registradas. Para empezar, presiona <b>"📋 Cargar Capacitación"</b>.</td></tr>`;
+    } else {
+      tbody.innerHTML = todasOrdenadas.map((c, i) => {
+        const tot = (c.personal || []).length;
+        const cap = (c.personal || []).filter(p => p.estado === 'aprobado' || p.estado === 'desaprobado').length;
+        const apr = (c.personal || []).filter(p => p.estado === 'aprobado').length;
+        const pctApr = cap > 0 ? (apr / cap) * 100 : 0;
+        const colorApr = pctApr >= 100 ? '#1A6B4A' : (pctApr >= 80 ? '#A0521E' : '#8A2A2D');
+        const numero = total - i;
+        const accionesHtml = !c.esEjemplo ? `
+          <button class="sig-action-btn sig-action-edit" onclick="abrirEditorCapacitacion('${escapeHtml(c.id)}')" title="Editar">✏️</button>
+          <button class="sig-action-btn sig-action-delete" onclick="eliminarCapacitacion('${escapeHtml(c.id)}')" title="Eliminar">🗑️</button>
+        ` : '<span style="color:var(--text-muted);font-size:10px;font-style:italic;">Inicial</span>';
+
+        return `<tr>
+          <td class="td-center"><b>${numero}</b></td>
+          <td class="td-center">${formatFechaCorta(c.fecha)}</td>
+          <td><b>${escapeHtml(c.tema || 'Sin tema')}</b></td>
+          <td>${escapeHtml(c.instructor || '—')}</td>
+          <td class="td-center">${tot}</td>
+          <td class="td-center">${cap}</td>
+          <td class="td-center"><b style="color:${colorApr};">${pctApr.toFixed(0)}%</b></td>
+          <td class="td-center"><button class="aud-btn-download" onclick="verDetalleCapacitacion('${escapeHtml(c.id)}')" style="padding:4px 10px;font-size:10px;">👁 Ver</button></td>
+          <td class="td-center audit-only" style="display:none;white-space:nowrap;">${accionesHtml}</td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  // Si hay un detalle abierto, refrescarlo
+  if(capDetalleAbierta){
+    verDetalleCapacitacion(capDetalleAbierta);
+  } else if(ultima){
+    // Por defecto, mostrar el detalle de la última capacitación
+    verDetalleCapacitacion(ultima.id);
+  }
+}
+
+function obtenerCapacitacionesCombinadas(){
+  // Combina la inicial + las cargadas desde Firestore. Ordenadas por fecha desc.
+  const todas = [CAPACITACION_INICIAL_E140, ...capacitacionesData];
+  return todas.sort((a, b) => {
+    const da = new Date(a.fecha || 0).getTime();
+    const db = new Date(b.fecha || 0).getTime();
+    return db - da;
+  });
+}
+
+function verDetalleCapacitacion(id){
+  const todas = obtenerCapacitacionesCombinadas();
+  const c = todas.find(x => x.id === id);
+  if(!c) return;
+  capDetalleAbierta = id;
+
+  document.getElementById('calCapPersonalCard').style.display = '';
+  document.getElementById('calCapPersonalTitulo').textContent = c.tema || 'Sin tema';
+  document.getElementById('calCapPersonalSub').textContent =
+    `Fecha: ${formatFechaCorta(c.fecha)} · Instructor: ${c.instructor || '—'} · ${(c.personal || []).length} persona${(c.personal || []).length === 1 ? '' : 's'} en lista`;
+
+  const tbody = document.getElementById('calCapTblPersonal');
+  if((c.personal || []).length === 0){
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);font-style:italic;">Sin personal registrado.</td></tr>';
+    return;
+  }
+  // Ordenar: aprobados primero, después desaprobados, después pendientes
+  const ordenEstado = { aprobado: 0, desaprobado: 1, pendiente: 2 };
+  const personalOrdenado = [...c.personal].sort((a, b) => {
+    const da = ordenEstado[a.estado] != null ? ordenEstado[a.estado] : 9;
+    const db = ordenEstado[b.estado] != null ? ordenEstado[b.estado] : 9;
+    if(da !== db) return da - db;
+    return (a.apellidos || '').localeCompare(b.apellidos || '');
+  });
+  tbody.innerHTML = personalOrdenado.map((p, i) => {
+    let badge = '';
+    if(p.estado === 'aprobado'){
+      badge = '<span class="cap-estado-badge cap-estado-aprobado">✓ Aprobado</span>';
+    } else if(p.estado === 'desaprobado'){
+      badge = '<span class="cap-estado-badge cap-estado-desaprobado">✗ Desaprobado</span>';
+    } else {
+      badge = '<span class="cap-estado-badge cap-estado-pendiente">⏳ Pendiente</span>';
+    }
+    return `<tr>
+      <td class="td-center"><b>${i + 1}</b></td>
+      <td><b>${escapeHtml(p.apellidos || '—')}</b></td>
+      <td>${escapeHtml(p.nombre || '—')}</td>
+      <td>${escapeHtml(p.cargo || '—')}</td>
+      <td class="td-center">${badge}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// MODAL DE CARGA DE CAPACITACIÓN
+// ═══════════════════════════════════════════════════════
+
+function openCapModal(){
+  if(!currentSession || (currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina' && currentSession.usuario !== 'residente')){
+    alert('Solo administradores pueden cargar capacitaciones.');
+    return;
+  }
+  capEditandoId = null;
+  capPersonalParseado = [];
+  capExcelOriginal = null;
+  capEvidenciaFile = null;
+
+  document.getElementById('capModalTitle').textContent = '📋 CARGAR CAPACITACIÓN';
+  document.getElementById('capModalSub').textContent = 'Programa SIG · Filtra automáticamente personal de E140 / ESPARQ 140';
+  document.getElementById('capPublishBtn').innerHTML = '🚀 Publicar capacitación';
+
+  document.getElementById('capTema').value = '';
+  document.getElementById('capInstructor').value = 'Manuel Tirado';
+  document.getElementById('capFecha').value = new Date().toISOString().split('T')[0];
+
+  document.getElementById('capDropzoneTitle').textContent = 'CARGAR EXCEL DE ASISTENCIA';
+  document.getElementById('capDropzoneSubtitle').textContent = 'Excel con columnas: Apellidos · Nombre · Cargo · Nota · Obra · Estado · Hasta 5 MB';
+  document.getElementById('capDropzone').classList.remove('has-file');
+  document.getElementById('capExcelInfo').style.display = 'none';
+  document.getElementById('capResumenPersonal').style.display = 'none';
+  document.getElementById('capEvidenciaTitle').textContent = 'CARGAR FOTO O PDF (opcional)';
+  document.getElementById('capEvidenciaDropzone').classList.remove('has-file');
+  document.getElementById('capProgressBanner').style.display = 'none';
+  document.getElementById('capPublishBtn').disabled = false;
+
+  // Setup dropzones (solo una vez)
+  const dz = document.getElementById('capDropzone');
+  const inp = document.getElementById('capExcelInput');
+  if(dz && inp && !dz._setupDone){
+    dz._setupDone = true;
+    ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
+    ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
+    dz.addEventListener('drop', e => handleCapExcelFile(e.dataTransfer.files[0]));
+    inp.onchange = e => { handleCapExcelFile(e.target.files[0]); inp.value = ''; };
+  }
+  const dzE = document.getElementById('capEvidenciaDropzone');
+  const inpE = document.getElementById('capEvidenciaInput');
+  if(dzE && inpE && !dzE._setupDone){
+    dzE._setupDone = true;
+    ['dragenter','dragover'].forEach(ev => dzE.addEventListener(ev, e => { e.preventDefault(); dzE.classList.add('drag'); }));
+    ['dragleave','drop'].forEach(ev => dzE.addEventListener(ev, e => { e.preventDefault(); dzE.classList.remove('drag'); }));
+    dzE.addEventListener('drop', e => handleCapEvidenciaFile(e.dataTransfer.files[0]));
+    inpE.onchange = e => { handleCapEvidenciaFile(e.target.files[0]); inpE.value = ''; };
+  }
+
+  document.getElementById('capModal').classList.add('show');
+  setTimeout(() => document.getElementById('capTema').focus(), 100);
+}
+
+function closeCapModal(){
+  document.getElementById('capModal').classList.remove('show');
+}
+
+async function handleCapExcelFile(file){
+  if(!file) return;
+  const ext = (file.name.match(/\.[^.]+$/) || [''])[0].toLowerCase();
+  if(!['.xlsx', '.xls', '.xlsb'].includes(ext)){
+    alert('Formato no soportado. Sube un archivo .xlsx, .xls o .xlsb');
+    return;
+  }
+  if(file.size > 5 * 1024 * 1024){
+    alert('Excede 5 MB. Reduce el tamaño antes de subirlo.');
+    return;
+  }
+  capExcelOriginal = file;
+  document.getElementById('capDropzoneTitle').textContent = `📊 ${file.name}`;
+  document.getElementById('capDropzoneSubtitle').textContent = `${formatBytes(file.size)} · Procesando…`;
+  document.getElementById('capDropzone').classList.add('has-file');
+
+  // Leer y parsear el Excel
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+
+    // Buscar personal de E140 en TODAS las hojas
+    const personalE140 = [];
+    const sheetsRevisadas = [];
+    workbook.SheetNames.forEach(sheetName => {
+      const sheet = workbook.Sheets[sheetName];
+      const json = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
+      sheetsRevisadas.push(sheetName);
+
+      // Buscar fila de cabecera (que tenga "Apellidos" o similar)
+      let headerRow = -1;
+      for(let i = 0; i < Math.min(json.length, 10); i++){
+        const row = json[i].map(c => String(c || '').toLowerCase().trim());
+        if(row.includes('apellidos') || row.some(c => c.includes('apellido'))){
+          headerRow = i;
+          break;
+        }
+      }
+      if(headerRow < 0) return;
+
+      const header = json[headerRow].map(c => String(c || '').toLowerCase().trim());
+      const idxApe = header.findIndex(c => c.includes('apellido'));
+      const idxNom = header.findIndex(c => c === 'nombre' || c.includes('nombre'));
+      const idxCargo = header.findIndex(c => c === 'cargo' || c.includes('cargo'));
+      const idxNota = header.findIndex(c => c === 'nota' || c.includes('nota'));
+      const idxObra = header.findIndex(c => c === 'obra' || c.includes('obra') || c.includes('proyecto'));
+
+      if(idxApe < 0 || idxNom < 0) return;
+
+      // Recorrer las filas de datos
+      for(let i = headerRow + 1; i < json.length; i++){
+        const row = json[i];
+        const obra = String(row[idxObra] || '').toLowerCase().trim();
+        // Filtrar SOLO personal de E140 / ESPARQ 140
+        if(!obra.includes('esparq 140') && !obra.includes('esparq140') && !obra.includes('e140')) continue;
+
+        // Soportar apellidos en una sola columna o "Apellido paterno + Apellido materno"
+        let apellidos = String(row[idxApe] || '').trim();
+        // Si la columna inmediatamente después de "Apellidos" contiene un valor adicional sin header (apellido materno),
+        // el formato del archivo SIG tiene Apellidos en col 2, materno en col 3 sin header. Lo unimos:
+        if(idxApe + 1 < row.length && idxApe + 1 < idxNom){
+          const ape2 = String(row[idxApe + 1] || '').trim();
+          if(ape2 && !ape2.match(/^\s*$/)) apellidos = `${apellidos} ${ape2}`.trim();
+        }
+
+        const nombre = String(row[idxNom] || '').trim();
+        const cargo  = String(row[idxCargo] || '').trim();
+        const notaRaw = row[idxNota];
+        const nota = notaRaw === '' || notaRaw == null ? null : Number(notaRaw);
+
+        if(!apellidos && !nombre) continue; // Fila vacía
+
+        // Aplicar regla: ≥11 = aprobado, ≤10 = desaprobado, sin nota = pendiente
+        let estado = 'pendiente';
+        if(nota !== null && !isNaN(nota)){
+          estado = nota >= 11 ? 'aprobado' : 'desaprobado';
+        }
+
+        personalE140.push({ apellidos, nombre, cargo, estado });
+      }
+    });
+
+    capPersonalParseado = personalE140;
+
+    // Actualizar UI con resumen
+    document.getElementById('capDropzoneSubtitle').textContent = `${formatBytes(file.size)} · ${personalE140.length} persona${personalE140.length === 1 ? '' : 's'} de E140 detectada${personalE140.length === 1 ? '' : 's'}`;
+
+    if(personalE140.length === 0){
+      alert(`No se detectó personal de E140 / ESPARQ 140 en el Excel.\n\nHojas revisadas: ${sheetsRevisadas.join(', ')}\n\nVerifica que la columna "Obra" contenga "Esparq 140" o "E140".`);
+      document.getElementById('capResumenPersonal').style.display = 'none';
       return;
     }
-    if(modo === 'min'){
-      if(valor >= metaMax){ el.classList.add('kpi-meta-cumple'); el.textContent = '✓ Cumple'; }
-      else if(valor >= metaMax * 0.9){ el.classList.add('kpi-meta-seguimiento'); el.textContent = '⚠ En seguimiento'; }
-      else { el.classList.add('kpi-meta-nocumple'); el.textContent = '✗ No cumple'; }
-    } else {
-      if(valor <= metaMax){ el.classList.add('kpi-meta-cumple'); el.textContent = '✓ Cumple'; }
-      else if(valor <= metaMax * 1.5){ el.classList.add('kpi-meta-seguimiento'); el.textContent = '⚠ En seguimiento'; }
-      else { el.classList.add('kpi-meta-nocumple'); el.textContent = '✗ No cumple'; }
+
+    mostrarResumenCapPersonal();
+
+    // Sugerir tema desde el título del Excel si se detecta
+    const sheetResumen = workbook.Sheets[workbook.SheetNames[0]];
+    const json0 = XLSX.utils.sheet_to_json(sheetResumen, { header: 1, raw: false });
+    for(let i = 0; i < Math.min(json0.length, 5); i++){
+      const cellText = (json0[i] || []).map(c => String(c || '')).join(' ');
+      if(cellText.toUpperCase().includes('CAPACITACION') || cellText.toUpperCase().includes('CAPACITACIÓN')){
+        const tit = (json0[i] || []).find(c => c && String(c).length > 10);
+        if(tit && !document.getElementById('capTema').value){
+          document.getElementById('capTema').value = String(tit).trim();
+        }
+        break;
+      }
     }
-  };
 
-  setStatus('calCapPctStatus',  data.capPct,        90, 'min');   // ≥ 90%
-  // calCapEjecStatus y calCapPersStatus son contextuales — quedan en pendiente mientras data sea null
-  setStatus('calCapEjecStatus', null,               0,  'min');
-  setStatus('calCapPersStatus', null,               0,  'min');
+  } catch(err){
+    console.error('[E140] Error parseando Excel:', err);
+    alert(`No se pudo procesar el Excel.\n\nError: ${err.message}\n\nPuedes ingresar los datos manualmente en lugar del Excel.`);
+    capPersonalParseado = [];
+    document.getElementById('capDropzoneSubtitle').textContent = `${formatBytes(file.size)} · ⚠ Error al procesar`;
+  }
+}
 
-  // Tabla detalle: placeholder estático. Poblar #calCapTblDetalle cuando llegue la data.
+function mostrarResumenCapPersonal(){
+  const cont = document.getElementById('capResumenPersonal');
+  const cnt = document.getElementById('capResumenCount');
+  const tbody = document.getElementById('capResumenTbody');
+
+  cnt.textContent = capPersonalParseado.length;
+  const cAprob = capPersonalParseado.filter(p => p.estado === 'aprobado').length;
+  const cDes   = capPersonalParseado.filter(p => p.estado === 'desaprobado').length;
+  const cPen   = capPersonalParseado.filter(p => p.estado === 'pendiente').length;
+  document.getElementById('capCntAprobado').textContent = cAprob;
+  document.getElementById('capCntDesaprobado').textContent = cDes;
+  document.getElementById('capCntPendiente').textContent = cPen;
+
+  tbody.innerHTML = capPersonalParseado.map((p, i) => {
+    let badge = '';
+    if(p.estado === 'aprobado')           badge = '<span class="cap-estado-badge cap-estado-aprobado">✓ Aprobado</span>';
+    else if(p.estado === 'desaprobado')   badge = '<span class="cap-estado-badge cap-estado-desaprobado">✗ Desaprobado</span>';
+    else                                   badge = '<span class="cap-estado-badge cap-estado-pendiente">⏳ Pendiente</span>';
+    return `<tr>
+      <td>${i + 1}</td>
+      <td><b>${escapeHtml(p.apellidos || '—')}</b></td>
+      <td>${escapeHtml(p.nombre || '—')}</td>
+      <td>${escapeHtml(p.cargo || '—')}</td>
+      <td class="td-center">${badge}</td>
+    </tr>`;
+  }).join('');
+
+  cont.style.display = '';
+}
+
+function handleCapEvidenciaFile(file){
+  if(!file) return;
+  if(file.size > 10 * 1024 * 1024){
+    alert('Excede 10 MB.');
+    return;
+  }
+  capEvidenciaFile = file;
+  document.getElementById('capEvidenciaTitle').textContent = `📎 ${file.name}`;
+  document.getElementById('capEvidenciaDropzone').classList.add('has-file');
+}
+
+async function publicarCapacitacion(){
+  const tema = document.getElementById('capTema').value.trim();
+  const fecha = document.getElementById('capFecha').value;
+  const instructor = document.getElementById('capInstructor').value.trim();
+
+  if(!tema){ alert('Ingresa el tema de la capacitación.'); return; }
+  if(!fecha){ alert('Ingresa la fecha.'); return; }
+  if(capPersonalParseado.length === 0){
+    alert('Carga el Excel con la lista de asistencia. No se detectó personal de E140.');
+    return;
+  }
+  if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
+
+  const btn = document.getElementById('capPublishBtn');
+  const cancel = document.querySelector('#capModal .hdr-btn:not(.hdr-btn-primary)');
+  const banner = document.getElementById('capProgressBanner');
+  const bIcon = document.getElementById('capProgressIcon');
+  const bText = document.getElementById('capProgressText');
+  const bFill = document.getElementById('capProgressFill');
+  const bDetail = document.getElementById('capProgressDetail');
+
+  btn.disabled = true;
+  if(cancel) cancel.disabled = true;
+  banner.style.display = 'block';
+  banner.classList.remove('success', 'error');
+
+  try {
+    let excelUrl = null, excelPublicId = null;
+    let evidenciaUrl = null, evidenciaPublicId = null;
+
+    // Subir Excel original
+    if(capExcelOriginal){
+      bIcon.textContent = '⏳'; bText.textContent = 'Subiendo Excel a Cloudinary…'; bFill.style.width = '20%';
+      bDetail.textContent = `${capExcelOriginal.name} (${formatBytes(capExcelOriginal.size)})`;
+      const result = await uploadGenericoToCloudinary(capExcelOriginal, 'capacitaciones', 'asistencia');
+      excelUrl = result.url; excelPublicId = result.public_id;
+    }
+
+    // Subir evidencia
+    if(capEvidenciaFile){
+      bIcon.textContent = '⏳'; bText.textContent = 'Subiendo evidencia…'; bFill.style.width = '50%';
+      bDetail.textContent = `${capEvidenciaFile.name} (${formatBytes(capEvidenciaFile.size)})`;
+      const result = await uploadGenericoToCloudinary(capEvidenciaFile, 'capacitaciones', 'evidencia');
+      evidenciaUrl = result.url; evidenciaPublicId = result.public_id;
+    }
+
+    // Guardar en Firestore
+    bIcon.textContent = '⏳'; bText.textContent = 'Guardando en Firestore…'; bFill.style.width = '85%'; bDetail.textContent = '';
+
+    const userId = (currentSession && currentSession.usuario) || 'desconocido';
+    const userName = (currentSession && currentSession.nombre) || 'Sin sesión';
+    const ahora = new Date().toISOString();
+    const ts = Date.now();
+
+    const dataDoc = {
+      tema:        tema,
+      fecha:       fecha,
+      instructor:  instructor || 'No registrado',
+      obra:        'ESPARQ 140',
+      personal:    capPersonalParseado,
+      excel_url:   excelUrl,
+      excel_public_id: excelPublicId,
+      excel_nombre: capExcelOriginal ? capExcelOriginal.name : null,
+      evidencia_url: evidenciaUrl,
+      evidencia_public_id: evidenciaPublicId,
+      evidencia_nombre: capEvidenciaFile ? capEvidenciaFile.name : null,
+      registrado_por:        userId,
+      registrado_por_nombre: userName,
+      registrado_en:         ahora,
+      registrado_ts:         ts,
+    };
+
+    if(capEditandoId){
+      const { db, doc, setDoc } = window.E140_DB;
+      const docRef = doc(db, 'capacitaciones', capEditandoId);
+      dataDoc.editado_por = userId;
+      dataDoc.editado_por_nombre = userName;
+      dataDoc.editado_en = ahora;
+      dataDoc.editado_ts = ts;
+      await setDoc(docRef, dataDoc, { merge: true });
+      // Actualizar cache
+      const idx = capacitacionesData.findIndex(x => x.id === capEditandoId);
+      if(idx >= 0) capacitacionesData[idx] = { ...capacitacionesData[idx], ...dataDoc, id: capEditandoId };
+    } else {
+      const { db, collection, addDoc } = window.E140_DB;
+      const docRef = await addDoc(collection(db, 'capacitaciones'), dataDoc);
+      capacitacionesData.push({ id: docRef.id, ...dataDoc });
+    }
+
+    // Registrar en auditoría si hay Excel
+    if(excelUrl){
+      try {
+        await registrarAuditoria({
+          semana:        '',
+          area:          'calidad',
+          archivo_key:   'capacitacion_sig',
+          archivo_label: `Capacitación: ${tema}`,
+          nombre_original: capExcelOriginal.name,
+          tamano_bytes:  capExcelOriginal.size,
+          cloudinary_url:       excelUrl,
+          cloudinary_public_id: excelPublicId,
+          corte_fecha:   fecha,
+          subido_por:    userId,
+          subido_por_nombre: userName,
+          estado:        'ok',
+        });
+      } catch(audErr){ console.warn('[E140] No se pudo registrar en auditoría:', audErr); }
+    }
+
+    bFill.style.width = '100%';
+    banner.classList.add('success');
+    bIcon.textContent = '✓';
+    bText.textContent = capEditandoId ? '¡Cambios guardados!' : '¡Capacitación publicada!';
+    bDetail.textContent = `${tema} · ${capPersonalParseado.length} persona${capPersonalParseado.length === 1 ? '' : 's'}`;
+
+    if(currentTab === 'calidad-cap'){
+      try { renderCalidadCap(); } catch(e){}
+    }
+
+    setTimeout(() => {
+      if(cancel) cancel.disabled = false;
+      btn.disabled = false;
+    }, 1200);
+    setTimeout(() => closeCapModal(), 2000);
+
+  } catch(err){
+    console.error('[E140] Error publicando capacitación:', err);
+    banner.classList.add('error');
+    bIcon.textContent = '✕';
+    bText.textContent = 'Error al publicar la capacitación';
+    bDetail.textContent = err.message || String(err);
+    btn.disabled = false;
+    if(cancel) cancel.disabled = false;
+  }
+}
+
+function abrirEditorCapacitacion(id){
+  if(!currentSession || (currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina')){
+    alert('Solo "adm" y "oficina" pueden editar capacitaciones.');
+    return;
+  }
+  const c = capacitacionesData.find(x => x.id === id);
+  if(!c){ alert('No se encontró la capacitación.'); return; }
+
+  capEditandoId = id;
+  capPersonalParseado = [...(c.personal || [])];
+  capExcelOriginal = null;
+  capEvidenciaFile = null;
+
+  // Abrir modal con valores precargados
+  document.getElementById('capModalTitle').textContent = '✏️ EDITAR CAPACITACIÓN';
+  document.getElementById('capModalSub').textContent = c.tema || '—';
+  document.getElementById('capPublishBtn').innerHTML = '💾 Guardar cambios';
+
+  document.getElementById('capTema').value = c.tema || '';
+  document.getElementById('capInstructor').value = c.instructor || '';
+  document.getElementById('capFecha').value = c.fecha || '';
+
+  if(c.excel_url){
+    document.getElementById('capDropzoneTitle').textContent = '📊 Excel cargado anteriormente';
+    document.getElementById('capDropzoneSubtitle').innerHTML = `${escapeHtml(c.excel_nombre || 'archivo.xlsx')} · <b>Click para reemplazar</b>`;
+    document.getElementById('capDropzone').classList.add('has-file');
+  } else {
+    document.getElementById('capDropzoneTitle').textContent = 'CARGAR EXCEL DE ASISTENCIA';
+    document.getElementById('capDropzoneSubtitle').textContent = 'Excel con columnas: Apellidos · Nombre · Cargo · Nota · Obra · Estado · Hasta 5 MB';
+    document.getElementById('capDropzone').classList.remove('has-file');
+  }
+
+  mostrarResumenCapPersonal();
+  document.getElementById('capProgressBanner').style.display = 'none';
+  document.getElementById('capPublishBtn').disabled = false;
+  document.getElementById('capModal').classList.add('show');
+}
+
+async function eliminarCapacitacion(id){
+  if(!currentSession || (currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina')){
+    alert('Solo "adm" y "oficina" pueden eliminar capacitaciones.');
+    return;
+  }
+  const c = capacitacionesData.find(x => x.id === id);
+  if(!c) return;
+  if(!confirm(`¿Eliminar la capacitación "${c.tema}"?\n\nEsta acción NO se puede deshacer.`)) return;
+
+  try {
+    const { db, doc, deleteDoc } = window.E140_DB;
+    await deleteDoc(doc(db, 'capacitaciones', id));
+    capacitacionesData = capacitacionesData.filter(x => x.id !== id);
+    if(capDetalleAbierta === id) capDetalleAbierta = null;
+    renderCalidadCap();
+    alert('✓ Capacitación eliminada.');
+  } catch(err){
+    console.error('[E140] Error eliminando capacitación:', err);
+    alert(`❌ Error: ${err.message || err}`);
+  }
+}
+
+async function loadCapacitacionesFromFirestore(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs, query, orderBy } = window.E140_DB;
+    const q = query(collection(db, 'capacitaciones'), orderBy('registrado_ts', 'desc'));
+    const snapshot = await getDocs(q);
+    capacitacionesData = [];
+    snapshot.forEach(s => capacitacionesData.push({ id: s.id, ...s.data() }));
+    console.log(`[E140] Capacitaciones cargadas: ${capacitacionesData.length}`);
+    if(currentTab === 'calidad-cap'){
+      try { renderCalidadCap(); } catch(e){}
+    }
+  } catch(err){
+    console.warn('[E140] No se pudieron cargar capacitaciones:', err.message || err);
+  }
 }
 
 
@@ -10683,6 +11448,7 @@ function cargarFotosFirestoreAsync(){
     loadFotosFromFirestore();
     loadInspeccionesSIGFromFirestore();
     loadPendientesFromFirestore();
+    loadCapacitacionesFromFirestore();
   };
   if(window._E140_FIREBASE_READY){
     ejecutar();
