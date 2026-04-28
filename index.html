@@ -6824,6 +6824,14 @@ function renderCalidadSIG(){
 
 function formatFechaCorta(input){
   if(!input) return '—';
+  // Si viene en formato ISO "YYYY-MM-DD" (de input type="date"), parseamos manualmente
+  // para evitar conversión a UTC que adelanta/atrasa el día.
+  if(typeof input === 'string'){
+    const m = input.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(m){
+      return `${m[3]}/${m[2]}/${m[1]}`;
+    }
+  }
   const d = new Date(input);
   if(isNaN(d.getTime())) return '—';
   const dd = String(d.getDate()).padStart(2,'0');
