@@ -320,6 +320,24 @@ body.audit-allowed .sb-item.audit-only{display:flex !important;}
 .sb-footer{padding:14px 18px;font-size:10px;color:var(--text-muted);border-top:1px solid var(--border);margin-top:auto;line-height:1.5;}
 .sb-footer b{color:var(--text);font-weight:700;display:block;margin-bottom:4px;font-size:11px;}
 
+/* Banner SSOMA en sidebar — discreto */
+.sb-ssoma-banner{margin:8px 12px 14px;padding:10px 12px;background:linear-gradient(135deg,#E7F4EE 0%,#D1ECDD 100%);border:1px solid #2D936C;border-left:3px solid #1A6B4A;border-radius:6px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s;}
+.sb-ssoma-banner:hover{transform:translateX(2px);box-shadow:0 2px 6px rgba(45,147,108,.2);}
+.sb-ssoma-banner.alerta{background:linear-gradient(135deg,#FBEAEA 0%,#F4D0D2 100%);border-color:#D64045;border-left-color:#8A2A2D;}
+.sb-ssoma-banner.warn{background:linear-gradient(135deg,#FFF4D6 0%,#FFE9B0 100%);border-color:#D6A847;border-left-color:#A0521E;}
+.sb-ssoma-icon{font-size:20px;flex-shrink:0;}
+.sb-ssoma-content{display:flex;flex-direction:column;line-height:1.1;min-width:0;}
+.sb-ssoma-num{font-family:'Bebas Neue',sans-serif;font-size:24px;color:#1A6B4A;letter-spacing:.5px;}
+.sb-ssoma-banner.alerta .sb-ssoma-num{color:#8A2A2D;}
+.sb-ssoma-banner.warn .sb-ssoma-num{color:#7A3F18;}
+.sb-ssoma-label{font-size:9.5px;color:#1A6B4A;text-transform:uppercase;letter-spacing:.04em;font-weight:600;}
+.sb-ssoma-banner.alerta .sb-ssoma-label{color:#8A2A2D;}
+.sb-ssoma-banner.warn .sb-ssoma-label{color:#7A3F18;}
+
+/* Cuando sidebar colapsado, mostrar solo el ícono */
+.app.sidebar-collapsed .sb-ssoma-banner{padding:8px;justify-content:center;margin:8px 4px;}
+.app.sidebar-collapsed .sb-ssoma-content{display:none;}
+
 /* ═════════ ÁREAS DESPLEGABLES (Operaciones, Arquitectura, etc.) ═════════ */
 .sb-area{
   display:flex;
@@ -1592,6 +1610,62 @@ body.role-viewer .admin-only{display:none !important;}
 .cap-estado-option.cap-opt-pendiente:has(input:checked) .cap-opt-titulo{color:#7A3F18;}
 
 /* ═══════════════════════════════════════════
+   SSOMA — Sistema in-situ
+   ═══════════════════════════════════════════ */
+
+/* Botones de acción rápida */
+.ssoma-btn-quick{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid var(--border-mid);background:#fff;color:var(--text);border-radius:6px;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.ssoma-btn-quick:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.08);}
+.ssoma-btn-charla{border-color:#0070B4;color:#0070B4;}
+.ssoma-btn-charla:hover{background:#E6F2FB;}
+.ssoma-btn-insp{border-color:#2D936C;color:#1A6B4A;}
+.ssoma-btn-insp:hover{background:#E7F4EE;}
+.ssoma-btn-incidente{border-color:#D64045;color:#8A2A2D;}
+.ssoma-btn-incidente:hover{background:#FBEAEA;}
+
+body.role-admin .ssoma-actions{display:flex !important;}
+
+/* Hero banner: días sin accidentes */
+.ssoma-hero-banner{background:linear-gradient(135deg,#E7F4EE 0%,#D1ECDD 100%);border:1.5px solid #2D936C;border-left:5px solid #1A6B4A;border-radius:10px;padding:20px 24px;margin-bottom:18px;display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:center;box-shadow:0 4px 16px rgba(45,147,108,.1);}
+.ssoma-hero-banner.alerta{background:linear-gradient(135deg,#FBEAEA 0%,#F4D0D2 100%);border-color:#D64045;border-left-color:#8A2A2D;box-shadow:0 4px 16px rgba(214,64,69,.15);}
+.ssoma-hero-banner.warn{background:linear-gradient(135deg,#FFF4D6 0%,#FFE9B0 100%);border-color:#D6A847;border-left-color:#A0521E;}
+.ssoma-hero-icon{font-size:54px;line-height:1;}
+.ssoma-hero-content{display:flex;flex-direction:column;gap:4px;}
+.ssoma-hero-label{font-size:11px;color:#1A6B4A;text-transform:uppercase;letter-spacing:.1em;font-weight:700;}
+.ssoma-hero-banner.alerta .ssoma-hero-label{color:#8A2A2D;}
+.ssoma-hero-banner.warn .ssoma-hero-label{color:#7A3F18;}
+.ssoma-hero-num{font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;color:#1A6B4A;letter-spacing:1px;}
+.ssoma-hero-banner.alerta .ssoma-hero-num{color:#8A2A2D;}
+.ssoma-hero-banner.warn .ssoma-hero-num{color:#7A3F18;}
+.ssoma-hero-sub{font-size:11.5px;color:var(--text-muted);font-style:italic;}
+.ssoma-hero-meta{display:flex;flex-direction:column;gap:8px;border-left:1px solid rgba(45,147,108,.3);padding-left:20px;}
+.ssoma-hero-banner.alerta .ssoma-hero-meta{border-left-color:rgba(214,64,69,.3);}
+.ssoma-hero-meta-item{display:flex;flex-direction:column;align-items:flex-end;}
+.ssoma-hero-meta-num{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;color:#1A6B4A;}
+.ssoma-hero-banner.alerta .ssoma-hero-meta-num{color:#8A2A2D;}
+.ssoma-hero-meta-lab{font-size:9.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600;}
+
+@media(max-width:900px){
+  .ssoma-hero-banner{grid-template-columns:1fr;text-align:center;}
+  .ssoma-hero-meta{flex-direction:row;justify-content:center;border-left:none;border-top:1px solid rgba(45,147,108,.3);padding-left:0;padding-top:12px;gap:24px;}
+  .ssoma-hero-meta-item{align-items:center;}
+}
+
+/* Tabla SSOMA — badges de tipo */
+.ssoma-tipo-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:11px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
+.ssoma-tipo-charla{background:#E6F2FB;color:#0070B4;}
+.ssoma-tipo-inspeccion{background:#E7F4EE;color:#1A6B4A;}
+.ssoma-tipo-incidente{background:#FBEAEA;color:#8A2A2D;}
+.ssoma-tipo-incidente.gravedad-alta{animation:pulseRed 1.5s ease infinite;}
+
+/* Severidad incidentes */
+.ssoma-severidad{display:inline-block;padding:2px 7px;border-radius:3px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
+.ssoma-sev-incidente{background:#E6F2FB;color:#0070B4;}
+.ssoma-sev-casi{background:#FFF8EE;color:#A0521E;}
+.ssoma-sev-leve{background:#FFF4D6;color:#7A5800;}
+.ssoma-sev-tp{background:#FBEAEA;color:#8A2A2D;}
+
+/* ═══════════════════════════════════════════
    PENDIENTES — Sistema de tareas
    ═══════════════════════════════════════════ */
 
@@ -2623,6 +2697,299 @@ body.role-viewer .admin-only{display:none !important;}
 </div>
 
 <!-- ═══════════════════════════════════════════
+     MODAL: CHARLA DIARIA DE 5 MINUTOS
+     ═══════════════════════════════════════════ -->
+<div class="modal-backdrop" id="charlaModal">
+  <div class="modal-card" style="max-width:560px;">
+    <div class="modal-head" style="background:linear-gradient(135deg,#0070B4 0%,#005580 100%);">
+      <div>
+        <h2>📢 CHARLA DIARIA · 5 MIN</h2>
+        <p>Registro rápido de la charla SSOMA del día</p>
+      </div>
+      <button class="modal-close" onclick="closeCharlaModal()" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="area-info-banner" style="background:#E6F2FB;border-left-color:#0070B4;">
+        <b>📝 Charla diaria</b> · Registro rápido del tema, asistentes y opcionalmente foto del grupo. Suma a las métricas de capacitación SSOMA.
+      </div>
+
+      <div class="sig-form">
+        <div class="sig-form-row">
+          <div class="sig-form-field">
+            <label>Fecha <span style="color:#D64045;">*</span></label>
+            <input type="date" id="charlaFecha">
+          </div>
+          <div class="sig-form-field">
+            <label># Asistentes <span style="color:#D64045;">*</span></label>
+            <input type="number" id="charlaAsistentes" placeholder="25" min="1" step="1">
+          </div>
+        </div>
+        <div class="sig-form-field">
+          <label>Tema de la charla <span style="color:#D64045;">*</span></label>
+          <input type="text" id="charlaTema" placeholder="Ej: Trabajos en altura · Uso correcto del arnés" maxlength="180">
+        </div>
+        <div class="sig-form-row">
+          <div class="sig-form-field">
+            <label>Responsable / Capacitador</label>
+            <input type="text" id="charlaResponsable" placeholder="Jorge Odar" autocomplete="off">
+          </div>
+          <div class="sig-form-field">
+            <label>Duración (min)</label>
+            <input type="number" id="charlaDuracion" value="5" min="1" max="60" step="1">
+          </div>
+        </div>
+        <div class="sig-form-field">
+          <label>Observaciones (opcional)</label>
+          <textarea id="charlaObs" rows="2" placeholder="Comentarios, evidencias verbales, etc."></textarea>
+        </div>
+        <div class="sig-form-field">
+          <label>📎 Foto / lista firmada (opcional)</label>
+          <div class="dropzone sig-dropzone" id="charlaDropzone" onclick="document.getElementById('charlaFileInput').click()" style="padding:14px;">
+            <div class="dropzone-icon" style="font-size:22px;">📷</div>
+            <div class="dropzone-title" style="font-size:11.5px;" id="charlaDropzoneTitle">FOTO DEL GRUPO O LISTA FIRMADA</div>
+            <div class="dropzone-subtitle" style="font-size:10.5px;">PDF o imagen · Hasta 10 MB</div>
+            <input type="file" id="charlaFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none">
+          </div>
+        </div>
+      </div>
+
+      <div class="fotos-progress-banner" id="charlaProgressBanner" style="display:none;">
+        <div class="fotos-progress-header">
+          <span class="fotos-progress-icon" id="charlaProgressIcon">⏳</span>
+          <span class="fotos-progress-text" id="charlaProgressText">—</span>
+        </div>
+        <div class="fotos-progress-bar"><div class="fotos-progress-fill" id="charlaProgressFill" style="width:0%"></div></div>
+        <div class="fotos-progress-detail" id="charlaProgressDetail"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="hdr-btn" onclick="closeCharlaModal()">Cancelar</button>
+      <button class="hdr-btn hdr-btn-primary" id="charlaPublishBtn" onclick="publicarCharla()" style="background:#0070B4;color:#fff;border-color:#0070B4;">
+        🚀 Registrar charla
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: INSPECCIÓN SST
+     ═══════════════════════════════════════════ -->
+<div class="modal-backdrop" id="inspSstModal">
+  <div class="modal-card" style="max-width:620px;">
+    <div class="modal-head" style="background:linear-gradient(135deg,#2D936C 0%,#1A6B4A 100%);">
+      <div>
+        <h2>📋 INSPECCIÓN SST</h2>
+        <p>Inspección de seguridad y salud en obra</p>
+      </div>
+      <button class="modal-close" onclick="closeInspeccionSstModal()" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="area-info-banner" style="background:#E7F4EE;border-left-color:#2D936C;">
+        <b>📋 Inspección SST</b> · Registra el % de cumplimiento detectado durante la inspección. Suma al indicador de cumplimiento de inspecciones.
+      </div>
+
+      <div class="sig-form">
+        <div class="sig-form-row">
+          <div class="sig-form-field">
+            <label>Tipo de inspección <span style="color:#D64045;">*</span></label>
+            <select id="inspTipo">
+              <option value="iperc">IPERC</option>
+              <option value="ats">ATS · Análisis de Trabajo Seguro</option>
+              <option value="epp">EPP · Equipo de Protección</option>
+              <option value="orden_limpieza">Orden y Limpieza (5S)</option>
+              <option value="alturas">Trabajos en Altura</option>
+              <option value="electrica">Eléctrica</option>
+              <option value="general">Inspección General</option>
+            </select>
+          </div>
+          <div class="sig-form-field">
+            <label>Fecha <span style="color:#D64045;">*</span></label>
+            <input type="date" id="inspFecha">
+          </div>
+        </div>
+        <div class="sig-form-row">
+          <div class="sig-form-field">
+            <label>% Cumplimiento <span style="color:#D64045;">*</span></label>
+            <div class="sig-input-suffix">
+              <input type="number" id="inspCumplimiento" placeholder="95" min="0" max="100" step="1">
+              <span class="sig-suffix">%</span>
+            </div>
+          </div>
+          <div class="sig-form-field">
+            <label>Inspector / Responsable</label>
+            <input type="text" id="inspResponsable" placeholder="Jorge Odar" autocomplete="off">
+          </div>
+        </div>
+        <div class="sig-form-field">
+          <label>Área / Frente inspeccionado</label>
+          <input type="text" id="inspArea" placeholder="Ej: Sótano 3 · Frente losa" maxlength="120">
+        </div>
+        <div class="sig-form-field">
+          <label>Hallazgos / Observaciones</label>
+          <textarea id="inspHallazgos" rows="3" placeholder="Detalla los hallazgos detectados, acciones tomadas o pendientes."></textarea>
+        </div>
+        <div class="sig-form-field">
+          <label>📎 PDF de la inspección (opcional)</label>
+          <div class="dropzone sig-dropzone" id="inspDropzone" onclick="document.getElementById('inspFileInput').click()" style="padding:14px;">
+            <div class="dropzone-icon" style="font-size:22px;">📄</div>
+            <div class="dropzone-title" style="font-size:11.5px;" id="inspDropzoneTitle">CARGAR PDF DE LA INSPECCIÓN</div>
+            <div class="dropzone-subtitle" style="font-size:10.5px;">Hasta 10 MB</div>
+            <input type="file" id="inspFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none">
+          </div>
+        </div>
+      </div>
+
+      <div class="fotos-progress-banner" id="inspProgressBanner" style="display:none;">
+        <div class="fotos-progress-header">
+          <span class="fotos-progress-icon" id="inspProgressIcon">⏳</span>
+          <span class="fotos-progress-text" id="inspProgressText">—</span>
+        </div>
+        <div class="fotos-progress-bar"><div class="fotos-progress-fill" id="inspProgressFill" style="width:0%"></div></div>
+        <div class="fotos-progress-detail" id="inspProgressDetail"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="hdr-btn" onclick="closeInspeccionSstModal()">Cancelar</button>
+      <button class="hdr-btn hdr-btn-primary" id="inspPublishBtn" onclick="publicarInspeccionSst()" style="background:#2D936C;color:#fff;border-color:#2D936C;">
+        🚀 Registrar inspección
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: INCIDENTE / ACCIDENTE
+     ═══════════════════════════════════════════ -->
+<div class="modal-backdrop" id="incidenteModal">
+  <div class="modal-card" style="max-width:700px;max-height:92vh;">
+    <div class="modal-head" style="background:linear-gradient(135deg,#D64045 0%,#8A2A2D 100%);">
+      <div>
+        <h2>🚨 REPORTAR INCIDENTE</h2>
+        <p>Registro oficial · trazabilidad ISO 45001</p>
+      </div>
+      <button class="modal-close" onclick="closeIncidenteModal()" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="area-info-banner" style="background:#FBEAEA;border-left-color:#D64045;">
+        <b>⚠️ Reporte oficial</b> · Toda la información queda registrada para reportes a gerencia y auditorías. Si es <b>accidente con tiempo perdido</b>, los días sin accidentes se reinician automáticamente.
+      </div>
+
+      <div class="sig-form">
+        <div class="sig-form-field">
+          <label>Severidad <span style="color:#D64045;">*</span></label>
+          <div class="cap-estado-options">
+            <label class="cap-estado-option" style="border-color:#BFE0F5;">
+              <input type="radio" name="incSeveridad" value="incidente">
+              <span class="cap-opt-icon" style="color:#0070B4;">ℹ</span>
+              <div>
+                <div class="cap-opt-titulo">INCIDENTE</div>
+                <div class="cap-opt-sub">Sin daño a personas ni equipos</div>
+              </div>
+            </label>
+            <label class="cap-estado-option" style="border-color:#E5C792;">
+              <input type="radio" name="incSeveridad" value="casi_accidente">
+              <span class="cap-opt-icon" style="color:#A0521E;">⚠</span>
+              <div>
+                <div class="cap-opt-titulo">CASI ACCIDENTE</div>
+                <div class="cap-opt-sub">Pudo ocurrir pero no pasó</div>
+              </div>
+            </label>
+            <label class="cap-estado-option" style="border-color:#E5C792;">
+              <input type="radio" name="incSeveridad" value="accidente_leve">
+              <span class="cap-opt-icon" style="color:#7A5800;">🩹</span>
+              <div>
+                <div class="cap-opt-titulo">ACCIDENTE LEVE</div>
+                <div class="cap-opt-sub">Sin tiempo perdido (regresó al trabajo)</div>
+              </div>
+            </label>
+            <label class="cap-estado-option" style="border-color:#E5A4A6;">
+              <input type="radio" name="incSeveridad" value="accidente_tp">
+              <span class="cap-opt-icon" style="color:#D64045;">🚨</span>
+              <div>
+                <div class="cap-opt-titulo">ACCIDENTE CON TIEMPO PERDIDO</div>
+                <div class="cap-opt-sub">Reinicia el contador de días</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="sig-form-row">
+          <div class="sig-form-field">
+            <label>Fecha del evento <span style="color:#D64045;">*</span></label>
+            <input type="date" id="incFecha">
+          </div>
+          <div class="sig-form-field">
+            <label>Hora aproximada</label>
+            <input type="time" id="incHora">
+          </div>
+        </div>
+
+        <div class="sig-form-row">
+          <div class="sig-form-field">
+            <label>Trabajador involucrado</label>
+            <input type="text" id="incTrabajador" placeholder="Nombre completo (si aplica)" maxlength="100">
+          </div>
+          <div class="sig-form-field">
+            <label>Cargo / Especialidad</label>
+            <input type="text" id="incCargo" placeholder="Ej: Operario · Albañil" maxlength="60">
+          </div>
+        </div>
+
+        <div class="sig-form-field">
+          <label>Área / Frente <span style="color:#D64045;">*</span></label>
+          <input type="text" id="incArea" placeholder="Ej: Sótano 3 · Frente losa" maxlength="120">
+        </div>
+
+        <div class="sig-form-field">
+          <label>Descripción del evento <span style="color:#D64045;">*</span></label>
+          <textarea id="incDescripcion" rows="3" placeholder="Describe qué pasó, dónde, cómo, condiciones del lugar."></textarea>
+        </div>
+
+        <div class="sig-form-field">
+          <label>Causas identificadas</label>
+          <textarea id="incCausas" rows="2" placeholder="Causas inmediatas y básicas detectadas."></textarea>
+        </div>
+
+        <div class="sig-form-field">
+          <label>Acciones tomadas / por tomar</label>
+          <textarea id="incAcciones" rows="2" placeholder="Atención inmediata, medidas correctivas y preventivas."></textarea>
+        </div>
+
+        <div class="sig-form-field" id="incDiasPerdidosWrap" style="display:none;">
+          <label>Días perdidos estimados <span style="color:#D64045;">*</span></label>
+          <input type="number" id="incDiasPerdidos" placeholder="Ej: 3" min="0" step="1">
+        </div>
+
+        <div class="sig-form-field">
+          <label>📎 Adjunto · PDF / foto / informe (opcional)</label>
+          <div class="dropzone sig-dropzone" id="incDropzone" onclick="document.getElementById('incFileInput').click()" style="padding:14px;">
+            <div class="dropzone-icon" style="font-size:22px;">📎</div>
+            <div class="dropzone-title" style="font-size:11.5px;" id="incDropzoneTitle">CARGAR ARCHIVO</div>
+            <div class="dropzone-subtitle" style="font-size:10.5px;">PDF o imagen · Hasta 10 MB</div>
+            <input type="file" id="incFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none">
+          </div>
+        </div>
+      </div>
+
+      <div class="fotos-progress-banner" id="incProgressBanner" style="display:none;">
+        <div class="fotos-progress-header">
+          <span class="fotos-progress-icon" id="incProgressIcon">⏳</span>
+          <span class="fotos-progress-text" id="incProgressText">—</span>
+        </div>
+        <div class="fotos-progress-bar"><div class="fotos-progress-fill" id="incProgressFill" style="width:0%"></div></div>
+        <div class="fotos-progress-detail" id="incProgressDetail"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="hdr-btn" onclick="closeIncidenteModal()">Cancelar</button>
+      <button class="hdr-btn hdr-btn-primary" id="incPublishBtn" onclick="publicarIncidente()" style="background:#D64045;color:#fff;border-color:#D64045;">
+        🚨 Reportar incidente
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
      PANEL DE AYUDA LATERAL
      ═══════════════════════════════════════════ -->
 <div class="help-overlay" id="helpOverlay" onclick="toggleHelp()"></div>
@@ -2734,6 +3101,15 @@ body.role-viewer .admin-only{display:none !important;}
       <div class="sb-brand-info">
         <h2>ESPARQ 140</h2>
         <p>Fase 2 · Dashboard Semanal</p>
+      </div>
+    </div>
+
+    <!-- Banner discreto de SSOMA: días sin accidentes -->
+    <div class="sb-ssoma-banner" id="sbSsomaBanner" onclick="setTab('ssoma-sst')" title="Click para ver detalle SSOMA">
+      <span class="sb-ssoma-icon" id="sbSsomaIcon">🟢</span>
+      <div class="sb-ssoma-content">
+        <div class="sb-ssoma-num" id="sbSsomaDias">—</div>
+        <div class="sb-ssoma-label">días sin accidentes</div>
       </div>
     </div>
 
@@ -3707,63 +4083,154 @@ body.role-viewer .admin-only{display:none !important;}
            SSOMA · 1. SEGURIDAD Y SALUD EN EL TRABAJO (ISO 45001)
            ═══════════════════════════════════════════ -->
       <section class="section" id="sec-ssoma-sst">
-        <div class="section-header">Seguridad y Salud en el Trabajo · ISO 45001</div>
-        <div class="section-subheader">Fuente: <b>Reporte mensual SSOMA</b></div>
+        <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <span>Seguridad y Salud en el Trabajo · ISO 45001</span>
+          <div class="ssoma-actions admin-only" style="display:none;flex-wrap:wrap;gap:6px;">
+            <button class="ssoma-btn-quick ssoma-btn-charla" onclick="openCharlaModal()" title="Registrar charla diaria de 5 min">
+              <span>📢</span> Charla Diaria
+            </button>
+            <button class="ssoma-btn-quick ssoma-btn-insp" onclick="openInspeccionSstModal()" title="Registrar inspección SST">
+              <span>📋</span> Inspección
+            </button>
+            <button class="ssoma-btn-quick ssoma-btn-incidente" onclick="openIncidenteModal()" title="Reportar incidente o accidente">
+              <span>🚨</span> Incidente
+            </button>
+          </div>
+        </div>
+        <div class="section-subheader">Fuente: <b>Sistema SSOMA in-situ</b> · Reportes diarios desde obra · Cálculo automático de indicadores ISO 45001</div>
 
-        <div class="ssoma-note">
-          <span class="ssoma-note-icon">📅</span>
-          <div>
-            <b>Indicador mensual</b> — Los datos mostrados corresponden al cierre mensual SSOMA, no al cierre semanal del proyecto. Se actualizan al cierre de cada mes.
+        <!-- Banner días sin accidentes -->
+        <div class="ssoma-hero-banner" id="ssomaHeroBanner">
+          <div class="ssoma-hero-icon" id="ssomaHeroIcon">🟢</div>
+          <div class="ssoma-hero-content">
+            <div class="ssoma-hero-label">DÍAS SIN ACCIDENTES CON TIEMPO PERDIDO</div>
+            <div class="ssoma-hero-num" id="ssomaHeroNum">—</div>
+            <div class="ssoma-hero-sub" id="ssomaHeroSub">—</div>
+          </div>
+          <div class="ssoma-hero-meta">
+            <div class="ssoma-hero-meta-item">
+              <span class="ssoma-hero-meta-num" id="ssomaHeroAcc">0</span>
+              <span class="ssoma-hero-meta-lab">Acc. en el proyecto</span>
+            </div>
+            <div class="ssoma-hero-meta-item">
+              <span class="ssoma-hero-meta-num" id="ssomaHeroDP">0</span>
+              <span class="ssoma-hero-meta-lab">Días perdidos</span>
+            </div>
           </div>
         </div>
 
-        <div class="ssoma-alcance" style="background:#FFF8E1;border-left-color:#F57C00;">
-          <span class="ssoma-alcance-icon" style="color:#F57C00;">⏳</span>
-          <span><b>Información pendiente:</b> los indicadores SSOMA del proyecto E140 ESPARQ 140 quedan en <b>estado pendiente hasta la Semana 38</b>, fecha en la cual se cargará la información oficial actualizada por el responsable SSOMA.</span>
-        </div>
-
-        <!-- Panel KPIs SST -->
-        <div class="kpi-strip" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px">
+        <!-- Panel KPIs principales -->
+        <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
           <div class="kpi-card k-orange">
-            <div class="kpi-label">IF · Tasa de Frecuencia de Accidentes</div>
+            <div class="kpi-label">IF · Tasa de Frecuencia</div>
             <div class="kpi-value" id="ssomaIF">—</div>
-            <div class="kpi-sublabel">Accidentes con tiempo perdido × 1,000,000 / HH trabajadas</div>
+            <div class="kpi-sublabel" id="ssomaIFDetalle">Cálculo automático según OSHA</div>
             <div class="kpi-meta-footer" style="margin-top:10px">
-              <span class="kpi-meta-target">▲ Meta: ≤ 5</span>
-              <span class="kpi-meta-status kpi-meta-seguimiento" id="ssomaIFStatus">⚠ En seguimiento</span>
+              <span class="kpi-meta-target">▼ Meta: ≤ 5</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="ssomaIFStatus">—</span>
+            </div>
+          </div>
+          <div class="kpi-card k-orange">
+            <div class="kpi-label">IG · Tasa de Gravedad</div>
+            <div class="kpi-value" id="ssomaIG">—</div>
+            <div class="kpi-sublabel" id="ssomaIGDetalle">Cálculo automático según OSHA</div>
+            <div class="kpi-meta-footer" style="margin-top:10px">
+              <span class="kpi-meta-target">▼ Meta: ≤ 100</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="ssomaIGStatus">—</span>
             </div>
           </div>
           <div class="kpi-card k-green">
-            <div class="kpi-label">% Inspecciones y Reportes SST</div>
+            <div class="kpi-label">% Cumplimiento Inspecciones</div>
             <div class="kpi-value" id="ssomaInsp">—</div>
-            <div class="kpi-sublabel" id="ssomaInspDetalle">Inspecciones ejecutadas / programadas</div>
+            <div class="kpi-sublabel" id="ssomaInspDetalle">Promedio de cumplimiento</div>
             <div class="kpi-meta-footer" style="margin-top:10px">
-              <span class="kpi-meta-target">▲ Meta: ≥ 95%</span>
-              <span class="kpi-meta-status kpi-meta-cumple" id="ssomaInspStatus">✓ Cumple</span>
+              <span class="kpi-meta-target">▲ Meta: ≥ 90%</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="ssomaInspStatus">—</span>
             </div>
           </div>
-          <div class="kpi-card" style="border-top:4px solid var(--red)">
-            <div class="kpi-label">Accidentes / Días Perdidos</div>
-            <div class="kpi-value" id="ssomaAcc">—</div>
-            <div class="kpi-sublabel">Accidentes con tiempo perdido / Días perdidos totales</div>
+          <div class="kpi-card k-primary">
+            <div class="kpi-label">Charlas 5 min · Mes Actual</div>
+            <div class="kpi-value" id="ssomaCharlas">—</div>
+            <div class="kpi-sublabel" id="ssomaCharlasDetalle">Charlas dictadas este mes</div>
             <div class="kpi-meta-footer" style="margin-top:10px">
-              <span class="kpi-meta-target">▲ Meta: 0 accidentes</span>
-              <span class="kpi-meta-status kpi-meta-nocumple" id="ssomaAccStatus">✗ No cumple</span>
+              <span class="kpi-meta-target">▲ Diaria</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="ssomaCharlasStatus">—</span>
             </div>
           </div>
         </div>
 
-        <!-- Panel KPIs adicionales SST -->
-        <div class="kpi-strip" style="grid-template-columns:repeat(2,1fr);margin-bottom:18px">
-          <div class="kpi-card k-primary">
+        <!-- Panel KPIs secundarios -->
+        <div class="kpi-strip" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px">
+          <div class="kpi-card k-dark">
             <div class="kpi-label">Trabajadores Totales</div>
             <div class="kpi-value" id="ssomaTrab">—</div>
-            <div class="kpi-sublabel">Personal en obra con reporte SSOMA activo</div>
+            <div class="kpi-sublabel">Personal con reporte SSOMA activo</div>
           </div>
           <div class="kpi-card k-dark">
-            <div class="kpi-label">HH Trabajadas</div>
+            <div class="kpi-label">HH Trabajadas Acumuladas</div>
             <div class="kpi-value" id="ssomaHH">—</div>
-            <div class="kpi-sublabel">Horas-hombre acumuladas en el período</div>
+            <div class="kpi-sublabel">Horas-hombre del proyecto</div>
+          </div>
+          <div class="kpi-card k-dark">
+            <div class="kpi-label">Personal Capacitado SSOMA</div>
+            <div class="kpi-value" id="ssomaPersCap">—</div>
+            <div class="kpi-sublabel">Asistentes acumulados a charlas</div>
+          </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="aud-card" style="margin-bottom:14px;">
+          <div class="aud-card-header">
+            <span class="aud-card-icon">🔎</span>
+            <span class="aud-card-title">Filtros del histórico SSOMA</span>
+          </div>
+          <div class="aud-filters" style="grid-template-columns:160px 160px 1fr;">
+            <div class="aud-filter-group">
+              <label>Tipo de reporte</label>
+              <select id="ssomaFiltroTipo" onchange="renderSsomaSstHistorial()">
+                <option value="">Todos</option>
+                <option value="charla">📢 Charla diaria</option>
+                <option value="inspeccion">📋 Inspección</option>
+                <option value="incidente">🚨 Incidente</option>
+              </select>
+            </div>
+            <div class="aud-filter-group">
+              <label>Mes</label>
+              <select id="ssomaFiltroMes" onchange="renderSsomaSstHistorial()">
+                <option value="">Todos</option>
+              </select>
+            </div>
+            <div class="aud-filter-group">
+              <label>Buscar</label>
+              <input type="text" id="ssomaFiltroBuscar" placeholder="Tema, área, responsable, descripción…" oninput="renderSsomaSstHistorial()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Histórico de eventos SSOMA -->
+        <div class="aud-card">
+          <div class="aud-card-header">
+            <span class="aud-card-icon">📋</span>
+            <span class="aud-card-title">Histórico de Reportes SSOMA</span>
+            <span class="aud-card-badge" id="ssomaSstFoot">—</span>
+          </div>
+          <div class="aud-table-wrap">
+            <table class="aud-table">
+              <thead>
+                <tr>
+                  <th class="td-center">Tipo</th>
+                  <th class="td-center">Fecha</th>
+                  <th>Tema / Descripción</th>
+                  <th>Responsable</th>
+                  <th class="td-center">Detalle</th>
+                  <th class="td-center">Adjunto</th>
+                  <th class="td-center audit-only" style="display:none;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="ssomaSstTabla">
+                <tr><td colspan="7" class="aud-empty">⏳ Cargando reportes…</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -7310,30 +7777,287 @@ function renderArrendamiento(){
    Datos mensuales (cierre del mes anterior por ahora hardcoded)
    ═══════════════════════════════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════════════════════════════
+   SSOMA · Sistema in-situ
+   - Reportes: charlas diarias, inspecciones SST, incidentes/accidentes
+   - Cálculo automático de IF, IG, días sin accidentes
+   ═══════════════════════════════════════════════════════════════════ */
+
+let ssomaReportesData = [];   // Cache de TODOS los reportes (charlas, inspecciones, incidentes)
+let ssomaReporteEditCtx = null; // {tipo, id} cuando se edita un reporte
+
+// Estimaciones para cálculo de IF/IG (modificar según data real)
+const SSOMA_HH_PROMEDIO_TRABAJADOR = 200; // HH/mes por trabajador (8h × 25 días aprox)
+const SSOMA_TRABAJADORES_TOTALES   = 100; // Estimado dinámico (se puede cargar desde personal)
+
 function renderSsomaSST(){
-  // ⚠ DATA PENDIENTE — Todos los indicadores SSOMA quedan en estado pendiente
-  // hasta la SEMANA 38. No se muestran cifras hasta que se reciba la información
-  // oficial actualizada del responsable SSOMA.
+  // Procesar todos los reportes para calcular indicadores
+  const reportes = [...ssomaReportesData];
+  const charlas     = reportes.filter(r => r.tipo === 'charla');
+  const inspecciones = reportes.filter(r => r.tipo === 'inspeccion');
+  const incidentes  = reportes.filter(r => r.tipo === 'incidente');
+  const accTP       = incidentes.filter(r => r.severidad === 'accidente_tp');
+  const totalDiasPerdidos = accTP.reduce((s, x) => s + (Number(x.dias_perdidos) || 0), 0);
 
-  // Valores en placeholder
-  document.getElementById('ssomaIF').textContent = '—';
-  document.getElementById('ssomaInsp').textContent = '—';
-  document.getElementById('ssomaInspDetalle').textContent = 'Pendiente · se actualiza en Semana 38';
-  document.getElementById('ssomaAcc').textContent = '—';
-  document.getElementById('ssomaTrab').textContent = '—';
-  document.getElementById('ssomaHH').textContent = '—';
+  // ─── Cálculo de días sin accidentes con tiempo perdido ───
+  // Tomamos el último accidente con tiempo perdido y contamos días desde ese punto.
+  // Si nunca hubo accidente, contamos desde el inicio del proyecto.
+  const PROYECTO_INICIO_SSOMA = new Date(2025, 7, 11); // 11 Ago 2025
+  let fechaReferencia = PROYECTO_INICIO_SSOMA;
+  if(accTP.length > 0){
+    const ultimoAccTP = accTP.sort((a, b) => {
+      const da = new Date(a.fecha || 0).getTime();
+      const db = new Date(b.fecha || 0).getTime();
+      return db - da;
+    })[0];
+    if(ultimoAccTP.fecha){
+      const m = ultimoAccTP.fecha.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if(m){
+        fechaReferencia = new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3]));
+      }
+    }
+  }
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const diasSinAcc = Math.max(0, Math.floor((hoy.getTime() - fechaReferencia.getTime()) / (24 * 60 * 60 * 1000)));
 
-  // Estados: todos en "pendiente" (estilo seguimiento)
-  const setPendiente = (id) => {
-    const el = document.getElementById(id);
-    if(!el) return;
-    el.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
+  // ─── Banner hero (en SSOMA) ───
+  const elHeroBanner = document.getElementById('ssomaHeroBanner');
+  const elHeroIcon = document.getElementById('ssomaHeroIcon');
+  const elHeroNum = document.getElementById('ssomaHeroNum');
+  const elHeroSub = document.getElementById('ssomaHeroSub');
+  const elHeroAcc = document.getElementById('ssomaHeroAcc');
+  const elHeroDP = document.getElementById('ssomaHeroDP');
+
+  if(elHeroBanner){
+    elHeroBanner.classList.remove('alerta', 'warn');
+    if(diasSinAcc <= 7){
+      elHeroBanner.classList.add('alerta');
+      elHeroIcon.textContent = '🔴';
+    } else if(diasSinAcc <= 30){
+      elHeroBanner.classList.add('warn');
+      elHeroIcon.textContent = '🟡';
+    } else {
+      elHeroIcon.textContent = '🟢';
+    }
+    elHeroNum.textContent = diasSinAcc;
+    if(accTP.length === 0){
+      elHeroSub.textContent = `Desde el inicio del proyecto · ${formatFechaCorta('2025-08-11')}`;
+    } else {
+      elHeroSub.textContent = `Último accidente con TP: ${formatFechaCorta(accTP[0].fecha)}`;
+    }
+    elHeroAcc.textContent = accTP.length;
+    elHeroDP.textContent = totalDiasPerdidos;
+  }
+
+  // ─── Banner sidebar ───
+  actualizarBannerSidebarSsoma(diasSinAcc, accTP.length);
+
+  // ─── Cálculo IF y IG ─── (estimación con HH proyectadas)
+  // Calculamos HH como meses transcurridos × trabajadores × HH/mes
+  const mesesTranscurridos = Math.max(1, (hoy.getTime() - PROYECTO_INICIO_SSOMA.getTime()) / (30 * 24 * 60 * 60 * 1000));
+  const hhTrabajadasEstimadas = Math.round(mesesTranscurridos * SSOMA_TRABAJADORES_TOTALES * SSOMA_HH_PROMEDIO_TRABAJADOR);
+
+  // IF = (Acc TP × 1,000,000) / HH
+  const indFrec = hhTrabajadasEstimadas > 0
+    ? (accTP.length * 1000000) / hhTrabajadasEstimadas
+    : 0;
+  // IG = (Días perdidos × 1,000,000) / HH
+  const indGrav = hhTrabajadasEstimadas > 0
+    ? (totalDiasPerdidos * 1000000) / hhTrabajadasEstimadas
+    : 0;
+
+  document.getElementById('ssomaIF').textContent = indFrec.toFixed(2);
+  document.getElementById('ssomaIFDetalle').textContent = `${accTP.length} acc. TP / ${hhTrabajadasEstimadas.toLocaleString('es-PE')} HH`;
+  setKpiStatus('ssomaIFStatus', indFrec, 5, 'max');
+
+  document.getElementById('ssomaIG').textContent = indGrav.toFixed(1);
+  document.getElementById('ssomaIGDetalle').textContent = `${totalDiasPerdidos} días perdidos × 10⁶ / HH`;
+  setKpiStatus('ssomaIGStatus', indGrav, 100, 'max');
+
+  // ─── % Cumplimiento de inspecciones (promedio) ───
+  const promInsp = inspecciones.length > 0
+    ? inspecciones.reduce((s, x) => s + (Number(x.cumplimiento_pct) || 0), 0) / inspecciones.length
+    : null;
+  if(promInsp !== null){
+    document.getElementById('ssomaInsp').textContent = promInsp.toFixed(0) + '%';
+    document.getElementById('ssomaInspDetalle').textContent = `${inspecciones.length} inspección${inspecciones.length === 1 ? '' : 'es'} registrada${inspecciones.length === 1 ? '' : 's'}`;
+    setKpiStatus('ssomaInspStatus', promInsp, 90, 'min');
+  } else {
+    document.getElementById('ssomaInsp').textContent = '—';
+    document.getElementById('ssomaInspDetalle').textContent = 'Sin inspecciones registradas';
+    setKpiStatus('ssomaInspStatus', null, 90, 'min');
+  }
+
+  // ─── Charlas del mes actual ───
+  const ahoraMes = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
+  const charlasMes = charlas.filter(c => (c.fecha || '').startsWith(ahoraMes));
+  document.getElementById('ssomaCharlas').textContent = charlasMes.length;
+  document.getElementById('ssomaCharlasDetalle').textContent = `${charlas.length} charla${charlas.length === 1 ? '' : 's'} acumuladas en el proyecto`;
+  const elCharlasSt = document.getElementById('ssomaCharlasStatus');
+  elCharlasSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
+  if(charlasMes.length >= 20){ elCharlasSt.classList.add('kpi-meta-cumple'); elCharlasSt.textContent = '✓ Buen ritmo'; }
+  else if(charlasMes.length >= 10){ elCharlasSt.classList.add('kpi-meta-seguimiento'); elCharlasSt.textContent = '⚠ A media'; }
+  else { elCharlasSt.classList.add('kpi-meta-nocumple'); elCharlasSt.textContent = '✗ Bajo'; }
+
+  // ─── Indicadores secundarios ───
+  document.getElementById('ssomaTrab').textContent = SSOMA_TRABAJADORES_TOTALES;
+  document.getElementById('ssomaHH').textContent = hhTrabajadasEstimadas.toLocaleString('es-PE');
+  const totalAsist = charlas.reduce((s, c) => s + (Number(c.asistentes) || 0), 0);
+  document.getElementById('ssomaPersCap').textContent = totalAsist.toLocaleString('es-PE');
+
+  // ─── Llenar filtro de meses ───
+  llenarFiltroMesSsoma();
+
+  // ─── Tabla histórica ───
+  renderSsomaSstHistorial();
+}
+
+function setKpiStatus(id, valor, meta, modo){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
+  if(valor == null || isNaN(valor)){
     el.classList.add('kpi-meta-seguimiento');
-    el.textContent = '⏳ Pendiente Sem 38';
-  };
-  setPendiente('ssomaIFStatus');
-  setPendiente('ssomaInspStatus');
-  setPendiente('ssomaAccStatus');
+    el.textContent = '—';
+    return;
+  }
+  if(modo === 'max'){
+    if(valor === 0){ el.classList.add('kpi-meta-cumple'); el.textContent = '✓ Sin eventos'; }
+    else if(valor <= meta){ el.classList.add('kpi-meta-cumple'); el.textContent = '✓ Cumple'; }
+    else if(valor <= meta * 1.5){ el.classList.add('kpi-meta-seguimiento'); el.textContent = '⚠ En seguimiento'; }
+    else { el.classList.add('kpi-meta-nocumple'); el.textContent = '✗ Excede meta'; }
+  } else {
+    if(valor >= meta){ el.classList.add('kpi-meta-cumple'); el.textContent = '✓ Cumple'; }
+    else if(valor >= meta * 0.85){ el.classList.add('kpi-meta-seguimiento'); el.textContent = '⚠ En seguimiento'; }
+    else { el.classList.add('kpi-meta-nocumple'); el.textContent = '✗ No cumple'; }
+  }
+}
+
+function actualizarBannerSidebarSsoma(diasSinAcc, totalAccTP){
+  const banner = document.getElementById('sbSsomaBanner');
+  const icon = document.getElementById('sbSsomaIcon');
+  const num = document.getElementById('sbSsomaDias');
+  if(!banner || !num) return;
+  banner.classList.remove('alerta','warn');
+  if(diasSinAcc <= 7){
+    banner.classList.add('alerta');
+    if(icon) icon.textContent = '🔴';
+  } else if(diasSinAcc <= 30){
+    banner.classList.add('warn');
+    if(icon) icon.textContent = '🟡';
+  } else {
+    if(icon) icon.textContent = '🟢';
+  }
+  num.textContent = diasSinAcc;
+}
+
+function llenarFiltroMesSsoma(){
+  const select = document.getElementById('ssomaFiltroMes');
+  if(!select) return;
+  const meses = new Set();
+  ssomaReportesData.forEach(r => {
+    if(r.fecha){
+      const m = r.fecha.match(/^(\d{4})-(\d{2})/);
+      if(m) meses.add(`${m[1]}-${m[2]}`);
+    }
+  });
+  const mesesOrdenados = Array.from(meses).sort().reverse();
+  const cur = select.value;
+  select.innerHTML = '<option value="">Todos</option>' + mesesOrdenados.map(mes => {
+    const [y, m] = mes.split('-');
+    const nombres = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    return `<option value="${mes}">${nombres[parseInt(m) - 1]} ${y}</option>`;
+  }).join('');
+  if(mesesOrdenados.includes(cur)) select.value = cur;
+}
+
+function renderSsomaSstHistorial(){
+  const tbody = document.getElementById('ssomaSstTabla');
+  const foot = document.getElementById('ssomaSstFoot');
+  if(!tbody) return;
+
+  const fTipo = document.getElementById('ssomaFiltroTipo')?.value || '';
+  const fMes = document.getElementById('ssomaFiltroMes')?.value || '';
+  const fTxt = (document.getElementById('ssomaFiltroBuscar')?.value || '').toLowerCase().trim();
+
+  const filtrados = ssomaReportesData.filter(r => {
+    if(fTipo && r.tipo !== fTipo) return false;
+    if(fMes && !(r.fecha || '').startsWith(fMes)) return false;
+    if(fTxt){
+      const blob = `${r.tema || ''} ${r.descripcion || ''} ${r.responsable || ''} ${r.area || ''} ${r.hallazgos || ''} ${r.trabajador || ''}`.toLowerCase();
+      if(!blob.includes(fTxt)) return false;
+    }
+    return true;
+  }).sort((a, b) => {
+    const da = new Date(a.fecha || 0).getTime();
+    const db = new Date(b.fecha || 0).getTime();
+    return db - da;
+  });
+
+  const puedeEditar = currentSession && (currentSession.usuario === 'adm' || currentSession.usuario === 'oficina');
+
+  if(filtrados.length === 0){
+    tbody.innerHTML = ssomaReportesData.length === 0
+      ? '<tr><td colspan="7" class="aud-empty">📭 Aún no hay reportes SSOMA. Para empezar, presiona <b>"📢 Charla Diaria"</b>, <b>"📋 Inspección"</b> o <b>"🚨 Incidente"</b> arriba.</td></tr>'
+      : '<tr><td colspan="7" class="aud-empty">🔍 No hay reportes que coincidan con los filtros.</td></tr>';
+    if(foot) foot.textContent = `0 de ${ssomaReportesData.length}`;
+    return;
+  }
+
+  tbody.innerHTML = filtrados.map(r => {
+    let tipoBadge = '';
+    let detalle = '';
+    if(r.tipo === 'charla'){
+      tipoBadge = '<span class="ssoma-tipo-badge ssoma-tipo-charla">📢 Charla 5min</span>';
+      detalle = `${r.asistentes || 0} asistentes`;
+    } else if(r.tipo === 'inspeccion'){
+      tipoBadge = '<span class="ssoma-tipo-badge ssoma-tipo-inspeccion">📋 Inspección</span>';
+      const pct = Number(r.cumplimiento_pct) || 0;
+      const colorPct = pct >= 90 ? '#1A6B4A' : (pct >= 70 ? '#A0521E' : '#8A2A2D');
+      detalle = `<b style="color:${colorPct};">${pct.toFixed(0)}%</b>`;
+    } else if(r.tipo === 'incidente'){
+      const sevConfig = {
+        incidente:      { lab: 'INCIDENTE',         cls: 'ssoma-sev-incidente' },
+        casi_accidente: { lab: 'CASI ACCIDENTE',    cls: 'ssoma-sev-casi'      },
+        accidente_leve: { lab: 'ACC. LEVE',         cls: 'ssoma-sev-leve'      },
+        accidente_tp:   { lab: 'ACC. TIEMPO PERDIDO', cls: 'ssoma-sev-tp'      },
+      };
+      const sev = sevConfig[r.severidad] || { lab: '—', cls: '' };
+      const grave = (r.severidad === 'accidente_tp') ? 'gravedad-alta' : '';
+      tipoBadge = `<span class="ssoma-tipo-badge ssoma-tipo-incidente ${grave}">🚨 ${sev.lab}</span>`;
+      detalle = r.severidad === 'accidente_tp' ? `${r.dias_perdidos || 0} días perdidos` : '—';
+    }
+
+    const tema = r.tema || r.descripcion || '—';
+    const temaTxt = tema.length > 70 ? tema.slice(0, 70) + '…' : tema;
+    const titulo = r.tipo === 'inspeccion' ? `${(r.tipo_inspeccion || '').toUpperCase()} · ${escapeHtml(r.area || '—')}` : escapeHtml(temaTxt);
+
+    const adjBtn = r.adjunto_url
+      ? `<a class="aud-btn-download" href="${escapeHtml(cloudinaryDownloadUrl(r.adjunto_url))}" target="_blank" rel="noopener" style="padding:4px 10px;font-size:10px;" download>📥</a>`
+      : '<span style="color:var(--text-muted);font-size:10px;">—</span>';
+
+    const accionesHtml = puedeEditar ? `
+      <button class="sig-action-btn sig-action-edit" onclick="abrirEditorReporteSsoma('${escapeHtml(r.id)}','${escapeHtml(r.tipo)}')" title="Editar">✏️</button>
+      <button class="sig-action-btn sig-action-delete" onclick="eliminarReporteSsoma('${escapeHtml(r.id)}')" title="Eliminar">🗑️</button>
+    ` : '';
+
+    return `<tr>
+      <td class="td-center">${tipoBadge}</td>
+      <td class="td-center">${formatFechaCorta(r.fecha)}</td>
+      <td>${titulo}</td>
+      <td>${escapeHtml(r.responsable || r.trabajador || '—')}</td>
+      <td class="td-center">${detalle}</td>
+      <td class="td-center">${adjBtn}</td>
+      <td class="td-center audit-only" style="display:none;white-space:nowrap;">${accionesHtml}</td>
+    </tr>`;
+  }).join('');
+
+  if(foot){
+    foot.textContent = filtrados.length === ssomaReportesData.length
+      ? `${filtrados.length} reporte${filtrados.length === 1 ? '' : 's'}`
+      : `${filtrados.length} de ${ssomaReportesData.length}`;
+  }
 }
 
 
@@ -8508,6 +9232,454 @@ async function guardarEstadoIndividual(){
     bText.textContent = `Error: ${err.message || err}`;
     btn.disabled = false;
     if(cancel) cancel.disabled = false;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// SSOMA — Modal de CHARLA DIARIA
+// ═══════════════════════════════════════════════════════
+
+let charlaFile = null;
+
+function openCharlaModal(){
+  if(!currentSession || (currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina' && currentSession.usuario !== 'residente')){
+    alert('Solo administradores pueden registrar charlas SSOMA.');
+    return;
+  }
+  ssomaReporteEditCtx = null;
+  charlaFile = null;
+  document.getElementById('charlaTema').value = '';
+  document.getElementById('charlaResponsable').value = currentSession.nombre || '';
+  document.getElementById('charlaAsistentes').value = '';
+  document.getElementById('charlaDuracion').value = 5;
+  document.getElementById('charlaObs').value = '';
+  document.getElementById('charlaFecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('charlaDropzoneTitle').textContent = 'FOTO DEL GRUPO O LISTA FIRMADA';
+  document.getElementById('charlaDropzone').classList.remove('has-file');
+  document.getElementById('charlaProgressBanner').style.display = 'none';
+  document.getElementById('charlaPublishBtn').disabled = false;
+
+  // Setup dropzone
+  const dz = document.getElementById('charlaDropzone');
+  const inp = document.getElementById('charlaFileInput');
+  if(dz && inp && !dz._setupDone){
+    dz._setupDone = true;
+    inp.onchange = e => { handleCharlaFile(e.target.files[0]); inp.value = ''; };
+    ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
+    ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
+    dz.addEventListener('drop', e => handleCharlaFile(e.dataTransfer.files[0]));
+  }
+
+  document.getElementById('charlaModal').classList.add('show');
+  setTimeout(() => document.getElementById('charlaTema').focus(), 100);
+}
+
+function closeCharlaModal(){
+  document.getElementById('charlaModal').classList.remove('show');
+}
+
+function handleCharlaFile(f){
+  if(!f) return;
+  if(f.size > 10 * 1024 * 1024){ alert('Excede 10 MB.'); return; }
+  charlaFile = f;
+  document.getElementById('charlaDropzoneTitle').textContent = `📎 ${f.name}`;
+  document.getElementById('charlaDropzone').classList.add('has-file');
+}
+
+async function publicarCharla(){
+  const tema = document.getElementById('charlaTema').value.trim();
+  const fecha = document.getElementById('charlaFecha').value;
+  const asistentes = parseInt(document.getElementById('charlaAsistentes').value, 10);
+  const responsable = document.getElementById('charlaResponsable').value.trim();
+  const duracion = parseInt(document.getElementById('charlaDuracion').value, 10) || 5;
+  const obs = document.getElementById('charlaObs').value.trim();
+
+  if(!tema){ alert('Ingresa el tema de la charla.'); return; }
+  if(!fecha){ alert('Ingresa la fecha.'); return; }
+  if(!asistentes || asistentes < 1){ alert('Ingresa el número de asistentes.'); return; }
+  if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
+
+  await procesarPublicacionSsoma({
+    tipo: 'charla',
+    file: charlaFile,
+    btnId: 'charlaPublishBtn',
+    bannerId: 'charlaProgressBanner',
+    iconId: 'charlaProgressIcon',
+    textId: 'charlaProgressText',
+    fillId: 'charlaProgressFill',
+    detailId: 'charlaProgressDetail',
+    closeFn: closeCharlaModal,
+    extraData: {
+      tema, fecha, asistentes, responsable, duracion_min: duracion, observaciones: obs,
+    },
+    successMsg: '¡Charla registrada!',
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// SSOMA — Modal de INSPECCIÓN SST
+// ═══════════════════════════════════════════════════════
+
+let inspFile = null;
+
+function openInspeccionSstModal(){
+  if(!currentSession || (currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina' && currentSession.usuario !== 'residente')){
+    alert('Solo administradores pueden registrar inspecciones SSOMA.');
+    return;
+  }
+  ssomaReporteEditCtx = null;
+  inspFile = null;
+  document.getElementById('inspTipo').value = 'general';
+  document.getElementById('inspFecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('inspCumplimiento').value = '';
+  document.getElementById('inspResponsable').value = currentSession.nombre || '';
+  document.getElementById('inspArea').value = '';
+  document.getElementById('inspHallazgos').value = '';
+  document.getElementById('inspDropzoneTitle').textContent = 'CARGAR PDF DE LA INSPECCIÓN';
+  document.getElementById('inspDropzone').classList.remove('has-file');
+  document.getElementById('inspProgressBanner').style.display = 'none';
+  document.getElementById('inspPublishBtn').disabled = false;
+
+  const dz = document.getElementById('inspDropzone');
+  const inp = document.getElementById('inspFileInput');
+  if(dz && inp && !dz._setupDone){
+    dz._setupDone = true;
+    inp.onchange = e => { handleInspFile(e.target.files[0]); inp.value = ''; };
+    ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
+    ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
+    dz.addEventListener('drop', e => handleInspFile(e.dataTransfer.files[0]));
+  }
+
+  document.getElementById('inspSstModal').classList.add('show');
+  setTimeout(() => document.getElementById('inspCumplimiento').focus(), 100);
+}
+
+function closeInspeccionSstModal(){
+  document.getElementById('inspSstModal').classList.remove('show');
+}
+
+function handleInspFile(f){
+  if(!f) return;
+  if(f.size > 10 * 1024 * 1024){ alert('Excede 10 MB.'); return; }
+  inspFile = f;
+  document.getElementById('inspDropzoneTitle').textContent = `📎 ${f.name}`;
+  document.getElementById('inspDropzone').classList.add('has-file');
+}
+
+async function publicarInspeccionSst(){
+  const tipoInsp = document.getElementById('inspTipo').value;
+  const fecha = document.getElementById('inspFecha').value;
+  const pct = parseFloat(document.getElementById('inspCumplimiento').value);
+  const responsable = document.getElementById('inspResponsable').value.trim();
+  const area = document.getElementById('inspArea').value.trim();
+  const hallazgos = document.getElementById('inspHallazgos').value.trim();
+
+  if(!fecha){ alert('Ingresa la fecha.'); return; }
+  if(isNaN(pct) || pct < 0 || pct > 100){ alert('% Cumplimiento debe ser 0-100.'); return; }
+  if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
+
+  await procesarPublicacionSsoma({
+    tipo: 'inspeccion',
+    file: inspFile,
+    btnId: 'inspPublishBtn',
+    bannerId: 'inspProgressBanner',
+    iconId: 'inspProgressIcon',
+    textId: 'inspProgressText',
+    fillId: 'inspProgressFill',
+    detailId: 'inspProgressDetail',
+    closeFn: closeInspeccionSstModal,
+    extraData: {
+      tipo_inspeccion: tipoInsp,
+      fecha, cumplimiento_pct: pct, responsable, area, hallazgos,
+    },
+    successMsg: '¡Inspección registrada!',
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// SSOMA — Modal de INCIDENTE / ACCIDENTE
+// ═══════════════════════════════════════════════════════
+
+let incFile = null;
+
+function openIncidenteModal(){
+  if(!currentSession || (currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina' && currentSession.usuario !== 'residente')){
+    alert('Solo administradores pueden reportar incidentes.');
+    return;
+  }
+  ssomaReporteEditCtx = null;
+  incFile = null;
+  document.querySelectorAll('input[name="incSeveridad"]').forEach(r => r.checked = false);
+  document.getElementById('incFecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('incHora').value = new Date().toTimeString().slice(0, 5);
+  document.getElementById('incTrabajador').value = '';
+  document.getElementById('incCargo').value = '';
+  document.getElementById('incArea').value = '';
+  document.getElementById('incDescripcion').value = '';
+  document.getElementById('incCausas').value = '';
+  document.getElementById('incAcciones').value = '';
+  document.getElementById('incDiasPerdidos').value = '';
+  document.getElementById('incDiasPerdidosWrap').style.display = 'none';
+  document.getElementById('incDropzoneTitle').textContent = 'CARGAR ARCHIVO';
+  document.getElementById('incDropzone').classList.remove('has-file');
+  document.getElementById('incProgressBanner').style.display = 'none';
+  document.getElementById('incPublishBtn').disabled = false;
+
+  // Listener para mostrar campo "días perdidos" solo si es accidente con TP
+  document.querySelectorAll('input[name="incSeveridad"]').forEach(r => {
+    r.onchange = () => {
+      const val = document.querySelector('input[name="incSeveridad"]:checked')?.value;
+      document.getElementById('incDiasPerdidosWrap').style.display = (val === 'accidente_tp') ? '' : 'none';
+    };
+  });
+
+  const dz = document.getElementById('incDropzone');
+  const inp = document.getElementById('incFileInput');
+  if(dz && inp && !dz._setupDone){
+    dz._setupDone = true;
+    inp.onchange = e => { handleIncFile(e.target.files[0]); inp.value = ''; };
+    ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
+    ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
+    dz.addEventListener('drop', e => handleIncFile(e.dataTransfer.files[0]));
+  }
+
+  document.getElementById('incidenteModal').classList.add('show');
+}
+
+function closeIncidenteModal(){
+  document.getElementById('incidenteModal').classList.remove('show');
+}
+
+function handleIncFile(f){
+  if(!f) return;
+  if(f.size > 10 * 1024 * 1024){ alert('Excede 10 MB.'); return; }
+  incFile = f;
+  document.getElementById('incDropzoneTitle').textContent = `📎 ${f.name}`;
+  document.getElementById('incDropzone').classList.add('has-file');
+}
+
+async function publicarIncidente(){
+  const severidad = document.querySelector('input[name="incSeveridad"]:checked')?.value;
+  const fecha = document.getElementById('incFecha').value;
+  const hora = document.getElementById('incHora').value;
+  const trabajador = document.getElementById('incTrabajador').value.trim();
+  const cargo = document.getElementById('incCargo').value.trim();
+  const area = document.getElementById('incArea').value.trim();
+  const descripcion = document.getElementById('incDescripcion').value.trim();
+  const causas = document.getElementById('incCausas').value.trim();
+  const acciones = document.getElementById('incAcciones').value.trim();
+  const diasPerdidos = parseInt(document.getElementById('incDiasPerdidos').value, 10) || 0;
+
+  if(!severidad){ alert('Selecciona la severidad del evento.'); return; }
+  if(!fecha){ alert('Ingresa la fecha del evento.'); return; }
+  if(!area){ alert('Ingresa el área o frente donde ocurrió.'); return; }
+  if(!descripcion){ alert('Describe qué pasó.'); return; }
+  if(severidad === 'accidente_tp' && diasPerdidos < 1){
+    if(!confirm('No has indicado días perdidos. ¿Estás seguro? Para "Accidente con tiempo perdido" lo recomendado es ingresar al menos 1 día.')) return;
+  }
+  if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
+
+  if(severidad === 'accidente_tp'){
+    if(!confirm('⚠️ Vas a reportar un ACCIDENTE CON TIEMPO PERDIDO.\n\nEsto reiniciará el contador "días sin accidentes" automáticamente y aparecerá como evento crítico para gerencia.\n\n¿Confirmas el reporte?')) return;
+  }
+
+  await procesarPublicacionSsoma({
+    tipo: 'incidente',
+    file: incFile,
+    btnId: 'incPublishBtn',
+    bannerId: 'incProgressBanner',
+    iconId: 'incProgressIcon',
+    textId: 'incProgressText',
+    fillId: 'incProgressFill',
+    detailId: 'incProgressDetail',
+    closeFn: closeIncidenteModal,
+    extraData: {
+      severidad, fecha, hora,
+      trabajador, cargo, area,
+      descripcion, causas, acciones,
+      dias_perdidos: severidad === 'accidente_tp' ? diasPerdidos : 0,
+    },
+    successMsg: severidad === 'accidente_tp' ? '⚠️ Accidente con TP registrado' : '¡Incidente registrado!',
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// SSOMA — Función común de publicación
+// ═══════════════════════════════════════════════════════
+
+async function procesarPublicacionSsoma(opts){
+  const btn = document.getElementById(opts.btnId);
+  const banner = document.getElementById(opts.bannerId);
+  const bIcon = document.getElementById(opts.iconId);
+  const bText = document.getElementById(opts.textId);
+  const bFill = document.getElementById(opts.fillId);
+  const bDetail = document.getElementById(opts.detailId);
+
+  btn.disabled = true;
+  banner.style.display = 'block';
+  banner.classList.remove('success', 'error');
+  bIcon.textContent = '⏳';
+
+  try {
+    let adjuntoUrl = null, adjuntoPublicId = null, adjuntoNombre = null, adjuntoTamano = null;
+
+    // Subir adjunto si hay
+    if(opts.file){
+      bText.textContent = 'Subiendo archivo a Cloudinary…';
+      bFill.style.width = '30%';
+      bDetail.textContent = `${opts.file.name} (${formatBytes(opts.file.size)})`;
+      const result = await uploadGenericoToCloudinary(opts.file, 'ssoma', opts.tipo);
+      adjuntoUrl = result.url;
+      adjuntoPublicId = result.public_id;
+      adjuntoNombre = opts.file.name;
+      adjuntoTamano = opts.file.size;
+    }
+
+    bText.textContent = 'Guardando en Firestore…';
+    bFill.style.width = '75%';
+    bDetail.textContent = '';
+
+    const userId = (currentSession && currentSession.usuario) || 'desconocido';
+    const userName = (currentSession && currentSession.nombre) || 'Sin sesión';
+    const ahora = new Date().toISOString();
+    const ts = Date.now();
+
+    const dataDoc = {
+      tipo: opts.tipo,
+      ...opts.extraData,
+      adjunto_url: adjuntoUrl,
+      adjunto_public_id: adjuntoPublicId,
+      adjunto_nombre: adjuntoNombre,
+      adjunto_tamano: adjuntoTamano,
+      registrado_por: userId,
+      registrado_por_nombre: userName,
+      registrado_en: ahora,
+      registrado_ts: ts,
+    };
+
+    const { db, collection, addDoc } = window.E140_DB;
+    const docRef = await addDoc(collection(db, 'ssoma_reportes'), dataDoc);
+
+    // Cache local
+    ssomaReportesData.unshift({ id: docRef.id, ...dataDoc });
+
+    // Si tiene adjunto, registrar también en auditoría
+    if(adjuntoUrl){
+      try {
+        await registrarAuditoria({
+          semana: '',
+          area: 'ssoma',
+          archivo_key: opts.tipo,
+          archivo_label: `SSOMA · ${opts.tipo}`,
+          nombre_original: adjuntoNombre,
+          tamano_bytes: adjuntoTamano,
+          cloudinary_url: adjuntoUrl,
+          cloudinary_public_id: adjuntoPublicId,
+          corte_fecha: opts.extraData.fecha,
+          subido_por: userId,
+          subido_por_nombre: userName,
+          estado: 'ok',
+        });
+      } catch(audErr){ console.warn('[E140] Auditoría falló:', audErr); }
+    }
+
+    // Éxito
+    bFill.style.width = '100%';
+    banner.classList.add('success');
+    bIcon.textContent = '✓';
+    bText.textContent = opts.successMsg;
+
+    if(currentTab === 'ssoma-sst'){
+      try { renderSsomaSST(); } catch(e){ console.warn(e); }
+    } else {
+      // Aunque no esté la pestaña abierta, actualizar sidebar
+      try {
+        const accTP = ssomaReportesData.filter(r => r.tipo === 'incidente' && r.severidad === 'accidente_tp');
+        let dias = 365;
+        if(accTP.length > 0){
+          const ult = accTP.sort((a,b) => new Date(b.fecha||0) - new Date(a.fecha||0))[0];
+          const m = (ult.fecha||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+          if(m){
+            const fechaRef = new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
+            const hoy = new Date(); hoy.setHours(0,0,0,0);
+            dias = Math.max(0, Math.floor((hoy - fechaRef) / (24*60*60*1000)));
+          }
+        }
+        actualizarBannerSidebarSsoma(dias, accTP.length);
+      } catch(e){}
+    }
+
+    setTimeout(() => { btn.disabled = false; opts.closeFn(); }, 1500);
+
+  } catch(err){
+    console.error('[E140] Error publicando reporte SSOMA:', err);
+    banner.classList.add('error');
+    bIcon.textContent = '✕';
+    bText.textContent = 'Error al guardar';
+    bDetail.textContent = err.message || String(err);
+    btn.disabled = false;
+  }
+}
+
+function abrirEditorReporteSsoma(id, tipo){
+  const r = ssomaReportesData.find(x => x.id === id);
+  if(!r){ alert('No se encontró el reporte.'); return; }
+  alert(`Edición de reportes SSOMA estará disponible pronto.\n\nPor ahora, si quieres modificar algo, elimínalo y créalo de nuevo.\n\nReporte: ${tipo}\nFecha: ${formatFechaCorta(r.fecha)}`);
+}
+
+async function eliminarReporteSsoma(id){
+  if(!currentSession || (currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina')){
+    alert('Solo "adm" y "oficina" pueden eliminar reportes.');
+    return;
+  }
+  const r = ssomaReportesData.find(x => x.id === id);
+  if(!r) return;
+  const tipoLabel = { charla:'charla', inspeccion:'inspección', incidente:'incidente' }[r.tipo] || r.tipo;
+  if(!confirm(`¿Eliminar este ${tipoLabel}?\n\nFecha: ${formatFechaCorta(r.fecha)}\n${r.tema || r.descripcion || ''}\n\nEsta acción NO se puede deshacer.`)) return;
+
+  try {
+    const { db, doc, deleteDoc } = window.E140_DB;
+    await deleteDoc(doc(db, 'ssoma_reportes', id));
+    ssomaReportesData = ssomaReportesData.filter(x => x.id !== id);
+    if(currentTab === 'ssoma-sst'){
+      try { renderSsomaSST(); } catch(e){}
+    }
+    alert('✓ Reporte eliminado.');
+  } catch(err){
+    console.error('[E140] Error eliminando reporte SSOMA:', err);
+    alert(`❌ Error: ${err.message || err}`);
+  }
+}
+
+async function loadSsomaReportesFromFirestore(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs, query, orderBy } = window.E140_DB;
+    const q = query(collection(db, 'ssoma_reportes'), orderBy('registrado_ts', 'desc'));
+    const snapshot = await getDocs(q);
+    ssomaReportesData = [];
+    snapshot.forEach(s => ssomaReportesData.push({ id: s.id, ...s.data() }));
+    console.log(`[E140] Reportes SSOMA cargados: ${ssomaReportesData.length}`);
+    if(currentTab === 'ssoma-sst'){
+      try { renderSsomaSST(); } catch(e){}
+    } else {
+      // Actualizar sidebar siempre
+      try {
+        const accTP = ssomaReportesData.filter(r => r.tipo === 'incidente' && r.severidad === 'accidente_tp');
+        const PROYECTO_INICIO = new Date(2025, 7, 11);
+        let fechaRef = PROYECTO_INICIO;
+        if(accTP.length > 0){
+          const ult = accTP.sort((a,b) => new Date(b.fecha||0) - new Date(a.fecha||0))[0];
+          const m = (ult.fecha||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+          if(m) fechaRef = new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
+        }
+        const hoy = new Date(); hoy.setHours(0,0,0,0);
+        const dias = Math.max(0, Math.floor((hoy - fechaRef) / (24*60*60*1000)));
+        actualizarBannerSidebarSsoma(dias, accTP.length);
+      } catch(e){}
+    }
+  } catch(err){
+    console.warn('[E140] No se pudieron cargar reportes SSOMA:', err.message || err);
   }
 }
 
@@ -11800,6 +12972,7 @@ function cargarFotosFirestoreAsync(){
     loadInspeccionesSIGFromFirestore();
     loadPendientesFromFirestore();
     loadCapacitacionesFromFirestore();
+    loadSsomaReportesFromFirestore();
   };
   if(window._E140_FIREBASE_READY){
     ejecutar();
