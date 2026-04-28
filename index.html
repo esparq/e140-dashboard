@@ -1560,6 +1560,10 @@ body.role-viewer .admin-only{display:none !important;}
 .cap-estado-desaprobado{background:#FBEAEA;color:#8A2A2D;}
 .cap-estado-pendiente{background:#FFF8EE;color:#7A3F18;}
 
+/* Resaltar la capacitación cuyo detalle está abierto */
+#calCapTblHistorico tr.cap-row-active{background:#F4F9FD !important;}
+#calCapTblHistorico tr.cap-row-active td{font-weight:700;}
+
 /* ═══════════════════════════════════════════
    PENDIENTES — Sistema de tareas
    ═══════════════════════════════════════════ */
@@ -7706,44 +7710,60 @@ function obtenerCapacitacionesCombinadas(){
 function verDetalleCapacitacion(id){
   const todas = obtenerCapacitacionesCombinadas();
   const c = todas.find(x => x.id === id);
-  if(!c) return;
+  if(!c){ console.warn('[E140] Capacitación no encontrada:', id); return; }
+
+  // Marcar como abierta
   capDetalleAbierta = id;
 
-  document.getElementById('calCapPersonalCard').style.display = '';
+  const card = document.getElementById('calCapPersonalCard');
+  if(!card){ console.warn('[E140] No se encontró el card de detalle'); return; }
+  card.style.display = '';
   document.getElementById('calCapPersonalTitulo').textContent = c.tema || 'Sin tema';
   document.getElementById('calCapPersonalSub').textContent =
     `Fecha: ${formatFechaCorta(c.fecha)} · Instructor: ${c.instructor || '—'} · ${(c.personal || []).length} persona${(c.personal || []).length === 1 ? '' : 's'} en lista`;
 
+  // Resaltar la fila actualmente seleccionada en el histórico
+  document.querySelectorAll('#calCapTblHistorico tr').forEach(tr => tr.classList.remove('cap-row-active'));
+
   const tbody = document.getElementById('calCapTblPersonal');
   if((c.personal || []).length === 0){
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);font-style:italic;">Sin personal registrado.</td></tr>';
-    return;
+  } else {
+    // Ordenar: aprobados primero, después desaprobados, después pendientes
+    const ordenEstado = { aprobado: 0, desaprobado: 1, pendiente: 2 };
+    const personalOrdenado = [...c.personal].sort((a, b) => {
+      const da = ordenEstado[a.estado] != null ? ordenEstado[a.estado] : 9;
+      const db = ordenEstado[b.estado] != null ? ordenEstado[b.estado] : 9;
+      if(da !== db) return da - db;
+      return (a.apellidos || '').localeCompare(b.apellidos || '');
+    });
+    tbody.innerHTML = personalOrdenado.map((p, i) => {
+      let badge = '';
+      if(p.estado === 'aprobado'){
+        badge = '<span class="cap-estado-badge cap-estado-aprobado">✓ Aprobado</span>';
+      } else if(p.estado === 'desaprobado'){
+        badge = '<span class="cap-estado-badge cap-estado-desaprobado">✗ Desaprobado</span>';
+      } else {
+        badge = '<span class="cap-estado-badge cap-estado-pendiente">⏳ Pendiente</span>';
+      }
+      return `<tr>
+        <td class="td-center"><b>${i + 1}</b></td>
+        <td><b>${escapeHtml(p.apellidos || '—')}</b></td>
+        <td>${escapeHtml(p.nombre || '—')}</td>
+        <td>${escapeHtml(p.cargo || '—')}</td>
+        <td class="td-center">${badge}</td>
+      </tr>`;
+    }).join('');
   }
-  // Ordenar: aprobados primero, después desaprobados, después pendientes
-  const ordenEstado = { aprobado: 0, desaprobado: 1, pendiente: 2 };
-  const personalOrdenado = [...c.personal].sort((a, b) => {
-    const da = ordenEstado[a.estado] != null ? ordenEstado[a.estado] : 9;
-    const db = ordenEstado[b.estado] != null ? ordenEstado[b.estado] : 9;
-    if(da !== db) return da - db;
-    return (a.apellidos || '').localeCompare(b.apellidos || '');
-  });
-  tbody.innerHTML = personalOrdenado.map((p, i) => {
-    let badge = '';
-    if(p.estado === 'aprobado'){
-      badge = '<span class="cap-estado-badge cap-estado-aprobado">✓ Aprobado</span>';
-    } else if(p.estado === 'desaprobado'){
-      badge = '<span class="cap-estado-badge cap-estado-desaprobado">✗ Desaprobado</span>';
-    } else {
-      badge = '<span class="cap-estado-badge cap-estado-pendiente">⏳ Pendiente</span>';
+
+  // Scroll suave hacia el card
+  setTimeout(() => {
+    try {
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch(e){
+      card.scrollIntoView();
     }
-    return `<tr>
-      <td class="td-center"><b>${i + 1}</b></td>
-      <td><b>${escapeHtml(p.apellidos || '—')}</b></td>
-      <td>${escapeHtml(p.nombre || '—')}</td>
-      <td>${escapeHtml(p.cargo || '—')}</td>
-      <td class="td-center">${badge}</td>
-    </tr>`;
-  }).join('');
+  }, 50);
 }
 
 // ═══════════════════════════════════════════════════════
