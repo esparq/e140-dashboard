@@ -206,6 +206,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .sb-item.sb-resumen.active{background:var(--twitter-blue);color:var(--white);border-color:var(--twitter-blue);box-shadow:0 2px 8px rgba(29,161,242,0.25);}
 .sb-item.sb-resumen.active .sb-num{color:var(--white);}
 
+/* Botón "Pendientes" (debajo de Resumen) */
+.sb-item.sb-pendientes{background:#FFF8EE;color:#7A3F18;font-weight:600;margin-bottom:6px;padding:12px 12px;font-size:13px;border:1px solid #E5C792;position:relative;}
+.sb-item.sb-pendientes .sb-num{color:#A0521E;}
+.sb-item.sb-pendientes:hover{background:#FFE9CC;border-color:#A0521E;color:#7A3F18;}
+.sb-item.sb-pendientes.active{background:#A0521E;color:#fff;border-color:#A0521E;box-shadow:0 2px 8px rgba(160,82,30,.3);}
+.sb-item.sb-pendientes.active .sb-num{color:#fff;}
+.sb-badge-count{position:absolute;top:50%;right:10px;transform:translateY(-50%);background:#D64045;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;min-width:20px;text-align:center;line-height:1.4;letter-spacing:.02em;}
+.sb-item.sb-pendientes.active .sb-badge-count{background:#fff;color:#A0521E;}
+
 .sb-divider{height:1px;background:var(--border);margin:10px 16px;}
 
 /* Botón "Guía de uso" */
@@ -1523,6 +1532,153 @@ body.role-viewer .admin-only{display:none !important;}
   .sig-form-row{grid-template-columns:1fr;}
 }
 
+/* ═══════════════════════════════════════════
+   PENDIENTES — Sistema de tareas
+   ═══════════════════════════════════════════ */
+
+.pen-page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px;padding-bottom:18px;border-bottom:2px solid var(--border);flex-wrap:wrap;}
+.pen-page-title-wrap{display:flex;align-items:center;gap:14px;flex:1;min-width:280px;}
+.pen-page-icon{width:48px;height:48px;background:linear-gradient(135deg,#A0521E 0%,#7A3F18 100%);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 12px rgba(160,82,30,.25);}
+.pen-page-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.2px;color:var(--text);line-height:1.1;}
+.pen-page-sub{font-size:12px;color:var(--text-muted);margin-top:4px;line-height:1.4;max-width:580px;}
+.pen-page-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+.pen-view-toggle{display:inline-flex;background:#FFF8EE;border:1px solid #E5C792;border-radius:6px;padding:3px;}
+.pen-view-btn{background:transparent;border:none;color:#A0521E;padding:6px 12px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;border-radius:4px;display:inline-flex;align-items:center;gap:5px;transition:all .15s;}
+.pen-view-btn:hover{background:#FFE9CC;}
+.pen-view-btn.active{background:#A0521E;color:#fff;}
+
+/* Stats */
+.pen-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px;}
+.pen-stat-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:12px;transition:transform .15s, box-shadow .15s;}
+.pen-stat-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.06);}
+.pen-stat-icon{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.pen-stat-content{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.pen-stat-num{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;color:var(--text);letter-spacing:.5px;}
+.pen-stat-label{font-size:10px;color:var(--text-muted);letter-spacing:.04em;text-transform:uppercase;font-weight:600;}
+.pen-stat-pendiente .pen-stat-icon{background:#FFF8EE;color:#A0521E;}
+.pen-stat-pendiente{border-left:3px solid #A0521E;}
+.pen-stat-proceso .pen-stat-icon{background:#E6F2FB;color:#0070B4;}
+.pen-stat-proceso{border-left:3px solid #0070B4;}
+.pen-stat-validar .pen-stat-icon{background:#F4ECFA;color:#7B2D8E;}
+.pen-stat-validar{border-left:3px solid #7B2D8E;}
+.pen-stat-vencidas .pen-stat-icon{background:#FBEAEA;color:#D64045;}
+.pen-stat-vencidas{border-left:3px solid #D64045;}
+.pen-stat-cerrada .pen-stat-icon{background:#E7F4EE;color:#1A6B4A;}
+.pen-stat-cerrada{border-left:3px solid #2D936C;}
+
+/* Filtros */
+.pen-filters-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:grid;grid-template-columns:160px 140px 140px 1fr;gap:12px;align-items:end;margin-bottom:18px;}
+.pen-filter-group{display:flex;flex-direction:column;gap:5px;min-width:0;}
+.pen-filter-group label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;}
+.pen-filter-group select, .pen-filter-group input{padding:8px 11px;border:1px solid var(--border-mid);border-radius:5px;font-family:inherit;font-size:12px;color:var(--text);background:#fff;width:100%;box-sizing:border-box;}
+.pen-filter-group select:focus, .pen-filter-group input:focus{outline:none;border-color:#A0521E;box-shadow:0 0 0 3px rgba(160,82,30,.12);}
+
+/* Kanban */
+.pen-kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.pen-col{background:#FAFBFC;border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;min-height:400px;}
+.pen-col-header{padding:12px 14px;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:8px 8px 0 0;}
+.pen-col-title{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:var(--text);display:flex;align-items:center;gap:6px;}
+.pen-col-count{background:var(--alice-blue);color:var(--twitter-blue);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;min-width:20px;text-align:center;}
+.pen-col-pendiente .pen-col-header{border-bottom-color:#A0521E;}
+.pen-col-pendiente .pen-col-count{background:#FFF8EE;color:#A0521E;}
+.pen-col-proceso .pen-col-header{border-bottom-color:#0070B4;}
+.pen-col-proceso .pen-col-count{background:#E6F2FB;color:#0070B4;}
+.pen-col-validar .pen-col-header{border-bottom-color:#7B2D8E;}
+.pen-col-validar .pen-col-count{background:#F4ECFA;color:#7B2D8E;}
+.pen-col-cerrada .pen-col-header{border-bottom-color:#2D936C;}
+.pen-col-cerrada .pen-col-count{background:#E7F4EE;color:#1A6B4A;}
+.pen-col-body{padding:10px;display:flex;flex-direction:column;gap:8px;flex:1;}
+.pen-col-empty{text-align:center;padding:30px 12px;color:var(--text-muted);font-size:11px;font-style:italic;}
+
+/* Tarjeta de tarea (Kanban card) */
+.pen-card{background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px 12px;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;gap:6px;position:relative;}
+.pen-card:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.08);border-color:var(--border-mid);}
+.pen-card.vencida{border-left:3px solid #D64045;}
+.pen-card.por-vencer{border-left:3px solid #E5C792;}
+.pen-card-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.pen-card-area{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 6px;border-radius:3px;background:#EFEFEF;color:#555;}
+.pen-card-area-operaciones{background:#E6F2FB;color:#0070B4;}
+.pen-card-area-logistica{background:#FBEAE5;color:#A04018;}
+.pen-card-area-arquitectura{background:#F0F2F5;color:#444;}
+.pen-card-area-ssoma{background:#FBEAEA;color:#8A2A2D;}
+.pen-card-area-calidad{background:#E7F4EE;color:#1A6B4A;}
+.pen-card-area-innovacion{background:#F4ECFA;color:#7B2D8E;}
+.pen-card-prioridad{font-size:11px;}
+.pen-card-titulo{font-size:12.5px;font-weight:600;color:var(--text);line-height:1.3;}
+.pen-card-desc{font-size:11px;color:var(--text-muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.pen-card-bottom{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:10px;color:var(--text-muted);margin-top:4px;padding-top:6px;border-top:1px dashed var(--border);}
+.pen-card-vence{font-weight:600;display:inline-flex;align-items:center;gap:3px;}
+.pen-card-vence.vencida{color:#D64045;}
+.pen-card-vence.por-vencer{color:#A0521E;}
+.pen-card-vence.ok{color:#1A6B4A;}
+.pen-card-autor{font-size:10px;color:var(--text-muted);}
+.pen-card-comentarios{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--text-muted);}
+.pen-card-badge-vencida{position:absolute;top:-7px;right:-7px;background:#D64045;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.05em;text-transform:uppercase;animation:pulseRed 1.5s ease infinite;}
+@keyframes pulseRed{0%,100%{box-shadow:0 0 0 0 rgba(214,64,69,.6);}50%{box-shadow:0 0 0 6px rgba(214,64,69,0);}}
+
+/* Lista (tabla) */
+.pen-table .pen-estado-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:11px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+.pen-table .pen-estado-pendiente{background:#FFF8EE;color:#A0521E;}
+.pen-table .pen-estado-proceso{background:#E6F2FB;color:#0070B4;}
+.pen-table .pen-estado-validar{background:#F4ECFA;color:#7B2D8E;}
+.pen-table .pen-estado-cerrada{background:#E7F4EE;color:#1A6B4A;}
+.pen-table .pen-pri-alta{color:#D64045;font-size:13px;}
+.pen-table .pen-pri-media{color:#E5C792;font-size:13px;}
+.pen-table .pen-pri-baja{color:#2D936C;font-size:13px;}
+
+/* Modal Detalle de pendiente */
+.pen-det-section{margin-bottom:16px;}
+.pen-det-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin-bottom:5px;}
+.pen-det-value{font-size:13px;color:var(--text);line-height:1.5;background:#FAFBFC;border:1px solid var(--border);border-radius:5px;padding:10px 12px;}
+.pen-det-meta-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px;}
+.pen-det-meta-card{background:#FAFBFC;border:1px solid var(--border);border-radius:5px;padding:8px 12px;}
+.pen-det-meta-card .pen-det-label{margin-bottom:2px;}
+.pen-det-meta-card .pen-det-meta-val{font-size:12.5px;font-weight:600;color:var(--text);}
+
+/* Adjuntos */
+.pen-adjuntos-list{display:flex;flex-direction:column;gap:5px;margin-top:8px;}
+.pen-adjunto-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:#F4F9FD;border:1px solid #BFE0F5;border-radius:5px;font-size:11.5px;}
+.pen-adjunto-icon{font-size:14px;flex-shrink:0;}
+.pen-adjunto-name{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pen-adjunto-size{color:var(--text-muted);font-size:10px;font-family:'DM Mono',monospace;flex-shrink:0;}
+.pen-adjunto-link{color:var(--twitter-blue);text-decoration:none;font-weight:600;flex-shrink:0;}
+.pen-adjunto-link:hover{text-decoration:underline;}
+.pen-adjunto-remove{background:transparent;border:none;color:#D64045;cursor:pointer;font-size:14px;padding:0 4px;}
+
+/* Chat de comentarios */
+.pen-chat{background:#FAFBFC;border:1px solid var(--border);border-radius:6px;padding:10px;max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+.pen-chat-empty{text-align:center;padding:30px 12px;color:var(--text-muted);font-size:11.5px;font-style:italic;}
+.pen-comentario{display:flex;flex-direction:column;gap:4px;padding:8px 12px;background:#fff;border:1px solid var(--border);border-radius:6px;border-left:3px solid var(--twitter-blue);}
+.pen-comentario.es-residente{border-left-color:#2D936C;}
+.pen-comentario.es-validador{border-left-color:#A0521E;}
+.pen-comentario-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10px;}
+.pen-comentario-autor{font-weight:700;color:var(--text);}
+.pen-comentario-rol{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);background:#EFEFEF;padding:1px 6px;border-radius:3px;}
+.pen-comentario-fecha{color:var(--text-muted);font-size:10px;font-family:'DM Mono',monospace;}
+.pen-comentario-texto{font-size:12.5px;color:var(--text);line-height:1.45;white-space:pre-wrap;word-wrap:break-word;}
+.pen-comentario-evento{background:#F4F9FD;border-left-color:#0070B4;}
+.pen-comentario-evento .pen-comentario-texto{font-style:italic;color:var(--text-muted);}
+
+.pen-chat-input-area{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.pen-chat-input-area textarea{padding:9px 12px;border:1.5px solid var(--border-mid);border-radius:6px;font-family:inherit;font-size:12.5px;resize:vertical;min-height:60px;}
+.pen-chat-input-area textarea:focus{outline:none;border-color:#A0521E;box-shadow:0 0 0 3px rgba(160,82,30,.12);}
+.pen-chat-actions{display:flex;justify-content:flex-end;gap:8px;}
+
+@media(max-width:1100px){
+  .pen-stats{grid-template-columns:repeat(3,1fr);}
+  .pen-filters-card{grid-template-columns:1fr 1fr;}
+  .pen-kanban{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:600px){
+  .pen-stats{grid-template-columns:1fr 1fr;}
+  .pen-filters-card{grid-template-columns:1fr;}
+  .pen-kanban{grid-template-columns:1fr;}
+  .pen-page-header{flex-direction:column;align-items:flex-start;}
+  .pen-page-icon{width:40px;height:40px;font-size:18px;}
+  .pen-page-title{font-size:18px;}
+}
+
 /* ─── LIGHTBOX (visor de imagen ampliada) ─── */
 .lightbox-overlay{position:fixed;inset:0;background:rgba(0,15,30,.92);display:none;align-items:center;justify-content:center;z-index:5000;padding:30px;animation:lbFadeIn .25s ease;}
 .lightbox-overlay.show{display:flex;}
@@ -2092,6 +2248,128 @@ body.role-viewer .admin-only{display:none !important;}
 </div>
 
 <!-- ═══════════════════════════════════════════
+     MODAL: CREAR / EDITAR PENDIENTE
+     ═══════════════════════════════════════════ -->
+<div class="modal-backdrop" id="penModal">
+  <div class="modal-card" style="max-width:680px;">
+    <div class="modal-head" style="background:linear-gradient(135deg,#A0521E 0%,#7A3F18 100%);">
+      <div>
+        <h2 id="penModalTitle">📌 NUEVA TAREA</h2>
+        <p id="penModalSub">Crear pendiente para el residente</p>
+      </div>
+      <button class="modal-close" onclick="closePendienteModal()" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="area-info-banner" id="penModalBanner" style="background:#FFF8EE;border-left-color:#A0521E;">
+        <b>📌 Nueva tarea</b> · Indica el área desde la que generas el pendiente, el detalle y la fecha máxima de respuesta. El residente recibirá la tarea y podrá responder con comentarios y archivos adjuntos.
+      </div>
+
+      <div class="sig-form">
+        <div class="sig-form-row">
+          <div class="sig-form-field">
+            <label>Área <span style="color:#D64045;">*</span></label>
+            <select id="penArea">
+              <option value="operaciones">🏗️ Operaciones</option>
+              <option value="logistica">🚛 Logística</option>
+              <option value="arquitectura">📐 Arquitectura</option>
+              <option value="ssoma">⛑️ SSOMA</option>
+              <option value="calidad">✅ Calidad</option>
+              <option value="innovacion">💡 Integración e Innovación</option>
+            </select>
+          </div>
+          <div class="sig-form-field">
+            <label>Prioridad <span style="color:#D64045;">*</span></label>
+            <select id="penPrioridad">
+              <option value="alta">🔴 Alta</option>
+              <option value="media" selected>🟡 Media</option>
+              <option value="baja">🟢 Baja</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sig-form-field">
+          <label>Título <span style="color:#D64045;">*</span></label>
+          <input type="text" id="penTitulo" placeholder="Ej: Falta valorización de Setiembre" maxlength="120">
+        </div>
+
+        <div class="sig-form-field">
+          <label>Descripción del pendiente <span style="color:#D64045;">*</span></label>
+          <textarea id="penDescripcion" rows="4" placeholder="Describe el pendiente con todo el detalle posible para que el residente sepa qué hacer."></textarea>
+        </div>
+
+        <div class="sig-form-row">
+          <div class="sig-form-field">
+            <label>Fecha máxima de respuesta <span style="color:#D64045;">*</span></label>
+            <input type="date" id="penFechaMax">
+          </div>
+          <div class="sig-form-field">
+            <label>Asignado a</label>
+            <select id="penAsignado">
+              <option value="residente" selected>Residente · José Rojas O.</option>
+              <option value="staff">Staff de Obra</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Adjuntos opcionales -->
+        <div class="sig-form-field">
+          <label>Adjuntos (opcional · hasta 3 archivos · 10 MB c/u)</label>
+          <div class="dropzone sig-dropzone" id="penDropzone" onclick="document.getElementById('penFileInput').click()" style="padding:16px 14px !important;">
+            <div class="dropzone-icon" style="font-size:24px;">📎</div>
+            <div class="dropzone-title" style="font-size:12px;" id="penDropzoneTitle">ADJUNTAR ARCHIVOS</div>
+            <div class="dropzone-subtitle" style="font-size:10px;">PDF · imagen · Excel · cualquier archivo</div>
+            <button class="dropzone-btn" type="button" style="font-size:10px;padding:5px 10px;">Seleccionar</button>
+            <input type="file" id="penFileInput" multiple style="display:none">
+          </div>
+          <div id="penAdjuntosList" class="pen-adjuntos-list"></div>
+        </div>
+      </div>
+
+      <!-- Banner de progreso -->
+      <div class="fotos-progress-banner" id="penProgressBanner" style="display:none;">
+        <div class="fotos-progress-header">
+          <span class="fotos-progress-icon" id="penProgressIcon">⏳</span>
+          <span class="fotos-progress-text" id="penProgressText">Iniciando…</span>
+        </div>
+        <div class="fotos-progress-bar"><div class="fotos-progress-fill" id="penProgressFill" style="width:0%"></div></div>
+        <div class="fotos-progress-detail" id="penProgressDetail"></div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="hdr-btn" onclick="closePendienteModal()">Cancelar</button>
+      <button class="hdr-btn hdr-btn-primary" id="penPublishBtn" onclick="publicarPendiente()" style="background:#A0521E;color:#fff;border-color:#A0521E;">
+        📌 Crear tarea
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAL: DETALLE DE PENDIENTE (con chat)
+     ═══════════════════════════════════════════ -->
+<div class="modal-backdrop" id="penDetalleModal">
+  <div class="modal-card" style="max-width:760px;max-height:92vh;">
+    <div class="modal-head" id="penDetalleHead" style="background:linear-gradient(135deg,#A0521E 0%,#7A3F18 100%);">
+      <div style="flex:1;min-width:0;">
+        <h2 id="penDetalleTitulo" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Cargando…</h2>
+        <p id="penDetalleMeta">—</p>
+      </div>
+      <button class="modal-close" onclick="closePendienteDetalleModal()" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="modal-body" id="penDetalleBody">
+      <!-- Se llena dinámicamente -->
+    </div>
+
+    <div class="modal-foot" id="penDetalleFoot">
+      <!-- Botones según estado y rol -->
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
      PANEL DE AYUDA LATERAL
      ═══════════════════════════════════════════ -->
 <div class="help-overlay" id="helpOverlay" onclick="toggleHelp()"></div>
@@ -2211,6 +2489,11 @@ body.role-viewer .admin-only{display:none !important;}
       <button class="sb-item sb-resumen active" data-tab="resumen" data-tooltip="Resumen">
         <span class="sb-num">📊</span>
         <span class="sb-label">RESUMEN</span>
+      </button>
+      <button class="sb-item sb-pendientes" data-tab="pendientes" data-tooltip="Pendientes">
+        <span class="sb-num">📌</span>
+        <span class="sb-label">PENDIENTES</span>
+        <span class="sb-badge-count" id="sbPendientesBadge" style="display:none;">0</span>
       </button>
     </div>
 
@@ -2648,6 +2931,176 @@ body.role-viewer .admin-only{display:none !important;}
           </div>
         </div>
 
+      </section>
+
+      <!-- ═══════════════════════════════════════════
+           SECCIÓN — PENDIENTES & TAREAS
+           Bandeja de tareas: Jefaturas en oficina ↔ Residente
+           ═══════════════════════════════════════════ -->
+      <section class="section" id="sec-pendientes">
+        <!-- Header -->
+        <div class="pen-page-header">
+          <div class="pen-page-title-wrap">
+            <div class="pen-page-icon">📌</div>
+            <div>
+              <div class="pen-page-title">Pendientes & Tareas</div>
+              <div class="pen-page-sub">Bandeja de pendientes entre Jefaturas en oficina y Residente · Trazabilidad completa con chat de comentarios y archivos adjuntos</div>
+            </div>
+          </div>
+          <div class="pen-page-actions">
+            <div class="pen-view-toggle">
+              <button class="pen-view-btn active" data-view="kanban" onclick="cambiarVistaPendientes('kanban')" title="Vista Kanban">
+                <span>📋</span> Kanban
+              </button>
+              <button class="pen-view-btn" data-view="lista" onclick="cambiarVistaPendientes('lista')" title="Vista Lista">
+                <span>📝</span> Lista
+              </button>
+            </div>
+            <button class="hdr-btn" onclick="cargarPendientes(true)" title="Recargar pendientes" style="background:#fff;color:#A0521E;border-color:#E5C792;">
+              <span>🔄</span> Actualizar
+            </button>
+            <button class="hdr-btn hdr-btn-primary admin-only" onclick="openPendienteModal()" style="background:#A0521E;color:#fff;border-color:#A0521E;">
+              <span>+</span> Nueva tarea
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="pen-stats">
+          <div class="pen-stat-card pen-stat-pendiente">
+            <div class="pen-stat-icon">🆕</div>
+            <div class="pen-stat-content">
+              <div class="pen-stat-num" id="penStatPendiente">0</div>
+              <div class="pen-stat-label">Pendientes</div>
+            </div>
+          </div>
+          <div class="pen-stat-card pen-stat-proceso">
+            <div class="pen-stat-icon">⏳</div>
+            <div class="pen-stat-content">
+              <div class="pen-stat-num" id="penStatProceso">0</div>
+              <div class="pen-stat-label">En proceso</div>
+            </div>
+          </div>
+          <div class="pen-stat-card pen-stat-validar">
+            <div class="pen-stat-icon">👁️</div>
+            <div class="pen-stat-content">
+              <div class="pen-stat-num" id="penStatValidar">0</div>
+              <div class="pen-stat-label">Por validar</div>
+            </div>
+          </div>
+          <div class="pen-stat-card pen-stat-vencidas">
+            <div class="pen-stat-icon">🔴</div>
+            <div class="pen-stat-content">
+              <div class="pen-stat-num" id="penStatVencidas">0</div>
+              <div class="pen-stat-label">Vencidas</div>
+            </div>
+          </div>
+          <div class="pen-stat-card pen-stat-cerrada">
+            <div class="pen-stat-icon">✅</div>
+            <div class="pen-stat-content">
+              <div class="pen-stat-num" id="penStatCerradas">0</div>
+              <div class="pen-stat-label">Cerradas</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="pen-filters-card">
+          <div class="pen-filter-group">
+            <label>Área</label>
+            <select id="penFiltroArea" onchange="renderPendientes()">
+              <option value="">Todas</option>
+              <option value="operaciones">🏗️ Operaciones</option>
+              <option value="logistica">🚛 Logística</option>
+              <option value="arquitectura">📐 Arquitectura</option>
+              <option value="ssoma">⛑️ SSOMA</option>
+              <option value="calidad">✅ Calidad</option>
+              <option value="innovacion">💡 Integración e Innovación</option>
+            </select>
+          </div>
+          <div class="pen-filter-group">
+            <label>Prioridad</label>
+            <select id="penFiltroPrioridad" onchange="renderPendientes()">
+              <option value="">Todas</option>
+              <option value="alta">🔴 Alta</option>
+              <option value="media">🟡 Media</option>
+              <option value="baja">🟢 Baja</option>
+            </select>
+          </div>
+          <div class="pen-filter-group">
+            <label>Estado</label>
+            <select id="penFiltroEstado" onchange="renderPendientes()">
+              <option value="">Todos</option>
+              <option value="pendiente">🆕 Pendiente</option>
+              <option value="proceso">⏳ En proceso</option>
+              <option value="validar">👁️ Por validar</option>
+              <option value="cerrada">✅ Cerrada</option>
+            </select>
+          </div>
+          <div class="pen-filter-group pen-filter-search">
+            <label>Buscar</label>
+            <input type="text" id="penFiltroBuscar" placeholder="Título, descripción, autor…" oninput="renderPendientes()">
+          </div>
+        </div>
+
+        <!-- Vista Kanban -->
+        <div id="penVistaKanban" class="pen-vista-kanban">
+          <div class="pen-kanban">
+            <div class="pen-col pen-col-pendiente">
+              <div class="pen-col-header">
+                <div class="pen-col-title"><span>🆕</span> Pendiente</div>
+                <span class="pen-col-count" id="penColCountPendiente">0</span>
+              </div>
+              <div class="pen-col-body" id="penColPendiente"></div>
+            </div>
+            <div class="pen-col pen-col-proceso">
+              <div class="pen-col-header">
+                <div class="pen-col-title"><span>⏳</span> En proceso</div>
+                <span class="pen-col-count" id="penColCountProceso">0</span>
+              </div>
+              <div class="pen-col-body" id="penColProceso"></div>
+            </div>
+            <div class="pen-col pen-col-validar">
+              <div class="pen-col-header">
+                <div class="pen-col-title"><span>👁️</span> Por validar</div>
+                <span class="pen-col-count" id="penColCountValidar">0</span>
+              </div>
+              <div class="pen-col-body" id="penColValidar"></div>
+            </div>
+            <div class="pen-col pen-col-cerrada">
+              <div class="pen-col-header">
+                <div class="pen-col-title"><span>✅</span> Cerrada</div>
+                <span class="pen-col-count" id="penColCountCerrada">0</span>
+              </div>
+              <div class="pen-col-body" id="penColCerrada"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vista Lista -->
+        <div id="penVistaLista" class="pen-vista-lista" style="display:none;">
+          <div class="aud-card">
+            <div class="aud-table-wrap">
+              <table class="aud-table pen-table">
+                <thead>
+                  <tr>
+                    <th class="td-center">Estado</th>
+                    <th class="td-center">Pri</th>
+                    <th>Área</th>
+                    <th>Título</th>
+                    <th class="td-center">Vence</th>
+                    <th>Asignado a</th>
+                    <th>Creado por</th>
+                    <th class="td-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="penTableBody">
+                  <tr><td colspan="8" class="aud-empty">⏳ Cargando pendientes…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- ═══════════════════════════════════════════
@@ -5581,6 +6034,7 @@ function renderCurrentWeek(){
     case 'crono':         renderCrono(); break;
     case 'fotos':         renderFotos(); break;
     case 'auditoria':     cargarAuditoria(false); break;
+    case 'pendientes':    cargarPendientes(false); break;
   }
 }
 
@@ -9295,6 +9749,837 @@ async function eliminarInspeccionSIG(id){
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   PENDIENTES & TAREAS · Sistema de gestión jefaturas ↔ residente
+   - Estados: pendiente → proceso → validar → cerrada
+   - Vistas: Kanban (4 columnas) y Lista (tabla)
+   - Chat de comentarios + adjuntos en cada tarea
+   ═══════════════════════════════════════════════════════════════════ */
+
+let pendientesData = [];      // Cache de tareas cargadas desde Firestore
+let penVistaActual = 'kanban'; // 'kanban' | 'lista'
+let penEditandoId = null;     // ID de la tarea en edición (null = crear)
+let penDetalleId = null;      // ID de la tarea abierta en el modal de detalle
+let penAdjuntosNuevos = [];   // Archivos seleccionados pendientes de subir
+
+const PEN_AREAS = {
+  operaciones:  { label: 'Operaciones',                icon: '🏗️' },
+  logistica:    { label: 'Logística',                   icon: '🚛' },
+  arquitectura: { label: 'Arquitectura',                icon: '📐' },
+  ssoma:        { label: 'SSOMA',                       icon: '⛑️' },
+  calidad:      { label: 'Calidad',                     icon: '✅' },
+  innovacion:   { label: 'Integración e Innovación',    icon: '💡' },
+};
+
+const PEN_PRIORIDADES = {
+  alta:  { label: 'Alta',  icon: '🔴' },
+  media: { label: 'Media', icon: '🟡' },
+  baja:  { label: 'Baja',  icon: '🟢' },
+};
+
+const PEN_ESTADOS = {
+  pendiente: { label: 'Pendiente',  icon: '🆕', color: '#A0521E' },
+  proceso:   { label: 'En proceso', icon: '⏳', color: '#0070B4' },
+  validar:   { label: 'Por validar',icon: '👁️', color: '#7B2D8E' },
+  cerrada:   { label: 'Cerrada',    icon: '✅', color: '#1A6B4A' },
+};
+
+function rolUsuario(){
+  if(!currentSession) return 'viewer';
+  const u = currentSession.usuario;
+  // Quién puede crear pendientes
+  if(u === 'oficina' || u === 'adm') return 'creador';
+  // Quién es destinatario
+  if(u === 'residente') return 'residente';
+  if(u === 'staff') return 'staff';
+  return 'viewer';
+}
+
+function puedeCrearPendiente(){
+  const r = rolUsuario();
+  return r === 'creador';
+}
+function puedeEditarPendiente(p){
+  const r = rolUsuario();
+  if(r === 'creador') return true;
+  return false;
+}
+function puedeEliminarPendiente(p){
+  const r = rolUsuario();
+  return r === 'creador';
+}
+function puedeAvanzarTarea(p){
+  // El destinatario puede mover de pendiente → proceso → validar
+  const r = rolUsuario();
+  if(p.estado === 'cerrada') return false;
+  if(r === 'creador') return true; // Creadores pueden mover en cualquier dirección
+  if((r === 'residente' || r === 'staff') && (p.estado === 'pendiente' || p.estado === 'proceso')){
+    return true;
+  }
+  return false;
+}
+function puedeValidar(p){
+  // Solo el creador puede cerrar o devolver
+  return rolUsuario() === 'creador' && p.estado === 'validar';
+}
+function puedeComentar(p){
+  if(p.estado === 'cerrada') return false;
+  const r = rolUsuario();
+  return r === 'creador' || r === 'residente' || r === 'staff';
+}
+
+// ─── Cargar pendientes desde Firestore ───
+async function cargarPendientes(force = false){
+  const kanbanRoot = document.getElementById('penColPendiente');
+  if(!kanbanRoot) return;
+
+  // Mostrar UI según vista
+  setVistaPendientesUI();
+
+  if(!window.E140_DB){
+    document.getElementById('penTableBody').innerHTML = '<tr><td colspan="8" class="aud-empty error">⚠ Firestore no disponible.</td></tr>';
+    return;
+  }
+
+  if(pendientesData.length > 0 && !force){
+    renderPendientes();
+    return;
+  }
+
+  try {
+    const { db, collection, getDocs, query, orderBy } = window.E140_DB;
+    const q = query(collection(db, 'pendientes'), orderBy('creado_ts', 'desc'));
+    const snapshot = await getDocs(q);
+    pendientesData = [];
+    snapshot.forEach(docSnap => {
+      pendientesData.push({ id: docSnap.id, ...docSnap.data() });
+    });
+    console.log(`[E140] Pendientes cargadas: ${pendientesData.length}`);
+    renderPendientes();
+  } catch(err){
+    console.error('[E140] Error cargando pendientes:', err);
+    document.getElementById('penTableBody').innerHTML = `<tr><td colspan="8" class="aud-empty error">❌ Error: ${escapeHtml(err.message)}</td></tr>`;
+  }
+}
+
+function cambiarVistaPendientes(vista){
+  penVistaActual = vista;
+  setVistaPendientesUI();
+  renderPendientes();
+}
+
+function setVistaPendientesUI(){
+  document.querySelectorAll('.pen-view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === penVistaActual));
+  document.getElementById('penVistaKanban').style.display = penVistaActual === 'kanban' ? '' : 'none';
+  document.getElementById('penVistaLista').style.display  = penVistaActual === 'lista'  ? '' : 'none';
+}
+
+function actualizarBadgeSidebarPendientes(){
+  const badge = document.getElementById('sbPendientesBadge');
+  if(!badge) return;
+  const r = rolUsuario();
+  let count = 0;
+  // Para residente/staff: contar tareas asignadas pendientes o en proceso
+  if(r === 'residente' || r === 'staff'){
+    count = pendientesData.filter(p =>
+      (p.asignado_a === r || p.asignado_a === 'residente') &&
+      (p.estado === 'pendiente' || p.estado === 'proceso')
+    ).length;
+  } else if(r === 'creador'){
+    // Para creador: contar tareas en "por validar"
+    count = pendientesData.filter(p => p.estado === 'validar').length;
+  }
+  if(count > 0){
+    badge.textContent = count > 99 ? '99+' : count;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function diasHastaVencer(fechaMaxStr){
+  if(!fechaMaxStr) return null;
+  const m = fechaMaxStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(!m) return null;
+  const fechaMax = new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
+  fechaMax.setHours(23, 59, 59, 999);
+  const ahora = new Date();
+  ahora.setHours(0, 0, 0, 0);
+  const diff = fechaMax.getTime() - ahora.getTime();
+  return Math.floor(diff / (24 * 60 * 60 * 1000));
+}
+
+function renderPendientes(){
+  // Aplicar filtros
+  const fArea = document.getElementById('penFiltroArea').value;
+  const fPri  = document.getElementById('penFiltroPrioridad').value;
+  const fEst  = document.getElementById('penFiltroEstado').value;
+  const fTxt  = (document.getElementById('penFiltroBuscar').value || '').toLowerCase().trim();
+
+  const filtradas = pendientesData.filter(p => {
+    if(fArea && p.area !== fArea) return false;
+    if(fPri && p.prioridad !== fPri) return false;
+    if(fEst && p.estado !== fEst) return false;
+    if(fTxt){
+      const blob = `${p.titulo || ''} ${p.descripcion || ''} ${p.creado_por_nombre || ''} ${p.area || ''}`.toLowerCase();
+      if(!blob.includes(fTxt)) return false;
+    }
+    return true;
+  });
+
+  // Stats globales (sin filtros)
+  const tot = pendientesData.length;
+  const cnt = {pendiente:0, proceso:0, validar:0, cerrada:0, vencidas:0};
+  pendientesData.forEach(p => {
+    cnt[p.estado] = (cnt[p.estado] || 0) + 1;
+    if(p.estado !== 'cerrada'){
+      const d = diasHastaVencer(p.fecha_max);
+      if(d !== null && d < 0) cnt.vencidas++;
+    }
+  });
+  document.getElementById('penStatPendiente').textContent = cnt.pendiente;
+  document.getElementById('penStatProceso').textContent = cnt.proceso;
+  document.getElementById('penStatValidar').textContent = cnt.validar;
+  document.getElementById('penStatVencidas').textContent = cnt.vencidas;
+  document.getElementById('penStatCerradas').textContent = cnt.cerrada;
+
+  // Render según vista activa
+  if(penVistaActual === 'kanban'){
+    renderKanban(filtradas);
+  } else {
+    renderLista(filtradas);
+  }
+  actualizarBadgeSidebarPendientes();
+}
+
+function renderKanban(tareas){
+  const cols = ['pendiente', 'proceso', 'validar', 'cerrada'];
+  cols.forEach(estado => {
+    const cont = document.getElementById('penCol' + estado.charAt(0).toUpperCase() + estado.slice(1));
+    const cnt  = document.getElementById('penColCount' + estado.charAt(0).toUpperCase() + estado.slice(1));
+    const filtradasEstado = tareas.filter(p => p.estado === estado);
+    if(cnt) cnt.textContent = filtradasEstado.length;
+    if(!cont) return;
+    if(filtradasEstado.length === 0){
+      cont.innerHTML = `<div class="pen-col-empty">Sin tareas en esta columna</div>`;
+      return;
+    }
+    cont.innerHTML = filtradasEstado.map(p => renderPenCard(p)).join('');
+  });
+}
+
+function renderPenCard(p){
+  const area = PEN_AREAS[p.area] || { label: p.area || '—', icon: '📌' };
+  const pri  = PEN_PRIORIDADES[p.prioridad] || { label: '—', icon: '⚪' };
+  const dias = p.estado !== 'cerrada' ? diasHastaVencer(p.fecha_max) : null;
+
+  let venceClass = 'ok';
+  let venceTxt = '—';
+  let badgeVencida = '';
+  if(dias !== null){
+    if(dias < 0){ venceClass = 'vencida'; venceTxt = `Venció hace ${Math.abs(dias)}d`; badgeVencida = '<span class="pen-card-badge-vencida">VENCIDA</span>'; }
+    else if(dias === 0){ venceClass = 'vencida'; venceTxt = '¡Vence hoy!'; }
+    else if(dias <= 2){ venceClass = 'por-vencer'; venceTxt = `En ${dias}d`; }
+    else { venceClass = 'ok'; venceTxt = `En ${dias}d`; }
+  }
+
+  const numComentarios = (p.comentarios || []).length;
+  const numAdjuntos = (p.adjuntos || []).length;
+  const cardClass = `pen-card ${dias !== null && dias < 0 ? 'vencida' : (dias !== null && dias <= 2 ? 'por-vencer' : '')}`;
+
+  return `<div class="${cardClass}" onclick="openPendienteDetalle('${escapeHtml(p.id)}')">
+    ${badgeVencida}
+    <div class="pen-card-top">
+      <span class="pen-card-area pen-card-area-${p.area}">${area.icon} ${escapeHtml(area.label)}</span>
+      <span class="pen-card-prioridad">${pri.icon}</span>
+    </div>
+    <div class="pen-card-titulo">${escapeHtml(p.titulo || 'Sin título')}</div>
+    <div class="pen-card-desc">${escapeHtml(p.descripcion || '')}</div>
+    <div class="pen-card-bottom">
+      <span class="pen-card-vence ${venceClass}">${p.estado === 'cerrada' ? '✓ Cerrada' : '📅 ' + venceTxt}</span>
+      <span class="pen-card-comentarios">
+        ${numComentarios > 0 ? `<span title="Comentarios">💬 ${numComentarios}</span>` : ''}
+        ${numAdjuntos > 0 ? `<span title="Adjuntos">📎 ${numAdjuntos}</span>` : ''}
+      </span>
+    </div>
+  </div>`;
+}
+
+function renderLista(tareas){
+  const tbody = document.getElementById('penTableBody');
+  if(!tbody) return;
+  if(tareas.length === 0){
+    tbody.innerHTML = '<tr><td colspan="8" class="aud-empty">📭 No hay tareas que coincidan con los filtros.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = tareas.map(p => {
+    const area = PEN_AREAS[p.area] || { label: p.area, icon: '📌' };
+    const pri  = PEN_PRIORIDADES[p.prioridad] || { label: '—', icon: '⚪' };
+    const est  = PEN_ESTADOS[p.estado] || { label: p.estado, icon: '?' };
+    const dias = p.estado !== 'cerrada' ? diasHastaVencer(p.fecha_max) : null;
+    let venceTxt = formatFechaCorta(p.fecha_max);
+    let venceClass = '';
+    if(dias !== null){
+      if(dias < 0){ venceTxt = `${formatFechaCorta(p.fecha_max)} (venció)`; venceClass = 'pen-pri-alta'; }
+      else if(dias <= 2){ venceClass = 'pen-pri-media'; }
+    }
+    return `<tr style="cursor:pointer;" onclick="openPendienteDetalle('${escapeHtml(p.id)}')">
+      <td class="td-center"><span class="pen-estado-badge pen-estado-${p.estado}">${est.icon} ${est.label}</span></td>
+      <td class="td-center pen-pri-${p.prioridad}">${pri.icon}</td>
+      <td><span class="pen-card-area pen-card-area-${p.area}">${area.icon} ${escapeHtml(area.label)}</span></td>
+      <td><b>${escapeHtml(p.titulo || 'Sin título')}</b></td>
+      <td class="td-center ${venceClass}">${venceTxt}</td>
+      <td>${escapeHtml(p.asignado_a_nombre || p.asignado_a || '—')}</td>
+      <td>${escapeHtml(p.creado_por_nombre || '—')}</td>
+      <td class="td-center">
+        <button class="sig-action-btn sig-action-edit" onclick="event.stopPropagation();openPendienteDetalle('${escapeHtml(p.id)}');" title="Ver detalle">👁️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── Modal: Crear / Editar tarea ───
+function openPendienteModal(){
+  if(!puedeCrearPendiente()){
+    alert('Solo los usuarios "oficina" y "adm" pueden crear pendientes.');
+    return;
+  }
+  penEditandoId = null;
+  penAdjuntosNuevos = [];
+
+  document.getElementById('penModalTitle').textContent = '📌 NUEVA TAREA';
+  document.getElementById('penModalSub').textContent = 'Crear pendiente para el residente';
+  document.getElementById('penPublishBtn').innerHTML = '📌 Crear tarea';
+
+  // Reset campos
+  document.getElementById('penArea').value = 'operaciones';
+  document.getElementById('penPrioridad').value = 'media';
+  document.getElementById('penTitulo').value = '';
+  document.getElementById('penDescripcion').value = '';
+  document.getElementById('penAsignado').value = 'residente';
+
+  // Fecha máxima por defecto: 7 días desde hoy
+  const fechaDef = new Date();
+  fechaDef.setDate(fechaDef.getDate() + 7);
+  document.getElementById('penFechaMax').value = fechaDef.toISOString().split('T')[0];
+
+  // Limpiar adjuntos
+  renderAdjuntosNuevos();
+  document.getElementById('penProgressBanner').style.display = 'none';
+  document.getElementById('penPublishBtn').disabled = false;
+
+  // Setup dropzone (solo una vez)
+  const dz = document.getElementById('penDropzone');
+  const inp = document.getElementById('penFileInput');
+  if(dz && inp && !dz._setupDone){
+    dz._setupDone = true;
+    ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
+    ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
+    dz.addEventListener('drop', e => handlePenAdjuntos(e.dataTransfer.files));
+    inp.onchange = e => { handlePenAdjuntos(e.target.files); inp.value = ''; };
+  }
+
+  document.getElementById('penModal').classList.add('show');
+  setTimeout(() => document.getElementById('penTitulo').focus(), 100);
+}
+
+function closePendienteModal(){
+  document.getElementById('penModal').classList.remove('show');
+}
+
+function handlePenAdjuntos(files){
+  if(!files || !files.length) return;
+  const arr = Array.from(files);
+  for(const f of arr){
+    if(penAdjuntosNuevos.length >= 3){
+      alert('Máximo 3 adjuntos por tarea.');
+      break;
+    }
+    if(f.size > 10 * 1024 * 1024){
+      alert(`${f.name}: excede 10 MB.`);
+      continue;
+    }
+    penAdjuntosNuevos.push(f);
+  }
+  renderAdjuntosNuevos();
+}
+
+function renderAdjuntosNuevos(){
+  const cont = document.getElementById('penAdjuntosList');
+  if(!cont) return;
+  if(penAdjuntosNuevos.length === 0){
+    cont.innerHTML = '';
+    return;
+  }
+  cont.innerHTML = penAdjuntosNuevos.map((f, i) =>
+    `<div class="pen-adjunto-item">
+      <span class="pen-adjunto-icon">📎</span>
+      <span class="pen-adjunto-name">${escapeHtml(f.name)}</span>
+      <span class="pen-adjunto-size">${formatBytes(f.size)}</span>
+      <button class="pen-adjunto-remove" onclick="removerAdjuntoNuevo(${i})" title="Quitar">✕</button>
+    </div>`
+  ).join('');
+}
+
+function removerAdjuntoNuevo(idx){
+  penAdjuntosNuevos.splice(idx, 1);
+  renderAdjuntosNuevos();
+}
+
+async function publicarPendiente(){
+  const titulo = document.getElementById('penTitulo').value.trim();
+  const descripcion = document.getElementById('penDescripcion').value.trim();
+  const area = document.getElementById('penArea').value;
+  const prioridad = document.getElementById('penPrioridad').value;
+  const fechaMax = document.getElementById('penFechaMax').value;
+  const asignadoA = document.getElementById('penAsignado').value;
+
+  if(!titulo){ alert('El título es obligatorio.'); return; }
+  if(!descripcion){ alert('La descripción es obligatoria.'); return; }
+  if(!fechaMax){ alert('La fecha máxima de respuesta es obligatoria.'); return; }
+  if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
+
+  const btn = document.getElementById('penPublishBtn');
+  const cancel = document.querySelector('#penModal .hdr-btn:not(.hdr-btn-primary)');
+  const banner = document.getElementById('penProgressBanner');
+  const bIcon = document.getElementById('penProgressIcon');
+  const bText = document.getElementById('penProgressText');
+  const bFill = document.getElementById('penProgressFill');
+  const bDetail = document.getElementById('penProgressDetail');
+
+  btn.disabled = true;
+  if(cancel) cancel.disabled = true;
+  banner.style.display = 'block';
+  banner.classList.remove('success', 'error');
+
+  try {
+    // Subir adjuntos a Cloudinary
+    const adjuntosSubidos = [];
+    for(let i = 0; i < penAdjuntosNuevos.length; i++){
+      const f = penAdjuntosNuevos[i];
+      bIcon.textContent = '⏳';
+      bText.textContent = `Subiendo adjunto ${i + 1} de ${penAdjuntosNuevos.length}…`;
+      bFill.style.width = ((i / Math.max(penAdjuntosNuevos.length, 1)) * 70).toFixed(0) + '%';
+      bDetail.textContent = `${f.name} (${formatBytes(f.size)})`;
+
+      const result = await uploadGenericoToCloudinary(f, 'pendientes', 'tarea');
+      adjuntosSubidos.push({
+        nombre: f.name,
+        tamano: f.size,
+        url:    result.url,
+        public_id: result.public_id,
+      });
+    }
+
+    // Crear tarea en Firestore
+    bIcon.textContent = '⏳';
+    bText.textContent = 'Guardando tarea en Firestore…';
+    bFill.style.width = '85%';
+
+    const { db, collection, addDoc } = window.E140_DB;
+    const ahora = new Date().toISOString();
+    const ts = Date.now();
+    const userId = (currentSession && currentSession.usuario) || 'desconocido';
+    const userName = (currentSession && currentSession.nombre) || 'Sin sesión';
+
+    // Asignado_a_nombre según selección
+    let asignadoNombre = 'Residente';
+    if(asignadoA === 'staff') asignadoNombre = 'Staff de Obra';
+    else if(asignadoA === 'residente') asignadoNombre = 'Residente · José Rojas O.';
+
+    const evento = {
+      tipo: 'creado',
+      texto: `📌 Tarea creada por ${userName}`,
+      autor: userId,
+      autor_nombre: userName,
+      fecha: ahora,
+      ts: ts,
+      es_evento: true,
+    };
+
+    const docRef = await addDoc(collection(db, 'pendientes'), {
+      titulo:       titulo,
+      descripcion:  descripcion,
+      area:         area,
+      prioridad:    prioridad,
+      estado:       'pendiente',
+      fecha_max:    fechaMax,
+      asignado_a:   asignadoA,
+      asignado_a_nombre: asignadoNombre,
+      adjuntos:     adjuntosSubidos,
+      comentarios:  [evento],
+      creado_por:        userId,
+      creado_por_nombre: userName,
+      creado_en:    ahora,
+      creado_ts:    ts,
+    });
+
+    bFill.style.width = '100%';
+    banner.classList.add('success');
+    bIcon.textContent = '✓';
+    bText.textContent = '¡Tarea creada!';
+    bDetail.textContent = titulo;
+
+    // Agregar a cache
+    pendientesData.unshift({
+      id: docRef.id,
+      titulo, descripcion, area, prioridad,
+      estado: 'pendiente',
+      fecha_max: fechaMax,
+      asignado_a: asignadoA,
+      asignado_a_nombre: asignadoNombre,
+      adjuntos: adjuntosSubidos,
+      comentarios: [evento],
+      creado_por: userId,
+      creado_por_nombre: userName,
+      creado_en: ahora,
+      creado_ts: ts,
+    });
+
+    if(currentTab === 'pendientes'){
+      try { renderPendientes(); } catch(e){}
+    }
+
+    setTimeout(() => {
+      if(cancel) cancel.disabled = false;
+      btn.disabled = false;
+      closePendienteModal();
+    }, 1500);
+
+  } catch(err){
+    console.error('[E140] Error publicando pendiente:', err);
+    banner.classList.add('error');
+    bIcon.textContent = '✕';
+    bText.textContent = 'Error al crear la tarea';
+    bDetail.textContent = err.message || String(err);
+    btn.disabled = false;
+    if(cancel) cancel.disabled = false;
+  }
+}
+
+// ─── Subir archivo genérico (cualquier tipo) a Cloudinary ───
+async function uploadGenericoToCloudinary(file, area, archivoKey){
+  const cfg = window.E140_CLOUDINARY;
+  const url = `https://api.cloudinary.com/v1_1/${cfg.cloudName}/raw/upload`;
+
+  const ext = (file.name.match(/\.[^.]+$/) || [''])[0];
+  const safeKey = (archivoKey || 'archivo').replace(/[^a-zA-Z0-9_-]/g, '_');
+  const timestamp = Date.now();
+  const safeName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_').slice(0, 60);
+  const publicId = `${area}_${safeKey}_${timestamp}_${safeName}`;
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', cfg.excelPreset);
+  formData.append('folder', `${cfg.excelFolder}/${area}`);
+  formData.append('public_id', publicId);
+
+  const response = await fetch(url, { method: 'POST', body: formData });
+  if(!response.ok){
+    const errorText = await response.text();
+    throw new Error(`Cloudinary respondió ${response.status}: ${errorText.slice(0, 200)}`);
+  }
+  const data = await response.json();
+  if(!data.secure_url) throw new Error('Cloudinary no devolvió URL del archivo');
+  return { url: data.secure_url, public_id: data.public_id, bytes: data.bytes };
+}
+
+// ─── Modal de Detalle (con chat) ───
+function openPendienteDetalle(id){
+  const p = pendientesData.find(x => x.id === id);
+  if(!p){ alert('No se encontró la tarea.'); return; }
+  penDetalleId = id;
+  renderPendienteDetalle(p);
+  document.getElementById('penDetalleModal').classList.add('show');
+}
+
+function closePendienteDetalleModal(){
+  document.getElementById('penDetalleModal').classList.remove('show');
+  penDetalleId = null;
+}
+
+function renderPendienteDetalle(p){
+  const area = PEN_AREAS[p.area] || { label: p.area, icon: '📌' };
+  const pri  = PEN_PRIORIDADES[p.prioridad] || { label: '—', icon: '⚪' };
+  const est  = PEN_ESTADOS[p.estado] || { label: p.estado, icon: '?' };
+  const dias = p.estado !== 'cerrada' ? diasHastaVencer(p.fecha_max) : null;
+
+  let venceTxt = formatFechaCorta(p.fecha_max);
+  let venceColor = 'inherit';
+  if(dias !== null){
+    if(dias < 0){ venceTxt += ` (venció hace ${Math.abs(dias)}d)`; venceColor = '#D64045'; }
+    else if(dias === 0){ venceTxt += ' (¡hoy!)'; venceColor = '#D64045'; }
+    else if(dias <= 2){ venceTxt += ` (en ${dias}d)`; venceColor = '#A0521E'; }
+  }
+
+  document.getElementById('penDetalleTitulo').textContent = p.titulo || 'Sin título';
+  document.getElementById('penDetalleMeta').textContent = `${est.icon} ${est.label} · ${area.icon} ${area.label} · ${pri.icon} Prioridad ${pri.label}`;
+
+  const adjuntosHtml = (p.adjuntos || []).map(a =>
+    `<div class="pen-adjunto-item">
+      <span class="pen-adjunto-icon">📎</span>
+      <span class="pen-adjunto-name">${escapeHtml(a.nombre)}</span>
+      <span class="pen-adjunto-size">${formatBytes(a.tamano || 0)}</span>
+      <a class="pen-adjunto-link" href="${escapeHtml(cloudinaryDownloadUrl(a.url))}" target="_blank" rel="noopener" download>⬇ Descargar</a>
+    </div>`
+  ).join('') || '<div style="color:var(--text-muted);font-size:11.5px;font-style:italic;">Sin adjuntos</div>';
+
+  const comentariosHtml = (p.comentarios || []).length === 0
+    ? '<div class="pen-chat-empty">💬 Aún no hay comentarios. Sé el primero en escribir.</div>'
+    : (p.comentarios || []).map(c => {
+        const fechaC = c.fecha ? new Date(c.fecha).toLocaleString('es-PE', {day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
+        const esEvento = c.es_evento;
+        const claseRol = (c.autor === 'residente' || c.autor === 'staff') ? 'es-residente' : ((c.autor === 'oficina' || c.autor === 'adm') ? 'es-validador' : '');
+        const cls = esEvento ? 'pen-comentario pen-comentario-evento' : `pen-comentario ${claseRol}`;
+        return `<div class="${cls}">
+          <div class="pen-comentario-head">
+            <span><span class="pen-comentario-autor">${escapeHtml(c.autor_nombre || '—')}</span></span>
+            <span class="pen-comentario-fecha">${fechaC}</span>
+          </div>
+          <div class="pen-comentario-texto">${escapeHtml(c.texto || '')}</div>
+        </div>`;
+      }).join('');
+
+  const cuerpo = `
+    <div class="pen-det-meta-row">
+      <div class="pen-det-meta-card">
+        <div class="pen-det-label">Vence</div>
+        <div class="pen-det-meta-val" style="color:${venceColor};">${venceTxt}</div>
+      </div>
+      <div class="pen-det-meta-card">
+        <div class="pen-det-label">Asignado a</div>
+        <div class="pen-det-meta-val">${escapeHtml(p.asignado_a_nombre || p.asignado_a || '—')}</div>
+      </div>
+      <div class="pen-det-meta-card">
+        <div class="pen-det-label">Creado por</div>
+        <div class="pen-det-meta-val">${escapeHtml(p.creado_por_nombre || '—')}</div>
+      </div>
+      <div class="pen-det-meta-card">
+        <div class="pen-det-label">Creado el</div>
+        <div class="pen-det-meta-val">${formatFechaCorta(p.creado_en || '')}</div>
+      </div>
+    </div>
+
+    <div class="pen-det-section">
+      <div class="pen-det-label">Descripción del pendiente</div>
+      <div class="pen-det-value" style="white-space:pre-wrap;">${escapeHtml(p.descripcion || '')}</div>
+    </div>
+
+    <div class="pen-det-section">
+      <div class="pen-det-label">📎 Adjuntos (${(p.adjuntos || []).length})</div>
+      <div class="pen-adjuntos-list">${adjuntosHtml}</div>
+    </div>
+
+    <div class="pen-det-section">
+      <div class="pen-det-label">💬 Comentarios y eventos (${(p.comentarios || []).length})</div>
+      <div class="pen-chat" id="penChatList">${comentariosHtml}</div>
+      ${puedeComentar(p) ? `
+        <div class="pen-chat-input-area">
+          <textarea id="penChatInput" placeholder="Escribe un comentario… (puedes adjuntar archivos también)"></textarea>
+          <input type="file" id="penChatFileInput" multiple style="display:none" onchange="handleChatAdjuntoSelect(event)">
+          <div id="penChatAdjuntosList"></div>
+          <div class="pen-chat-actions">
+            <button class="hdr-btn" onclick="document.getElementById('penChatFileInput').click()" style="background:#fff;color:var(--text);border-color:var(--border-mid);">📎 Adjuntar</button>
+            <button class="hdr-btn hdr-btn-primary" onclick="agregarComentario('${escapeHtml(p.id)}')" style="background:var(--twitter-blue);">💬 Enviar</button>
+          </div>
+        </div>` : `<div style="text-align:center;padding:14px;color:var(--text-muted);font-size:11.5px;font-style:italic;">${p.estado === 'cerrada' ? '✅ Tarea cerrada — no se admiten más comentarios' : '🔒 No tienes permiso para comentar'}</div>`}
+    </div>
+  `;
+  document.getElementById('penDetalleBody').innerHTML = cuerpo;
+
+  // Botones de acción según estado y rol
+  const foot = document.getElementById('penDetalleFoot');
+  const botones = ['<button class="hdr-btn" onclick="closePendienteDetalleModal()">Cerrar</button>'];
+
+  if(puedeAvanzarTarea(p)){
+    if(p.estado === 'pendiente'){
+      botones.push(`<button class="hdr-btn hdr-btn-primary" onclick="cambiarEstadoPendiente('${escapeHtml(p.id)}','proceso')" style="background:#0070B4;">⏳ Empezar (En proceso)</button>`);
+    }
+    if(p.estado === 'proceso'){
+      botones.push(`<button class="hdr-btn hdr-btn-primary" onclick="cambiarEstadoPendiente('${escapeHtml(p.id)}','validar')" style="background:#7B2D8E;">✅ Marcar para validar</button>`);
+    }
+  }
+  if(puedeValidar(p)){
+    botones.push(`<button class="hdr-btn" onclick="cambiarEstadoPendiente('${escapeHtml(p.id)}','proceso')" style="background:#fff;color:#A0521E;border-color:#A0521E;">↩️ Devolver al residente</button>`);
+    botones.push(`<button class="hdr-btn hdr-btn-primary" onclick="cambiarEstadoPendiente('${escapeHtml(p.id)}','cerrada')" style="background:#1A6B4A;">✓ Validar y cerrar</button>`);
+  }
+  if(puedeEliminarPendiente(p)){
+    botones.unshift(`<button class="hdr-btn" onclick="eliminarPendiente('${escapeHtml(p.id)}')" style="background:#fff;color:#D64045;border-color:#E5A4A6;margin-right:auto;">🗑️ Eliminar</button>`);
+  }
+
+  foot.innerHTML = botones.join('');
+}
+
+// Adjuntos del chat (al comentar)
+let penChatAdjuntos = [];
+function handleChatAdjuntoSelect(e){
+  const files = Array.from(e.target.files || []);
+  for(const f of files){
+    if(penChatAdjuntos.length >= 3){ alert('Máximo 3 adjuntos por comentario.'); break; }
+    if(f.size > 10*1024*1024){ alert(`${f.name}: excede 10 MB.`); continue; }
+    penChatAdjuntos.push(f);
+  }
+  e.target.value = '';
+  const cont = document.getElementById('penChatAdjuntosList');
+  if(cont){
+    cont.innerHTML = penChatAdjuntos.map((f,i) =>
+      `<div class="pen-adjunto-item"><span>📎</span><span class="pen-adjunto-name">${escapeHtml(f.name)}</span><span class="pen-adjunto-size">${formatBytes(f.size)}</span><button class="pen-adjunto-remove" onclick="penChatAdjuntos.splice(${i},1);handleChatAdjuntoSelect({target:{files:[],value:''}});">✕</button></div>`
+    ).join('');
+  }
+}
+
+async function agregarComentario(id){
+  const p = pendientesData.find(x => x.id === id);
+  if(!p) return;
+  const input = document.getElementById('penChatInput');
+  const texto = (input.value || '').trim();
+  if(!texto && penChatAdjuntos.length === 0){
+    alert('Escribe un comentario o adjunta un archivo.');
+    return;
+  }
+  if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
+
+  const sendBtn = document.querySelector('.pen-chat-actions .hdr-btn-primary');
+  if(sendBtn){ sendBtn.disabled = true; sendBtn.textContent = 'Enviando…'; }
+
+  try {
+    // Subir adjuntos del chat (si hay)
+    const adjuntosNuevos = [];
+    for(const f of penChatAdjuntos){
+      const result = await uploadGenericoToCloudinary(f, 'pendientes', 'comentario');
+      adjuntosNuevos.push({ nombre: f.name, tamano: f.size, url: result.url, public_id: result.public_id });
+    }
+
+    const userId = (currentSession && currentSession.usuario) || 'desconocido';
+    const userName = (currentSession && currentSession.nombre) || 'Sin sesión';
+    const ahora = new Date().toISOString();
+    const ts = Date.now();
+
+    const nuevoComentario = {
+      tipo: 'comentario',
+      texto: texto,
+      autor: userId,
+      autor_nombre: userName,
+      fecha: ahora,
+      ts: ts,
+    };
+
+    const comentariosActualizados = [...(p.comentarios || []), nuevoComentario];
+    const adjuntosActualizados = [...(p.adjuntos || []), ...adjuntosNuevos];
+
+    const { db, doc, setDoc } = window.E140_DB;
+    await setDoc(doc(db, 'pendientes', id), {
+      comentarios: comentariosActualizados,
+      adjuntos:    adjuntosActualizados,
+    }, { merge: true });
+
+    // Actualizar cache local
+    p.comentarios = comentariosActualizados;
+    p.adjuntos = adjuntosActualizados;
+
+    // Limpiar input y adjuntos
+    input.value = '';
+    penChatAdjuntos = [];
+    renderPendienteDetalle(p);
+    renderPendientes();
+  } catch(err){
+    console.error('[E140] Error agregando comentario:', err);
+    alert(`❌ Error: ${err.message || err}`);
+    if(sendBtn){ sendBtn.disabled = false; sendBtn.innerHTML = '💬 Enviar'; }
+  }
+}
+
+async function cambiarEstadoPendiente(id, nuevoEstado){
+  const p = pendientesData.find(x => x.id === id);
+  if(!p) return;
+  if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
+
+  const estadoAnt = PEN_ESTADOS[p.estado] || { label: p.estado };
+  const estadoNuevo = PEN_ESTADOS[nuevoEstado] || { label: nuevoEstado };
+
+  try {
+    const userId = (currentSession && currentSession.usuario) || 'desconocido';
+    const userName = (currentSession && currentSession.nombre) || 'Sin sesión';
+    const ahora = new Date().toISOString();
+    const ts = Date.now();
+
+    const evento = {
+      tipo: 'cambio_estado',
+      texto: `${estadoNuevo.icon} Estado cambiado: ${estadoAnt.label} → ${estadoNuevo.label}`,
+      autor: userId,
+      autor_nombre: userName,
+      fecha: ahora,
+      ts: ts,
+      es_evento: true,
+    };
+
+    const comentariosActualizados = [...(p.comentarios || []), evento];
+
+    const updates = {
+      estado: nuevoEstado,
+      comentarios: comentariosActualizados,
+      ultimo_cambio_ts: ts,
+      ultimo_cambio_por: userId,
+    };
+    if(nuevoEstado === 'cerrada'){
+      updates.cerrada_en = ahora;
+      updates.cerrada_por = userName;
+    }
+
+    const { db, doc, setDoc } = window.E140_DB;
+    await setDoc(doc(db, 'pendientes', id), updates, { merge: true });
+
+    p.estado = nuevoEstado;
+    p.comentarios = comentariosActualizados;
+    if(nuevoEstado === 'cerrada'){ p.cerrada_en = ahora; p.cerrada_por = userName; }
+
+    renderPendienteDetalle(p);
+    renderPendientes();
+  } catch(err){
+    console.error('[E140] Error cambiando estado:', err);
+    alert(`❌ Error: ${err.message || err}`);
+  }
+}
+
+async function eliminarPendiente(id){
+  if(!puedeEliminarPendiente()){
+    alert('Solo "oficina" y "adm" pueden eliminar tareas.');
+    return;
+  }
+  const p = pendientesData.find(x => x.id === id);
+  if(!p) return;
+  if(!confirm(`¿Eliminar la tarea "${p.titulo}"?\n\nEsta acción NO se puede deshacer.`)) return;
+
+  try {
+    const { db, doc, deleteDoc } = window.E140_DB;
+    await deleteDoc(doc(db, 'pendientes', id));
+    pendientesData = pendientesData.filter(x => x.id !== id);
+    closePendienteDetalleModal();
+    renderPendientes();
+    alert('✓ Tarea eliminada.');
+  } catch(err){
+    console.error('[E140] Error eliminando tarea:', err);
+    alert(`❌ Error: ${err.message || err}`);
+  }
+}
+
+async function loadPendientesFromFirestore(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs, query, orderBy } = window.E140_DB;
+    const q = query(collection(db, 'pendientes'), orderBy('creado_ts', 'desc'));
+    const snapshot = await getDocs(q);
+    pendientesData = [];
+    snapshot.forEach(s => pendientesData.push({ id: s.id, ...s.data() }));
+    actualizarBadgeSidebarPendientes();
+    if(currentTab === 'pendientes'){
+      try { renderPendientes(); } catch(e){}
+    }
+  } catch(err){
+    console.warn('[E140] No se pudieron cargar pendientes:', err.message || err);
+  }
+}
+
 // ─── Subir un PDF a Cloudinary (resource_type: raw) ───
 async function uploadPdfToCloudinary(file, semana, area, archivoKey){
   const cfg = window.E140_CLOUDINARY;
@@ -9397,6 +10682,7 @@ function cargarFotosFirestoreAsync(){
   const ejecutar = () => {
     loadFotosFromFirestore();
     loadInspeccionesSIGFromFirestore();
+    loadPendientesFromFirestore();
   };
   if(window._E140_FIREBASE_READY){
     ejecutar();
