@@ -10380,7 +10380,7 @@ function renderPendienteDetalle(p){
           <div id="penChatAdjuntosList"></div>
           <div class="pen-chat-actions">
             <button class="hdr-btn" onclick="document.getElementById('penChatFileInput').click()" style="background:#fff;color:var(--text);border-color:var(--border-mid);">📎 Adjuntar</button>
-            <button class="hdr-btn hdr-btn-primary" onclick="agregarComentario('${escapeHtml(p.id)}')" style="background:var(--twitter-blue);">💬 Enviar</button>
+            <button class="hdr-btn hdr-btn-primary" onclick="agregarComentario('${escapeHtml(p.id)}')" style="background:var(--twitter-blue);color:#fff;border-color:var(--twitter-blue);">💬 Enviar</button>
           </div>
         </div>` : `<div style="text-align:center;padding:14px;color:var(--text-muted);font-size:11.5px;font-style:italic;">${p.estado === 'cerrada' ? '✅ Tarea cerrada — no se admiten más comentarios' : '🔒 No tienes permiso para comentar'}</div>`}
     </div>
@@ -10393,15 +10393,15 @@ function renderPendienteDetalle(p){
 
   if(puedeAvanzarTarea(p)){
     if(p.estado === 'pendiente'){
-      botones.push(`<button class="hdr-btn hdr-btn-primary" onclick="cambiarEstadoPendiente('${escapeHtml(p.id)}','proceso')" style="background:#0070B4;">⏳ Empezar (En proceso)</button>`);
+      botones.push(`<button class="hdr-btn hdr-btn-primary" onclick="cambiarEstadoPendiente('${escapeHtml(p.id)}','proceso')" style="background:#0070B4;color:#fff;border-color:#0070B4;">⏳ Empezar (En proceso)</button>`);
     }
     if(p.estado === 'proceso'){
-      botones.push(`<button class="hdr-btn hdr-btn-primary" onclick="cambiarEstadoPendiente('${escapeHtml(p.id)}','validar')" style="background:#7B2D8E;">✅ Marcar para validar</button>`);
+      botones.push(`<button class="hdr-btn hdr-btn-primary" onclick="cambiarEstadoPendiente('${escapeHtml(p.id)}','validar')" style="background:#7B2D8E;color:#fff;border-color:#7B2D8E;">✅ Marcar para validar</button>`);
     }
   }
   if(puedeValidar(p)){
     botones.push(`<button class="hdr-btn" onclick="cambiarEstadoPendiente('${escapeHtml(p.id)}','proceso')" style="background:#fff;color:#A0521E;border-color:#A0521E;">↩️ Devolver al residente</button>`);
-    botones.push(`<button class="hdr-btn hdr-btn-primary" onclick="cambiarEstadoPendiente('${escapeHtml(p.id)}','cerrada')" style="background:#1A6B4A;">✓ Validar y cerrar</button>`);
+    botones.push(`<button class="hdr-btn hdr-btn-primary" onclick="cambiarEstadoPendiente('${escapeHtml(p.id)}','cerrada')" style="background:#1A6B4A;color:#fff;border-color:#1A6B4A;">✓ Validar y cerrar</button>`);
   }
   if(puedeEliminarPendiente(p)){
     botones.unshift(`<button class="hdr-btn" onclick="eliminarPendiente('${escapeHtml(p.id)}')" style="background:#fff;color:#D64045;border-color:#E5A4A6;margin-right:auto;">🗑️ Eliminar</button>`);
