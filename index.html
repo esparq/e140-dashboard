@@ -6793,7 +6793,7 @@ function renderCalidadSIG(){
         const obs = (x.observaciones || '').trim() || '<span style="color:var(--text-muted);">—</span>';
         const obsHtml = obs.length > 80 ? `<span title="${escapeHtml(x.observaciones || '')}">${escapeHtml((x.observaciones || '').slice(0, 80))}…</span>` : escapeHtml(obs === '<span style="color:var(--text-muted);">—</span>' ? '' : obs) || '<span style="color:var(--text-muted);">—</span>';
         const pdfBtn = x.pdf_url
-          ? `<a href="${escapeHtml(x.pdf_url)}" target="_blank" rel="noopener" class="aud-btn-download" title="Descargar PDF de la inspección" style="padding:4px 10px;font-size:10px;">📥 PDF</a>`
+          ? `<a href="${escapeHtml(cloudinaryDownloadUrl(x.pdf_url))}" target="_blank" rel="noopener" class="aud-btn-download" title="Descargar PDF de la inspección" style="padding:4px 10px;font-size:10px;" download>📥 PDF</a>`
           : '<span style="color:var(--text-muted);font-size:10px;">—</span>';
         return `<tr>
           <td class="td-center"><b>${numero}</b></td>
@@ -8777,7 +8777,7 @@ function renderAuditoriaTabla(){
     const usrHtml = `<span class="aud-usuario">${escapeHtml(r.subido_por_nombre || r.subido_por || 'Sin sesión')}</span>`;
     const fechaHtml = `<span class="aud-fecha">${formatFechaAud(r.subido_en || r.subido_ts)}</span>`;
     const downloadHtml = r.cloudinary_url
-      ? `<a class="aud-btn-download" href="${escapeHtml(r.cloudinary_url)}" target="_blank" rel="noopener" download>⬇ Descargar</a>`
+      ? `<a class="aud-btn-download" href="${escapeHtml(cloudinaryDownloadUrl(r.cloudinary_url))}" target="_blank" rel="noopener" download>⬇ Descargar</a>`
       : '<span style="color:var(--text-muted);font-size:11px;">No disponible</span>';
 
     return `<tr>
@@ -8819,6 +8819,25 @@ function formatFechaAud(input){
 function escapeHtml(str){
   if(str == null) return '';
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/**
+ * Transforma una URL de Cloudinary para forzar la descarga al hacer clic.
+ * Cloudinary respeta el flag fl_attachment: cuando está presente, el archivo
+ * se descarga en lugar de mostrarse en el navegador (evita el problema de
+ * "No podemos abrir este archivo" con PDFs y archivos raw).
+ *
+ * Ejemplo:
+ *   in:  https://res.cloudinary.com/dgekyeapv/raw/upload/v123/folder/file.pdf
+ *   out: https://res.cloudinary.com/dgekyeapv/raw/upload/fl_attachment/v123/folder/file.pdf
+ */
+function cloudinaryDownloadUrl(url){
+  if(!url || typeof url !== 'string') return url;
+  // Solo aplicar si viene de Cloudinary y aún no tiene fl_attachment
+  if(!url.includes('res.cloudinary.com')) return url;
+  if(url.includes('/fl_attachment')) return url;
+  // Insertar fl_attachment después de /upload/
+  return url.replace(/\/(upload|raw\/upload|image\/upload)\//, '/$1/fl_attachment/');
 }
 
 /* ═══════════════════════════════════════════════════════════════════
