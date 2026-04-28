@@ -1564,6 +1564,33 @@ body.role-viewer .admin-only{display:none !important;}
 #calCapTblHistorico tr.cap-row-active{background:#F4F9FD !important;}
 #calCapTblHistorico tr.cap-row-active td{font-weight:700;}
 
+/* Comentario y metadatos del personal de capacitación */
+.cap-personal-comentario{font-size:10.5px;color:var(--text);margin-top:5px;font-style:italic;line-height:1.35;background:#FFF8EE;padding:4px 8px;border-radius:4px;border-left:2px solid #E5C792;text-align:left;display:inline-block;max-width:280px;}
+.cap-personal-meta{font-size:9.5px;color:var(--text-muted);margin-top:3px;font-family:'DM Mono',monospace;}
+.sig-action-btn.cap-edit-estado{background:#fff;border-color:var(--border-mid);}
+.sig-action-btn.cap-edit-estado:hover{background:#FFF8EE;border-color:#A0521E;color:#A0521E;}
+
+/* Mini-modal: opciones de estado tipo "card radio" */
+.cap-estado-options{display:flex;flex-direction:column;gap:8px;}
+.cap-estado-option{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;transition:all .15s;background:#fff;}
+.cap-estado-option:hover{border-color:var(--border-mid);background:#FAFBFC;}
+.cap-estado-option input[type="radio"]{margin:0;cursor:pointer;width:16px;height:16px;flex-shrink:0;}
+.cap-estado-option .cap-opt-icon{font-size:18px;font-weight:700;width:24px;text-align:center;flex-shrink:0;}
+.cap-estado-option .cap-opt-titulo{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:var(--text);}
+.cap-estado-option .cap-opt-sub{font-size:10.5px;color:var(--text-muted);}
+
+.cap-estado-option.cap-opt-aprobado:has(input:checked){border-color:#2D936C;background:#F0F9F4;}
+.cap-estado-option.cap-opt-aprobado .cap-opt-icon{color:#1A6B4A;}
+.cap-estado-option.cap-opt-aprobado:has(input:checked) .cap-opt-titulo{color:#1A6B4A;}
+
+.cap-estado-option.cap-opt-desaprobado:has(input:checked){border-color:#D64045;background:#FBEAEA;}
+.cap-estado-option.cap-opt-desaprobado .cap-opt-icon{color:#8A2A2D;}
+.cap-estado-option.cap-opt-desaprobado:has(input:checked) .cap-opt-titulo{color:#8A2A2D;}
+
+.cap-estado-option.cap-opt-pendiente:has(input:checked){border-color:#A0521E;background:#FFF8EE;}
+.cap-estado-option.cap-opt-pendiente .cap-opt-icon{color:#7A3F18;}
+.cap-estado-option.cap-opt-pendiente:has(input:checked) .cap-opt-titulo{color:#7A3F18;}
+
 /* ═══════════════════════════════════════════
    PENDIENTES — Sistema de tareas
    ═══════════════════════════════════════════ */
@@ -2387,6 +2414,87 @@ body.role-viewer .admin-only{display:none !important;}
       <button class="hdr-btn" onclick="closeCapModal()">Cancelar</button>
       <button class="hdr-btn hdr-btn-primary" id="capPublishBtn" onclick="publicarCapacitacion()" style="background:var(--twitter-blue);color:#fff;border-color:var(--twitter-blue);">
         🚀 Publicar capacitación
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MINI-MODAL: ACTUALIZAR ESTADO INDIVIDUAL
+     (Para casos como "Jaime ya completó su capacitación")
+     ═══════════════════════════════════════════ -->
+<div class="modal-backdrop" id="capEstadoModal">
+  <div class="modal-card" style="max-width:480px;">
+    <div class="modal-head">
+      <div>
+        <h2>✏️ ACTUALIZAR ESTADO</h2>
+        <p id="capEstadoModalSub">—</p>
+      </div>
+      <button class="modal-close" onclick="closeCapEstadoModal()" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="area-info-banner" style="background:#FFF8EE;border-left-color:#A0521E;">
+        <b>📝 Actualizar resultado individual</b> · Cambia el estado de esta persona después de que rinda el examen o cumpla con la capacitación. El cambio queda registrado con tu usuario y la fecha actual.
+      </div>
+
+      <div class="sig-form" style="margin-top:8px;">
+        <div class="sig-form-field">
+          <label>Persona</label>
+          <div style="padding:10px 12px;background:#FAFBFC;border:1px solid var(--border);border-radius:6px;font-size:13px;">
+            <b id="capEstadoPersonaNombre">—</b><br>
+            <span style="font-size:11px;color:var(--text-muted);" id="capEstadoPersonaCargo">—</span>
+          </div>
+        </div>
+
+        <div class="sig-form-field">
+          <label>Nuevo estado <span style="color:#D64045;">*</span></label>
+          <div class="cap-estado-options">
+            <label class="cap-estado-option cap-opt-aprobado">
+              <input type="radio" name="capNuevoEstado" value="aprobado">
+              <span class="cap-opt-icon">✓</span>
+              <div>
+                <div class="cap-opt-titulo">APROBADO</div>
+                <div class="cap-opt-sub">Nota ≥ 11</div>
+              </div>
+            </label>
+            <label class="cap-estado-option cap-opt-desaprobado">
+              <input type="radio" name="capNuevoEstado" value="desaprobado">
+              <span class="cap-opt-icon">✗</span>
+              <div>
+                <div class="cap-opt-titulo">DESAPROBADO</div>
+                <div class="cap-opt-sub">Nota ≤ 10</div>
+              </div>
+            </label>
+            <label class="cap-estado-option cap-opt-pendiente">
+              <input type="radio" name="capNuevoEstado" value="pendiente">
+              <span class="cap-opt-icon">⏳</span>
+              <div>
+                <div class="cap-opt-titulo">PENDIENTE</div>
+                <div class="cap-opt-sub">No ha rendido aún</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="sig-form-field">
+          <label>Comentario (opcional · ej: fecha del examen, observación)</label>
+          <textarea id="capEstadoComentario" rows="2" placeholder="Ej: Examen tomado el 30/04/2026, aprobó con nota 14"></textarea>
+        </div>
+      </div>
+
+      <div class="fotos-progress-banner" id="capEstadoProgressBanner" style="display:none;">
+        <div class="fotos-progress-header">
+          <span class="fotos-progress-icon" id="capEstadoProgressIcon">⏳</span>
+          <span class="fotos-progress-text" id="capEstadoProgressText">Guardando…</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="hdr-btn" onclick="closeCapEstadoModal()">Cancelar</button>
+      <button class="hdr-btn hdr-btn-primary" id="capEstadoSaveBtn" onclick="guardarEstadoIndividual()" style="background:#A0521E;color:#fff;border-color:#A0521E;">
+        💾 Guardar cambio
       </button>
     </div>
   </div>
@@ -7699,7 +7807,13 @@ function renderCalidadCap(){
 
 function obtenerCapacitacionesCombinadas(){
   // Combina la inicial + las cargadas desde Firestore. Ordenadas por fecha desc.
-  const todas = [CAPACITACION_INICIAL_E140, ...capacitacionesData];
+  // Si la inicial ya fue migrada (porque alguien editó un estado), no la incluimos
+  // para evitar duplicados — la versión en Firestore es la fuente de verdad.
+  const yaMigrada = CAPACITACION_INICIAL_E140._migrada
+    || capacitacionesData.some(c => c.migrado_desde_inicial);
+  const todas = yaMigrada
+    ? [...capacitacionesData]
+    : [CAPACITACION_INICIAL_E140, ...capacitacionesData];
   return todas.sort((a, b) => {
     const da = new Date(a.fecha || 0).getTime();
     const db = new Date(b.fecha || 0).getTime();
@@ -7729,14 +7843,16 @@ function verDetalleCapacitacion(id){
   if((c.personal || []).length === 0){
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);font-style:italic;">Sin personal registrado.</td></tr>';
   } else {
-    // Ordenar: aprobados primero, después desaprobados, después pendientes
-    const ordenEstado = { aprobado: 0, desaprobado: 1, pendiente: 2 };
-    const personalOrdenado = [...c.personal].sort((a, b) => {
+    // Ordenar: pendientes primero (los que requieren acción), luego desaprobados, luego aprobados
+    const ordenEstado = { pendiente: 0, desaprobado: 1, aprobado: 2 };
+    const personalOrdenado = [...c.personal].map((p, idx) => ({ ...p, _idx: idx })).sort((a, b) => {
       const da = ordenEstado[a.estado] != null ? ordenEstado[a.estado] : 9;
       const db = ordenEstado[b.estado] != null ? ordenEstado[b.estado] : 9;
       if(da !== db) return da - db;
       return (a.apellidos || '').localeCompare(b.apellidos || '');
     });
+    const puedeEditarEstado = currentSession && (currentSession.usuario === 'adm' || currentSession.usuario === 'oficina');
+
     tbody.innerHTML = personalOrdenado.map((p, i) => {
       let badge = '';
       if(p.estado === 'aprobado'){
@@ -7746,12 +7862,32 @@ function verDetalleCapacitacion(id){
       } else {
         badge = '<span class="cap-estado-badge cap-estado-pendiente">⏳ Pendiente</span>';
       }
+
+      // Botón de edición individual (solo para adm/oficina)
+      const editBtn = puedeEditarEstado
+        ? `<button class="sig-action-btn sig-action-edit cap-edit-estado" onclick="abrirEditorEstadoIndividual('${escapeHtml(c.id)}', ${p._idx})" title="Actualizar estado de ${escapeHtml(p.nombre || '')} ${escapeHtml(p.apellidos || '')}" style="margin-left:6px;width:22px;height:22px;font-size:11px;">✏️</button>`
+        : '';
+
+      // Mostrar comentario / metadata si existe
+      let comentarioHtml = '';
+      if(p.comentario_estado){
+        comentarioHtml = `<div class="cap-personal-comentario">💬 ${escapeHtml(p.comentario_estado)}</div>`;
+      }
+      if(p.actualizado_en){
+        const fechaAct = formatFechaCorta(p.actualizado_en);
+        const quien = p.actualizado_por_nombre || p.actualizado_por || '';
+        comentarioHtml += `<div class="cap-personal-meta">↻ actualizado el ${fechaAct}${quien ? ' por ' + escapeHtml(quien) : ''}</div>`;
+      }
+
       return `<tr>
         <td class="td-center"><b>${i + 1}</b></td>
         <td><b>${escapeHtml(p.apellidos || '—')}</b></td>
         <td>${escapeHtml(p.nombre || '—')}</td>
         <td>${escapeHtml(p.cargo || '—')}</td>
-        <td class="td-center">${badge}</td>
+        <td class="td-center">
+          <div style="display:inline-flex;align-items:center;justify-content:center;">${badge}${editBtn}</div>
+          ${comentarioHtml}
+        </td>
       </tr>`;
     }).join('');
   }
@@ -8177,6 +8313,201 @@ async function eliminarCapacitacion(id){
   } catch(err){
     console.error('[E140] Error eliminando capacitación:', err);
     alert(`❌ Error: ${err.message || err}`);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// MINI-MODAL: Actualizar estado individual de una persona
+// ═══════════════════════════════════════════════════════
+
+let capEstadoEditCtx = null; // { capId, personaIdx, esEjemplo }
+
+function abrirEditorEstadoIndividual(capId, personaIdx){
+  if(!currentSession || (currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina')){
+    alert('Solo los usuarios "adm" y "oficina" pueden actualizar el estado individual.');
+    return;
+  }
+
+  const todas = obtenerCapacitacionesCombinadas();
+  const cap = todas.find(x => x.id === capId);
+  if(!cap){ alert('No se encontró la capacitación.'); return; }
+
+  const persona = (cap.personal || [])[personaIdx];
+  if(!persona){ alert('No se encontró la persona en la lista.'); return; }
+
+  capEstadoEditCtx = {
+    capId: capId,
+    personaIdx: personaIdx,
+    esEjemplo: !!cap.esEjemplo,
+    capRef: cap,
+    personaRef: persona,
+  };
+
+  // Llenar el modal
+  document.getElementById('capEstadoModalSub').textContent = cap.tema || '—';
+  document.getElementById('capEstadoPersonaNombre').textContent = `${persona.apellidos || ''} ${persona.nombre || ''}`.trim() || 'Persona sin nombre';
+  document.getElementById('capEstadoPersonaCargo').textContent = persona.cargo || '—';
+
+  // Marcar el estado actual
+  const radios = document.querySelectorAll('input[name="capNuevoEstado"]');
+  radios.forEach(r => { r.checked = (r.value === persona.estado); });
+
+  // Cargar comentario previo (si existe)
+  document.getElementById('capEstadoComentario').value = persona.comentario_estado || '';
+
+  // Resetear UI
+  document.getElementById('capEstadoProgressBanner').style.display = 'none';
+  document.getElementById('capEstadoSaveBtn').disabled = false;
+
+  document.getElementById('capEstadoModal').classList.add('show');
+}
+
+function closeCapEstadoModal(){
+  document.getElementById('capEstadoModal').classList.remove('show');
+  capEstadoEditCtx = null;
+}
+
+async function guardarEstadoIndividual(){
+  if(!capEstadoEditCtx){ alert('No hay contexto de edición.'); return; }
+  if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
+
+  const ctx = capEstadoEditCtx;
+  const radioSel = document.querySelector('input[name="capNuevoEstado"]:checked');
+  if(!radioSel){ alert('Selecciona un estado (Aprobado / Desaprobado / Pendiente).'); return; }
+
+  const nuevoEstado = radioSel.value;
+  const comentario = document.getElementById('capEstadoComentario').value.trim();
+
+  const btn = document.getElementById('capEstadoSaveBtn');
+  const cancel = document.querySelector('#capEstadoModal .hdr-btn:not(.hdr-btn-primary)');
+  const banner = document.getElementById('capEstadoProgressBanner');
+  const bIcon = document.getElementById('capEstadoProgressIcon');
+  const bText = document.getElementById('capEstadoProgressText');
+
+  btn.disabled = true;
+  if(cancel) cancel.disabled = true;
+  banner.style.display = 'block';
+  banner.classList.remove('success', 'error');
+  bIcon.textContent = '⏳';
+  bText.textContent = 'Guardando…';
+
+  const userId = (currentSession && currentSession.usuario) || 'desconocido';
+  const userName = (currentSession && currentSession.nombre) || 'Sin sesión';
+  const ahora = new Date().toISOString();
+  const ts = Date.now();
+
+  try {
+    const { db, doc, setDoc, addDoc, collection } = window.E140_DB;
+
+    if(ctx.esEjemplo){
+      // CASO ESPECIAL: la capacitación inicial está hardcodeada en el código.
+      // Al editarla por primera vez, la migramos a Firestore como una capacitación real.
+      const personalActualizado = ctx.capRef.personal.map((p, i) => {
+        if(i === ctx.personaIdx){
+          return {
+            ...p,
+            estado: nuevoEstado,
+            comentario_estado: comentario || null,
+            actualizado_por: userId,
+            actualizado_por_nombre: userName,
+            actualizado_en: ahora,
+            actualizado_ts: ts,
+          };
+        }
+        return p;
+      });
+
+      const dataDoc = {
+        tema: ctx.capRef.tema,
+        fecha: ctx.capRef.fecha,
+        instructor: ctx.capRef.instructor || 'Manuel Tirado',
+        obra: ctx.capRef.obra || 'ESPARQ 140',
+        personal: personalActualizado,
+        excel_url: null,
+        excel_public_id: null,
+        excel_nombre: null,
+        evidencia_url: null,
+        evidencia_public_id: null,
+        evidencia_nombre: null,
+        registrado_por: 'sistema',
+        registrado_por_nombre: 'Sistema (carga inicial migrada)',
+        registrado_en: ctx.capRef.creado_en || ahora,
+        registrado_ts: new Date(ctx.capRef.creado_en || ahora).getTime(),
+        editado_por: userId,
+        editado_por_nombre: userName,
+        editado_en: ahora,
+        editado_ts: ts,
+        migrado_desde_inicial: true,
+      };
+
+      const docRef = await addDoc(collection(db, 'capacitaciones'), dataDoc);
+
+      // Agregar a la cache local con el nuevo ID. La inicial seguirá existiendo en código,
+      // pero con un flag para distinguirla y que NO se duplique al renderizar.
+      capacitacionesData.push({ id: docRef.id, ...dataDoc });
+      // Marcamos la inicial como "ya migrada" para que no aparezca duplicada
+      CAPACITACION_INICIAL_E140._migrada = true;
+      capDetalleAbierta = docRef.id; // Cambiar el detalle abierto al nuevo ID
+
+    } else {
+      // Capacitación normal (ya existe en Firestore)
+      const personalActualizado = ctx.capRef.personal.map((p, i) => {
+        if(i === ctx.personaIdx){
+          return {
+            ...p,
+            estado: nuevoEstado,
+            comentario_estado: comentario || null,
+            actualizado_por: userId,
+            actualizado_por_nombre: userName,
+            actualizado_en: ahora,
+            actualizado_ts: ts,
+          };
+        }
+        return p;
+      });
+
+      const docRef = doc(db, 'capacitaciones', ctx.capId);
+      await setDoc(docRef, {
+        personal: personalActualizado,
+        editado_por: userId,
+        editado_por_nombre: userName,
+        editado_en: ahora,
+        editado_ts: ts,
+      }, { merge: true });
+
+      // Actualizar cache local
+      const idx = capacitacionesData.findIndex(x => x.id === ctx.capId);
+      if(idx >= 0){
+        capacitacionesData[idx] = {
+          ...capacitacionesData[idx],
+          personal: personalActualizado,
+          editado_por: userId,
+          editado_por_nombre: userName,
+          editado_en: ahora,
+          editado_ts: ts,
+        };
+      }
+    }
+
+    // Éxito
+    banner.classList.add('success');
+    bIcon.textContent = '✓';
+    bText.textContent = '¡Estado actualizado!';
+
+    // Re-renderizar
+    setTimeout(() => {
+      try { renderCalidadCap(); } catch(e){ console.warn(e); }
+    }, 100);
+
+    setTimeout(() => closeCapEstadoModal(), 1000);
+
+  } catch(err){
+    console.error('[E140] Error actualizando estado individual:', err);
+    banner.classList.add('error');
+    bIcon.textContent = '✕';
+    bText.textContent = `Error: ${err.message || err}`;
+    btn.disabled = false;
+    if(cancel) cancel.disabled = false;
   }
 }
 
