@@ -1704,15 +1704,18 @@ body.role-admin .ssoma-actions{display:flex !important;}
 /* Preview del reporte */
 .rep-preview{background:#fff;border:1px solid var(--border);border-radius:10px;padding:0;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.06);}
 
-/* Portada */
-.rep-portada{background:linear-gradient(135deg,#0F2E50 0%,#1F4275 50%,#2D5A9E 100%);color:#fff;padding:42px 36px;text-align:center;border-radius:0;position:relative;overflow:hidden;}
+/* Portada — layout compacto horizontal */
+.rep-portada{background:linear-gradient(135deg,#0F2E50 0%,#1F4275 50%,#2D5A9E 100%);color:#fff;padding:14px 24px;border-radius:0;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
 .rep-portada::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 20% 20%, rgba(255,255,255,.08), transparent 50%);pointer-events:none;}
-.rep-portada-badge{display:inline-block;background:#fff;color:#1F4275;font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;padding:6px 18px;border-radius:6px;margin-bottom:18px;box-shadow:0 4px 12px rgba(0,0,0,.2);}
-.rep-portada-titulo{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2.5px;line-height:1;margin-bottom:8px;color:#fff;}
-.rep-portada-proyecto{font-size:15px;font-weight:600;color:rgba(255,255,255,.9);margin-bottom:4px;}
-.rep-portada-cliente,.rep-portada-residente{font-size:11.5px;color:rgba(255,255,255,.7);margin-bottom:2px;}
-.rep-portada-mes{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:3px;color:#FFD86B;margin-top:24px;line-height:1;}
-.rep-portada-fecha{font-size:10.5px;color:rgba(255,255,255,.6);margin-top:8px;font-style:italic;}
+.rep-portada-left{display:flex;align-items:center;gap:14px;flex:1;min-width:280px;position:relative;z-index:1;}
+.rep-portada-badge{display:inline-flex;align-items:center;justify-content:center;background:#fff;color:#1F4275;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;padding:6px 14px;border-radius:5px;box-shadow:0 2px 6px rgba(0,0,0,.2);flex-shrink:0;line-height:1;}
+.rep-portada-info{display:flex;flex-direction:column;gap:1px;line-height:1.3;}
+.rep-portada-titulo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;line-height:1.05;color:#fff;}
+.rep-portada-proyecto{font-size:11px;color:rgba(255,255,255,.85);font-weight:600;}
+.rep-portada-cliente,.rep-portada-residente{font-size:10px;color:rgba(255,255,255,.65);}
+.rep-portada-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;position:relative;z-index:1;}
+.rep-portada-mes{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:#FFD86B;line-height:1;}
+.rep-portada-fecha{font-size:9.5px;color:rgba(255,255,255,.6);font-style:italic;}
 
 /* Secciones del reporte */
 .rep-section{padding:28px 36px;border-bottom:1px solid var(--border);}
@@ -1721,18 +1724,18 @@ body.role-admin .ssoma-actions{display:flex !important;}
 .rep-section-num{width:38px;height:38px;background:#5B2470;color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;flex-shrink:0;}
 .rep-section-titulo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;color:var(--text);}
 
-/* Resumen ejecutivo grid */
-.rep-resumen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-.rep-resumen-item{background:#FAFBFC;border:1px solid var(--border);border-left:3px solid #5B2470;border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:4px;}
+/* Resumen ejecutivo grid — todos los indicadores en una fila */
+.rep-resumen-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
+.rep-resumen-item{background:#FAFBFC;border:1px solid var(--border);border-left:3px solid #5B2470;border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:3px;min-width:0;}
 .rep-resumen-item.ok{border-left-color:#2D936C;}
 .rep-resumen-item.warn{border-left-color:#A0521E;}
 .rep-resumen-item.alerta{border-left-color:#D64045;}
-.rep-resumen-num{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;color:var(--text);letter-spacing:.5px;}
+.rep-resumen-num{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;color:var(--text);letter-spacing:.5px;}
 .rep-resumen-item.ok .rep-resumen-num{color:#1A6B4A;}
 .rep-resumen-item.warn .rep-resumen-num{color:#A0521E;}
 .rep-resumen-item.alerta .rep-resumen-num{color:#8A2A2D;}
-.rep-resumen-lab{font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600;}
-.rep-resumen-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.rep-resumen-lab{font-size:9.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600;line-height:1.3;}
+.rep-resumen-sub{font-size:10px;color:var(--text-muted);margin-top:2px;line-height:1.3;}
 
 /* Banner SSOMA en reporte */
 .rep-ssoma-banner{background:linear-gradient(135deg,#E7F4EE 0%,#D1ECDD 100%);border:1px solid #2D936C;border-left:4px solid #1A6B4A;border-radius:8px;padding:18px 22px;display:flex;align-items:center;gap:18px;margin-bottom:16px;}
@@ -1746,11 +1749,11 @@ body.role-admin .ssoma-actions{display:flex !important;}
 .rep-ssoma-banner.alerta .rep-ssoma-banner-label{color:#8A2A2D;}
 .rep-ssoma-banner.warn .rep-ssoma-banner-label{color:#7A3F18;}
 
-/* KPIs en reporte */
-.rep-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
-.rep-kpi{background:#FAFBFC;border:1px solid var(--border);border-radius:6px;padding:12px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;}
-.rep-kpi-num{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;color:var(--text);letter-spacing:.5px;}
-.rep-kpi-lab{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600;}
+/* KPIs en reporte — alineados todos en una fila */
+.rep-kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px;}
+.rep-kpi{background:#FAFBFC;border:1px solid var(--border);border-radius:6px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;min-width:0;}
+.rep-kpi-num{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1;color:var(--text);letter-spacing:.5px;}
+.rep-kpi-lab{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600;line-height:1.3;}
 
 /* Detail card (tablas y listas) */
 .rep-detail-card{background:#FAFBFC;border:1px solid var(--border);border-radius:6px;padding:14px;font-size:12px;}
@@ -1772,15 +1775,20 @@ body.role-admin .ssoma-actions{display:flex !important;}
   .rep-section { page-break-inside: avoid; }
 }
 
+@media(max-width:1100px){
+  .rep-resumen-grid,.rep-kpi-grid{grid-template-columns:repeat(3,1fr);}
+}
 @media(max-width:900px){
   .rep-resumen-grid,.rep-kpi-grid{grid-template-columns:repeat(2,1fr);}
-  .rep-portada-titulo{font-size:26px;}
-  .rep-portada-mes{font-size:34px;}
-  .rep-section{padding:20px;}
+  .rep-portada-titulo{font-size:16px;}
+  .rep-portada-mes{font-size:20px;}
+  .rep-section{padding:18px 20px;}
 }
 @media(max-width:600px){
   .rep-resumen-grid,.rep-kpi-grid{grid-template-columns:1fr;}
   .rep-control-card{flex-direction:column;align-items:stretch;}
+  .rep-portada{flex-direction:column;align-items:flex-start;}
+  .rep-portada-right{align-items:flex-start;}
 }
 
 /* ═══════════════════════════════════════════
@@ -3894,15 +3902,20 @@ body.role-admin .ssoma-actions{display:flex !important;}
         <!-- PREVIEW del reporte -->
         <div id="repPreview" class="rep-preview">
 
-          <!-- PORTADA -->
+          <!-- PORTADA · Banner compacto horizontal -->
           <div class="rep-section rep-portada">
-            <div class="rep-portada-badge">E140</div>
-            <div class="rep-portada-titulo">REPORTE GERENCIAL MENSUAL</div>
-            <div class="rep-portada-proyecto">ESPARQ 140 · Fase 2 · Miraflores</div>
-            <div class="rep-portada-cliente">Cliente: Espinosa Arquitectos</div>
-            <div class="rep-portada-residente">Residente: José Rojas O.</div>
-            <div class="rep-portada-mes" id="repPortadaMes">—</div>
-            <div class="rep-portada-fecha" id="repPortadaFecha">Generado el —</div>
+            <div class="rep-portada-left">
+              <div class="rep-portada-badge">E140</div>
+              <div class="rep-portada-info">
+                <div class="rep-portada-titulo">REPORTE GERENCIAL MENSUAL</div>
+                <div class="rep-portada-proyecto">ESPARQ 140 · Fase 2 · Miraflores</div>
+                <div class="rep-portada-cliente">Cliente: Espinosa Arquitectos · Residente: José Rojas O.</div>
+              </div>
+            </div>
+            <div class="rep-portada-right">
+              <div class="rep-portada-mes" id="repPortadaMes">—</div>
+              <div class="rep-portada-fecha" id="repPortadaFecha">—</div>
+            </div>
           </div>
 
           <!-- 1. RESUMEN EJECUTIVO -->
@@ -10379,80 +10392,15 @@ function generarReportePDF(){
   if(!repMesActual){ alert('Selecciona un mes primero.'); return; }
 
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  // FORMATO HORIZONTAL (landscape) para que todo quepa en una hoja
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
 
   const [year, month] = repMesActual.split('-').map(Number);
   const nombresMes = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const mesNombre = `${nombresMes[month - 1]} ${year}`;
   const dataMes = filtrarDataPorMes(repMesActual);
 
-  // ═══ PORTADA ═══
-  doc.setFillColor(15, 46, 80); // Azul oscuro
-  doc.rect(0, 0, 210, 297, 'F');
-
-  doc.setFillColor(255, 255, 255);
-  doc.roundedRect(80, 30, 50, 18, 2, 2, 'F');
-  doc.setTextColor(31, 66, 117);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(28);
-  doc.text('E140', 105, 43, { align: 'center' });
-
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(22);
-  doc.text('REPORTE GERENCIAL', 105, 75, { align: 'center' });
-  doc.setFontSize(20);
-  doc.text('MENSUAL', 105, 88, { align: 'center' });
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(12);
-  doc.text('ESPARQ 140 · Fase 2', 105, 110, { align: 'center' });
-  doc.setFontSize(10);
-  doc.setTextColor(220, 220, 220);
-  doc.text('Miraflores · Lima', 105, 117, { align: 'center' });
-  doc.text('Cliente: Espinosa Arquitectos', 105, 125, { align: 'center' });
-  doc.text('Residente: José Rojas Otiniano', 105, 132, { align: 'center' });
-
-  // Mes en grande
-  doc.setFillColor(255, 216, 107); // Amarillo dorado
-  doc.roundedRect(40, 160, 130, 30, 3, 3, 'F');
-  doc.setTextColor(15, 46, 80);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(28);
-  doc.text(mesNombre.toUpperCase(), 105, 180, { align: 'center' });
-
-  doc.setTextColor(180, 180, 180);
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'italic');
-  const fechaGen = new Date().toLocaleString('es-PE', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  doc.text(`Generado el ${fechaGen}`, 105, 220, { align: 'center' });
-  doc.text(`Por: ${(currentSession && currentSession.nombre) || 'Sistema'}`, 105, 226, { align: 'center' });
-
-  doc.setTextColor(160, 160, 160);
-  doc.setFontSize(7);
-  doc.text('ESPARQ Construcción S.A.C. · Av. Arequipa 4682, Miraflores · Lima', 105, 285, { align: 'center' });
-
-  // ═══ PÁGINA 2: RESUMEN EJECUTIVO ═══
-  doc.addPage();
-  let y = 20;
-
-  // Header
-  doc.setFillColor(15, 46, 80);
-  doc.rect(0, 0, 210, 12, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
-  doc.text(`E140 · ESPARQ 140 · Reporte Gerencial · ${mesNombre}`, 10, 8);
-  doc.text('Página 2', 200, 8, { align: 'right' });
-
-  doc.setTextColor(15, 46, 80);
-  doc.setFontSize(16);
-  doc.text('01  RESUMEN EJECUTIVO', 10, y + 8);
-  doc.setDrawColor(91, 36, 112);
-  doc.setLineWidth(0.5);
-  doc.line(10, y + 11, 200, y + 11);
-  y += 20;
-
-  // Calcular días sin accidentes
+  // ═══ Cálculos rápidos ═══
   const finMes = dataMes.finMes;
   const accTPHasta = (dataMes.ssomaTodo || []).filter(r => r.tipo === 'incidente' && r.severidad === 'accidente_tp' && new Date(r.fecha || 0) <= finMes);
   const PROYECTO_INICIO = new Date(2025, 7, 11);
@@ -10465,11 +10413,12 @@ function generarReportePDF(){
   const diasSinAcc = Math.max(0, Math.floor((finMes.getTime() - fechaRef.getTime()) / (24*60*60*1000)));
 
   const sigPctProm = dataMes.sigMes.length > 0
-    ? dataMes.sigMes.reduce((s, x) => s + (Number(x.cumplimiento_pct) || 0), 0) / dataMes.sigMes.length
-    : null;
-  let capTotal = 0, capAprobados = 0;
+    ? dataMes.sigMes.reduce((s, x) => s + (Number(x.cumplimiento_pct) || 0), 0) / dataMes.sigMes.length : null;
+
+  let capTotal = 0, capAprobados = 0, totalPersonas = 0;
   dataMes.capsMes.forEach(c => {
     (c.personal || []).forEach(p => {
+      totalPersonas++;
       if(p.estado === 'aprobado' || p.estado === 'desaprobado'){
         capTotal++;
         if(p.estado === 'aprobado') capAprobados++;
@@ -10478,158 +10427,13 @@ function generarReportePDF(){
   });
   const capAprob = capTotal > 0 ? (capAprobados / capTotal) * 100 : null;
 
-  const itemsResumen = [
-    [`${diasSinAcc}`, 'Días sin accidentes', accTPHasta.length === 0 ? 'Desde inicio del proyecto' : `Último: ${formatFechaCorta(accTPHasta[0].fecha)}`],
-    [`${dataMes.ssomaMes.filter(r => r.tipo === 'charla').length}`, 'Charlas SSOMA del mes', 'Charlas diarias 5 min'],
-    [`${dataMes.ssomaMes.filter(r => r.tipo === 'incidente').length}`, 'Incidentes reportados', `${dataMes.ssomaMes.filter(r => r.tipo === 'incidente' && r.severidad === 'accidente_tp').length} con tiempo perdido`],
-    [sigPctProm !== null ? sigPctProm.toFixed(0) + '%' : '—', '% Cumplimiento SIG', `${dataMes.sigMes.length} inspección(es)`],
-    [capAprob !== null ? capAprob.toFixed(0) + '%' : '—', '% Aprobación Capacitaciones', `${dataMes.capsMes.length} cap. · ${capTotal} evaluados`],
-    [`${dataMes.penCerradasMes.length}`, 'Pendientes cerrados', `${dataMes.penCreadasMes.length} creadas en el mes`],
-  ];
-
-  // Dibujar 2 columnas de 3 items
-  const colX = [10, 110];
-  itemsResumen.forEach((item, idx) => {
-    const col = idx % 2;
-    const row = Math.floor(idx / 2);
-    const x = colX[col];
-    const yi = y + row * 32;
-
-    doc.setDrawColor(220, 220, 220);
-    doc.setFillColor(250, 251, 252);
-    doc.roundedRect(x, yi, 90, 28, 2, 2, 'FD');
-    doc.setDrawColor(91, 36, 112);
-    doc.setLineWidth(1.5);
-    doc.line(x, yi, x, yi + 28);
-
-    doc.setTextColor(15, 46, 80);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(20);
-    doc.text(String(item[0]), x + 6, yi + 12);
-
-    doc.setTextColor(80, 80, 80);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.text(item[1], x + 6, yi + 19);
-
-    doc.setTextColor(140, 140, 140);
-    doc.setFontSize(7);
-    doc.text(item[2], x + 6, yi + 24);
-  });
-
-  y += 32 * 3 + 8;
-
-  // ═══ SECCIÓN 02: SSOMA ═══
-  doc.setTextColor(214, 64, 69);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.text('02  SSOMA · SEGURIDAD Y SALUD', 10, y);
-  doc.setDrawColor(214, 64, 69);
-  doc.line(10, y + 3, 200, y + 3);
-  y += 10;
-
-  // Banner días sin accidentes
-  const bannerColor = diasSinAcc > 30 ? [231, 244, 238] : (diasSinAcc > 7 ? [255, 244, 214] : [251, 234, 234]);
-  doc.setFillColor(...bannerColor);
-  doc.roundedRect(10, y, 190, 20, 2, 2, 'F');
-  doc.setTextColor(diasSinAcc > 30 ? 26 : (diasSinAcc > 7 ? 122 : 138), diasSinAcc > 30 ? 107 : (diasSinAcc > 7 ? 88 : 42), diasSinAcc > 30 ? 74 : (diasSinAcc > 7 ? 0 : 45));
-  doc.setFontSize(22);
-  doc.setFont('helvetica', 'bold');
-  doc.text(String(diasSinAcc), 18, y + 14);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'normal');
-  doc.text('DÍAS SIN ACCIDENTES CON TIEMPO PERDIDO', 50, y + 12);
-  y += 25;
-
-  // KPIs SSOMA en tabla
   const ssomaCharlas = dataMes.ssomaMes.filter(r => r.tipo === 'charla');
-  const ssomaInsp = dataMes.ssomaMes.filter(r => r.tipo === 'inspeccion');
-  const ssomaInc = dataMes.ssomaMes.filter(r => r.tipo === 'incidente');
-  const totAsist = ssomaCharlas.reduce((s, c) => s + (Number(c.asistentes) || 0), 0);
-  const promInsp = ssomaInsp.length > 0
-    ? ssomaInsp.reduce((s, x) => s + (Number(x.cumplimiento_pct) || 0), 0) / ssomaInsp.length
-    : null;
-
-  doc.autoTable({
-    startY: y,
-    head: [['Indicador', 'Valor', 'Indicador', 'Valor']],
-    body: [
-      ['Charlas dictadas', String(ssomaCharlas.length), 'Asistentes a charlas', String(totAsist)],
-      ['Inspecciones SST', String(ssomaInsp.length), '% Cumplimiento prom.', promInsp !== null ? promInsp.toFixed(0) + '%' : '—'],
-      ['Incidentes reportados', String(ssomaInc.length), 'Acc. con tiempo perdido', String(accTPHasta.length === 0 ? 0 : ssomaInc.filter(i => i.severidad === 'accidente_tp').length)],
-    ],
-    theme: 'grid',
-    headStyles: { fillColor: [214, 64, 69], textColor: 255, fontSize: 9 },
-    bodyStyles: { fontSize: 9, textColor: 50 },
-    margin: { left: 10, right: 10 },
-  });
-  y = doc.lastAutoTable.finalY + 8;
-
-  // Tabla de incidentes si hay
-  if(ssomaInc.length > 0){
-    if(y > 250){ doc.addPage(); y = 20; }
-    doc.setTextColor(80, 80, 80);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.text('Detalle de incidentes del mes:', 10, y);
-    y += 4;
-
-    const sevMap = { incidente:'Incidente', casi_accidente:'Casi acc.', accidente_leve:'Acc. leve', accidente_tp:'Acc. con TP' };
-    doc.autoTable({
-      startY: y,
-      head: [['Fecha', 'Severidad', 'Área', 'Descripción', 'Días']],
-      body: ssomaInc.sort((a,b) => new Date(a.fecha||0) - new Date(b.fecha||0)).map(i => [
-        formatFechaCorta(i.fecha),
-        sevMap[i.severidad] || '—',
-        (i.area || '—').slice(0, 20),
-        (i.descripcion || '').slice(0, 50),
-        String(i.dias_perdidos || 0),
-      ]),
-      theme: 'striped',
-      headStyles: { fillColor: [214, 64, 69], textColor: 255, fontSize: 8 },
-      bodyStyles: { fontSize: 8 },
-      margin: { left: 10, right: 10 },
-    });
-    y = doc.lastAutoTable.finalY + 8;
-  }
-
-  // ═══ SECCIÓN 03: CALIDAD ═══
-  if(y > 240){ doc.addPage(); y = 20; }
-  doc.setTextColor(26, 107, 74);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.text('03  CALIDAD · GESTIÓN SIG', 10, y);
-  doc.setDrawColor(26, 107, 74);
-  doc.line(10, y + 3, 200, y + 3);
-  y += 10;
-
-  let totalPersonas = 0;
-  dataMes.capsMes.forEach(c => { totalPersonas += (c.personal || []).length; });
-
-  doc.autoTable({
-    startY: y,
-    head: [['Indicador', 'Valor', 'Indicador', 'Valor']],
-    body: [
-      ['% Cumplimiento SIG', sigPctProm !== null ? sigPctProm.toFixed(0) + '%' : '—', 'Capacitaciones', String(dataMes.capsMes.length)],
-      ['Inspecciones SIG', String(dataMes.sigMes.length), 'Personal capacitado', String(totalPersonas)],
-      ['% Aprobación capac.', capAprob !== null ? capAprob.toFixed(0) + '%' : '—', 'Personas evaluadas', String(capTotal)],
-    ],
-    theme: 'grid',
-    headStyles: { fillColor: [26, 107, 74], textColor: 255, fontSize: 9 },
-    bodyStyles: { fontSize: 9 },
-    margin: { left: 10, right: 10 },
-  });
-  y = doc.lastAutoTable.finalY + 8;
-
-  // ═══ SECCIÓN 04: PENDIENTES ═══
-  if(y > 240){ doc.addPage(); y = 20; }
-  doc.setTextColor(160, 82, 30);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.text('04  PENDIENTES & TAREAS', 10, y);
-  doc.setDrawColor(160, 82, 30);
-  doc.line(10, y + 3, 200, y + 3);
-  y += 10;
+  const ssomaInsp    = dataMes.ssomaMes.filter(r => r.tipo === 'inspeccion');
+  const ssomaInc     = dataMes.ssomaMes.filter(r => r.tipo === 'incidente');
+  const accTPMes     = ssomaInc.filter(r => r.severidad === 'accidente_tp');
+  const totAsist     = ssomaCharlas.reduce((s, c) => s + (Number(c.asistentes) || 0), 0);
+  const promInsp     = ssomaInsp.length > 0
+    ? ssomaInsp.reduce((s, x) => s + (Number(x.cumplimiento_pct) || 0), 0) / ssomaInsp.length : null;
 
   let promDias = '—';
   if(dataMes.penCerradasMes.length > 0){
@@ -10640,35 +10444,241 @@ function generarReportePDF(){
     promDias = (sumDias / dataMes.penCerradasMes.length).toFixed(1);
   }
 
-  doc.autoTable({
-    startY: y,
-    head: [['Indicador', 'Valor', 'Indicador', 'Valor']],
-    body: [
-      ['Tareas abiertas', String(dataMes.penAbiertas.length), 'Cerradas en el mes', String(dataMes.penCerradasMes.length)],
-      ['Vencidas en el mes', String(dataMes.penVencidasMes.length), 'Creadas en el mes', String(dataMes.penCreadasMes.length)],
-      ['Prioridad alta abiertas', String(dataMes.penAbiertas.filter(p => p.prioridad === 'alta').length), 'Días promedio cierre', String(promDias)],
-    ],
-    theme: 'grid',
-    headStyles: { fillColor: [160, 82, 30], textColor: 255, fontSize: 9 },
-    bodyStyles: { fontSize: 9 },
-    margin: { left: 10, right: 10 },
-  });
-  y = doc.lastAutoTable.finalY + 8;
+  // Página A4 horizontal: 297mm × 210mm
+  const PW = 297; // ancho página
+  const PH = 210; // alto página
+  const M = 8;    // margen
 
-  // Footer en cada página
-  const pageCount = doc.internal.getNumberOfPages();
-  for(let i = 1; i <= pageCount; i++){
-    doc.setPage(i);
-    if(i > 1){
-      doc.setTextColor(160, 160, 160);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(7);
-      doc.text(`ESPARQ Construcción S.A.C. · ${(currentSession && currentSession.nombre) || ''} · ${fechaGen}`, 10, 290);
-      doc.text(`${i} / ${pageCount}`, 200, 290, { align: 'right' });
-    }
+  // ═══ HEADER COMPACTO (azul) ═══
+  doc.setFillColor(15, 46, 80);
+  doc.rect(0, 0, PW, 22, 'F');
+  // Badge E140
+  doc.setFillColor(255, 255, 255);
+  doc.roundedRect(M, 5, 22, 12, 1.5, 1.5, 'F');
+  doc.setTextColor(31, 66, 117);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13);
+  doc.text('E140', M + 11, 13, { align: 'center' });
+  // Título
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(13);
+  doc.text('REPORTE GERENCIAL MENSUAL', M + 28, 11);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(220, 220, 220);
+  doc.text('ESPARQ 140 · Fase 2 · Miraflores · Cliente: Espinosa Arquitectos', M + 28, 16);
+  // Mes (lado derecho del header)
+  doc.setFillColor(255, 216, 107);
+  doc.roundedRect(PW - 70 - M, 5, 70, 12, 1.5, 1.5, 'F');
+  doc.setTextColor(15, 46, 80);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13);
+  doc.text(mesNombre.toUpperCase(), PW - 35 - M, 13, { align: 'center' });
+
+  // ═══ FILA DE 6 INDICADORES (Resumen Ejecutivo) ═══
+  let y = 28;
+  doc.setTextColor(80, 80, 80);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('01 · RESUMEN EJECUTIVO', M, y);
+  doc.setDrawColor(91, 36, 112);
+  doc.setLineWidth(0.4);
+  doc.line(M, y + 1.5, PW - M, y + 1.5);
+  y += 5;
+
+  const itemsResumen = [
+    { num: String(diasSinAcc), lab: 'DÍAS SIN ACCIDENTES', sub: accTPHasta.length === 0 ? 'Desde inicio del proyecto' : 'Último: '+formatFechaCorta(accTPHasta[0].fecha), color: diasSinAcc > 30 ? [26,107,74] : (diasSinAcc > 7 ? [122,63,24] : [138,42,45]) },
+    { num: String(ssomaCharlas.length), lab: 'CHARLAS SSOMA', sub: 'Charlas diarias del mes', color: [26,107,74] },
+    { num: String(ssomaInc.length), lab: 'INCIDENTES', sub: accTPMes.length+' con tiempo perdido', color: accTPMes.length > 0 ? [138,42,45] : [26,107,74] },
+    { num: sigPctProm !== null ? sigPctProm.toFixed(0)+'%' : '—', lab: '% SIG', sub: dataMes.sigMes.length+' inspección(es)', color: sigPctProm === null ? [80,80,80] : (sigPctProm >= 85 ? [26,107,74] : (sigPctProm >= 65 ? [122,63,24] : [138,42,45])) },
+    { num: capAprob !== null ? capAprob.toFixed(0)+'%' : '—', lab: '% APROBACIÓN CAP.', sub: dataMes.capsMes.length+' capacitación(es)', color: capAprob === null ? [80,80,80] : (capAprob >= 90 ? [26,107,74] : [122,63,24]) },
+    { num: String(dataMes.penCerradasMes.length), lab: 'PENDIENTES CERRADOS', sub: dataMes.penCreadasMes.length+' creadas en el mes', color: [26,107,74] },
+  ];
+  const cardW = (PW - M*2 - 5*3) / 6;
+  itemsResumen.forEach((it, idx) => {
+    const x = M + idx * (cardW + 3);
+    // Fondo y borde izquierdo de color
+    doc.setFillColor(250, 251, 252);
+    doc.setDrawColor(220, 220, 220);
+    doc.roundedRect(x, y, cardW, 18, 1.2, 1.2, 'FD');
+    doc.setDrawColor(...it.color);
+    doc.setLineWidth(1);
+    doc.line(x, y, x, y + 18);
+    // Número grande
+    doc.setTextColor(...it.color);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(15);
+    doc.text(it.num, x + 2, y + 7);
+    // Label
+    doc.setTextColor(80, 80, 80);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6.2);
+    doc.text(it.lab, x + 2, y + 12);
+    // Sub
+    doc.setTextColor(140, 140, 140);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(5.8);
+    const subTxt = it.sub.length > 32 ? it.sub.slice(0, 30) + '…' : it.sub;
+    doc.text(subTxt, x + 2, y + 16);
+  });
+  y += 22;
+
+  // ═══ 3 COLUMNAS: SSOMA · CALIDAD · PENDIENTES ═══
+  const colW = (PW - M*2 - 5*2) / 3;
+  const colY = y;
+  const colYStart = colY;
+
+  // ── COLUMNA 1: SSOMA ──
+  let cx = M;
+  doc.setTextColor(214, 64, 69);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('02 · SSOMA · SEGURIDAD Y SALUD', cx, colY);
+  doc.setDrawColor(214, 64, 69);
+  doc.line(cx, colY + 1.5, cx + colW, colY + 1.5);
+
+  doc.autoTable({
+    startY: colY + 4,
+    head: [['Indicador SSOMA', 'Valor']],
+    body: [
+      ['Charlas dictadas', String(ssomaCharlas.length)],
+      ['Asistentes a charlas', String(totAsist)],
+      ['Inspecciones SST', String(ssomaInsp.length)],
+      ['% Cumplimiento prom.', promInsp !== null ? promInsp.toFixed(0) + '%' : '—'],
+      ['Incidentes reportados', String(ssomaInc.length)],
+      ['Acc. con tiempo perdido', String(accTPMes.length)],
+      ['Días perdidos del mes', String(accTPMes.reduce((s,a) => s + (Number(a.dias_perdidos)||0), 0))],
+    ],
+    theme: 'striped',
+    headStyles: { fillColor: [214, 64, 69], textColor: 255, fontSize: 7.5, cellPadding: 1.5 },
+    bodyStyles: { fontSize: 7.5, cellPadding: 1.3, textColor: 60 },
+    columnStyles: { 0: { cellWidth: colW * 0.65 }, 1: { cellWidth: colW * 0.35, halign: 'right', fontStyle: 'bold' } },
+    margin: { left: cx, right: PW - cx - colW },
+    tableWidth: colW,
+  });
+
+  // ── COLUMNA 2: CALIDAD ──
+  cx = M + colW + 5;
+  doc.setTextColor(26, 107, 74);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('03 · CALIDAD · GESTIÓN SIG', cx, colY);
+  doc.setDrawColor(26, 107, 74);
+  doc.line(cx, colY + 1.5, cx + colW, colY + 1.5);
+
+  doc.autoTable({
+    startY: colY + 4,
+    head: [['Indicador Calidad', 'Valor']],
+    body: [
+      ['% Cumplimiento SIG', sigPctProm !== null ? sigPctProm.toFixed(0) + '%' : '—'],
+      ['Inspecciones SIG', String(dataMes.sigMes.length)],
+      ['Capacitaciones', String(dataMes.capsMes.length)],
+      ['Personal en lista', String(totalPersonas)],
+      ['Personas evaluadas', String(capTotal)],
+      ['Personas aprobadas', String(capAprobados)],
+      ['% Aprobación', capAprob !== null ? capAprob.toFixed(0) + '%' : '—'],
+    ],
+    theme: 'striped',
+    headStyles: { fillColor: [26, 107, 74], textColor: 255, fontSize: 7.5, cellPadding: 1.5 },
+    bodyStyles: { fontSize: 7.5, cellPadding: 1.3, textColor: 60 },
+    columnStyles: { 0: { cellWidth: colW * 0.65 }, 1: { cellWidth: colW * 0.35, halign: 'right', fontStyle: 'bold' } },
+    margin: { left: cx, right: PW - cx - colW },
+    tableWidth: colW,
+  });
+
+  // ── COLUMNA 3: PENDIENTES ──
+  cx = M + colW * 2 + 10;
+  doc.setTextColor(160, 82, 30);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('04 · PENDIENTES & TAREAS', cx, colY);
+  doc.setDrawColor(160, 82, 30);
+  doc.line(cx, colY + 1.5, cx + colW, colY + 1.5);
+
+  doc.autoTable({
+    startY: colY + 4,
+    head: [['Indicador Pendientes', 'Valor']],
+    body: [
+      ['Tareas abiertas (al cierre)', String(dataMes.penAbiertas.length)],
+      ['Cerradas en el mes', String(dataMes.penCerradasMes.length)],
+      ['Creadas en el mes', String(dataMes.penCreadasMes.length)],
+      ['Vencidas en el mes', String(dataMes.penVencidasMes.length)],
+      ['Prioridad alta abiertas', String(dataMes.penAbiertas.filter(p => p.prioridad === 'alta').length)],
+      ['Días promedio cierre', String(promDias)],
+      ['Archivos cargados al sistema', String(dataMes.audMes.length)],
+    ],
+    theme: 'striped',
+    headStyles: { fillColor: [160, 82, 30], textColor: 255, fontSize: 7.5, cellPadding: 1.5 },
+    bodyStyles: { fontSize: 7.5, cellPadding: 1.3, textColor: 60 },
+    columnStyles: { 0: { cellWidth: colW * 0.65 }, 1: { cellWidth: colW * 0.35, halign: 'right', fontStyle: 'bold' } },
+    margin: { left: cx, right: PW - cx - colW },
+    tableWidth: colW,
+  });
+
+  // ═══ TABLA DE EVENTOS CRÍTICOS DEL MES (parte inferior) ═══
+  const yEventos = Math.max(
+    doc.lastAutoTable.finalY + 6,
+    colYStart + 50
+  );
+
+  doc.setTextColor(80, 80, 80);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('05 · EVENTOS DESTACADOS DEL MES', M, yEventos);
+  doc.setDrawColor(91, 36, 112);
+  doc.line(M, yEventos + 1.5, PW - M, yEventos + 1.5);
+
+  // Construir lista de eventos críticos
+  const eventos = [];
+  ssomaInc.forEach(i => {
+    const sevMap = { incidente:'Incidente', casi_accidente:'Casi accidente', accidente_leve:'Acc. leve', accidente_tp:'Acc. con TP' };
+    eventos.push([formatFechaCorta(i.fecha), 'SSOMA', sevMap[i.severidad] || '—', (i.area || '—').slice(0, 25), (i.descripcion || '').slice(0, 70)]);
+  });
+  dataMes.sigMes.forEach(s => {
+    const pct = Number(s.cumplimiento_pct) || 0;
+    const cal = pct >= 85 ? 'Satisfactorio' : (pct >= 65 ? 'Aceptable' : 'Deficiente');
+    eventos.push([formatFechaCorta(s.fecha_inspeccion), 'CALIDAD', `Insp. SIG ${pct.toFixed(0)}%`, s.inspector || '—', cal]);
+  });
+  dataMes.capsMes.forEach(c => {
+    eventos.push([formatFechaCorta(c.fecha), 'CALIDAD', 'Capacitación', c.instructor || '—', (c.tema || '').slice(0, 70)]);
+  });
+  dataMes.penAbiertas.filter(p => p.prioridad === 'alta').slice(0, 5).forEach(p => {
+    eventos.push([formatFechaCorta(p.fecha_max), 'PENDIENTE', 'Prioridad ALTA', (p.area || '—'), (p.titulo || '').slice(0, 70)]);
+  });
+
+  if(eventos.length > 0){
+    eventos.sort((a, b) => {
+      const da = a[0].split('/').reverse().join('');
+      const db = b[0].split('/').reverse().join('');
+      return da.localeCompare(db);
+    });
+    doc.autoTable({
+      startY: yEventos + 3,
+      head: [['Fecha', 'Categoría', 'Tipo', 'Responsable / Área', 'Detalle']],
+      body: eventos.slice(0, 12),
+      theme: 'grid',
+      headStyles: { fillColor: [91, 36, 112], textColor: 255, fontSize: 7.5, cellPadding: 1.5 },
+      bodyStyles: { fontSize: 7, cellPadding: 1.2, textColor: 50 },
+      columnStyles: { 0: { cellWidth: 22 }, 1: { cellWidth: 22 }, 2: { cellWidth: 35 }, 3: { cellWidth: 50 } },
+      margin: { left: M, right: M },
+    });
+  } else {
+    doc.setTextColor(140, 140, 140);
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(8);
+    doc.text('✓ Sin eventos destacados en el mes — operación regular sin incidentes ni eventos críticos.', M, yEventos + 8);
   }
 
-  // Descargar
+  // ═══ FOOTER ═══
+  doc.setFillColor(15, 46, 80);
+  doc.rect(0, PH - 8, PW, 8, 'F');
+  doc.setTextColor(220, 220, 220);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  doc.text('ESPARQ Construcción S.A.C. · Av. Arequipa 4682, Miraflores · Lima', M, PH - 3);
+  const fechaGen = new Date().toLocaleString('es-PE', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  doc.text(`Generado por: ${(currentSession && currentSession.nombre) || 'Sistema'}  ·  ${fechaGen}`, PW - M, PH - 3, { align: 'right' });
+
   const filename = `E140_Reporte_Gerencial_${mesNombre.replace(' ', '_')}.pdf`;
   doc.save(filename);
 }
