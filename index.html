@@ -221,6 +221,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 body.audit-allowed .audit-only{display:revert !important;}
 body.audit-allowed .sb-item.audit-only{display:flex !important;}
 
+/* Botones de acción para editar/eliminar inspecciones (solo audit-allowed) */
+.sig-action-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border:1px solid var(--border-mid);background:#fff;border-radius:4px;cursor:pointer;font-size:13px;padding:0;margin:0 1px;transition:all .15s;color:var(--text);}
+.sig-action-btn:hover{transform:translateY(-1px);}
+.sig-action-edit:hover{background:#E6F2FB;border-color:var(--twitter-blue);color:var(--twitter-blue);}
+.sig-action-delete:hover{background:#FBEAEA;border-color:#D64045;color:#D64045;}
+
 /* ═══════════════════════════════════════════
    SECCIÓN AUDITORÍA — Diseño limpio y profesional
    ═══════════════════════════════════════════ */
@@ -1989,14 +1995,14 @@ body.role-viewer .admin-only{display:none !important;}
   <div class="modal-card" style="max-width:680px;">
     <div class="modal-head">
       <div>
-        <h2>📋 CARGAR INSPECCIÓN SIG</h2>
-        <p>Sistema Integrado de Gestión · Formato CAL.001-F01</p>
+        <h2 id="sigModalTitle">📋 CARGAR INSPECCIÓN SIG</h2>
+        <p id="sigModalSub">Sistema Integrado de Gestión · Formato CAL.001-F01</p>
       </div>
       <button class="modal-close" onclick="closeSigModal()" aria-label="Cerrar">✕</button>
     </div>
 
     <div class="modal-body">
-      <div class="area-info-banner" style="background:#E7F4EE;border-left-color:#2D936C;">
+      <div class="area-info-banner" id="sigModalBanner" style="background:#E7F4EE;border-left-color:#2D936C;">
         <b>✅ Inspección de Calidad</b> · Ingresa los datos de la inspección y opcionalmente adjunta el PDF del formato CAL.001-F01 como respaldo. El % de cumplimiento actualizará el indicador SIG y el gráfico histórico automáticamente.
       </div>
 
@@ -3200,11 +3206,12 @@ body.role-viewer .admin-only{display:none !important;}
                   <th class="td-center">Calificación</th>
                   <th>Observaciones</th>
                   <th class="td-center">PDF</th>
+                  <th class="td-center audit-only" style="display:none;">Acciones</th>
                 </tr>
               </thead>
               <tbody id="calSIGTblDetalle">
                 <tr>
-                  <td colspan="8" style="text-align:center;padding:30px 16px;color:var(--text-muted);font-style:italic;background:#FBFDFE;border:1px dashed var(--border-mid);">
+                  <td colspan="9" style="text-align:center;padding:30px 16px;color:var(--text-muted);font-style:italic;background:#FBFDFE;border:1px dashed var(--border-mid);">
                     ⏳ Sin inspecciones SIG registradas. Para empezar, presiona <b>"📋 Cargar Inspección SIG"</b> arriba.
                   </td>
                 </tr>
@@ -6783,7 +6790,7 @@ function renderCalidadSIG(){
   const tbody = document.getElementById('calSIGTblDetalle');
   if(tbody){
     if(total === 0){
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px 16px;color:var(--text-muted);font-style:italic;background:#FBFDFE;border:1px dashed var(--border-mid);">⏳ Sin inspecciones SIG registradas. Para empezar, presiona <b>"📋 Cargar Inspección SIG"</b> arriba.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:30px 16px;color:var(--text-muted);font-style:italic;background:#FBFDFE;border:1px dashed var(--border-mid);">⏳ Sin inspecciones SIG registradas. Para empezar, presiona <b>"📋 Cargar Inspección SIG"</b> arriba.</td></tr>`;
     } else {
       // Mostrar de más reciente a más antigua
       const filas = [...ordenadas].reverse();
@@ -6795,6 +6802,10 @@ function renderCalidadSIG(){
         const pdfBtn = x.pdf_url
           ? `<a href="${escapeHtml(cloudinaryDownloadUrl(x.pdf_url))}" target="_blank" rel="noopener" class="aud-btn-download" title="Descargar PDF de la inspección" style="padding:4px 10px;font-size:10px;" download>📥 PDF</a>`
           : '<span style="color:var(--text-muted);font-size:10px;">—</span>';
+        const accionesHtml = `
+          <button class="sig-action-btn sig-action-edit" onclick="abrirEditorInspeccionSIG('${escapeHtml(x.id)}')" title="Editar inspección">✏️</button>
+          <button class="sig-action-btn sig-action-delete" onclick="eliminarInspeccionSIG('${escapeHtml(x.id)}')" title="Eliminar inspección">🗑️</button>
+        `;
         return `<tr>
           <td class="td-center"><b>${numero}</b></td>
           <td class="td-center"><span class="aud-sem">${escapeHtml(x.semana || '—')}</span></td>
@@ -6804,6 +6815,7 @@ function renderCalidadSIG(){
           <td class="td-center"><span class="sig-preview-badge ${cal.clase}" style="font-size:10px;padding:3px 8px;">${cal.texto}</span></td>
           <td>${obsHtml}</td>
           <td class="td-center">${pdfBtn}</td>
+          <td class="td-center audit-only" style="display:none;white-space:nowrap;">${accionesHtml}</td>
         </tr>`;
       }).join('');
     }
@@ -8849,55 +8861,134 @@ function cloudinaryDownloadUrl(url){
    ═══════════════════════════════════════════════════════════════════ */
 
 let sigPdfFile = null; // PDF seleccionado en el modal
+let sigEditingId = null; // ID de la inspección que se está editando (null = modo creación)
 
 function openSigModal(){
+  // Modo CREACIÓN: limpiar todo
+  sigEditingId = null;
+  sigPdfFile = null;
+  abrirSigModalCommon({
+    titulo:    '📋 CARGAR INSPECCIÓN SIG',
+    subtitulo: 'Sistema Integrado de Gestión · Formato CAL.001-F01',
+    boton:     '🚀 Publicar inspección',
+    valores:   null, // null = vacío, prefill de hoy
+  });
+}
+
+function abrirEditorInspeccionSIG(id){
+  // Validación: solo adm/oficina pueden editar
+  if(!currentSession || (currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina')){
+    alert('Solo los usuarios "adm" y "oficina" pueden editar inspecciones SIG.');
+    return;
+  }
+  const inspeccion = inspeccionesSIG.find(x => x.id === id);
+  if(!inspeccion){
+    alert('No se encontró la inspección. Recarga la página e inténtalo de nuevo.');
+    return;
+  }
+  sigEditingId = id;
+  sigPdfFile = null; // El PDF nuevo (si se selecciona) reemplazará al anterior
+  abrirSigModalCommon({
+    titulo:    '✏️ EDITAR INSPECCIÓN SIG',
+    subtitulo: `${inspeccion.semana || '—'} · ${formatFechaCorta(inspeccion.fecha_inspeccion)} · ${inspeccion.inspector || ''}`,
+    boton:     '💾 Guardar cambios',
+    valores:   inspeccion,
+  });
+}
+
+function abrirSigModalCommon(opts){
   const modal = document.getElementById('sigModal');
   if(!modal) return;
-  // Reset
-  sigPdfFile = null;
-  document.getElementById('sigCumplimiento').value = '';
-  document.getElementById('sigPuntajeObt').value = '';
-  document.getElementById('sigPuntajeMax').value = '104';
-  document.getElementById('sigInspector').value = 'Manuel Tirado';
-  document.getElementById('sigObservaciones').value = '';
+
+  // Aplicar título/subtítulo/botón según modo
+  document.getElementById('sigModalTitle').textContent = opts.titulo;
+  document.getElementById('sigModalSub').textContent = opts.subtitulo;
+  document.getElementById('sigPublishBtn').innerHTML = opts.boton;
+
+  // Banner según modo
+  const banner = document.getElementById('sigModalBanner');
+  if(opts.valores){
+    banner.style.background = '#FFF8E5';
+    banner.style.borderLeftColor = '#D6A847';
+    banner.innerHTML = '<b>✏️ Modo edición</b> · Estás modificando una inspección existente. Los cambios se guardarán al hacer clic en <b>"Guardar cambios"</b>. Si subes un PDF nuevo, reemplazará al actual.';
+  } else {
+    banner.style.background = '#E7F4EE';
+    banner.style.borderLeftColor = '#2D936C';
+    banner.innerHTML = '<b>✅ Inspección de Calidad</b> · Ingresa los datos de la inspección y opcionalmente adjunta el PDF del formato CAL.001-F01 como respaldo. El % de cumplimiento actualizará el indicador SIG y el gráfico histórico automáticamente.';
+  }
+
+  // Reset campos comunes
   document.getElementById('sigPreview').style.display = 'none';
   document.getElementById('sigProgressBanner').style.display = 'none';
-  document.getElementById('sigDropzoneTitle').textContent = 'CARGAR PDF DE LA INSPECCIÓN';
-  document.getElementById('sigDropzoneSubtitle').textContent = 'Formato CAL.001-F01 · Solo PDF · Hasta 10 MB';
   document.getElementById('sigDropzone').classList.remove('has-file');
   document.getElementById('sigPublishBtn').disabled = false;
 
-  // Prefill semana/fecha de hoy
-  const codInput = document.getElementById('sigSemCod');
+  const codInput   = document.getElementById('sigSemCod');
   const fechaInput = document.getElementById('sigFecha');
-  let nextSem = 'S38';
-  let nextFecha = new Date().toISOString().split('T')[0];
-  try {
-    const hoyInfo = fechaASemana(new Date());
-    if(hoyInfo){ nextSem = hoyInfo.codigo; nextFecha = hoyInfo.cierreSabado; }
-  } catch(e){}
-  if(codInput) codInput.value = nextSem;
-  if(fechaInput) fechaInput.value = nextFecha;
+  const cumplInput = document.getElementById('sigCumplimiento');
+  const inspInput  = document.getElementById('sigInspector');
+  const pObtInput  = document.getElementById('sigPuntajeObt');
+  const pMaxInput  = document.getElementById('sigPuntajeMax');
+  const obsInput   = document.getElementById('sigObservaciones');
+  const dzTitle    = document.getElementById('sigDropzoneTitle');
+  const dzSub      = document.getElementById('sigDropzoneSubtitle');
+
+  if(opts.valores){
+    // ─── MODO EDICIÓN: precargar datos existentes ───
+    const v = opts.valores;
+    codInput.value   = v.semana || '';
+    fechaInput.value = v.fecha_inspeccion || '';
+    cumplInput.value = v.cumplimiento_pct != null ? v.cumplimiento_pct : '';
+    inspInput.value  = v.inspector || '';
+    pObtInput.value  = v.puntaje_obtenido != null ? v.puntaje_obtenido : '';
+    pMaxInput.value  = v.puntaje_maximo != null ? v.puntaje_maximo : 104;
+    obsInput.value   = v.observaciones || '';
+    actualizarPreviewSIG();
+
+    // Si tiene PDF, mostrar info del existente
+    if(v.pdf_url){
+      dzTitle.textContent = `📄 PDF actual cargado`;
+      dzSub.innerHTML = `${escapeHtml(v.pdf_nombre || 'archivo.pdf')}${v.pdf_tamano ? ' · ' + formatBytes(v.pdf_tamano) : ''} · <b>Click aquí para reemplazar</b>`;
+      document.getElementById('sigDropzone').classList.add('has-file');
+    } else {
+      dzTitle.textContent = 'CARGAR PDF DE LA INSPECCIÓN';
+      dzSub.textContent = 'Formato CAL.001-F01 · Solo PDF · Hasta 10 MB';
+    }
+  } else {
+    // ─── MODO CREACIÓN: prefill de hoy ───
+    cumplInput.value = '';
+    inspInput.value = 'Manuel Tirado';
+    pObtInput.value = '';
+    pMaxInput.value = 104;
+    obsInput.value = '';
+    dzTitle.textContent = 'CARGAR PDF DE LA INSPECCIÓN';
+    dzSub.textContent = 'Formato CAL.001-F01 · Solo PDF · Hasta 10 MB';
+
+    let nextSem = 'S38';
+    let nextFecha = new Date().toISOString().split('T')[0];
+    try {
+      const hoyInfo = fechaASemana(new Date());
+      if(hoyInfo){ nextSem = hoyInfo.codigo; nextFecha = hoyInfo.cierreSabado; }
+    } catch(e){}
+    codInput.value   = nextSem;
+    fechaInput.value = nextFecha;
+  }
 
   // Listeners bidireccionales fecha ↔ semana
-  if(fechaInput){
-    fechaInput.oninput = e => {
-      const f = e.target.value;
-      if(f){
-        const info = fechaASemana(f);
-        if(info && codInput) codInput.value = info.codigo;
-      }
-    };
-  }
-  if(codInput){
-    codInput.oninput = e => {
-      const cod = e.target.value.trim().toUpperCase();
-      const info = semanaAFecha(cod);
-      if(info && fechaInput) fechaInput.value = info.cierreSabado;
-    };
-  }
+  fechaInput.oninput = e => {
+    const f = e.target.value;
+    if(f){
+      const info = fechaASemana(f);
+      if(info && codInput) codInput.value = info.codigo;
+    }
+  };
+  codInput.oninput = e => {
+    const cod = e.target.value.trim().toUpperCase();
+    const info = semanaAFecha(cod);
+    if(info && fechaInput) fechaInput.value = info.cierreSabado;
+  };
 
-  // Setup dropzone PDF
+  // Setup dropzone PDF (solo una vez)
   const dz = document.getElementById('sigDropzone');
   const input = document.getElementById('sigPdfInput');
   if(dz && input && !dz._setupDone){
@@ -8909,7 +9000,7 @@ function openSigModal(){
   }
 
   modal.classList.add('show');
-  setTimeout(() => document.getElementById('sigCumplimiento').focus(), 100);
+  setTimeout(() => cumplInput.focus(), 100);
 }
 
 function closeSigModal(){
@@ -8948,6 +9039,10 @@ function actualizarPreviewSIG(){
 }
 
 async function publicarInspeccionSIG(){
+  // Detectar modo edición vs creación
+  const modoEdicion = !!sigEditingId;
+  const inspeccionExistente = modoEdicion ? inspeccionesSIG.find(x => x.id === sigEditingId) : null;
+
   // Validar
   const sem = (document.getElementById('sigSemCod').value || '').trim().toUpperCase();
   const fecha = document.getElementById('sigFecha').value;
@@ -8981,62 +9076,101 @@ async function publicarInspeccionSIG(){
   banner.style.display = 'block';
   banner.classList.remove('success', 'error');
 
-  let pdfUrl = null;
-  let pdfPublicId = null;
+  // Conservar PDF existente por defecto en modo edición
+  let pdfUrl       = modoEdicion && inspeccionExistente ? (inspeccionExistente.pdf_url || null) : null;
+  let pdfPublicId  = modoEdicion && inspeccionExistente ? (inspeccionExistente.pdf_public_id || null) : null;
+  let pdfNombre    = modoEdicion && inspeccionExistente ? (inspeccionExistente.pdf_nombre || null) : null;
+  let pdfTamano    = modoEdicion && inspeccionExistente ? (inspeccionExistente.pdf_tamano || null) : null;
+  let pdfReemplazado = false;
 
   try {
-    // PASO 1: subir PDF si hay
+    // PASO 1: subir nuevo PDF si se seleccionó uno
     if(sigPdfFile){
       bIcon.textContent = '⏳';
-      bText.textContent = 'Subiendo PDF a Cloudinary…';
+      bText.textContent = modoEdicion ? 'Subiendo nuevo PDF a Cloudinary…' : 'Subiendo PDF a Cloudinary…';
       bFill.style.width = '20%';
       bDetail.textContent = `${sigPdfFile.name} (${formatBytes(sigPdfFile.size)})`;
 
       const result = await uploadPdfToCloudinary(sigPdfFile, sem, 'calidad', 'inspeccion_sig');
       pdfUrl = result.url;
       pdfPublicId = result.public_id;
+      pdfNombre = sigPdfFile.name;
+      pdfTamano = sigPdfFile.size;
+      pdfReemplazado = modoEdicion;
     }
 
-    // PASO 2: registrar en Firestore (colección sig_inspecciones)
+    // PASO 2: registrar/actualizar en Firestore
     bIcon.textContent = '⏳';
-    bText.textContent = 'Guardando inspección en Firestore…';
+    bText.textContent = modoEdicion ? 'Guardando cambios en Firestore…' : 'Guardando inspección en Firestore…';
     bFill.style.width = '70%';
     bDetail.textContent = '';
 
-    const { db, collection, addDoc } = window.E140_DB;
-    const docRef = await addDoc(collection(db, 'sig_inspecciones'), {
-      semana:           sem,
-      fecha_inspeccion: fecha,
-      cumplimiento_pct: pct,
-      inspector:        inspector,
-      puntaje_obtenido: puntajeObt,
-      puntaje_maximo:   puntajeMax,
-      observaciones:    observaciones,
-      pdf_url:          pdfUrl,
-      pdf_public_id:    pdfPublicId,
-      pdf_nombre:       sigPdfFile ? sigPdfFile.name : null,
-      pdf_tamano:       sigPdfFile ? sigPdfFile.size : null,
-      registrado_por:        (currentSession && currentSession.usuario) || 'desconocido',
-      registrado_por_nombre: (currentSession && currentSession.nombre) || 'Sin sesión',
-      registrado_en:    new Date().toISOString(),
-      registrado_ts:    Date.now(),
-    });
+    const { db, collection, addDoc, doc, setDoc } = window.E140_DB;
+    const ahoraIso = new Date().toISOString();
+    const ahoraTs  = Date.now();
+    const userId    = (currentSession && currentSession.usuario) || 'desconocido';
+    const userName  = (currentSession && currentSession.nombre) || 'Sin sesión';
 
-    // PASO 3: registrar también en auditoría si hay PDF
-    if(pdfUrl){
+    let docId;
+    if(modoEdicion){
+      // setDoc con merge para actualizar el doc existente
+      docId = sigEditingId;
+      const docRef = doc(db, 'sig_inspecciones', sigEditingId);
+      await setDoc(docRef, {
+        semana:           sem,
+        fecha_inspeccion: fecha,
+        cumplimiento_pct: pct,
+        inspector:        inspector,
+        puntaje_obtenido: puntajeObt,
+        puntaje_maximo:   puntajeMax,
+        observaciones:    observaciones,
+        pdf_url:          pdfUrl,
+        pdf_public_id:    pdfPublicId,
+        pdf_nombre:       pdfNombre,
+        pdf_tamano:       pdfTamano,
+        // Trazabilidad de edición
+        editado_por:        userId,
+        editado_por_nombre: userName,
+        editado_en:         ahoraIso,
+        editado_ts:         ahoraTs,
+      }, { merge: true });
+    } else {
+      // Creación: addDoc
+      const docRef = await addDoc(collection(db, 'sig_inspecciones'), {
+        semana:           sem,
+        fecha_inspeccion: fecha,
+        cumplimiento_pct: pct,
+        inspector:        inspector,
+        puntaje_obtenido: puntajeObt,
+        puntaje_maximo:   puntajeMax,
+        observaciones:    observaciones,
+        pdf_url:          pdfUrl,
+        pdf_public_id:    pdfPublicId,
+        pdf_nombre:       pdfNombre,
+        pdf_tamano:       pdfTamano,
+        registrado_por:        userId,
+        registrado_por_nombre: userName,
+        registrado_en:         ahoraIso,
+        registrado_ts:         ahoraTs,
+      });
+      docId = docRef.id;
+    }
+
+    // PASO 3: registrar en auditoría si se subió/reemplazó PDF
+    if(pdfUrl && (sigPdfFile || !modoEdicion)){
       try {
         await registrarAuditoria({
           semana:        sem,
           area:          'calidad',
-          archivo_key:   'inspeccion_sig',
-          archivo_label: 'Inspección SIG (CAL.001-F01)',
-          nombre_original: sigPdfFile.name,
-          tamano_bytes:  sigPdfFile.size,
+          archivo_key:   modoEdicion && pdfReemplazado ? 'inspeccion_sig_actualizada' : 'inspeccion_sig',
+          archivo_label: modoEdicion && pdfReemplazado ? 'Inspección SIG (PDF actualizado)' : 'Inspección SIG (CAL.001-F01)',
+          nombre_original: sigPdfFile ? sigPdfFile.name : pdfNombre,
+          tamano_bytes:  sigPdfFile ? sigPdfFile.size : pdfTamano,
           cloudinary_url:       pdfUrl,
           cloudinary_public_id: pdfPublicId,
           corte_fecha:   fecha,
-          subido_por:    (currentSession && currentSession.usuario) || 'desconocido',
-          subido_por_nombre: (currentSession && currentSession.nombre) || 'Sin sesión',
+          subido_por:    userId,
+          subido_por_nombre: userName,
           estado:        'ok',
         });
       } catch(audErr){
@@ -9049,21 +9183,50 @@ async function publicarInspeccionSIG(){
     banner.classList.add('success');
     bIcon.textContent = '✓';
     const cal = calificacionSIG(pct);
-    bText.textContent = `¡Inspección publicada! ${pct}% — ${cal.texto}`;
+    bText.textContent = modoEdicion
+      ? `¡Cambios guardados! ${pct}% — ${cal.texto}`
+      : `¡Inspección publicada! ${pct}% — ${cal.texto}`;
     bDetail.textContent = `${sem} · ${formatFechaCorta(fecha)} · Inspector: ${inspector}`;
 
-    // Agregar a la cache local y re-renderizar
-    inspeccionesSIG.push({
-      id:               docRef.id,
-      semana:           sem,
-      fecha_inspeccion: fecha,
-      cumplimiento_pct: pct,
-      inspector:        inspector,
-      puntaje_obtenido: puntajeObt,
-      puntaje_maximo:   puntajeMax,
-      observaciones:    observaciones,
-      pdf_url:          pdfUrl,
-    });
+    // Actualizar cache local
+    if(modoEdicion){
+      const idx = inspeccionesSIG.findIndex(x => x.id === sigEditingId);
+      if(idx >= 0){
+        inspeccionesSIG[idx] = {
+          ...inspeccionesSIG[idx],
+          semana:           sem,
+          fecha_inspeccion: fecha,
+          cumplimiento_pct: pct,
+          inspector:        inspector,
+          puntaje_obtenido: puntajeObt,
+          puntaje_maximo:   puntajeMax,
+          observaciones:    observaciones,
+          pdf_url:          pdfUrl,
+          pdf_public_id:    pdfPublicId,
+          pdf_nombre:       pdfNombre,
+          pdf_tamano:       pdfTamano,
+          editado_por:      userId,
+          editado_por_nombre: userName,
+          editado_en:       ahoraIso,
+          editado_ts:       ahoraTs,
+        };
+      }
+    } else {
+      inspeccionesSIG.push({
+        id:               docId,
+        semana:           sem,
+        fecha_inspeccion: fecha,
+        cumplimiento_pct: pct,
+        inspector:        inspector,
+        puntaje_obtenido: puntajeObt,
+        puntaje_maximo:   puntajeMax,
+        observaciones:    observaciones,
+        pdf_url:          pdfUrl,
+        pdf_public_id:    pdfPublicId,
+        pdf_nombre:       pdfNombre,
+        pdf_tamano:       pdfTamano,
+      });
+    }
 
     if(currentTab === 'calidad-sig'){
       try { renderCalidadSIG(); } catch(e){}
@@ -9080,10 +9243,47 @@ async function publicarInspeccionSIG(){
     console.error('[E140] Error publicando inspección SIG:', err);
     banner.classList.add('error');
     bIcon.textContent = '✕';
-    bText.textContent = 'Error al publicar la inspección';
+    bText.textContent = modoEdicion ? 'Error al guardar los cambios' : 'Error al publicar la inspección';
     bDetail.textContent = (err && err.message) ? err.message : 'Verifica tu conexión y vuelve a intentar.';
     btn.disabled = false;
     if(cancel) cancel.disabled = false;
+  }
+}
+
+// ─── Eliminar una inspección SIG (solo adm/oficina) ───
+async function eliminarInspeccionSIG(id){
+  // Validación de permisos
+  if(!currentSession || (currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina')){
+    alert('Solo los usuarios "adm" y "oficina" pueden eliminar inspecciones.');
+    return;
+  }
+  if(!window.E140_DB){
+    alert('El servicio de Firestore no está disponible.');
+    return;
+  }
+  const inspeccion = inspeccionesSIG.find(x => x.id === id);
+  if(!inspeccion){
+    alert('No se encontró la inspección.');
+    return;
+  }
+  // Confirmación con detalles
+  const detalle = `${inspeccion.semana || '—'} · ${formatFechaCorta(inspeccion.fecha_inspeccion)} · ${inspeccion.cumplimiento_pct}% · ${inspeccion.inspector || ''}`;
+  if(!confirm(`¿Eliminar esta inspección SIG?\n\n${detalle}\n\nEsta acción NO se puede deshacer. ${inspeccion.pdf_url ? 'El PDF asociado quedará en Cloudinary pero ya no aparecerá en el dashboard.' : ''}`)){
+    return;
+  }
+  try {
+    const { db, doc, deleteDoc } = window.E140_DB;
+    await deleteDoc(doc(db, 'sig_inspecciones', id));
+    // Quitar de la cache local
+    inspeccionesSIG = inspeccionesSIG.filter(x => x.id !== id);
+    // Re-renderizar
+    if(currentTab === 'calidad-sig'){
+      try { renderCalidadSIG(); } catch(e){}
+    }
+    alert(`✓ Inspección eliminada correctamente.\n\n${detalle}`);
+  } catch(err){
+    console.error('[E140] Error eliminando inspección SIG:', err);
+    alert(`❌ No se pudo eliminar la inspección.\n\nError: ${err.message || err}`);
   }
 }
 
