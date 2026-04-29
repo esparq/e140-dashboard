@@ -1864,6 +1864,108 @@ body.role-admin .ssoma-actions{display:flex !important;}
 .sig-mapping-table select:focus{outline:none;border-color:#7B2D8E;box-shadow:0 0 0 2px rgba(123,45,142,.1);}
 
 /* ═══════════════════════════════════════════
+   CENTRO DE NOTIFICACIONES · Campana + dropdown
+   ═══════════════════════════════════════════ */
+
+/* Botón campana en el topbar */
+.notif-bell-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);cursor:pointer;transition:all .15s;color:#fff;font-size:18px;line-height:1;font-family:inherit;padding:0;margin-right:8px;}
+.notif-bell-btn:hover{background:rgba(255,255,255,.22);transform:translateY(-1px);}
+.notif-bell-btn.has-unread{animation:notifBellPulse 2s ease-in-out infinite;}
+@keyframes notifBellPulse{0%,100%{transform:scale(1);}25%{transform:rotate(-6deg) scale(1.05);}50%{transform:rotate(0deg) scale(1);}75%{transform:rotate(6deg) scale(1.05);}}
+.notif-bell-btn.shake{animation:notifShake .6s ease-in-out;}
+@keyframes notifShake{0%,100%{transform:rotate(0);}10%,30%,50%,70%,90%{transform:rotate(-12deg);}20%,40%,60%,80%{transform:rotate(12deg);}}
+.notif-bell-badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;background:linear-gradient(135deg,#FF3B30 0%,#D64045 100%);color:#fff;border-radius:9px;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid #1976D2;box-shadow:0 2px 6px rgba(214,64,69,.4);letter-spacing:0;line-height:1;font-family:inherit;}
+.notif-bell-badge.zero{display:none;}
+
+/* Dropdown de notificaciones */
+.notif-dropdown{position:fixed;top:62px;right:14px;width:420px;max-width:calc(100vw - 28px);max-height:calc(100vh - 80px);background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.18),0 4px 12px rgba(0,0,0,.06);display:none;flex-direction:column;z-index:9000;font-family:inherit;overflow:hidden;}
+.notif-dropdown.show{display:flex;animation:notifFadeIn .18s ease-out;}
+@keyframes notifFadeIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.notif-backdrop{position:fixed;inset:0;background:transparent;z-index:8999;display:none;}
+.notif-backdrop.show{display:block;}
+
+/* Header del dropdown */
+.notif-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;background:linear-gradient(135deg,#1976D2 0%,#0D47A1 100%);color:#fff;}
+.notif-head-title{display:flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;letter-spacing:.02em;}
+.notif-head-actions{display:flex;align-items:center;gap:6px;}
+.notif-head-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff;padding:5px 10px;border-radius:5px;font-family:inherit;font-size:10.5px;font-weight:600;cursor:pointer;letter-spacing:.02em;transition:all .15s;line-height:1.2;white-space:nowrap;}
+.notif-head-btn:hover{background:rgba(255,255,255,.28);}
+.notif-head-btn.icon-only{width:30px;height:30px;padding:0;display:flex;align-items:center;justify-content:center;font-size:14px;}
+
+/* Filtros por tipo */
+.notif-filters{display:flex;gap:5px;padding:9px 12px;background:#FAFBFC;border-bottom:1px solid var(--border);overflow-x:auto;flex-wrap:nowrap;}
+.notif-filter{background:#fff;border:1px solid var(--border-mid);color:var(--text-muted);padding:5px 10px;border-radius:14px;font-family:inherit;font-size:10.5px;font-weight:600;cursor:pointer;transition:all .12s;letter-spacing:.02em;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;line-height:1.2;}
+.notif-filter:hover{background:#F0F2F5;border-color:#1976D2;color:#1976D2;}
+.notif-filter.active{background:#1976D2;color:#fff;border-color:#1976D2;}
+.notif-filter-count{display:inline-block;background:rgba(255,255,255,.25);padding:0 5px;border-radius:7px;font-size:9px;font-weight:700;margin-left:2px;}
+.notif-filter:not(.active) .notif-filter-count{background:#E5E7EA;color:#666;}
+
+/* Lista de notificaciones */
+.notif-list{flex:1;overflow-y:auto;padding:0;background:#fff;min-height:120px;max-height:520px;}
+.notif-section-label{padding:10px 14px 5px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);background:#FAFBFC;border-bottom:1px solid var(--border);}
+.notif-item{display:flex;align-items:flex-start;gap:11px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;position:relative;}
+.notif-item:hover{background:#FAFBFC;}
+.notif-item.unread{background:linear-gradient(90deg,#EAF3FB 0%,#fff 60%);}
+.notif-item.unread:hover{background:linear-gradient(90deg,#D9E9F7 0%,#FAFBFC 60%);}
+.notif-item.unread::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#1976D2;}
+.notif-item.read{opacity:.72;}
+.notif-item.read .notif-item-title{font-weight:500;color:var(--text);}
+.notif-item:last-child{border-bottom:none;}
+
+/* Icono de la notificación con color por tipo */
+.notif-item-icon{flex-shrink:0;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;line-height:1;}
+.notif-item-icon.t-pendientes{background:#FFE9D6;color:#7A3F18;}
+.notif-item-icon.t-ssoma{background:#FBEAEA;color:#8A2A2D;}
+.notif-item-icon.t-calidad{background:#E7F4EE;color:#1A6B4A;}
+.notif-item-icon.t-prediccion{background:#F0E5F4;color:#5B2470;}
+.notif-item-icon.t-data{background:#E0EEF8;color:#054C7E;}
+.notif-item-icon.t-fotos{background:#E1F4F8;color:#076285;}
+.notif-item-icon.t-arq{background:#F0E5F4;color:#5B2470;}
+.notif-item-icon.t-sistema{background:#F0F2F5;color:#666;}
+.notif-item-icon.t-critico{background:#FBEAEA;color:#8A2A2D;animation:critPulse 1.4s ease infinite;}
+@keyframes critPulse{0%,100%{box-shadow:0 0 0 0 rgba(214,64,69,.5);}50%{box-shadow:0 0 0 6px rgba(214,64,69,0);}}
+
+/* Contenido de la notificación */
+.notif-item-content{flex:1;min-width:0;}
+.notif-item-title{font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:2px;line-height:1.35;word-wrap:break-word;}
+.notif-item-desc{font-size:11px;color:var(--text-muted);line-height:1.4;margin-bottom:4px;word-wrap:break-word;}
+.notif-item-desc b{color:var(--text);}
+.notif-item-meta{display:flex;align-items:center;gap:8px;font-size:9.5px;color:var(--text-muted);}
+.notif-item-time{font-weight:500;}
+.notif-item-author{display:inline-flex;align-items:center;gap:3px;}
+.notif-item-prio{display:inline-block;padding:1px 5px;border-radius:7px;font-size:8.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+.notif-item-prio.alta{background:#FBEAEA;color:#8A2A2D;}
+.notif-item-prio.media{background:#FFF8EE;color:#7A3F18;}
+.notif-item-prio.baja{background:#F0F2F5;color:#666;}
+
+/* Estado vacío */
+.notif-empty{padding:36px 20px;text-align:center;color:var(--text-muted);font-size:12px;font-style:italic;}
+.notif-empty-icon{display:block;font-size:36px;margin-bottom:10px;opacity:.4;}
+.notif-empty b{color:var(--text);}
+
+/* Footer del dropdown */
+.notif-foot{padding:9px 14px;background:#FAFBFC;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:var(--text-muted);flex-wrap:wrap;gap:6px;}
+.notif-foot-info{font-style:italic;}
+
+/* Toast de nueva notificación llegando (desktop bottom-right) */
+.notif-toast{position:fixed;bottom:20px;right:20px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:12px 14px;min-width:280px;max-width:380px;z-index:9100;display:flex;align-items:flex-start;gap:10px;animation:notifToastIn .35s cubic-bezier(.2,.8,.4,1.1);font-family:inherit;cursor:pointer;}
+@keyframes notifToastIn{from{opacity:0;transform:translateX(100%) scale(.9);}to{opacity:1;transform:translateX(0) scale(1);}}
+.notif-toast.fade-out{animation:notifToastOut .25s ease-in forwards;}
+@keyframes notifToastOut{to{opacity:0;transform:translateX(100%);}}
+.notif-toast .notif-item-icon{width:32px;height:32px;font-size:14px;}
+.notif-toast-content{flex:1;min-width:0;}
+.notif-toast-title{font-size:12.5px;font-weight:700;margin-bottom:2px;color:var(--text);}
+.notif-toast-desc{font-size:11px;color:var(--text-muted);line-height:1.35;}
+.notif-toast-close{background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px 4px;line-height:1;border-radius:4px;}
+.notif-toast-close:hover{background:#F0F2F5;color:var(--text);}
+
+/* Mobile responsive */
+@media(max-width:600px){
+  .notif-dropdown{right:8px;left:8px;width:auto;top:58px;}
+  .notif-toast{right:10px;left:10px;min-width:auto;max-width:none;bottom:14px;}
+}
+
+/* ═══════════════════════════════════════════
    REPORTE GERENCIAL — Layout ejecutivo
    ═══════════════════════════════════════════ */
 
@@ -9800,6 +9902,20 @@ async function publicarCapacitacion(){
       const { db, collection, addDoc } = window.E140_DB;
       const docRef = await addDoc(collection(db, 'capacitaciones'), dataDoc);
       capacitacionesData.push({ id: docRef.id, ...dataDoc });
+
+      // 🔔 Notificación de capacitación nueva
+      try {
+        if(typeof notify === 'function'){
+          const totalAsist = (dataDoc.asistentes || []).length;
+          notify({
+            tipo: 'calidad',
+            titulo: `🎓 Capacitación SIG: ${tema}`,
+            descripcion: `Registrada por <b>${userName}</b>${totalAsist > 0 ? ` · <b>${totalAsist}</b> asistente${totalAsist===1?'':'s'}` : ''} · ${fecha}.`,
+            prioridad: 'media',
+            enlace: { tab:'calidad-cap' },
+          });
+        }
+      } catch(e){ console.warn(e); }
     }
 
     // Registrar en auditoría si hay Excel
@@ -10431,6 +10547,25 @@ async function procesarPublicacionSsoma(opts){
 
     // Cache local
     ssomaReportesData.unshift({ id: docRef.id, ...dataDoc });
+
+    // 🔔 Notificación SSOMA
+    try {
+      if(typeof notify === 'function'){
+        const tipoTxt = opts.tipo === 'charla' ? '🎓 Charla SSOMA' :
+                        opts.tipo === 'inspeccion' ? '🔍 Inspección SST' :
+                        opts.tipo === 'incidente' ? '⚠ Incidente/Casi-accidente' : 'Reporte SSOMA';
+        const tema = opts.extraData.tema || opts.extraData.descripcion || opts.extraData.titulo || 'sin título';
+        const esIncidente = opts.tipo === 'incidente';
+        const gravedad = opts.extraData.gravedad || opts.extraData.severidad || '';
+        notify({
+          tipo: esIncidente ? 'critico' : 'ssoma',
+          titulo: `🦺 ${tipoTxt}: ${tema.substring(0,60)}${tema.length>60?'…':''}`,
+          descripcion: `Registrado por <b>${userName}</b>${gravedad ? ` · gravedad <b>${gravedad}</b>` : ''}${opts.extraData.fecha ? ` · ${opts.extraData.fecha}` : ''}.`,
+          prioridad: esIncidente ? 'alta' : 'media',
+          enlace: { tab:'ssoma-sst' },
+        });
+      }
+    } catch(e){ console.warn(e); }
 
     // Si tiene adjunto, registrar también en auditoría
     if(adjuntoUrl){
@@ -11162,11 +11297,37 @@ function arqSigOnChangeEstadoObra(codigo, valor){
 
 function arqSigSetEstado(codigo, nuevoEstado){
   if(!arqSigData[codigo]) arqSigData[codigo] = {};
+  const estadoAnterior = arqSigData[codigo].estado;
   arqSigData[codigo].estado = nuevoEstado;
   arqSigData[codigo].ultima_edicion = new Date().toISOString();
   arqSigData[codigo].editado_por = (currentSession && currentSession.usuario) || '—';
   arqSigGuardarFirestore(codigo);
   renderArqProcesos();
+
+  // 🔔 Notificar cambio de estado (deduplicado por código+día+usuario)
+  try {
+    if(typeof notify === 'function' && nuevoEstado && nuevoEstado !== estadoAnterior){
+      const it = ARQ_SIG_CATALOGO.find(x => x.codigo === codigo);
+      if(it){
+        const userName = (currentSession && currentSession.nombre) || 'Usuario';
+        const estadoLbl = ({
+          'revisado': '✅ Revisado / N.A.',
+          'pendiente-rev': '⏸ Pendiente',
+          'curso': '🔵 En curso',
+          'poriniciar': '📅 Por iniciar / Planificado',
+        })[nuevoEstado] || nuevoEstado;
+        const hoyStr = new Date().toISOString().slice(0,10);
+        notify({
+          tipo: 'arq',
+          titulo: `📐 ${codigo} marcado como ${estadoLbl}`,
+          descripcion: `<b>${userName}</b> actualizó el instructivo "${it.partida}".`,
+          prioridad: 'baja',
+          enlace: { tab:'arq-procesos', codigo: codigo },
+          dedupKey: `sig_estado_${codigo}_${nuevoEstado}_${currentSession.usuario}_${hoyStr}`,
+        });
+      }
+    }
+  } catch(e){ console.warn(e); }
 }
 
 function arqSigOnComentarioInput(textarea){
@@ -11704,6 +11865,673 @@ function renderArqAvance(){ /* Avance por Partida · Acabados — pendiente data
 function renderArqPV(){     /* Alertas Postventa Reincidentes — pendiente data */ }
 function renderArqObs(){    /* Observaciones en Entrega — pendiente data */ }
 
+
+/* ═══════════════════════════════════════════════════════════════════
+   CENTRO DE NOTIFICACIONES · Sistema unificado
+   - Eventos en tiempo real (creación de pendientes, fotos, SSOMA, etc.)
+   - Alertas predictivas (SPI, instructivos por iniciar, pendientes por vencer)
+   - Cron diario al login
+   - Notificaciones por rol · Push del navegador · Sonido suave
+   ═══════════════════════════════════════════════════════════════════ */
+
+// ─── Catálogo de tipos de notificación ───
+const NOTIF_TIPOS = {
+  pendientes:  { icon:'📌', clase:'t-pendientes', label:'Pendientes' },
+  ssoma:       { icon:'🦺', clase:'t-ssoma',      label:'SSOMA' },
+  calidad:     { icon:'✅', clase:'t-calidad',    label:'Calidad' },
+  prediccion:  { icon:'🔮', clase:'t-prediccion', label:'Predicción' },
+  data:        { icon:'📊', clase:'t-data',       label:'Data semanal' },
+  fotos:       { icon:'📸', clase:'t-fotos',      label:'Fotos' },
+  arq:         { icon:'📐', clase:'t-arq',        label:'Arquitectura' },
+  sistema:     { icon:'⚙',  clase:'t-sistema',    label:'Sistema' },
+  critico:     { icon:'🔴', clase:'t-critico',    label:'Crítico' },
+};
+
+// ─── Roles del sistema ───
+const NOTIF_ROLES = ['adm','oficina','residente','staff','gerencia'];
+
+// ─── Estado del módulo ───
+let notifsData = [];                    // Array de notificaciones cargadas (Firestore + locales)
+let notifFiltroActivo = 'todas';
+let notifDropdownOpen = false;
+let notifPushPermission = 'default';    // 'granted' | 'denied' | 'default'
+let notifLastSeenTs = 0;                // timestamp del último visto (para detectar nuevas)
+let notifSoundEnabled = true;
+let notifInitialized = false;
+let notifLastCronDate = null;           // 'YYYY-MM-DD' última fecha que se corrió cron
+
+// Sonido suave embebido (campana corta) — generado vía AudioContext si Audio no funciona
+let notifAudio = null;
+
+function notifEscapeHtml(str){
+  if(str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function notifFormatTimeAgo(ts){
+  if(!ts) return '—';
+  const now = Date.now();
+  const diff = Math.floor((now - ts) / 1000);
+  if(diff < 60) return 'ahora';
+  if(diff < 3600) return `hace ${Math.floor(diff/60)} min`;
+  if(diff < 86400) return `hace ${Math.floor(diff/3600)} h`;
+  if(diff < 604800) return `hace ${Math.floor(diff/86400)} d`;
+  const f = new Date(ts);
+  return f.toLocaleDateString('es-PE',{day:'2-digit',month:'short'});
+}
+
+function notifPuedeVer(notif){
+  if(!currentSession) return false;
+  // Si tiene lista 'para', validar; sino, todos la ven
+  if(Array.isArray(notif.para) && notif.para.length > 0){
+    return notif.para.includes(currentSession.usuario);
+  }
+  return true;
+}
+
+function notifEstaLeida(notif){
+  if(!currentSession) return false;
+  return notif.leida_por && notif.leida_por[currentSession.usuario] === true;
+}
+
+// ──────────────────────────────────────────
+// API CENTRAL: notify()
+// Llamada desde cualquier módulo para crear una notificación
+// ──────────────────────────────────────────
+async function notify(opts){
+  // opts: { tipo, titulo, descripcion, prioridad?, enlace?, dedupKey?, forceFromSystem? }
+  if(!opts || !opts.tipo || !opts.titulo) return null;
+
+  const tipo = opts.tipo;
+  const ahora = Date.now();
+  const autor = (currentSession && currentSession.usuario) || 'sistema';
+
+  // ─── Regla: las acciones del 'adm' no generan notificaciones para nadie ───
+  // Excepción: cron/sistema usa forceFromSystem=true para notifs predictivas
+  // que no son acción de un usuario específico.
+  if(autor === 'adm' && !opts.forceFromSystem){
+    return null;
+  }
+
+  // Si tiene dedupKey, revisar si ya existe una notif reciente igual (evita spam)
+  if(opts.dedupKey){
+    const yaExiste = notifsData.find(n =>
+      n.dedup_key === opts.dedupKey &&
+      (ahora - (n.timestamp_ms || 0)) < 24*3600*1000  // mismo evento en últimas 24h
+    );
+    if(yaExiste) return null;
+  }
+
+  const nuevaNotif = {
+    id: `notif_${ahora}_${Math.random().toString(36).slice(2,8)}`,
+    tipo,
+    titulo: opts.titulo,
+    descripcion: opts.descripcion || '',
+    timestamp_ms: ahora,
+    para: NOTIF_ROLES.slice(),  // Siempre todos los roles ven las notificaciones
+    leida_por: {},
+    enlace: opts.enlace || null,
+    prioridad: opts.prioridad || 'media',
+    origen_usuario: opts.forceFromSystem ? 'sistema' : autor,
+    dedup_key: opts.dedupKey || null,
+  };
+
+  // Insertar en local (delante)
+  notifsData.unshift(nuevaNotif);
+
+  // Persistir en Firestore (no bloqueante)
+  if(window.E140_DB){
+    try {
+      const { db, doc, setDoc, serverTimestamp } = window.E140_DB;
+      await setDoc(doc(db, 'notificaciones', nuevaNotif.id), {
+        ...nuevaNotif,
+        ts: serverTimestamp(),
+      }, { merge: true });
+    } catch(err){
+      console.warn('[E140] notif: no se pudo persistir', err);
+    }
+  }
+
+  // Refrescar UI
+  notifRender();
+
+  // Solo emitir efectos (toast/sonido/push) si la notif aplica al usuario actual
+  if(notifPuedeVer(nuevaNotif) && nuevaNotif.origen_usuario !== (currentSession?.usuario || '')){
+    notifPlaySound();
+    notifShowToast(nuevaNotif);
+    notifSendPush(nuevaNotif);
+    // Animar la campana
+    const bell = document.getElementById('notifBellBtn');
+    if(bell){
+      bell.classList.remove('shake');
+      void bell.offsetWidth; // restart animation
+      bell.classList.add('shake');
+    }
+  }
+
+  return nuevaNotif;
+}
+
+// ──────────────────────────────────────────
+// SONIDO SUAVE (campana corta vía AudioContext)
+// ──────────────────────────────────────────
+function notifPlaySound(){
+  if(!notifSoundEnabled) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+    // Tono suave: dos notas rápidas (campana)
+    [
+      { freq: 880,  start: 0,    dur: 0.16, vol: 0.10 },
+      { freq: 1320, start: 0.10, dur: 0.20, vol: 0.08 },
+    ].forEach(({freq, start, dur, vol}) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + start);
+      gain.gain.setValueAtTime(0, now + start);
+      gain.gain.linearRampToValueAtTime(vol, now + start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now + start);
+      osc.stop(now + start + dur + 0.05);
+    });
+    // Cerrar el contexto luego de un momento
+    setTimeout(() => { try { ctx.close(); } catch(e){} }, 600);
+  } catch(e){
+    // Silencioso si no se puede reproducir (autoplay bloqueado)
+  }
+}
+
+// ──────────────────────────────────────────
+// TOAST en pantalla (esquina inferior derecha)
+// ──────────────────────────────────────────
+function notifShowToast(notif){
+  // Solo si el dropdown está cerrado (sino sería redundante)
+  if(notifDropdownOpen) return;
+
+  const tipoInfo = NOTIF_TIPOS[notif.tipo] || NOTIF_TIPOS.sistema;
+  const toast = document.createElement('div');
+  toast.className = 'notif-toast';
+  toast.onclick = () => { notifOpen(); toast.remove(); };
+  toast.innerHTML = `
+    <div class="notif-item-icon ${tipoInfo.clase}">${tipoInfo.icon}</div>
+    <div class="notif-toast-content">
+      <div class="notif-toast-title">${notifEscapeHtml(notif.titulo)}</div>
+      <div class="notif-toast-desc">${notifEscapeHtml(notif.descripcion).substring(0, 120)}${(notif.descripcion||'').length > 120 ? '…' : ''}</div>
+    </div>
+    <button class="notif-toast-close" onclick="event.stopPropagation(); this.parentElement.classList.add('fade-out'); setTimeout(()=>this.parentElement.remove(),250);" aria-label="Cerrar">✕</button>
+  `;
+  document.body.appendChild(toast);
+  // Auto-remover en 5s
+  setTimeout(() => {
+    if(toast.parentElement){
+      toast.classList.add('fade-out');
+      setTimeout(() => toast.remove(), 250);
+    }
+  }, 5000);
+}
+
+// ──────────────────────────────────────────
+// WEB PUSH (notificación del navegador)
+// ──────────────────────────────────────────
+function notifRequestPushPermission(){
+  if(!('Notification' in window)){
+    alert('Tu navegador no soporta notificaciones push.');
+    return;
+  }
+  if(Notification.permission === 'granted'){
+    alert('✅ Las notificaciones push ya están activadas.');
+    return;
+  }
+  if(Notification.permission === 'denied'){
+    alert('⛔ Las notificaciones push están bloqueadas. Para activarlas, abre la configuración de tu navegador → permisos → notificaciones para este sitio.');
+    return;
+  }
+  Notification.requestPermission().then(perm => {
+    notifPushPermission = perm;
+    notifUpdatePushButton();
+    if(perm === 'granted'){
+      // Notificación de bienvenida
+      try {
+        new Notification('🎉 Push activado', {
+          body: 'Recibirás notificaciones del Dashboard E140 incluso cuando esta pestaña esté en segundo plano.',
+          icon: '/favicon.ico',
+        });
+      } catch(e){}
+    }
+  });
+}
+
+function notifSendPush(notif){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  // No mandar push si la pestaña está visible (ya tiene toast/dropdown)
+  if(!document.hidden) return;
+  try {
+    const tipoInfo = NOTIF_TIPOS[notif.tipo] || NOTIF_TIPOS.sistema;
+    const n = new Notification(`${tipoInfo.icon} ${notif.titulo}`, {
+      body: notif.descripcion || '',
+      tag: notif.id,
+      silent: false,
+    });
+    n.onclick = () => { window.focus(); notifOpen(); n.close(); };
+    setTimeout(() => { try { n.close(); } catch(e){} }, 8000);
+  } catch(e){}
+}
+
+function notifUpdatePushButton(){
+  const btn = document.getElementById('notifPushBtn');
+  if(!btn) return;
+  if(!('Notification' in window)){
+    btn.style.display = 'none';
+    return;
+  }
+  if(Notification.permission === 'granted'){
+    btn.style.display = 'none';
+  } else {
+    btn.style.display = 'inline-block';
+    btn.textContent = Notification.permission === 'denied' ? '🔕 Push bloqueado' : '🔔 Activar push';
+  }
+}
+
+// ──────────────────────────────────────────
+// MOTOR CRON: alertas predictivas + revisiones diarias
+// Se ejecuta una vez por día, al login o al primer foco
+// ──────────────────────────────────────────
+async function notifEjecutarCron(){
+  const hoyStr = new Date().toISOString().slice(0,10);
+  if(notifLastCronDate === hoyStr) return;  // ya se corrió hoy
+  notifLastCronDate = hoyStr;
+  // Persistir en localStorage para no repetir
+  try { localStorage.setItem('e140_notif_last_cron', hoyStr); } catch(e){}
+
+  // 1) Pendientes por vencer / vencidos
+  if(typeof pendientesData !== 'undefined' && Array.isArray(pendientesData)){
+    pendientesData.forEach(p => {
+      if(!p || !p.fecha_objetivo) return;
+      if(p.estado === 'completado' || p.estado === 'completada' || p.estado === 'done') return;
+      const fobj = new Date(p.fecha_objetivo);
+      if(isNaN(fobj.getTime())) return;
+      const hoy = new Date(); hoy.setHours(0,0,0,0);
+      const dias = Math.round((fobj.getTime() - hoy.getTime()) / 86400000);
+      const titulo = p.titulo || p.descripcion || 'Pendiente';
+      // Dedup key estable: tarea-id + fecha de hoy + tipo
+      const dedupBase = p.id || titulo;
+      if(dias < 0){
+        const diasAtraso = Math.abs(dias);
+        notify({
+          tipo: 'critico',
+          titulo: `🔴 Pendiente vencido: ${titulo}`,
+          descripcion: `Venció hace <b>${diasAtraso} día${diasAtraso===1?'':'s'}</b> y aún está abierto. Revisa con el responsable.`,
+          forceFromSystem: true,
+          prioridad: 'alta',
+          enlace: { tab:'pendientes', id: p.id },
+          dedupKey: `pen_vencido_${dedupBase}_${hoyStr}`,
+        });
+      } else if(dias <= 3){
+        notify({
+          tipo: 'pendientes',
+          titulo: `⏰ Pendiente por vencer: ${titulo}`,
+          descripcion: `Vence en <b>${dias === 0 ? 'hoy' : (dias + ' día' + (dias===1?'':'s'))}</b>.`,
+          forceFromSystem: true,
+          prioridad: dias === 0 ? 'alta' : 'media',
+          enlace: { tab:'pendientes', id: p.id },
+          dedupKey: `pen_porvencer_${dedupBase}_${hoyStr}`,
+        });
+      }
+    });
+  }
+
+  // 2) Instructivos SIG por iniciar (auto-marcados)
+  if(typeof ARQ_SIG_CATALOGO !== 'undefined' && typeof arqSigEstadoObraEfectivo === 'function'){
+    ARQ_SIG_CATALOGO.forEach(it => {
+      try {
+        const estObra = arqSigEstadoObraEfectivo(it.codigo);
+        const estRev = (typeof arqSigEstadoRevisionEfectivo === 'function')
+          ? arqSigEstadoRevisionEfectivo(it.codigo) : null;
+        if(estObra.esAuto && estRev !== 'revisado'){
+          // Solo notificar si está en zona crítica (≤7 días)
+          if(estObra.dias <= 7){
+            notify({
+              tipo: 'prediccion',
+              titulo: `📅 ${it.codigo} · ${it.partida} inicia en ${estObra.dias}d`,
+              descripcion: `Revisa el instructivo del SIG antes de la fecha programada para garantizar cumplimiento desde el primer día.`,
+              forceFromSystem: true,
+              prioridad: estObra.dias <= 3 ? 'alta' : 'media',
+              enlace: { tab:'arq-procesos', codigo: it.codigo },
+              dedupKey: `sig_porini_${it.codigo}_${hoyStr}`,
+            });
+          }
+        }
+        // Cronograma vencido sin marcar
+        const map = (typeof arqSigMapDe === 'function') ? arqSigMapDe(it.codigo) : null;
+        if(map && map.fecha_inicio){
+          const dias = arqSigDiasHasta(map.fecha_inicio);
+          if(dias !== null && dias < -3 && !estObra.valor && estRev !== 'revisado'){
+            notify({
+              tipo: 'critico',
+              titulo: `🔴 ${it.codigo} sin marcar · cronograma vencido`,
+              descripcion: `Inició hace <b>${Math.abs(dias)} día${Math.abs(dias)===1?'':'s'}</b> según cronograma. Verifica si la partida ya está en curso o si necesita reprogramarse.`,
+              forceFromSystem: true,
+              prioridad: 'alta',
+              enlace: { tab:'arq-procesos', codigo: it.codigo },
+              dedupKey: `sig_vencido_${it.codigo}_${hoyStr}`,
+            });
+          }
+        }
+      } catch(e){ /* skip */ }
+    });
+  }
+
+  // 3) SPI crítico de algún frente
+  if(typeof arqSigGetSpi === 'function'){
+    const spi = arqSigGetSpi();
+    if(spi){
+      Object.keys(spi).forEach(fkey => {
+        const f = spi[fkey];
+        if(!f || !f.acumulado || f.acumulado <= 0) return;
+        if(f.acumulado < 0.85){
+          const lbl = ARQ_SIG_FRENTE_LABELS && ARQ_SIG_FRENTE_LABELS[fkey] ? ARQ_SIG_FRENTE_LABELS[fkey].long : fkey.toUpperCase();
+          const afectados = ARQ_SIG_CATALOGO.filter(it => arqSigMapDe(it.codigo).frente_padre === fkey).length;
+          notify({
+            tipo: 'prediccion',
+            titulo: `⚠ Frente ${lbl} con SPI crítico`,
+            descripcion: `SPI acumulado <b>${f.acumulado.toFixed(2)}</b>. Hay <b>${afectados}</b> instructivo${afectados!==1?'s':''} mapeado${afectados!==1?'s':''} a este frente cuya fecha predicha se desplaza.`,
+            forceFromSystem: true,
+            prioridad: 'alta',
+            enlace: { tab:'arq-procesos' },
+            dedupKey: `spi_critico_${fkey}_${hoyStr}`,
+          });
+        }
+      });
+    }
+  }
+}
+
+// ──────────────────────────────────────────
+// CARGA / GUARDADO Firestore
+// ──────────────────────────────────────────
+async function notifLoadFromFirestore(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs, query, orderBy, limit } = window.E140_DB;
+    // Cargar las últimas 200 notificaciones
+    const q = query(collection(db, 'notificaciones'), orderBy('timestamp_ms', 'desc'), limit(200));
+    const snapshot = await getDocs(q);
+    notifsData = [];
+    snapshot.forEach(s => {
+      const d = s.data();
+      notifsData.push({
+        id: s.id,
+        tipo: d.tipo || 'sistema',
+        titulo: d.titulo || '',
+        descripcion: d.descripcion || '',
+        timestamp_ms: d.timestamp_ms || 0,
+        para: Array.isArray(d.para) ? d.para : NOTIF_ROLES.slice(),
+        leida_por: d.leida_por || {},
+        enlace: d.enlace || null,
+        prioridad: d.prioridad || 'media',
+        origen_usuario: d.origen_usuario || 'sistema',
+        dedup_key: d.dedup_key || null,
+      });
+    });
+    console.log(`[E140] Notificaciones cargadas: ${notifsData.length}`);
+    notifRender();
+  } catch(err){
+    console.warn('[E140] No se pudieron cargar notificaciones:', err.message || err);
+  }
+}
+
+async function notifMarcarLeidaFirestore(notifId){
+  if(!window.E140_DB || !currentSession) return;
+  try {
+    const { db, doc, setDoc } = window.E140_DB;
+    const update = {};
+    update[`leida_por.${currentSession.usuario}`] = true;
+    await setDoc(doc(db, 'notificaciones', notifId), update, { merge: true });
+  } catch(err){
+    console.warn('[E140] No se pudo marcar leída:', err);
+  }
+}
+
+// ──────────────────────────────────────────
+// RENDER del dropdown
+// ──────────────────────────────────────────
+function notifRender(){
+  // Filtrar las visibles para el usuario actual
+  const visibles = notifsData.filter(notifPuedeVer);
+
+  // Conteos por filtro
+  const cnt = {
+    todas: visibles.length,
+    'no-leidas': visibles.filter(n => !notifEstaLeida(n)).length,
+    prediccion: visibles.filter(n => n.tipo === 'prediccion' || n.tipo === 'critico').length,
+    pendientes: visibles.filter(n => n.tipo === 'pendientes' || (n.tipo === 'critico' && (n.dedup_key||'').startsWith('pen_'))).length,
+    ssoma: visibles.filter(n => n.tipo === 'ssoma').length,
+    calidad: visibles.filter(n => n.tipo === 'calidad' || n.tipo === 'arq').length,
+    data: visibles.filter(n => n.tipo === 'data' || n.tipo === 'fotos').length,
+  };
+
+  const setText = (id, val) => { const el=document.getElementById(id); if(el) el.textContent = val; };
+  setText('notifCountTodas', cnt.todas);
+  setText('notifCountUnread', cnt['no-leidas']);
+  setText('notifCountPred', cnt.prediccion);
+  setText('notifCountPend', cnt.pendientes);
+  setText('notifCountSsoma', cnt.ssoma);
+  setText('notifCountCal', cnt.calidad);
+  setText('notifCountData', cnt.data);
+
+  // Actualizar badge de la campana (no leídas)
+  const badge = document.getElementById('notifBellBadge');
+  const bell = document.getElementById('notifBellBtn');
+  if(badge && bell){
+    const noLeidas = cnt['no-leidas'];
+    if(noLeidas > 0){
+      badge.textContent = noLeidas > 99 ? '99+' : String(noLeidas);
+      badge.classList.remove('zero');
+      bell.classList.add('has-unread');
+    } else {
+      badge.classList.add('zero');
+      bell.classList.remove('has-unread');
+    }
+  }
+
+  // Filtrar según el filtro activo
+  let lista = visibles;
+  switch(notifFiltroActivo){
+    case 'no-leidas': lista = visibles.filter(n => !notifEstaLeida(n)); break;
+    case 'prediccion': lista = visibles.filter(n => n.tipo === 'prediccion' || n.tipo === 'critico'); break;
+    case 'pendientes': lista = visibles.filter(n => n.tipo === 'pendientes' || (n.tipo === 'critico' && (n.dedup_key||'').startsWith('pen_'))); break;
+    case 'ssoma': lista = visibles.filter(n => n.tipo === 'ssoma'); break;
+    case 'calidad': lista = visibles.filter(n => n.tipo === 'calidad' || n.tipo === 'arq'); break;
+    case 'data': lista = visibles.filter(n => n.tipo === 'data' || n.tipo === 'fotos'); break;
+  }
+
+  // Separar leídas/no leídas
+  const noLeidas = lista.filter(n => !notifEstaLeida(n)).sort((a,b) => (b.timestamp_ms||0) - (a.timestamp_ms||0));
+  const leidas = lista.filter(notifEstaLeida).sort((a,b) => (b.timestamp_ms||0) - (a.timestamp_ms||0));
+
+  const listEl = document.getElementById('notifList');
+  if(!listEl) return;
+
+  if(lista.length === 0){
+    listEl.innerHTML = `
+      <div class="notif-empty">
+        <span class="notif-empty-icon">🔔</span>
+        <b>Sin notificaciones</b><br>
+        ${notifFiltroActivo === 'todas' ? 'Las novedades del proyecto aparecerán aquí.' : 'Sin resultados para este filtro.'}
+      </div>`;
+  } else {
+    let html = '';
+    if(noLeidas.length > 0){
+      html += `<div class="notif-section-label">⚪ No leídas (${noLeidas.length})</div>`;
+      html += noLeidas.map(notifRenderItem).join('');
+    }
+    if(leidas.length > 0){
+      html += `<div class="notif-section-label">✓ Leídas anteriores</div>`;
+      html += leidas.slice(0, 50).map(notifRenderItem).join('');
+    }
+    listEl.innerHTML = html;
+  }
+
+  // Footer info
+  const foot = document.getElementById('notifFootInfo');
+  if(foot){
+    if(visibles.length === 0){
+      foot.textContent = 'Sin notificaciones';
+    } else {
+      foot.textContent = `${visibles.length} en total · ${cnt['no-leidas']} sin leer`;
+    }
+  }
+
+  // Botón push
+  notifUpdatePushButton();
+}
+
+function notifRenderItem(notif){
+  const tipoInfo = NOTIF_TIPOS[notif.tipo] || NOTIF_TIPOS.sistema;
+  const leida = notifEstaLeida(notif);
+  const cls = leida ? 'read' : 'unread';
+  const time = notifFormatTimeAgo(notif.timestamp_ms);
+  const author = notif.origen_usuario && notif.origen_usuario !== 'sistema'
+    ? `<span class="notif-item-author">· por ${notifEscapeHtml(notif.origen_usuario)}</span>`
+    : '<span class="notif-item-author">· sistema</span>';
+  const prio = notif.prioridad ? `<span class="notif-item-prio ${notif.prioridad}">${notif.prioridad}</span>` : '';
+  return `
+    <div class="notif-item ${cls}" data-id="${notif.id}" onclick="notifClick('${notif.id}')">
+      <div class="notif-item-icon ${tipoInfo.clase}">${tipoInfo.icon}</div>
+      <div class="notif-item-content">
+        <div class="notif-item-title">${notifEscapeHtml(notif.titulo)}</div>
+        ${notif.descripcion ? `<div class="notif-item-desc">${notif.descripcion}</div>` : ''}
+        <div class="notif-item-meta">
+          <span class="notif-item-time">${time}</span>
+          ${author}
+          ${prio}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ──────────────────────────────────────────
+// Acciones del usuario
+// ──────────────────────────────────────────
+function notifToggle(){
+  if(notifDropdownOpen) notifClose();
+  else notifOpen();
+}
+
+function notifOpen(){
+  const dd = document.getElementById('notifDropdown');
+  const bd = document.getElementById('notifBackdrop');
+  if(!dd) return;
+  dd.classList.add('show');
+  if(bd) bd.classList.add('show');
+  notifDropdownOpen = true;
+  notifRender();
+}
+
+function notifClose(){
+  const dd = document.getElementById('notifDropdown');
+  const bd = document.getElementById('notifBackdrop');
+  if(dd) dd.classList.remove('show');
+  if(bd) bd.classList.remove('show');
+  notifDropdownOpen = false;
+}
+
+function notifClick(notifId){
+  const notif = notifsData.find(n => n.id === notifId);
+  if(!notif) return;
+  // Marcar como leída
+  if(!notifEstaLeida(notif)){
+    if(!notif.leida_por) notif.leida_por = {};
+    notif.leida_por[currentSession.usuario] = true;
+    notifMarcarLeidaFirestore(notifId);
+    notifRender();
+  }
+  // Navegar al enlace
+  if(notif.enlace && notif.enlace.tab){
+    notifClose();
+    if(typeof setTab === 'function'){
+      setTab(notif.enlace.tab);
+      // Si tiene código (instructivo), buscar y resaltar
+      if(notif.enlace.codigo && typeof arqSigBuscarYScroll === 'function'){
+        setTimeout(() => arqSigBuscarYScroll(notif.enlace.codigo), 400);
+      }
+    }
+  }
+}
+
+async function notifMarkAllRead(){
+  if(!currentSession) return;
+  const cambios = [];
+  notifsData.forEach(n => {
+    if(notifPuedeVer(n) && !notifEstaLeida(n)){
+      if(!n.leida_por) n.leida_por = {};
+      n.leida_por[currentSession.usuario] = true;
+      cambios.push(n.id);
+    }
+  });
+  notifRender();
+  // Persistir todos en paralelo
+  if(window.E140_DB && cambios.length > 0){
+    try {
+      const { db, doc, setDoc } = window.E140_DB;
+      const promesas = cambios.map(id => {
+        const update = {};
+        update[`leida_por.${currentSession.usuario}`] = true;
+        return setDoc(doc(db, 'notificaciones', id), update, { merge: true });
+      });
+      await Promise.all(promesas);
+    } catch(err){
+      console.warn('[E140] No se pudo marcar todas como leídas:', err);
+    }
+  }
+}
+
+// ──────────────────────────────────────────
+// INIT (llamado tras login)
+// ──────────────────────────────────────────
+function notifInit(){
+  if(notifInitialized) return;
+  notifInitialized = true;
+
+  // Estado de permiso de push
+  if('Notification' in window){
+    notifPushPermission = Notification.permission;
+  }
+
+  // Recuperar última fecha de cron
+  try { notifLastCronDate = localStorage.getItem('e140_notif_last_cron') || null; } catch(e){}
+
+  // Bind de filtros
+  document.querySelectorAll('#notifFilters .notif-filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+      notifFiltroActivo = btn.dataset.filter;
+      document.querySelectorAll('#notifFilters .notif-filter').forEach(b => b.classList.toggle('active', b === btn));
+      notifRender();
+    });
+  });
+
+  // Cerrar al presionar Escape
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape' && notifDropdownOpen) notifClose();
+  });
+
+  // Cargar de Firestore + correr cron
+  notifLoadFromFirestore().then(() => {
+    // Esperar a que otros módulos terminen su carga inicial antes del cron
+    setTimeout(() => {
+      try { notifEjecutarCron(); } catch(e){ console.warn('[E140] cron error:', e); }
+    }, 3500);
+  });
+
+  // Re-ejecutar cron cada hora si la pestaña sigue activa
+  setInterval(() => {
+    try { notifEjecutarCron(); } catch(e){}
+  }, 3600 * 1000);
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    REPORTE GERENCIAL MENSUAL · El cierre de oro
@@ -12992,11 +13820,24 @@ function applySessionToUI(){
     logoutBtn.onclick = doLogout;
     logoutBtn.innerHTML = '<span>🚪</span> Salir';
     thRight.insertBefore(logoutBtn, userBlock.nextSibling);
+
+    // Botón campana de notificaciones (insertado antes del bloque de usuario)
+    const bellBtn = document.createElement('button');
+    bellBtn.className = 'notif-bell-btn';
+    bellBtn.id = 'notifBellBtn';
+    bellBtn.title = 'Notificaciones';
+    bellBtn.setAttribute('aria-label', 'Abrir notificaciones');
+    bellBtn.onclick = (e) => { e.stopPropagation(); notifToggle(); };
+    bellBtn.innerHTML = '🔔<span class="notif-bell-badge zero" id="notifBellBadge">0</span>';
+    thRight.insertBefore(bellBtn, userBlock);
   }
 
   // El botón "Cargar Data" solo es para admins. Le agregamos la clase admin-only
   const cargarBtn = document.getElementById('cargarSemBtn');
   if(cargarBtn) cargarBtn.classList.add('admin-only');
+
+  // Inicializar el centro de notificaciones para esta sesión
+  if(typeof notifInit === 'function') notifInit();
 }
 
 
@@ -14108,6 +14949,21 @@ async function publicarFotosOnline(){
       try { renderFotos(); } catch(e){}
     }
 
+    // 🔔 Notificación de fotos publicadas
+    try {
+      if(typeof notify === 'function'){
+        const userName = (currentSession && currentSession.nombre) || 'Usuario';
+        notify({
+          tipo: 'fotos',
+          titulo: `📸 ${total} foto${total===1?'':'s'} publicada${total===1?'':'s'} · ${sem}`,
+          descripcion: `<b>${userName}</b> subió fotos del corte <b>${sem}</b> (${fotosState.fecha}).`,
+          prioridad: 'baja',
+          enlace: { tab:'fotos' },
+          dedupKey: `fotos_${sem}_${new Date().toISOString().slice(0,10)}`,
+        });
+      }
+    } catch(e){ console.warn(e); }
+
     // Reactivar cerrar después de 2.5s
     setTimeout(() => {
       if(cancel) cancel.disabled = false;
@@ -14249,6 +15105,31 @@ async function guardarDatosFirestore(semana, area, datos){
       actualizado_en:  new Date().toISOString(),
       actualizado_por: (currentSession && currentSession.usuario) || 'desconocido',
     });
+
+    // 🔔 Notificación de Excel cargado (deduplicada por semana+área+día)
+    try {
+      if(typeof notify === 'function'){
+        const userName = (currentSession && currentSession.nombre) || 'Sistema';
+        const areaLabel = ({
+          operaciones: 'Operaciones',
+          calidad:     'Calidad',
+          ssoma:       'SSOMA',
+          arquitectura:'Arquitectura',
+          logistica:   'Logística',
+        })[area] || area;
+        const numArchivos = Object.keys(datos.archivos || {}).length;
+        const hoyStr = new Date().toISOString().slice(0,10);
+        notify({
+          tipo: 'data',
+          titulo: `📊 Data ${semana} cargada · ${areaLabel}`,
+          descripcion: `<b>${userName}</b> actualizó la data del área <b>${areaLabel}</b>${numArchivos > 0 ? ` · ${numArchivos} archivo${numArchivos===1?'':'s'} procesado${numArchivos===1?'':'s'}` : ''}${datos.corte_fecha ? ` · corte ${datos.corte_fecha}` : ''}.`,
+          prioridad: 'baja',
+          enlace: { tab:'resumen' },
+          dedupKey: `data_${semana}_${area}_${hoyStr}`,
+        });
+      }
+    } catch(e){ console.warn(e); }
+
     return true;
   } catch(err){
     console.warn(`[E140] No se pudo guardar datos de ${area} ${semana} en Firestore:`, err);
@@ -14787,6 +15668,21 @@ async function publicarInspeccionSIG(){
         registrado_ts:         ahoraTs,
       });
       docId = docRef.id;
+
+      // 🔔 Notificación inspección SIG nueva
+      try {
+        if(typeof notify === 'function'){
+          const cumpTxt = pct != null ? `${pct.toFixed(1)}%` : '—';
+          const cumpEmoji = pct >= 90 ? '✅' : (pct >= 70 ? '🟡' : '🔴');
+          notify({
+            tipo: 'calidad',
+            titulo: `${cumpEmoji} Inspección SIG · ${cumpTxt}`,
+            descripcion: `Inspector: <b>${inspector || '—'}</b> · Semana <b>${sem}</b> · ${fecha}${observaciones ? ` · ${observaciones.substring(0,60)}` : ''}`,
+            prioridad: pct < 70 ? 'alta' : 'media',
+            enlace: { tab:'calidad-sig' },
+          });
+        }
+      } catch(e){ console.warn(e); }
     }
 
     // PASO 3: registrar en auditoría si se subió/reemplazó PDF
@@ -15410,6 +16306,21 @@ async function publicarPendiente(){
     if(currentTab === 'pendientes'){
       try { renderPendientes(); } catch(e){}
     }
+
+    // 🔔 Notificación a todo el equipo
+    try {
+      if(typeof notify === 'function'){
+        const prioLabel = prioridad === 'alta' ? '🔴 Alta' : (prioridad === 'media' ? '🟡 Media' : '🟢 Baja');
+        const asignadoTxt = asignadoNombre ? ` · asignada a <b>${asignadoNombre}</b>` : '';
+        notify({
+          tipo: 'pendientes',
+          titulo: `📌 Nueva tarea: ${titulo}`,
+          descripcion: `<b>${userName}</b> creó una tarea (${prioLabel})${asignadoTxt}${fechaMax ? ` · vence <b>${fechaMax}</b>` : ''}.`,
+          prioridad: prioridad === 'alta' ? 'alta' : 'media',
+          enlace: { tab:'pendientes', id: docRef.id },
+        });
+      }
+    } catch(e){ console.warn(e); }
 
     setTimeout(() => {
       if(cancel) cancel.disabled = false;
@@ -17383,5 +18294,42 @@ function v2RenderAll(){
 })();
 
 </script>
+
+<!-- ═══════════════════════════════════════════
+     CENTRO DE NOTIFICACIONES · Dropdown
+     ═══════════════════════════════════════════ -->
+<div class="notif-backdrop" id="notifBackdrop" onclick="notifClose()"></div>
+<div class="notif-dropdown" id="notifDropdown" role="dialog" aria-label="Centro de notificaciones">
+  <div class="notif-head">
+    <div class="notif-head-title">
+      <span style="font-size:16px;">🔔</span>
+      <span>Notificaciones</span>
+    </div>
+    <div class="notif-head-actions">
+      <button class="notif-head-btn" onclick="notifMarkAllRead()" title="Marcar todas como leídas">✓ Marcar leídas</button>
+      <button class="notif-head-btn icon-only" onclick="notifClose()" title="Cerrar" aria-label="Cerrar">✕</button>
+    </div>
+  </div>
+  <div class="notif-filters" id="notifFilters">
+    <button class="notif-filter active" data-filter="todas">📨 Todas <span class="notif-filter-count" id="notifCountTodas">0</span></button>
+    <button class="notif-filter" data-filter="no-leidas">⚪ No leídas <span class="notif-filter-count" id="notifCountUnread">0</span></button>
+    <button class="notif-filter" data-filter="prediccion">🔮 Predicción <span class="notif-filter-count" id="notifCountPred">0</span></button>
+    <button class="notif-filter" data-filter="pendientes">📌 Pendientes <span class="notif-filter-count" id="notifCountPend">0</span></button>
+    <button class="notif-filter" data-filter="ssoma">🦺 SSOMA <span class="notif-filter-count" id="notifCountSsoma">0</span></button>
+    <button class="notif-filter" data-filter="calidad">✅ Calidad <span class="notif-filter-count" id="notifCountCal">0</span></button>
+    <button class="notif-filter" data-filter="data">📊 Data/Fotos <span class="notif-filter-count" id="notifCountData">0</span></button>
+  </div>
+  <div class="notif-list" id="notifList">
+    <div class="notif-empty">
+      <span class="notif-empty-icon">🔔</span>
+      <b>Sin notificaciones</b><br>Las novedades del proyecto aparecerán aquí.
+    </div>
+  </div>
+  <div class="notif-foot">
+    <span class="notif-foot-info" id="notifFootInfo">—</span>
+    <button class="notif-head-btn" onclick="notifRequestPushPermission()" id="notifPushBtn" style="background:#1976D2;border-color:#1976D2;display:none;">🔔 Activar push</button>
+  </div>
+</div>
+
 </body>
 </html>
