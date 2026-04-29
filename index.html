@@ -2,8 +2,47 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <title>E140 · ESPARQ 140 — Dashboard Semanal</title>
+
+<!-- ═══════════════════════════════════════════
+     PWA · Progressive Web App · ESPARQ 140
+     Permite instalación en iOS/Android como app nativa
+     ═══════════════════════════════════════════ -->
+<meta name="application-name" content="ESPARQ 140">
+<meta name="description" content="Dashboard semanal del proyecto E140 · ESPARQ Construcción · Fase 2 · Miraflores">
+<meta name="theme-color" content="#1976D2">
+<meta name="color-scheme" content="light">
+
+<!-- iOS Safari · App Capable -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ESPARQ">
+<meta name="format-detection" content="telephone=no">
+
+<!-- Manifest -->
+<link rel="manifest" href="./manifest.json">
+
+<!-- Icons -->
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="./icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="./icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="mask-icon" href="./icons/icon-512.png" color="#1976D2">
+<meta name="msapplication-TileImage" content="./icons/icon-192.png">
+<meta name="msapplication-TileColor" content="#1976D2">
+
+<!-- iOS Splash Screens (todas las dimensiones de iPhone modernos) -->
+<link rel="apple-touch-startup-image" href="./splash/splash-iphone-se.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)">
+<link rel="apple-touch-startup-image" href="./splash/splash-iphone-8.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
+<link rel="apple-touch-startup-image" href="./splash/splash-iphone-11.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)">
+<link rel="apple-touch-startup-image" href="./splash/splash-iphone-12.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="./splash/splash-iphone-14pro.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="./splash/splash-iphone-14promax.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)">
+
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -239,6 +278,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 /* Regla aplicada al body cuando el usuario es 'adm' u 'oficina' */
 body.audit-allowed .audit-only{display:revert !important;}
 body.audit-allowed .sb-item.audit-only{display:flex !important;}
+
+/* Visibilidad del Reporte Gerencial · solo adm + gerencia */
+.report-only{display:none !important;}
+body.report-allowed .report-only{display:revert !important;}
+body.report-allowed .sb-item.report-only{display:flex !important;}
 
 /* Botones de acción para editar/eliminar inspecciones (solo audit-allowed) */
 .sig-action-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border:1px solid var(--border-mid);background:#fff;border-radius:4px;cursor:pointer;font-size:13px;padding:0;margin:0 1px;transition:all .15s;color:var(--text);}
@@ -2300,6 +2344,121 @@ body.role-admin .ssoma-actions{display:flex !important;}
 /* ═════════ TOOLTIP INFO ═════════ */
 .info-badge{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--blue-bell);color:var(--white);font-size:10px;font-weight:700;cursor:help;margin-left:6px;font-family:'DM Mono',monospace;}
 .info-badge:hover{background:var(--twitter-blue);}
+
+/* ═══════════════════════════════════════════
+   PWA · Banner de instalación + optimizaciones móvil
+   ═══════════════════════════════════════════ */
+
+/* Banner "Instalar como app" */
+.pwa-install-banner{
+  position:fixed; bottom:14px; left:14px; right:14px; max-width:420px; margin:0 auto;
+  background:#fff; border:1px solid var(--border); border-radius:14px;
+  box-shadow:0 12px 32px rgba(25,118,210,.22), 0 4px 12px rgba(0,0,0,.06);
+  padding:14px 16px; z-index:9500; display:none;
+  align-items:center; gap:12px; font-family:inherit;
+  animation:pwaSlideUp .35s cubic-bezier(.2,.8,.4,1.05);
+}
+.pwa-install-banner.show{display:flex;}
+@keyframes pwaSlideUp{from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
+.pwa-install-icon{
+  width:48px; height:48px; flex-shrink:0; border-radius:11px;
+  background:linear-gradient(135deg,#1976D2 0%,#0D47A1 100%);
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:24px;
+}
+.pwa-install-content{flex:1; min-width:0;}
+.pwa-install-title{font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:2px; line-height:1.25;}
+.pwa-install-desc{font-size:11.5px; color:var(--text-muted); line-height:1.35;}
+.pwa-install-actions{display:flex; gap:6px; align-items:center;}
+.pwa-install-btn{
+  background:#1976D2; color:#fff; border:none; padding:8px 14px;
+  border-radius:8px; font-family:inherit; font-size:12px; font-weight:700;
+  cursor:pointer; letter-spacing:-.01em; transition:transform .12s;
+  white-space:nowrap;
+}
+.pwa-install-btn:active{transform:scale(.95);}
+.pwa-install-close{
+  background:transparent; border:none; color:var(--text-muted);
+  font-size:14px; cursor:pointer; padding:6px 8px; border-radius:6px;
+  line-height:1;
+}
+.pwa-install-close:hover{background:#F0F2F5; color:var(--text);}
+
+/* Modal de instrucciones iOS (cuando no hay beforeinstallprompt) */
+.pwa-ios-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:9700;
+  display:none; align-items:flex-end; justify-content:center;
+  animation:fadeIn .25s ease;
+}
+.pwa-ios-overlay.show{display:flex;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.pwa-ios-card{
+  background:#fff; width:100%; max-width:430px; border-radius:18px 18px 0 0;
+  padding:20px 18px 24px; box-shadow:0 -8px 30px rgba(0,0,0,.2);
+  animation:slideUp .35s cubic-bezier(.2,.8,.4,1);
+}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.pwa-ios-handle{width:40px; height:4px; background:var(--border-mid); border-radius:2px; margin:0 auto 14px;}
+.pwa-ios-title{font-size:16px; font-weight:700; color:var(--text); margin-bottom:8px; text-align:center;}
+.pwa-ios-subtitle{font-size:12px; color:var(--text-muted); margin-bottom:16px; text-align:center; line-height:1.4;}
+.pwa-ios-step{
+  display:flex; gap:12px; padding:10px 12px; background:#FAFBFC;
+  border-radius:10px; margin-bottom:8px; align-items:center;
+  border:1px solid var(--border);
+}
+.pwa-ios-step-num{
+  width:28px; height:28px; border-radius:50%; background:#1976D2;
+  color:#fff; display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:13px; flex-shrink:0;
+}
+.pwa-ios-step-text{font-size:12.5px; color:var(--text); line-height:1.4; flex:1;}
+.pwa-ios-step-text b{color:#1976D2;}
+.pwa-ios-step-icon{flex-shrink:0; font-size:22px;}
+.pwa-ios-close{
+  display:block; margin:14px auto 0; background:#1976D2; color:#fff;
+  border:none; padding:11px 24px; border-radius:9px;
+  font-family:inherit; font-size:13px; font-weight:700; cursor:pointer;
+  letter-spacing:-.01em; min-width:140px;
+}
+
+/* ═════════ Optimizaciones móvil ═════════ */
+
+/* Cuando está en modo standalone (instalada como app), ajustar status bar */
+@media all and (display-mode: standalone){
+  body{
+    /* Safe area insets para iPhone con notch */
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  /* Ocultar el banner de instalación si ya está instalada */
+  .pwa-install-banner{display:none !important;}
+  /* La barra superior queda debajo del notch */
+  .topbar, .top-header{
+    padding-top:max(env(safe-area-inset-top), 10px);
+  }
+}
+
+/* En móvil pequeño, optimizar tap targets */
+@media(max-width:640px){
+  /* Botones más grandes y fáciles de tocar */
+  button, .btn, .hdr-btn, .sb-item{min-height:44px;}
+  /* Inputs y selects con tamaño mínimo de iOS para evitar zoom al focus */
+  input, textarea, select{font-size:16px !important;}
+  /* Cards con menos padding */
+  .chart-card{padding:12px;}
+  .kpi-card{padding:10px;}
+  /* Sidebar: no abrir por accidente con swipe */
+  .sidebar{transition:transform .25s ease;}
+}
+
+/* Prevenir doble-tap zoom en iOS */
+button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
+
+/* Smooth scroll en iOS */
+.table-wrap, .scrollable, .modal-body{-webkit-overflow-scrolling:touch;}
+
+/* Pull-to-refresh feedback nativo iOS (deshabilitar en zonas de scroll horizontal) */
+.no-overscroll{overscroll-behavior:contain;}
 </style>
 </head>
 <body>
@@ -3543,7 +3702,7 @@ body.role-admin .ssoma-actions{display:flex !important;}
         <span class="sb-label">PENDIENTES</span>
         <span class="sb-badge-count" id="sbPendientesBadge" style="display:none;">0</span>
       </button>
-      <button class="sb-item sb-reporte" data-tab="reporte" data-tooltip="Reporte Gerencial">
+      <button class="sb-item sb-reporte report-only" data-tab="reporte" data-tooltip="Reporte Gerencial">
         <span class="sb-num">📄</span>
         <span class="sb-label">REPORTE GERENCIAL</span>
       </button>
@@ -4173,8 +4332,9 @@ body.role-admin .ssoma-actions{display:flex !important;}
       <!-- ═══════════════════════════════════════════
            SECCIÓN — REPORTE GERENCIAL
            Genera PDF/Excel ejecutivo con todos los KPIs del mes
+           Solo visible para adm y gerencia
            ═══════════════════════════════════════════ -->
-      <section class="section" id="sec-reporte">
+      <section class="section report-only" id="sec-reporte">
         <!-- Header -->
         <div class="rep-page-header">
           <div class="rep-page-title-wrap">
@@ -7546,6 +7706,21 @@ function expandAreaForTab(tab){
 }
 
 function setTab(tab){
+  // ─── Guard de roles ───
+  // Reporte Gerencial: solo adm y gerencia. Si intentan abrirlo sin permisos, ir a resumen.
+  if(tab === 'reporte' && currentSession){
+    if(currentSession.usuario !== 'adm' && currentSession.usuario !== 'gerencia'){
+      console.warn('[E140] Acceso a Reporte Gerencial denegado para', currentSession.usuario);
+      tab = 'resumen';
+    }
+  }
+  // Auditoría: solo adm y oficina
+  if(tab === 'auditoria' && currentSession){
+    if(currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina'){
+      tab = 'resumen';
+    }
+  }
+
   currentTab = tab;
   // Marcar pestaña activa en sidebar
   document.querySelectorAll('.sb-item').forEach(el=>el.classList.toggle('active', el.dataset.tab===tab));
@@ -7555,8 +7730,8 @@ function setTab(tab){
   document.querySelectorAll('.section').forEach(s=>{
     const isActive = s.id==='sec-'+tab;
     s.classList.toggle('active', isActive);
-    // Para secciones audit-only, forzar display:flex cuando están activas (su style inline es display:none)
-    if(s.classList.contains('audit-only')){
+    // Para secciones audit-only o report-only, forzar display cuando están activas (su style inline es display:none)
+    if(s.classList.contains('audit-only') || s.classList.contains('report-only')){
       s.style.display = isActive ? '' : 'none';
     }
   });
@@ -13790,12 +13965,17 @@ function hideLoginScreen(){
 function applySessionToUI(){
   if(!currentSession) return;
   // Aplicar clase de rol al body para que las reglas CSS oculten/muestren
-  document.body.classList.remove('role-admin', 'role-viewer', 'audit-allowed');
+  document.body.classList.remove('role-admin', 'role-viewer', 'audit-allowed', 'report-allowed');
   document.body.classList.add('role-' + currentSession.rol);
 
   // Solo 'adm' y 'oficina' pueden ver la sección de Auditoría/Trazabilidad
   if(currentSession.usuario === 'adm' || currentSession.usuario === 'oficina'){
     document.body.classList.add('audit-allowed');
+  }
+
+  // Solo 'adm' y 'gerencia' pueden ver la pestaña Reporte Gerencial
+  if(currentSession.usuario === 'adm' || currentSession.usuario === 'gerencia'){
+    document.body.classList.add('report-allowed');
   }
 
   // Insertar info de usuario y botón de logout en el header
@@ -18330,6 +18510,168 @@ function v2RenderAll(){
     <button class="notif-head-btn" onclick="notifRequestPushPermission()" id="notifPushBtn" style="background:#1976D2;border-color:#1976D2;display:none;">🔔 Activar push</button>
   </div>
 </div>
+
+<!-- ═══════════════════════════════════════════
+     PWA · Banner de instalación
+     ═══════════════════════════════════════════ -->
+<div class="pwa-install-banner" id="pwaInstallBanner" role="dialog" aria-label="Instalar como aplicación">
+  <div class="pwa-install-icon">📱</div>
+  <div class="pwa-install-content">
+    <div class="pwa-install-title">Instalar como app</div>
+    <div class="pwa-install-desc">Acceso rápido desde tu pantalla de inicio · funciona offline</div>
+  </div>
+  <div class="pwa-install-actions">
+    <button class="pwa-install-btn" onclick="pwaInstall()">Instalar</button>
+    <button class="pwa-install-close" onclick="pwaDismissBanner()" aria-label="Cerrar">✕</button>
+  </div>
+</div>
+
+<!-- Modal con instrucciones para instalar en iOS Safari -->
+<div class="pwa-ios-overlay" id="pwaIosOverlay" onclick="if(event.target===this)pwaCloseIosModal()">
+  <div class="pwa-ios-card">
+    <div class="pwa-ios-handle"></div>
+    <div class="pwa-ios-title">📱 Instalar ESPARQ en tu iPhone</div>
+    <div class="pwa-ios-subtitle">Sigue estos 3 pasos para tener la app en tu pantalla de inicio</div>
+
+    <div class="pwa-ios-step">
+      <div class="pwa-ios-step-num">1</div>
+      <div class="pwa-ios-step-text">Toca el botón <b>Compartir</b> en la barra inferior de Safari</div>
+      <div class="pwa-ios-step-icon">⬆️</div>
+    </div>
+
+    <div class="pwa-ios-step">
+      <div class="pwa-ios-step-num">2</div>
+      <div class="pwa-ios-step-text">Selecciona <b>"Añadir a pantalla de inicio"</b> (desliza el menú si no la ves)</div>
+      <div class="pwa-ios-step-icon">➕</div>
+    </div>
+
+    <div class="pwa-ios-step">
+      <div class="pwa-ios-step-num">3</div>
+      <div class="pwa-ios-step-text">Toca <b>"Añadir"</b> en la esquina superior derecha. ¡Listo!</div>
+      <div class="pwa-ios-step-icon">✅</div>
+    </div>
+
+    <button class="pwa-ios-close" onclick="pwaCloseIosModal()">Entendido</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PWA · Registro Service Worker + lógica de instalación
+     ═══════════════════════════════════════════ -->
+<script>
+(function(){
+  'use strict';
+
+  // ===== Detección de plataforma =====
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                       window.navigator.standalone === true;
+  const isInstalledHash = 'e140_pwa_installed';
+  const dismissedHash = 'e140_pwa_banner_dismissed';
+
+  // Variable global para el evento beforeinstallprompt (Android/Chrome)
+  let deferredPrompt = null;
+
+  // ===== Registro del Service Worker =====
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(reg => {
+          console.log('[E140-PWA] SW registrado:', reg.scope);
+          // Detectar updates del SW
+          reg.addEventListener('updatefound', () => {
+            const nw = reg.installing;
+            if(nw){
+              nw.addEventListener('statechange', () => {
+                if(nw.state === 'installed' && navigator.serviceWorker.controller){
+                  console.log('[E140-PWA] Nueva versión disponible');
+                  // Aquí podrías mostrar un banner "Hay una actualización"
+                }
+              });
+            }
+          });
+        })
+        .catch(err => console.warn('[E140-PWA] SW registro falló:', err));
+    });
+  }
+
+  // ===== Capturar evento de instalación (Android / Chrome desktop) =====
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    pwaShowBannerIfShould();
+  });
+
+  // ===== Detectar instalación completada =====
+  window.addEventListener('appinstalled', () => {
+    console.log('[E140-PWA] App instalada');
+    deferredPrompt = null;
+    pwaHideBanner();
+    try { localStorage.setItem(isInstalledHash, '1'); } catch(e){}
+  });
+
+  // ===== Mostrar banner =====
+  function pwaShowBannerIfShould(){
+    // No mostrar si ya está instalada (modo standalone)
+    if(isStandalone) return;
+    // No mostrar si ya fue cerrada
+    try {
+      if(localStorage.getItem(dismissedHash) === '1') return;
+      if(localStorage.getItem(isInstalledHash) === '1') return;
+    } catch(e){}
+    // Mostrar tras 8 segundos para no abrumar al usuario nuevo
+    setTimeout(() => {
+      const banner = document.getElementById('pwaInstallBanner');
+      if(banner) banner.classList.add('show');
+    }, 8000);
+  }
+
+  function pwaHideBanner(){
+    const banner = document.getElementById('pwaInstallBanner');
+    if(banner) banner.classList.remove('show');
+  }
+
+  // ===== Acciones expuestas al onclick del HTML =====
+  window.pwaInstall = function(){
+    pwaHideBanner();
+    if(deferredPrompt){
+      // Android / Chrome desktop: prompt nativo
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(choice => {
+        console.log('[E140-PWA] Choice:', choice.outcome);
+        deferredPrompt = null;
+      });
+    } else if(isIOS){
+      // iOS no tiene prompt automático → mostrar instrucciones
+      const overlay = document.getElementById('pwaIosOverlay');
+      if(overlay) overlay.classList.add('show');
+    } else {
+      alert('Para instalar esta app, abre el menú de tu navegador y selecciona "Instalar app" o "Añadir a pantalla de inicio".');
+    }
+  };
+
+  window.pwaDismissBanner = function(){
+    pwaHideBanner();
+    try { localStorage.setItem(dismissedHash, '1'); } catch(e){}
+  };
+
+  window.pwaCloseIosModal = function(){
+    const overlay = document.getElementById('pwaIosOverlay');
+    if(overlay) overlay.classList.remove('show');
+  };
+
+  // ===== Si es iOS y no está instalada, mostrar el banner =====
+  if(isIOS && !isStandalone){
+    pwaShowBannerIfShould();
+  }
+
+  // ===== Atajo: si el usuario abre desde la app instalada, ajustar UI =====
+  if(isStandalone){
+    document.documentElement.classList.add('pwa-standalone');
+  }
+
+})();
+</script>
 
 </body>
 </html>
