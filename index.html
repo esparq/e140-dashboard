@@ -3181,7 +3181,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
 
     <div class="modal-body">
       <div class="area-info-banner" id="capModalBanner" style="background:#E7F4EE;border-left-color:#2D936C;">
-        <b>🎓 Capacitación nueva</b> · Sube el Excel de asistencia (con todos los proyectos) o ingresa los datos manualmente. El sistema filtrará automáticamente solo el personal de <b>ESPARQ 140 / E140</b> y aplicará la regla: nota ≥ 11 = Aprobado · ≤ 10 = Desaprobado.
+        <b>🎓 Capacitación nueva</b> · Sube el Excel de asistencia (con todos los proyectos) o ingresa los datos manualmente. El sistema filtrará automáticamente solo el personal de <b>ESPARQ 140 / E140</b> y aplicará la regla: nota ≥ 13 = Aprobado · ≤ 12 = Desaprobado.
       </div>
 
       <div class="sig-form">
@@ -3329,7 +3329,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
               <span class="cap-opt-icon">✓</span>
               <div>
                 <div class="cap-opt-titulo">APROBADO</div>
-                <div class="cap-opt-sub">Nota ≥ 11</div>
+                <div class="cap-opt-sub">Nota ≥ 13</div>
               </div>
             </label>
             <label class="cap-estado-option cap-opt-desaprobado">
@@ -5817,7 +5817,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
         <div class="ssoma-note">
           <span class="ssoma-note-icon">🎓</span>
           <div>
-            <b>Sistema de calificación:</b> Los resultados se muestran como <b style="color:#1A6B4A;">Aprobado</b> (nota ≥ 11) · <b style="color:#8A2A2D;">Desaprobado</b> (nota ≤ 10) · <b style="color:#A0521E;">Pendiente</b> (no asistió aún). Las notas numéricas son confidenciales y no se publican.
+            <b>Sistema de calificación:</b> Los resultados se muestran como <b style="color:#1A6B4A;">Aprobado</b> (nota ≥ 13) · <b style="color:#8A2A2D;">Desaprobado</b> (nota ≤ 12) · <b style="color:#A0521E;">Pendiente</b> (no asistió aún). Las notas numéricas son confidenciales y no se publican.
           </div>
         </div>
 
@@ -5844,7 +5844,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
           <div class="kpi-card k-green">
             <div class="kpi-label">% Aprobación · Última Capacitación</div>
             <div class="kpi-value" id="calCapAprob">—</div>
-            <div class="kpi-sublabel" id="calCapAprobDetalle">Aprobados / Capacitados (nota ≥ 11)</div>
+            <div class="kpi-sublabel" id="calCapAprobDetalle">Aprobados / Capacitados (nota ≥ 13)</div>
             <div class="kpi-meta-footer" style="margin-top:10px">
               <span class="kpi-meta-target">▲ Meta: 100%</span>
               <span class="kpi-meta-status kpi-meta-seguimiento" id="calCapAprobStatus">—</span>
@@ -9879,7 +9879,7 @@ function renderCalidadCap(){
     elAsistSt.textContent = pctAsist >= 90 ? '✓ Cumple' : (pctAsist >= 70 ? '⚠ En seguimiento' : '✗ No cumple');
 
     elAprob.textContent = pctAprob.toFixed(0) + '%';
-    elAprobDet.textContent = cap === 0 ? 'Sin personal capacitado aún' : `${apr} de ${cap} aprobaron (nota ≥ 11)`;
+    elAprobDet.textContent = cap === 0 ? 'Sin personal capacitado aún' : `${apr} de ${cap} aprobaron (nota ≥ 13)`;
     elAprobSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
     if(pctAprob >= 100)     elAprobSt.classList.add('kpi-meta-cumple');
     else if(pctAprob >= 80) elAprobSt.classList.add('kpi-meta-seguimiento');
@@ -10190,10 +10190,10 @@ async function handleCapExcelFile(file){
 
         if(!apellidos && !nombre) continue; // Fila vacía
 
-        // Aplicar regla: ≥11 = aprobado, ≤10 = desaprobado, sin nota = pendiente
+        // Aplicar regla: ≥13 = aprobado, ≤12 = desaprobado, sin nota = pendiente
         let estado = 'pendiente';
         if(nota !== null && !isNaN(nota)){
-          estado = nota >= 11 ? 'aprobado' : 'desaprobado';
+          estado = nota >= 13 ? 'aprobado' : 'desaprobado';
         }
 
         personalE140.push({ apellidos, nombre, cargo, estado });
