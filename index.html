@@ -1676,37 +1676,95 @@ body.role-admin .ssoma-actions{display:flex !important;}
 .ssoma-sev-tp{background:#FBEAEA;color:#8A2A2D;}
 
 /* ═══════════════════════════════════════════
-   ARQUITECTURA · Procesos Homologados
+   ARQUITECTURA · Procesos Homologados SIG
+   Checklist enterprise de instructivos
    ═══════════════════════════════════════════ */
-.arq-partidas-list{display:flex;flex-direction:column;gap:10px;border:1.5px dashed var(--border-mid);border-radius:6px;padding:10px;background:#FAFBFC;min-height:80px;}
-.arq-partidas-list:empty::before{content:'Aún no hay partidas. Click en "+ Agregar partida" para empezar.';display:block;text-align:center;color:var(--text-muted);font-style:italic;font-size:12px;padding:20px 12px;}
-.arq-partida-row{background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:flex-start;}
-.arq-partida-row .arq-partida-fields{display:grid;grid-template-columns:1fr 140px;gap:8px;}
-.arq-partida-row .arq-partida-fields-full{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;}
-.arq-partida-row label{display:block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);margin-bottom:3px;}
-.arq-partida-row input,.arq-partida-row select,.arq-partida-row textarea{width:100%;padding:7px 9px;border:1px solid var(--border-mid);border-radius:5px;font-family:inherit;font-size:12px;color:var(--text);background:#fff;resize:vertical;}
-.arq-partida-row select.cumple-ok{background:#E7F4EE;color:#1A6B4A;border-color:#2D936C;font-weight:600;}
-.arq-partida-row select.cumple-warn{background:#FFF8EE;color:#7A3F18;border-color:#A0521E;font-weight:600;}
-.arq-partida-row select.cumple-no{background:#FBEAEA;color:#8A2A2D;border-color:#D64045;font-weight:600;}
-.arq-partida-row select.cumple-pend{background:#F0F2F5;color:#666;border-color:var(--border-mid);font-weight:600;}
-.arq-partida-row .arq-partida-del{background:#FBEAEA;color:#8A2A2D;border:1px solid #D64045;border-radius:4px;width:30px;height:30px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;align-self:center;}
-.arq-partida-row .arq-partida-del:hover{background:#D64045;color:#fff;}
 
-/* Estados de partida en la tabla */
-.arq-estado-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:11px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
-.arq-estado-ok{background:#E7F4EE;color:#1A6B4A;}
-.arq-estado-warn{background:#FFF8EE;color:#7A3F18;}
-.arq-estado-no{background:#FBEAEA;color:#8A2A2D;}
-.arq-estado-pend{background:#F0F2F5;color:#666;}
+/* Toolbar superior: filtros + buscador */
+.sig-toolbar{display:flex;align-items:center;gap:14px;padding:12px 16px;background:linear-gradient(135deg,#FAF6FC 0%,#F4ECFA 100%);border:1px solid #E0D2EA;border-radius:8px;margin-bottom:14px;flex-wrap:wrap;}
+.sig-toolbar-search{flex:1;min-width:220px;position:relative;}
+.sig-toolbar-search input{width:100%;padding:9px 12px 9px 36px;border:1.5px solid #D4C2DE;border-radius:6px;font-family:inherit;font-size:13px;background:#fff;transition:all .15s;color:var(--text);}
+.sig-toolbar-search input:focus{outline:none;border-color:#7B2D8E;box-shadow:0 0 0 3px rgba(123,45,142,.12);}
+.sig-toolbar-search::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.7;pointer-events:none;}
+.sig-toolbar-filters{display:flex;gap:6px;flex-wrap:wrap;}
+.sig-filter-btn{background:#fff;border:1.5px solid #D4C2DE;color:#5B2470;padding:7px 14px;border-radius:6px;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s;letter-spacing:.02em;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+.sig-filter-btn:hover{background:#F4ECFA;border-color:#7B2D8E;}
+.sig-filter-btn.active{background:#7B2D8E;color:#fff;border-color:#7B2D8E;box-shadow:0 2px 6px rgba(123,45,142,.25);}
+.sig-filter-btn .sig-filter-count{display:inline-block;background:rgba(255,255,255,.25);padding:1px 7px;border-radius:9px;font-size:10px;font-weight:700;margin-left:3px;}
+.sig-filter-btn:not(.active) .sig-filter-count{background:#E0D2EA;color:#5B2470;}
 
-#arqProcTblHistorico tr.arq-row-active{background:#F4ECFA !important;}
-#arqProcTblHistorico tr.arq-row-active td{font-weight:700;}
+/* Tabla del checklist SIG */
+.sig-table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;}
+.sig-table thead th{background:linear-gradient(135deg,#7B2D8E 0%,#5B2470 100%);color:#fff;padding:11px 12px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:none;position:sticky;top:0;z-index:5;}
+.sig-table thead th.td-center{text-align:center;}
+.sig-table thead th:first-child{border-top-left-radius:6px;}
+.sig-table thead th:last-child{border-top-right-radius:6px;}
+.sig-table tbody tr{transition:background .12s;}
+.sig-table tbody tr:nth-child(even){background:#FAFBFC;}
+.sig-table tbody tr:hover{background:#F4ECFA;}
+.sig-table tbody tr.sig-row-revisado{background:#F2FAF6 !important;}
+.sig-table tbody tr.sig-row-curso{background:#FFF9EE !important;}
+.sig-table tbody td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--text);vertical-align:middle;}
+.sig-table tbody tr:last-child td{border-bottom:none;}
 
-@media(max-width:700px){
-  .arq-partida-row{grid-template-columns:1fr;}
-  .arq-partida-row .arq-partida-fields{grid-template-columns:1fr;}
-  .arq-partida-row .arq-partida-fields-full{grid-template-columns:1fr;}
-  .arq-partida-row .arq-partida-del{align-self:flex-end;}
+/* Código del instructivo */
+.sig-codigo{display:inline-block;background:#F0E5F4;color:#5B2470;padding:3px 8px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.02em;white-space:nowrap;}
+.sig-rev-badge{display:inline-block;background:#E0D2EA;color:#5B2470;padding:1px 6px;border-radius:9px;font-size:9.5px;font-weight:700;margin-left:6px;}
+
+/* Nombre del instructivo (partida) */
+.sig-partida{font-weight:600;color:var(--text);}
+.sig-partida-num{display:inline-block;width:24px;color:var(--text-muted);font-size:11px;font-weight:600;text-align:right;margin-right:8px;}
+
+/* Grupo de radio buttons custom */
+.sig-radio-group{display:inline-flex;gap:6px;justify-content:center;align-items:center;}
+.sig-radio{position:relative;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border:1.5px solid var(--border-mid);border-radius:8px;background:#fff;cursor:pointer;transition:all .15s;font-size:16px;line-height:1;user-select:none;}
+.sig-radio input{position:absolute;opacity:0;pointer-events:none;}
+.sig-radio:hover{transform:translateY(-1px);}
+.sig-radio.sig-radio-rev:hover{border-color:#2D936C;background:#F2FAF6;}
+.sig-radio.sig-radio-curso:hover{border-color:#A0521E;background:#FFF9EE;}
+.sig-radio.sig-radio-rev.checked{background:#2D936C;border-color:#2D936C;color:#fff;box-shadow:0 2px 8px rgba(45,147,108,.35);}
+.sig-radio.sig-radio-curso.checked{background:#E07B39;border-color:#E07B39;color:#fff;box-shadow:0 2px 8px rgba(224,123,57,.35);}
+.sig-radio[disabled]{cursor:not-allowed;opacity:.55;}
+.sig-radio[disabled]:hover{transform:none;background:#fff;border-color:var(--border-mid);}
+.sig-radio-clear{background:transparent;border:1px solid var(--border-mid);color:var(--text-muted);width:26px;height:34px;border-radius:6px;cursor:pointer;font-size:14px;line-height:1;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;margin-left:2px;}
+.sig-radio-clear:hover{background:#FBEAEA;border-color:#D64045;color:#8A2A2D;}
+.sig-radio-clear[disabled]{cursor:not-allowed;opacity:.4;}
+.sig-radio-clear[disabled]:hover{background:transparent;border-color:var(--border-mid);color:var(--text-muted);}
+
+/* Sub-label dentro de la celda de estado */
+.sig-estado-cell{text-align:center;}
+.sig-estado-sublabel{display:block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-top:5px;line-height:1.2;}
+.sig-estado-sublabel.active-rev{color:#1A6B4A;}
+.sig-estado-sublabel.active-curso{color:#7A3F18;}
+
+/* Comentarios: textarea inline */
+.sig-comentario-wrap{position:relative;width:100%;}
+.sig-comentario{width:100%;min-height:34px;max-height:120px;padding:7px 9px;border:1px solid var(--border-mid);border-radius:5px;font-family:inherit;font-size:11.5px;color:var(--text);background:#FBFDFE;resize:vertical;line-height:1.4;transition:all .15s;}
+.sig-comentario:focus{outline:none;border-color:#7B2D8E;background:#fff;box-shadow:0 0 0 3px rgba(123,45,142,.08);}
+.sig-comentario[disabled]{background:#F5F5F5;color:#999;cursor:not-allowed;}
+.sig-comentario.has-content{background:#FFF;border-color:#7B2D8E;}
+.sig-comentario-meta{font-size:9.5px;color:var(--text-muted);margin-top:3px;font-style:italic;display:flex;align-items:center;gap:4px;}
+.sig-comentario-saving{color:#7B2D8E;font-weight:600;}
+.sig-comentario-saved{color:#1A6B4A;font-weight:600;}
+.sig-comentario-error{color:#8A2A2D;font-weight:600;}
+
+/* Estado vacío del filtro */
+.sig-empty{text-align:center;padding:50px 20px;color:var(--text-muted);font-style:italic;background:#FBFDFE;border:1px dashed var(--border-mid);border-radius:6px;}
+.sig-empty-icon{font-size:32px;display:block;margin-bottom:10px;opacity:.5;}
+
+/* Banner de readonly para usuarios sin permisos */
+.sig-readonly-banner{background:#F0E5F4;border-left:4px solid #7B2D8E;padding:10px 14px;border-radius:6px;font-size:12px;color:#5B2470;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.sig-readonly-banner b{color:#3F1850;}
+
+/* Footer de la tabla con metadata */
+.sig-footer-meta{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#FAFBFC;border-top:1px solid var(--border);border-radius:0 0 6px 6px;font-size:11px;color:var(--text-muted);flex-wrap:wrap;gap:8px;}
+.sig-footer-meta b{color:var(--text);}
+
+@media(max-width:900px){
+  .sig-table thead th,.sig-table tbody td{padding:8px 7px;font-size:11.5px;}
+  .sig-codigo{font-size:10px;padding:2px 6px;}
+  .sig-radio{width:30px;height:30px;font-size:14px;}
+  .sig-toolbar{padding:10px 12px;gap:10px;}
 }
 
 /* ═══════════════════════════════════════════
@@ -2540,88 +2598,8 @@ body.role-admin .ssoma-actions{display:flex !important;}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     MODAL: NUEVA VISITA / EDITAR VISITA · ARQUITECTURA
-     Procesos Homologados con SIG
-     ═══════════════════════════════════════════ -->
-<div class="modal-backdrop" id="arqVisitaModal">
-  <div class="modal-card" style="max-width:880px;max-height:94vh;">
-    <div class="modal-head" style="background:linear-gradient(135deg,#7B2D8E 0%,#5B2470 100%);">
-      <div>
-        <h2 id="arqVisitaModalTitle">📋 NUEVA VISITA · ARQUITECTURA</h2>
-        <p id="arqVisitaModalSub">Verificación de cumplimiento con instructivos del SIG</p>
-      </div>
-      <button class="modal-close" onclick="closeArqVisitaModal()" aria-label="Cerrar">✕</button>
-    </div>
+<!-- (Modal de visitas Arquitectura eliminado · reemplazado por checklist SIG inline en sec-arq-procesos) -->
 
-    <div class="modal-body">
-      <div class="area-info-banner" style="background:#F4ECFA;border-left-color:#7B2D8E;">
-        <b>📐 Visita del Jefe de Arquitectura</b> · Registra la fecha, responsable y las partidas en ejecución revisadas. Por cada partida indica si cumple con el instructivo SIG, observaciones y el levantamiento posterior.
-      </div>
-
-      <div class="sig-form">
-        <!-- Fecha + Responsable -->
-        <div class="sig-form-row">
-          <div class="sig-form-field">
-            <label>Fecha de la visita <span style="color:#D64045;">*</span></label>
-            <input type="date" id="arqVisFecha">
-          </div>
-          <div class="sig-form-field">
-            <label>Jefe de Arquitectura / Responsable <span style="color:#D64045;">*</span></label>
-            <input type="text" id="arqVisResponsable" placeholder="Nombre del responsable" autocomplete="off">
-          </div>
-        </div>
-
-        <!-- Observaciones generales -->
-        <div class="sig-form-field">
-          <label>Comentario general de la visita (opcional)</label>
-          <textarea id="arqVisComentario" rows="2" placeholder="Ej: Recorrido por nivel 5 y 6, énfasis en tabiquería y enchape."></textarea>
-        </div>
-
-        <!-- Partidas revisadas -->
-        <div class="sig-form-field">
-          <label style="display:flex;align-items:center;justify-content:space-between;">
-            <span>📋 Partidas revisadas en esta visita <span style="color:#D64045;">*</span></span>
-            <button type="button" class="hdr-btn" onclick="agregarPartidaArq()" style="padding:5px 12px;font-size:11px;background:#7B2D8E;color:#fff;border-color:#7B2D8E;">
-              + Agregar partida
-            </button>
-          </label>
-          <div id="arqPartidasContainer" class="arq-partidas-list">
-            <!-- Las filas se insertan dinámicamente -->
-          </div>
-        </div>
-
-        <!-- Adjunto opcional -->
-        <div class="sig-form-field">
-          <label>📎 Adjunto · acta o foto (opcional · PDF / imagen)</label>
-          <div class="dropzone sig-dropzone" id="arqVisDropzone" onclick="document.getElementById('arqVisFileInput').click()" style="padding:14px;">
-            <div class="dropzone-icon" style="font-size:22px;">📎</div>
-            <div class="dropzone-title" style="font-size:11.5px;" id="arqVisDropzoneTitle">CARGAR ACTA O FOTO (opcional)</div>
-            <div class="dropzone-subtitle" style="font-size:10.5px;">PDF o imagen · Hasta 10 MB</div>
-            <input type="file" id="arqVisFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none">
-          </div>
-        </div>
-      </div>
-
-      <!-- Banner de progreso -->
-      <div class="fotos-progress-banner" id="arqVisProgressBanner" style="display:none;">
-        <div class="fotos-progress-header">
-          <span class="fotos-progress-icon" id="arqVisProgressIcon">⏳</span>
-          <span class="fotos-progress-text" id="arqVisProgressText">Iniciando…</span>
-        </div>
-        <div class="fotos-progress-bar"><div class="fotos-progress-fill" id="arqVisProgressFill" style="width:0%"></div></div>
-        <div class="fotos-progress-detail" id="arqVisProgressDetail"></div>
-      </div>
-    </div>
-
-    <div class="modal-foot">
-      <button class="hdr-btn" onclick="closeArqVisitaModal()">Cancelar</button>
-      <button class="hdr-btn hdr-btn-primary" id="arqVisPublishBtn" onclick="publicarVisitaArq()" style="background:#7B2D8E;color:#fff;border-color:#7B2D8E;">
-        🚀 Publicar visita
-      </button>
-    </div>
-  </div>
-</div>
 
 <!-- ═══════════════════════════════════════════
      MODAL: CARGAR CAPACITACIÓN SIG
@@ -4722,112 +4700,111 @@ body.role-admin .ssoma-actions{display:flex !important;}
            ═══════════════════════════════════════════ -->
       <section class="section" id="sec-arq-procesos">
         <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-          <span>Arquitectura · Procesos Homologados</span>
-          <button class="hdr-btn hdr-btn-primary admin-only" onclick="openArqVisitaModal()" style="background:#7B2D8E;color:#fff;border-color:#7B2D8E;padding:7px 14px;font-size:12px;height:auto;display:inline-flex;align-items:center;gap:6px;">
-            <span>📋</span> Nueva Visita
-          </button>
+          <span>Arquitectura · Procesos Homologados SIG</span>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span class="kpi-meta-status" id="arqSigProgress" style="background:#F0E5F4;color:#5B2470;padding:5px 12px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.04em;">— de 31</span>
+          </div>
         </div>
-        <div class="section-subheader">Fuente: <b>Visitas del Jefe de Arquitectura</b> · Verificación de cumplimiento con Instructivos del SIG · Norma ISO 9001</div>
+        <div class="section-subheader">Checklist de Instructivos del SIG · Norma ISO 9001 · Especialidad <b>Arquitectura (AR)</b> · 31 instructivos homologados</div>
 
         <div class="ssoma-note">
           <span class="ssoma-note-icon">📐</span>
           <div>
-            <b>Procesos homologados con SIG:</b> en cada visita del jefe de Arquitectura se revisan las partidas en ejecución y se verifica que cumplan los instructivos del Sistema Integrado de Gestión. Los hallazgos se registran y se hace seguimiento al levantamiento. Solo <b>adm</b> y <b>oficina</b> pueden editar.
+            <b>Procesos homologados con SIG:</b> esta lista contiene los instructivos vigentes de Arquitectura del Sistema Integrado de Gestión. Marca cada instructivo según su estado en obra: <span style="color:#1A6B4A;font-weight:700;">✅ Revisado / N.A.</span> o <span style="color:#7A3F18;font-weight:700;">🔵 En curso / Planificado</span>. Usa la columna <b>Comentarios</b> para notas, hallazgos o levantamientos. Solo <b>adm</b> y <b>oficina</b> pueden editar — el resto del equipo lo ve en modo lectura.
           </div>
+        </div>
+
+        <!-- Banner readonly (solo se muestra a usuarios sin permisos) -->
+        <div class="sig-readonly-banner" id="arqSigReadonly" style="display:none;">
+          <span style="font-size:18px;">👁</span>
+          <div><b>Modo lectura</b> · Solo los usuarios <b>adm</b> y <b>oficina</b> pueden modificar el estado o los comentarios de los instructivos. Estás viendo la última versión guardada.</div>
         </div>
 
         <!-- KPIs principales -->
         <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
           <div class="kpi-card k-primary">
-            <div class="kpi-label">Visitas Realizadas</div>
-            <div class="kpi-value" id="arqProcVisitas">—</div>
-            <div class="kpi-sublabel" id="arqProcVisitasDet">Total de visitas del jefe de Arquitectura</div>
+            <div class="kpi-label">Total Instructivos</div>
+            <div class="kpi-value" id="arqSigTotal">—</div>
+            <div class="kpi-sublabel">Especialidad Arquitectura · SIG vigente</div>
             <div class="kpi-meta-footer" style="margin-top:10px">
-              <span class="kpi-meta-target">▲ Frecuencia: programa SIG</span>
-              <span class="kpi-meta-status kpi-meta-seguimiento" id="arqProcVisitasStatus">—</span>
+              <span class="kpi-meta-target">📋 Catálogo SIG</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="arqSigTotalStatus">—</span>
             </div>
           </div>
           <div class="kpi-card k-green">
-            <div class="kpi-label">% Cumplimiento Última Visita</div>
-            <div class="kpi-value" id="arqProcCump">—</div>
-            <div class="kpi-sublabel" id="arqProcCumpDet">Procesos OK / Procesos revisados</div>
+            <div class="kpi-label">Revisados / N.A.</div>
+            <div class="kpi-value" id="arqSigRevisados">—</div>
+            <div class="kpi-sublabel" id="arqSigRevisadosDet">— % del total</div>
             <div class="kpi-meta-footer" style="margin-top:10px">
-              <span class="kpi-meta-target">▲ Meta: ≥ 90%</span>
-              <span class="kpi-meta-status kpi-meta-seguimiento" id="arqProcCumpStatus">—</span>
+              <span class="kpi-meta-target">▲ Meta: 100%</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="arqSigRevisadosStatus">—</span>
             </div>
           </div>
           <div class="kpi-card k-orange">
-            <div class="kpi-label">Observaciones Abiertas</div>
-            <div class="kpi-value" id="arqProcObs">—</div>
-            <div class="kpi-sublabel" id="arqProcObsDet">Pendientes de levantamiento</div>
+            <div class="kpi-label">En Curso / Planificado</div>
+            <div class="kpi-value" id="arqSigCurso">—</div>
+            <div class="kpi-sublabel" id="arqSigCursoDet">— % del total</div>
             <div class="kpi-meta-footer" style="margin-top:10px">
-              <span class="kpi-meta-target">▼ Meta: 0</span>
-              <span class="kpi-meta-status kpi-meta-seguimiento" id="arqProcObsStatus">—</span>
+              <span class="kpi-meta-target">🔄 Seguimiento activo</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="arqSigCursoStatus">—</span>
             </div>
           </div>
           <div class="kpi-card k-dark">
-            <div class="kpi-label">Partidas Auditadas</div>
-            <div class="kpi-value" id="arqProcPart">—</div>
-            <div class="kpi-sublabel">Partidas únicas revisadas</div>
+            <div class="kpi-label">Sin Marcar</div>
+            <div class="kpi-value" id="arqSigPend">—</div>
+            <div class="kpi-sublabel" id="arqSigPendDet">— % del total</div>
             <div class="kpi-meta-footer" style="margin-top:10px">
-              <span class="kpi-meta-target">Indicador contextual</span>
-              <span class="kpi-meta-status kpi-meta-seguimiento" id="arqProcPartStatus">—</span>
+              <span class="kpi-meta-target">⚠ Por evaluar</span>
+              <span class="kpi-meta-status kpi-meta-seguimiento" id="arqSigPendStatus">—</span>
             </div>
           </div>
         </div>
 
-        <!-- Histórico de visitas -->
-        <div class="chart-card">
-          <div class="chart-title"><span class="num">01</span> Histórico de Visitas</div>
-          <div class="chart-subtitle">Cada visita del jefe de Arquitectura genera un registro con sus partidas revisadas — click en "👁 Ver" para ver el detalle</div>
-          <div class="table-wrap" style="border:none">
-            <table>
+        <!-- Toolbar: buscador + filtros -->
+        <div class="sig-toolbar">
+          <div class="sig-toolbar-search">
+            <input type="text" id="arqSigSearch" placeholder="Buscar por nombre o código de instructivo…" autocomplete="off">
+          </div>
+          <div class="sig-toolbar-filters" id="arqSigFilters">
+            <button class="sig-filter-btn active" data-filter="todos">Todos <span class="sig-filter-count" id="arqSigCountTodos">—</span></button>
+            <button class="sig-filter-btn" data-filter="revisado">✅ Revisados / N.A. <span class="sig-filter-count" id="arqSigCountRev">—</span></button>
+            <button class="sig-filter-btn" data-filter="curso">🔵 En curso / Planificados <span class="sig-filter-count" id="arqSigCountCurso">—</span></button>
+            <button class="sig-filter-btn" data-filter="pendiente">⚪ Sin marcar <span class="sig-filter-count" id="arqSigCountPend">—</span></button>
+            <button class="sig-filter-btn" data-filter="comentarios">💬 Con comentarios <span class="sig-filter-count" id="arqSigCountCom">—</span></button>
+          </div>
+        </div>
+
+        <!-- Tabla del checklist -->
+        <div class="chart-card" style="padding:0;overflow:hidden;">
+          <div class="table-wrap" style="border:none;border-radius:6px 6px 0 0;max-height:none;">
+            <table class="sig-table">
               <thead>
                 <tr>
-                  <th class="td-center">#</th>
-                  <th class="td-center">Fecha</th>
-                  <th>Responsable / Jefe Arq.</th>
-                  <th class="td-center">Partidas revisadas</th>
-                  <th class="td-center">% Cumplimiento</th>
-                  <th class="td-center">Obs. abiertas</th>
-                  <th class="td-center">Detalle</th>
-                  <th class="td-center audit-only" style="display:none;">Acciones</th>
+                  <th class="td-center" style="width:42px;">#</th>
+                  <th style="width:155px;">Código</th>
+                  <th>Instructivo / Partida</th>
+                  <th class="td-center" style="width:135px;">✅ Revisado / N.A.</th>
+                  <th class="td-center" style="width:165px;">🔵 En curso / Planificado</th>
+                  <th style="min-width:240px;">💬 Comentarios</th>
                 </tr>
               </thead>
-              <tbody id="arqProcTblHistorico">
+              <tbody id="arqSigTbody">
                 <tr>
-                  <td colspan="8" style="text-align:center;padding:30px 16px;color:var(--text-muted);font-style:italic;background:#FBFDFE;border:1px dashed var(--border-mid);">
-                    ⏳ Cargando visitas…
+                  <td colspan="6" class="sig-empty">
+                    <span class="sig-empty-icon">⏳</span>
+                    Cargando catálogo SIG…
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
-        </div>
-
-        <!-- Detalle de partidas de la visita seleccionada -->
-        <div class="chart-card" id="arqProcDetalleCard" style="margin-top:14px;display:none;">
-          <div class="chart-title">
-            <span class="num">02</span> Detalle · <span id="arqProcDetalleTitulo">—</span>
-          </div>
-          <div class="chart-subtitle" id="arqProcDetalleSub">—</div>
-          <div class="table-wrap" style="border:none">
-            <table>
-              <thead>
-                <tr>
-                  <th class="td-center">#</th>
-                  <th>Partida en ejecución</th>
-                  <th class="td-center">Estado revisión</th>
-                  <th>Observaciones</th>
-                  <th>Levantamiento</th>
-                  <th class="td-center audit-only" style="display:none;">Editar</th>
-                </tr>
-              </thead>
-              <tbody id="arqProcDetalleTbody"></tbody>
-            </table>
+          <div class="sig-footer-meta">
+            <div>📋 <b>Catálogo SIG vigente al <span id="arqSigFechaCatalogo">—</span></b> · Especialidad: Arquitectura (AR)</div>
+            <div id="arqSigUltimaEdicion">Sin ediciones registradas</div>
           </div>
         </div>
       </section>
+
 
       <!-- ═══════════════════════════════════════════
            ARQUITECTURA · 2. AVANCE POR PARTIDA · ACABADOS
@@ -10385,598 +10362,437 @@ async function loadSsomaReportesFromFirestore(){
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   ARQUITECTURA · Procesos Homologados con SIG
+   ARQUITECTURA · Procesos Homologados SIG
+   Checklist enterprise de instructivos vigentes
+   Fuente: Catálogo SIG Arquitectura (AR) · 31 instructivos
    ═══════════════════════════════════════════════════════════════════ */
 
-// Estado global
-let arqVisitasData = [];      // Visitas cargadas desde Firestore
-let arqVisEditandoId = null;  // ID de la visita en edición
-let arqDetalleAbierta = null; // ID de la visita cuyo detalle se muestra
-let arqVisFile = null;        // Adjunto opcional
-
-// Catálogo de partidas comunes de Arquitectura (sugerencias en autocompletar)
-const ARQ_PARTIDAS_SUGERIDAS = [
-  'Tabiquería de drywall', 'Solaqueo y empaste', 'Pintura',
-  'Enchape de cerámico en piso', 'Enchape de cerámico en pared',
-  'Carpintería de madera', 'Carpintería metálica',
-  'Instalación de puertas', 'Instalación de aparatos sanitarios',
-  'Vidriería y mamparas', 'Pisos laminados / vinílicos',
-  'Falso cielo raso', 'Acabado de fachada',
-  'Instalaciones eléctricas terminales', 'Instalaciones sanitarias terminales',
+// ─── Catálogo maestro de instructivos SIG (Arquitectura) ───
+const ARQ_SIG_CATALOGO = [
+  { codigo:'CON.003-AR-I01', partida:'Enchapes',                                       rev:8 },
+  { codigo:'CON.003-AR-I02', partida:'Albañilería',                                    rev:1 },
+  { codigo:'CON.003-AR-I03', partida:'Enlucidos',                                      rev:4 },
+  { codigo:'CON.003-AR-I04', partida:'Drywall en muros interiores y exteriores',       rev:0 },
+  { codigo:'CON.003-AR-I05', partida:'Falso cielo de drywall y baldosas',              rev:0 },
+  { codigo:'CON.003-AR-I06', partida:'Contrapisos',                                    rev:1 },
+  { codigo:'CON.003-AR-I07', partida:'Pintura',                                        rev:4 },
+  { codigo:'CON.003-AR-I08', partida:'Instalación de tinas',                           rev:1 },
+  { codigo:'CON.003-AR-I09', partida:'Pisos de madera machihembrada',                  rev:1 },
+  { codigo:'CON.003-AR-I10', partida:'Limpieza',                                       rev:2 },
+  { codigo:'CON.003-AR-I11', partida:'Pisos laminados',                                rev:0 },
+  { codigo:'CON.003-AR-I12', partida:'Contrazócalos',                                  rev:0 },
+  { codigo:'CON.003-AR-I14', partida:'Colocación de ladrillo pastelero',               rev:2 },
+  { codigo:'CON.003-AR-I15', partida:'Sello cortafuego',                               rev:0 },
+  { codigo:'CON.003-AR-I16', partida:'Pintura de fachada',                             rev:1 },
+  { codigo:'CON.003-AR-I17', partida:'Texturado de fachada',                           rev:0 },
+  { codigo:'CON.003-AR-I18', partida:'Puerta MDF al duco',                             rev:1 },
+  { codigo:'CON.003-AR-I19', partida:'Impermeabilización de losa',                     rev:1 },
+  { codigo:'CON.003-AR-I20', partida:'Tratamiento de hongos',                          rev:1 },
+  { codigo:'CON.003-AR-I22', partida:'Instalación de puertas PET',                     rev:0 },
+  { codigo:'CON.003-AR-I23', partida:'Acabado Cal Nieve en sótanos',                   rev:0 },
+  { codigo:'CON.003-AR-I24', partida:'Uso de briquetas',                               rev:0 },
+  { codigo:'CON.003-AR-I25', partida:'Acabado de manto asfáltico',                     rev:0 },
+  { codigo:'CON.003-AR-I26', partida:'Definición de niveles en pisos',                 rev:0 },
+  { codigo:'CON.003-AR-I27', partida:'Textucreto en fachadas',                         rev:0 },
+  { codigo:'CON.003-AR-I28', partida:'Ejecución y verificación de montantes',          rev:0 },
+  { codigo:'CON.003-AR-I29', partida:'Pintura en sótanos',                             rev:0 },
+  { codigo:'CON.003-AR-I30', partida:'Instalación de moldura interior en departamentos', rev:0 },
+  { codigo:'CON.003-AR-I31', partida:'Colocación de luminarias',                       rev:0 },
+  { codigo:'CON.003-AR-I32', partida:'Sellado de juntas en brunas',                    rev:0 },
+  { codigo:'CON.003-AR-I33', partida:'Vidrios',                                        rev:0 },
 ];
 
-// ──────────────────────────────────────────
-// RENDER: Sub-pestañas Arquitectura
-// ──────────────────────────────────────────
+// ─── Estado del módulo ───
+let arqSigData = {};                    // { codigo: { estado, comentarios, ultima_edicion, editado_por } }
+let arqSigFiltroActivo = 'todos';       // todos | revisado | curso | pendiente | comentarios
+let arqSigBusqueda = '';                // término del buscador
+let arqSigComentariosTimers = {};       // debounce timers por código
+let arqSigSavingState = {};             // { codigo: 'saving'|'saved'|'error' } para feedback inline
+let arqSigToolbarBound = false;         // bandera para no rebindear
 
+// ──────────────────────────────────────────
+// Helpers
+// ──────────────────────────────────────────
+function arqSigPuedeEditar(){
+  return currentSession && (currentSession.usuario === 'adm' || currentSession.usuario === 'oficina');
+}
+
+function arqSigEstadoDe(codigo){
+  return (arqSigData[codigo] && arqSigData[codigo].estado) || null;
+}
+
+function arqSigComentarioDe(codigo){
+  return (arqSigData[codigo] && arqSigData[codigo].comentarios) || '';
+}
+
+function arqSigEscapeHtml(str){
+  if(str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ──────────────────────────────────────────
+// RENDER PRINCIPAL
+// ──────────────────────────────────────────
 function renderArqProcesos(){
-  const visitas = [...arqVisitasData].sort((a, b) => {
-    const da = new Date(a.fecha || 0).getTime();
-    const db = new Date(b.fecha || 0).getTime();
-    return db - da;
+  const readonlyBanner = document.getElementById('arqSigReadonly');
+  if(readonlyBanner) readonlyBanner.style.display = arqSigPuedeEditar() ? 'none' : 'flex';
+
+  // Conteos
+  const total = ARQ_SIG_CATALOGO.length;
+  let revisados = 0, enCurso = 0, pendientes = 0, conComentarios = 0;
+  ARQ_SIG_CATALOGO.forEach(it => {
+    const est = arqSigEstadoDe(it.codigo);
+    const com = arqSigComentarioDe(it.codigo);
+    if(est === 'revisado') revisados++;
+    else if(est === 'curso') enCurso++;
+    else pendientes++;
+    if(com && com.trim().length > 0) conComentarios++;
   });
-  const total = visitas.length;
-  const ultima = visitas[0] || null;
 
-  // ─── KPI 1: Visitas realizadas ───
-  document.getElementById('arqProcVisitas').textContent = total;
-  document.getElementById('arqProcVisitasDet').textContent = total === 0
-    ? 'Sin visitas registradas aún'
-    : `${total} visita${total === 1 ? '' : 's'} en el proyecto`;
-  const elV = document.getElementById('arqProcVisitasStatus');
-  elV.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
-  if(total === 0){ elV.classList.add('kpi-meta-seguimiento'); elV.textContent = '⏳ Sin registros'; }
-  else { elV.classList.add('kpi-meta-cumple'); elV.textContent = '✓ Activo'; }
+  const pctRev = total > 0 ? Math.round((revisados/total)*100) : 0;
+  const pctCurso = total > 0 ? Math.round((enCurso/total)*100) : 0;
+  const pctPend = total > 0 ? Math.round((pendientes/total)*100) : 0;
 
-  // ─── KPI 2: % Cumplimiento última visita ───
-  const elC = document.getElementById('arqProcCump');
-  const elCDet = document.getElementById('arqProcCumpDet');
-  const elCSt = document.getElementById('arqProcCumpStatus');
-  elCSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
-  if(ultima && (ultima.partidas || []).length > 0){
-    const tot = ultima.partidas.length;
-    const ok = ultima.partidas.filter(p => p.estado === 'cumple').length;
-    const pct = tot > 0 ? (ok / tot) * 100 : 0;
-    elC.textContent = pct.toFixed(0) + '%';
-    elCDet.textContent = `${ok} de ${tot} partidas cumplen instructivos`;
-    if(pct >= 90){ elCSt.classList.add('kpi-meta-cumple'); elCSt.textContent = '✓ Cumple'; }
-    else if(pct >= 70){ elCSt.classList.add('kpi-meta-seguimiento'); elCSt.textContent = '⚠ En seguimiento'; }
-    else { elCSt.classList.add('kpi-meta-nocumple'); elCSt.textContent = '✗ Bajo'; }
-  } else {
-    elC.textContent = '—';
-    elCDet.textContent = 'Sin visitas registradas';
-    elCSt.classList.add('kpi-meta-seguimiento'); elCSt.textContent = '—';
+  const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent = val; };
+  set('arqSigTotal', total);
+  set('arqSigTotalStatus', `Rev. promedio: ${(ARQ_SIG_CATALOGO.reduce((s,i)=>s+i.rev,0)/total).toFixed(1)}`);
+  set('arqSigRevisados', revisados);
+  set('arqSigRevisadosDet', `${pctRev}% del total`);
+  set('arqSigCurso', enCurso);
+  set('arqSigCursoDet', `${pctCurso}% del total`);
+  set('arqSigPend', pendientes);
+  set('arqSigPendDet', `${pctPend}% del total`);
+
+  const statusRev = document.getElementById('arqSigRevisadosStatus');
+  if(statusRev){
+    if(pctRev >= 80){ statusRev.textContent = '✅ Excelente'; statusRev.className='kpi-meta-status kpi-meta-cumple'; }
+    else if(pctRev >= 50){ statusRev.textContent = '🟡 En progreso'; statusRev.className='kpi-meta-status kpi-meta-seguimiento'; }
+    else { statusRev.textContent = '🔴 Bajo avance'; statusRev.className='kpi-meta-status kpi-meta-no-cumple'; }
+  }
+  const statusCurso = document.getElementById('arqSigCursoStatus');
+  if(statusCurso){
+    statusCurso.textContent = enCurso > 0 ? '🔄 Activos' : '⏸ Sin actividad';
+    statusCurso.className = 'kpi-meta-status kpi-meta-seguimiento';
+  }
+  const statusPend = document.getElementById('arqSigPendStatus');
+  if(statusPend){
+    if(pendientes === 0){ statusPend.textContent = '✅ Todo evaluado'; statusPend.className='kpi-meta-status kpi-meta-cumple'; }
+    else if(pendientes <= 5){ statusPend.textContent = '🟡 Pocos restantes'; statusPend.className='kpi-meta-status kpi-meta-seguimiento'; }
+    else { statusPend.textContent = '⚠ Por evaluar'; statusPend.className='kpi-meta-status kpi-meta-no-cumple'; }
   }
 
-  // ─── KPI 3: Observaciones abiertas ───
-  let totalObsAbiertas = 0;
-  visitas.forEach(v => {
-    (v.partidas || []).forEach(p => {
-      // Una observación está "abierta" si tiene observación pero el levantamiento está pendiente
-      if(p.observacion && p.observacion.trim() && (!p.levantamiento || !p.levantamiento.trim() || p.estado_levantamiento === 'pendiente')){
-        totalObsAbiertas++;
+  const progBadge = document.getElementById('arqSigProgress');
+  if(progBadge) progBadge.textContent = `${revisados+enCurso} de ${total} marcados`;
+
+  set('arqSigCountTodos', total);
+  set('arqSigCountRev', revisados);
+  set('arqSigCountCurso', enCurso);
+  set('arqSigCountPend', pendientes);
+  set('arqSigCountCom', conComentarios);
+
+  // Última edición
+  const ultimaEd = document.getElementById('arqSigUltimaEdicion');
+  if(ultimaEd){
+    let masReciente = null, autorReciente = null;
+    Object.values(arqSigData).forEach(d => {
+      if(d.ultima_edicion){
+        const t = typeof d.ultima_edicion === 'string' ? d.ultima_edicion : '';
+        if(t && (!masReciente || t > masReciente)){
+          masReciente = t;
+          autorReciente = d.editado_por || '—';
+        }
       }
     });
-  });
-  document.getElementById('arqProcObs').textContent = totalObsAbiertas;
-  document.getElementById('arqProcObsDet').textContent = totalObsAbiertas === 0
-    ? 'Todas las observaciones levantadas ✓'
-    : `${totalObsAbiertas} pendiente${totalObsAbiertas === 1 ? '' : 's'} de levantamiento`;
-  const elO = document.getElementById('arqProcObsStatus');
-  elO.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
-  if(totalObsAbiertas === 0){ elO.classList.add('kpi-meta-cumple'); elO.textContent = '✓ Sin pendientes'; }
-  else if(totalObsAbiertas <= 3){ elO.classList.add('kpi-meta-seguimiento'); elO.textContent = '⚠ Por levantar'; }
-  else { elO.classList.add('kpi-meta-nocumple'); elO.textContent = '✗ Acumulando'; }
-
-  // ─── KPI 4: Partidas únicas auditadas ───
-  const partidasSet = new Set();
-  visitas.forEach(v => (v.partidas || []).forEach(p => {
-    if(p.partida) partidasSet.add(p.partida.toLowerCase().trim());
-  }));
-  document.getElementById('arqProcPart').textContent = partidasSet.size;
-  const elP = document.getElementById('arqProcPartStatus');
-  elP.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
-  elP.classList.add(partidasSet.size > 0 ? 'kpi-meta-cumple' : 'kpi-meta-seguimiento');
-  elP.textContent = partidasSet.size > 0 ? '✓ Cobertura' : '—';
-
-  // ─── Tabla histórico ───
-  const tbody = document.getElementById('arqProcTblHistorico');
-  if(tbody){
-    if(total === 0){
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px 16px;color:var(--text-muted);font-style:italic;background:#FBFDFE;border:1px dashed var(--border-mid);">⏳ Sin visitas registradas. Para empezar, presiona <b>"📋 Nueva Visita"</b>.</td></tr>`;
+    if(masReciente){
+      const f = new Date(masReciente);
+      const fechaTxt = f.toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'});
+      const horaTxt = f.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
+      ultimaEd.innerHTML = `🕒 Última edición: <b>${fechaTxt}</b> · ${horaTxt} · por <b>${arqSigEscapeHtml(autorReciente)}</b>`;
     } else {
-      const puedeEditar = currentSession && (currentSession.usuario === 'adm' || currentSession.usuario === 'oficina');
-      tbody.innerHTML = visitas.map((v, i) => {
-        const numero = total - i;
-        const tot = (v.partidas || []).length;
-        const ok = (v.partidas || []).filter(p => p.estado === 'cumple').length;
-        const pct = tot > 0 ? (ok / tot) * 100 : 0;
-        const colorPct = pct >= 90 ? '#1A6B4A' : (pct >= 70 ? '#A0521E' : '#8A2A2D');
-        const obsAbiertas = (v.partidas || []).filter(p =>
-          p.observacion && p.observacion.trim() &&
-          (!p.levantamiento || !p.levantamiento.trim() || p.estado_levantamiento === 'pendiente')
-        ).length;
-        const accionesHtml = puedeEditar ? `
-          <button class="sig-action-btn sig-action-edit" onclick="abrirEditorVisitaArq('${escapeHtml(v.id)}')" title="Editar">✏️</button>
-          <button class="sig-action-btn sig-action-delete" onclick="eliminarVisitaArq('${escapeHtml(v.id)}')" title="Eliminar">🗑️</button>
-        ` : '';
-        return `<tr ${arqDetalleAbierta === v.id ? 'class="arq-row-active"' : ''}>
-          <td class="td-center"><b>${numero}</b></td>
-          <td class="td-center">${formatFechaCorta(v.fecha)}</td>
-          <td><b>${escapeHtml(v.responsable || '—')}</b>${v.comentario ? `<br><span style="font-size:10.5px;color:var(--text-muted);font-style:italic;">${escapeHtml(v.comentario.slice(0, 80))}${v.comentario.length > 80 ? '…' : ''}</span>` : ''}</td>
-          <td class="td-center">${tot}</td>
-          <td class="td-center"><b style="color:${colorPct};">${tot > 0 ? pct.toFixed(0) + '%' : '—'}</b></td>
-          <td class="td-center">${obsAbiertas > 0 ? `<span class="arq-estado-badge arq-estado-warn">${obsAbiertas}</span>` : '<span style="color:#1A6B4A;font-weight:700;">0</span>'}</td>
-          <td class="td-center"><button class="aud-btn-download" onclick="verDetalleVisitaArq('${escapeHtml(v.id)}')" style="padding:4px 10px;font-size:10px;">👁 Ver</button></td>
-          <td class="td-center audit-only" style="display:none;white-space:nowrap;">${accionesHtml}</td>
-        </tr>`;
-      }).join('');
+      ultimaEd.textContent = 'Sin ediciones registradas';
     }
   }
 
-  // Si hay un detalle abierto, refrescarlo
-  if(arqDetalleAbierta){
-    verDetalleVisitaArq(arqDetalleAbierta);
-  } else if(ultima){
-    // Por defecto, mostrar la última visita
-    verDetalleVisitaArq(ultima.id);
-  }
+  const fechaCat = document.getElementById('arqSigFechaCatalogo');
+  if(fechaCat) fechaCat.textContent = new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'});
+
+  arqSigRenderTabla();
+  arqSigInitToolbar();
 }
 
-function verDetalleVisitaArq(id){
-  const v = arqVisitasData.find(x => x.id === id);
-  if(!v){ console.warn('[E140] Visita no encontrada:', id); return; }
-  arqDetalleAbierta = id;
+// ──────────────────────────────────────────
+// RENDER de la tabla del checklist
+// ──────────────────────────────────────────
+function arqSigRenderTabla(){
+  const tbody = document.getElementById('arqSigTbody');
+  if(!tbody) return;
 
-  const card = document.getElementById('arqProcDetalleCard');
-  if(!card) return;
-  card.style.display = '';
+  const puedeEditar = arqSigPuedeEditar();
+  const busqueda = (arqSigBusqueda || '').toLowerCase().trim();
 
-  document.getElementById('arqProcDetalleTitulo').textContent =
-    `Visita del ${formatFechaCorta(v.fecha)} · ${v.responsable || '—'}`;
-  document.getElementById('arqProcDetalleSub').textContent = v.comentario
-    ? `Comentario: ${v.comentario}`
-    : `${(v.partidas || []).length} partida${(v.partidas || []).length === 1 ? '' : 's'} revisada${(v.partidas || []).length === 1 ? '' : 's'}`;
+  const items = ARQ_SIG_CATALOGO.filter(it => {
+    if(busqueda){
+      const txtMatch = (it.codigo + ' ' + it.partida).toLowerCase().includes(busqueda);
+      if(!txtMatch) return false;
+    }
+    const est = arqSigEstadoDe(it.codigo);
+    const com = arqSigComentarioDe(it.codigo);
+    switch(arqSigFiltroActivo){
+      case 'revisado':    return est === 'revisado';
+      case 'curso':       return est === 'curso';
+      case 'pendiente':   return !est;
+      case 'comentarios': return com && com.trim().length > 0;
+      default:            return true;
+    }
+  });
 
-  // Quitar resaltado de filas, agregar al actual
-  document.querySelectorAll('#arqProcTblHistorico tr').forEach(tr => tr.classList.remove('arq-row-active'));
+  if(items.length === 0){
+    tbody.innerHTML = `
+      <tr><td colspan="6" class="sig-empty">
+        <span class="sig-empty-icon">${busqueda ? '🔍' : '📋'}</span>
+        ${busqueda ? `Sin resultados para "<b>${arqSigEscapeHtml(arqSigBusqueda)}</b>"` : 'No hay instructivos que coincidan con este filtro'}
+      </td></tr>`;
+    return;
+  }
 
-  const tbody = document.getElementById('arqProcDetalleTbody');
-  const partidas = v.partidas || [];
-  if(partidas.length === 0){
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);font-style:italic;">Sin partidas registradas en esta visita.</td></tr>';
-  } else {
-    const puedeEditar = currentSession && (currentSession.usuario === 'adm' || currentSession.usuario === 'oficina');
-    // Ordenar: primero las "no cumple", luego las parciales, después con observación pendiente, por último las OK
-    const orden = { no_cumple: 0, parcial: 1, pendiente: 2, cumple: 3 };
-    const ordenadas = [...partidas].map((p, idx) => ({ ...p, _idx: idx })).sort((a, b) => {
-      const da = orden[a.estado] != null ? orden[a.estado] : 9;
-      const db = orden[b.estado] != null ? orden[b.estado] : 9;
-      return da - db;
-    });
+  tbody.innerHTML = items.map((it) => {
+    const est = arqSigEstadoDe(it.codigo);
+    const com = arqSigComentarioDe(it.codigo);
+    const numOrig = ARQ_SIG_CATALOGO.findIndex(x => x.codigo === it.codigo) + 1;
+    const rowClass = est === 'revisado' ? 'sig-row-revisado' : (est === 'curso' ? 'sig-row-curso' : '');
+    const disabledAttr = puedeEditar ? '' : 'disabled';
 
-    tbody.innerHTML = ordenadas.map((p, i) => {
-      let badge = '';
-      if(p.estado === 'cumple')           badge = '<span class="arq-estado-badge arq-estado-ok">✓ Cumple</span>';
-      else if(p.estado === 'parcial')     badge = '<span class="arq-estado-badge arq-estado-warn">⚠ Parcial</span>';
-      else if(p.estado === 'no_cumple')   badge = '<span class="arq-estado-badge arq-estado-no">✗ No cumple</span>';
-      else                                 badge = '<span class="arq-estado-badge arq-estado-pend">⏳ Pendiente</span>';
+    const radioRevClass = `sig-radio sig-radio-rev ${est === 'revisado' ? 'checked' : ''}`;
+    const radioCursoClass = `sig-radio sig-radio-curso ${est === 'curso' ? 'checked' : ''}`;
+    const sublabelRev = est === 'revisado' ? '<span class="sig-estado-sublabel active-rev">Marcado</span>' : '';
+    const sublabelCurso = est === 'curso' ? '<span class="sig-estado-sublabel active-curso">Marcado</span>' : '';
 
-      // Levantamiento
-      let levHtml = '<span style="color:var(--text-muted);font-style:italic;">—</span>';
-      if(p.levantamiento && p.levantamiento.trim()){
-        const fechaLev = p.fecha_levantamiento ? formatFechaCorta(p.fecha_levantamiento) : '';
-        const tagColor = p.estado_levantamiento === 'levantado' ? '#1A6B4A' : (p.estado_levantamiento === 'parcial' ? '#A0521E' : '#666');
-        const tagLabel = p.estado_levantamiento === 'levantado' ? '✓ LEVANTADO' : (p.estado_levantamiento === 'parcial' ? '⚠ PARCIAL' : '⏳ PENDIENTE');
-        levHtml = `<div style="font-size:11.5px;line-height:1.4;">${escapeHtml(p.levantamiento)}</div>
-          <div style="font-size:10px;color:${tagColor};margin-top:3px;font-weight:700;">${tagLabel}${fechaLev ? ' · ' + fechaLev : ''}</div>`;
-      } else if(p.observacion && p.observacion.trim()){
-        levHtml = '<span style="color:#A0521E;font-size:11px;font-weight:600;">⏳ Pendiente de levantamiento</span>';
-      }
+    const onClickRev = puedeEditar ? `arqSigToggleEstado('${it.codigo}','revisado')` : '';
+    const onClickCurso = puedeEditar ? `arqSigToggleEstado('${it.codigo}','curso')` : '';
 
-      const editBtn = puedeEditar
-        ? `<button class="sig-action-btn sig-action-edit" onclick="abrirEditorPartidaArq('${escapeHtml(v.id)}', ${p._idx})" title="Editar partida" style="width:28px;height:28px;font-size:12px;">✏️</button>`
-        : '';
+    const clearRevBtn = (est === 'revisado' && puedeEditar)
+      ? `<button type="button" class="sig-radio-clear" title="Quitar selección" onclick="arqSigSetEstado('${it.codigo}', null)">✕</button>` : '';
+    const clearCursoBtn = (est === 'curso' && puedeEditar)
+      ? `<button type="button" class="sig-radio-clear" title="Quitar selección" onclick="arqSigSetEstado('${it.codigo}', null)">✕</button>` : '';
 
-      return `<tr>
-        <td class="td-center"><b>${i + 1}</b></td>
-        <td><b>${escapeHtml(p.partida || '—')}</b></td>
-        <td class="td-center">${badge}</td>
-        <td>${p.observacion ? escapeHtml(p.observacion) : '<span style="color:var(--text-muted);font-style:italic;">Sin observación</span>'}</td>
-        <td>${levHtml}</td>
-        <td class="td-center audit-only" style="display:none;">${editBtn}</td>
+    const titleRev = puedeEditar ? (est === 'revisado' ? 'Click para desmarcar' : 'Marcar como Revisado / N.A.') : 'Solo adm/oficina pueden editar';
+    const titleCurso = puedeEditar ? (est === 'curso' ? 'Click para desmarcar' : 'Marcar como En curso / Planificado') : 'Solo adm/oficina pueden editar';
+
+    const comentarioCls = `sig-comentario${com ? ' has-content' : ''}`;
+    const savingState = arqSigSavingState[it.codigo];
+    let savingMeta = '';
+    if(savingState === 'saving') savingMeta = '<span class="sig-comentario-meta sig-comentario-saving">💾 Guardando…</span>';
+    else if(savingState === 'saved') savingMeta = '<span class="sig-comentario-meta sig-comentario-saved">✓ Guardado</span>';
+    else if(savingState === 'error') savingMeta = '<span class="sig-comentario-meta sig-comentario-error">⚠ Error · reintenta</span>';
+
+    return `
+      <tr class="${rowClass}" data-codigo="${it.codigo}">
+        <td class="td-center" style="font-weight:600;color:var(--text-muted);font-size:11px;">${numOrig}</td>
+        <td><span class="sig-codigo">${arqSigEscapeHtml(it.codigo)}</span><span class="sig-rev-badge" title="Revisión vigente del documento">Rev.${it.rev}</span></td>
+        <td><span class="sig-partida">${arqSigEscapeHtml(it.partida)}</span></td>
+        <td class="sig-estado-cell">
+          <div class="sig-radio-group">
+            <span class="${radioRevClass}" onclick="${onClickRev}" title="${titleRev}" role="button">${est === 'revisado' ? '✓' : '☐'}</span>
+            ${clearRevBtn}
+          </div>
+          ${sublabelRev}
+        </td>
+        <td class="sig-estado-cell">
+          <div class="sig-radio-group">
+            <span class="${radioCursoClass}" onclick="${onClickCurso}" title="${titleCurso}" role="button">${est === 'curso' ? '✓' : '☐'}</span>
+            ${clearCursoBtn}
+          </div>
+          ${sublabelCurso}
+        </td>
+        <td>
+          <div class="sig-comentario-wrap">
+            <textarea class="${comentarioCls}" rows="1" placeholder="${puedeEditar ? 'Notas, hallazgos, levantamientos…' : '— Sin comentarios —'}" data-codigo="${it.codigo}" oninput="arqSigOnComentarioInput(this)" ${disabledAttr}>${arqSigEscapeHtml(com)}</textarea>
+            ${savingMeta}
+          </div>
+        </td>
       </tr>`;
-    }).join('');
-  }
+  }).join('');
 
-  setTimeout(() => {
-    try { card.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-    catch(e){ card.scrollIntoView(); }
-  }, 50);
+  // Auto-resize de los textareas con contenido
+  document.querySelectorAll('#arqSigTbody .sig-comentario').forEach(t => {
+    if(t.value && t.value.length > 0){
+      t.style.height = 'auto';
+      t.style.height = Math.min(t.scrollHeight, 120) + 'px';
+    }
+  });
 }
 
-// Sub-pestañas placeholders
-function renderArqAvance(){ /* pendiente data */ }
-function renderArqPV(){ /* pendiente data */ }
-function renderArqObs(){ /* pendiente data */ }
+// ──────────────────────────────────────────
+// Acciones del usuario
+// ──────────────────────────────────────────
+function arqSigToggleEstado(codigo, estadoSolicitado){
+  const actual = arqSigEstadoDe(codigo);
+  const nuevo = (actual === estadoSolicitado) ? null : estadoSolicitado;
+  arqSigSetEstado(codigo, nuevo);
+}
 
-// ══════════════════════════════════════════════════════════════
-// MODAL: Nueva Visita / Editar Visita
-// ══════════════════════════════════════════════════════════════
-
-function openArqVisitaModal(){
-  if(!currentSession || (currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina')){
-    alert('Solo "adm" y "oficina" pueden registrar visitas de Arquitectura.');
+function arqSigSetEstado(codigo, nuevoEstado){
+  if(!arqSigPuedeEditar()){
+    alert('⛔ Solo los usuarios adm y oficina pueden modificar el estado de los instructivos.');
     return;
   }
-  arqVisEditandoId = null;
-  arqVisFile = null;
+  if(!arqSigData[codigo]) arqSigData[codigo] = {};
+  arqSigData[codigo].estado = nuevoEstado;
+  arqSigData[codigo].ultima_edicion = new Date().toISOString();
+  arqSigData[codigo].editado_por = (currentSession && currentSession.usuario) || '—';
 
-  document.getElementById('arqVisitaModalTitle').textContent = '📋 NUEVA VISITA · ARQUITECTURA';
-  document.getElementById('arqVisitaModalSub').textContent = 'Verificación de cumplimiento con instructivos del SIG';
-  document.getElementById('arqVisPublishBtn').innerHTML = '🚀 Publicar visita';
-
-  document.getElementById('arqVisFecha').value = new Date().toISOString().split('T')[0];
-  document.getElementById('arqVisResponsable').value = '';
-  document.getElementById('arqVisComentario').value = '';
-  document.getElementById('arqPartidasContainer').innerHTML = '';
-  document.getElementById('arqVisDropzoneTitle').textContent = 'CARGAR ACTA O FOTO (opcional)';
-  document.getElementById('arqVisDropzone').classList.remove('has-file');
-  document.getElementById('arqVisProgressBanner').style.display = 'none';
-  document.getElementById('arqVisPublishBtn').disabled = false;
-
-  // Agregar la primera partida automáticamente
-  agregarPartidaArq();
-
-  // Setup dropzone
-  const dz = document.getElementById('arqVisDropzone');
-  const inp = document.getElementById('arqVisFileInput');
-  if(dz && inp && !dz._setupDone){
-    dz._setupDone = true;
-    inp.onchange = e => { handleArqVisFile(e.target.files[0]); inp.value = ''; };
-    ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
-    ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
-    dz.addEventListener('drop', e => handleArqVisFile(e.dataTransfer.files[0]));
-  }
-
-  document.getElementById('arqVisitaModal').classList.add('show');
-  setTimeout(() => document.getElementById('arqVisResponsable').focus(), 100);
+  arqSigGuardarFirestore(codigo);
+  renderArqProcesos();
 }
 
-function closeArqVisitaModal(){
-  document.getElementById('arqVisitaModal').classList.remove('show');
+function arqSigOnComentarioInput(textarea){
+  if(!arqSigPuedeEditar()) return;
+  const codigo = textarea.dataset.codigo;
+  const valor = textarea.value;
+  textarea.style.height = 'auto';
+  textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+
+  if(!arqSigData[codigo]) arqSigData[codigo] = {};
+  arqSigData[codigo].comentarios = valor;
+  arqSigData[codigo].ultima_edicion = new Date().toISOString();
+  arqSigData[codigo].editado_por = (currentSession && currentSession.usuario) || '—';
+
+  if(valor && valor.trim().length > 0) textarea.classList.add('has-content');
+  else textarea.classList.remove('has-content');
+
+  if(arqSigComentariosTimers[codigo]) clearTimeout(arqSigComentariosTimers[codigo]);
+  arqSigComentariosTimers[codigo] = setTimeout(() => {
+    arqSigGuardarFirestore(codigo);
+  }, 700);
 }
 
-function handleArqVisFile(f){
-  if(!f) return;
-  if(f.size > 10 * 1024 * 1024){ alert('Excede 10 MB.'); return; }
-  arqVisFile = f;
-  document.getElementById('arqVisDropzoneTitle').textContent = `📎 ${f.name}`;
-  document.getElementById('arqVisDropzone').classList.add('has-file');
-}
-
-function agregarPartidaArq(datos){
-  const cont = document.getElementById('arqPartidasContainer');
-  const idx = cont.children.length;
-  const datalistId = `arqPartidasDatalist`;
-
-  // Crear datalist global si no existe
-  if(!document.getElementById(datalistId)){
-    const dl = document.createElement('datalist');
-    dl.id = datalistId;
-    dl.innerHTML = ARQ_PARTIDAS_SUGERIDAS.map(p => `<option value="${escapeHtml(p)}">`).join('');
-    document.body.appendChild(dl);
-  }
-
-  const d = datos || {};
-  const row = document.createElement('div');
-  row.className = 'arq-partida-row';
-  row.dataset.idx = idx;
-  row.innerHTML = `
-    <div>
-      <div class="arq-partida-fields">
-        <div>
-          <label>Partida en ejecución <span style="color:#D64045;">*</span></label>
-          <input type="text" class="arq-p-partida" list="${datalistId}" placeholder="Ej: Tabiquería de drywall" value="${escapeHtml(d.partida || '')}" maxlength="120">
-        </div>
-        <div>
-          <label>Estado revisión</label>
-          <select class="arq-p-estado" onchange="actualizarColorEstadoArq(this)">
-            <option value="cumple"${d.estado === 'cumple' ? ' selected' : ''}>✓ Cumple</option>
-            <option value="parcial"${d.estado === 'parcial' ? ' selected' : ''}>⚠ Parcial</option>
-            <option value="no_cumple"${d.estado === 'no_cumple' ? ' selected' : ''}>✗ No cumple</option>
-            <option value="pendiente"${(!d.estado || d.estado === 'pendiente') ? ' selected' : ''}>⏳ Pendiente</option>
-          </select>
-        </div>
-      </div>
-      <div class="arq-partida-fields-full">
-        <div>
-          <label>Observaciones</label>
-          <textarea class="arq-p-obs" rows="2" placeholder="Detalle del hallazgo o cumplimiento">${escapeHtml(d.observacion || '')}</textarea>
-        </div>
-        <div>
-          <label>Levantamiento (si aplica)</label>
-          <textarea class="arq-p-lev" rows="2" placeholder="Acción tomada / por tomar">${escapeHtml(d.levantamiento || '')}</textarea>
-        </div>
-      </div>
-      <div class="arq-partida-fields-full" style="margin-top:6px;">
-        <div>
-          <label>Fecha de levantamiento</label>
-          <input type="date" class="arq-p-fechalev" value="${escapeHtml(d.fecha_levantamiento || '')}">
-        </div>
-        <div>
-          <label>Estado levantamiento</label>
-          <select class="arq-p-estadolev">
-            <option value=""${!d.estado_levantamiento ? ' selected' : ''}>—</option>
-            <option value="pendiente"${d.estado_levantamiento === 'pendiente' ? ' selected' : ''}>⏳ Pendiente</option>
-            <option value="parcial"${d.estado_levantamiento === 'parcial' ? ' selected' : ''}>⚠ Parcial</option>
-            <option value="levantado"${d.estado_levantamiento === 'levantado' ? ' selected' : ''}>✓ Levantado</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <button type="button" class="arq-partida-del" onclick="this.closest('.arq-partida-row').remove()" title="Eliminar partida">✕</button>
-  `;
-  cont.appendChild(row);
-
-  // Aplicar color al select de estado
-  const sel = row.querySelector('.arq-p-estado');
-  actualizarColorEstadoArq(sel);
-}
-
-function actualizarColorEstadoArq(sel){
-  if(!sel) return;
-  sel.classList.remove('cumple-ok','cumple-warn','cumple-no','cumple-pend');
-  const v = sel.value;
-  if(v === 'cumple') sel.classList.add('cumple-ok');
-  else if(v === 'parcial') sel.classList.add('cumple-warn');
-  else if(v === 'no_cumple') sel.classList.add('cumple-no');
-  else sel.classList.add('cumple-pend');
-}
-
-function recolectarPartidasModal(){
-  const rows = document.querySelectorAll('#arqPartidasContainer .arq-partida-row');
-  const partidas = [];
-  rows.forEach(r => {
-    const partida = (r.querySelector('.arq-p-partida')?.value || '').trim();
-    if(!partida) return; // Saltar filas vacías
-    const estado = r.querySelector('.arq-p-estado')?.value || 'pendiente';
-    const obs = (r.querySelector('.arq-p-obs')?.value || '').trim();
-    const lev = (r.querySelector('.arq-p-lev')?.value || '').trim();
-    const fechaLev = r.querySelector('.arq-p-fechalev')?.value || null;
-    const estadoLev = r.querySelector('.arq-p-estadolev')?.value || null;
-    partidas.push({
-      partida, estado,
-      observacion: obs || null,
-      levantamiento: lev || null,
-      fecha_levantamiento: fechaLev || null,
-      estado_levantamiento: estadoLev || null,
+// ──────────────────────────────────────────
+// Filtros y búsqueda
+// ──────────────────────────────────────────
+function arqSigInitToolbar(){
+  if(arqSigToolbarBound) return;
+  const search = document.getElementById('arqSigSearch');
+  if(!search) return;
+  search.addEventListener('input', () => {
+    arqSigBusqueda = search.value;
+    arqSigRenderTabla();
+  });
+  const filterBtns = document.querySelectorAll('#arqSigFilters .sig-filter-btn');
+  if(filterBtns.length === 0) return;
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      arqSigFiltroActivo = btn.dataset.filter;
+      filterBtns.forEach(b => b.classList.toggle('active', b === btn));
+      arqSigRenderTabla();
     });
   });
-  return partidas;
+  arqSigToolbarBound = true;
 }
 
-async function publicarVisitaArq(){
-  const fecha = document.getElementById('arqVisFecha').value;
-  const responsable = document.getElementById('arqVisResponsable').value.trim();
-  const comentario = document.getElementById('arqVisComentario').value.trim();
-  const partidas = recolectarPartidasModal();
+// ──────────────────────────────────────────
+// Persistencia en Firestore
+// Colección: 'arq_procesos_sig' · doc id = código del instructivo
+// ──────────────────────────────────────────
+async function arqSigGuardarFirestore(codigo){
+  if(!window.E140_DB){
+    console.warn('[E140] Firestore no disponible — cambios no persistidos');
+    return;
+  }
+  const data = arqSigData[codigo];
+  if(!data || (!data.estado && (!data.comentarios || data.comentarios.trim() === ''))){
+    try {
+      const { db, doc, deleteDoc } = window.E140_DB;
+      await deleteDoc(doc(db, 'arq_procesos_sig', codigo));
+      delete arqSigData[codigo];
+    } catch(e){ /* ignorar */ }
+    return;
+  }
 
-  if(!fecha){ alert('Ingresa la fecha de la visita.'); return; }
-  if(!responsable){ alert('Ingresa el nombre del responsable.'); return; }
-  if(partidas.length === 0){ alert('Agrega al menos una partida revisada en la visita.'); return; }
-  if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
-
-  const btn = document.getElementById('arqVisPublishBtn');
-  const cancel = document.querySelector('#arqVisitaModal .hdr-btn:not(.hdr-btn-primary)');
-  const banner = document.getElementById('arqVisProgressBanner');
-  const bIcon = document.getElementById('arqVisProgressIcon');
-  const bText = document.getElementById('arqVisProgressText');
-  const bFill = document.getElementById('arqVisProgressFill');
-  const bDetail = document.getElementById('arqVisProgressDetail');
-
-  btn.disabled = true;
-  if(cancel) cancel.disabled = true;
-  banner.style.display = 'block';
-  banner.classList.remove('success', 'error');
-  bIcon.textContent = '⏳';
+  arqSigSavingState[codigo] = 'saving';
+  arqSigRefreshFilaSavingState(codigo);
 
   try {
-    let adjuntoUrl = null, adjuntoPublicId = null, adjuntoNombre = null;
-
-    if(arqVisFile){
-      bText.textContent = 'Subiendo adjunto a Cloudinary…';
-      bFill.style.width = '30%';
-      bDetail.textContent = `${arqVisFile.name} (${formatBytes(arqVisFile.size)})`;
-      const result = await uploadGenericoToCloudinary(arqVisFile, 'arquitectura', 'visita');
-      adjuntoUrl = result.url; adjuntoPublicId = result.public_id; adjuntoNombre = arqVisFile.name;
-    }
-
-    bText.textContent = 'Guardando en Firestore…';
-    bFill.style.width = '75%';
-    bDetail.textContent = '';
-
-    const userId = (currentSession && currentSession.usuario) || 'desconocido';
-    const userName = (currentSession && currentSession.nombre) || 'Sin sesión';
-    const ahora = new Date().toISOString();
-    const ts = Date.now();
-
-    const dataDoc = {
-      fecha, responsable, comentario: comentario || null,
-      partidas,
-      adjunto_url: adjuntoUrl,
-      adjunto_public_id: adjuntoPublicId,
-      adjunto_nombre: adjuntoNombre,
-      registrado_por: userId,
-      registrado_por_nombre: userName,
-      registrado_en: ahora,
-      registrado_ts: ts,
+    const { db, doc, setDoc, serverTimestamp } = window.E140_DB;
+    const payload = {
+      codigo,
+      estado: data.estado || null,
+      comentarios: data.comentarios || '',
+      editado_por: data.editado_por || '—',
+      ultima_edicion: data.ultima_edicion || new Date().toISOString(),
+      ts: serverTimestamp()
     };
-
-    if(arqVisEditandoId){
-      const { db, doc, setDoc } = window.E140_DB;
-      const docRef = doc(db, 'arq_visitas', arqVisEditandoId);
-      dataDoc.editado_por = userId;
-      dataDoc.editado_por_nombre = userName;
-      dataDoc.editado_en = ahora;
-      dataDoc.editado_ts = ts;
-      // Mantener registrado_en/ts originales si existían
-      const original = arqVisitasData.find(x => x.id === arqVisEditandoId);
-      if(original){
-        dataDoc.registrado_por = original.registrado_por;
-        dataDoc.registrado_por_nombre = original.registrado_por_nombre;
-        dataDoc.registrado_en = original.registrado_en;
-        dataDoc.registrado_ts = original.registrado_ts;
-      }
-      await setDoc(docRef, dataDoc, { merge: true });
-      const idx = arqVisitasData.findIndex(x => x.id === arqVisEditandoId);
-      if(idx >= 0) arqVisitasData[idx] = { ...arqVisitasData[idx], ...dataDoc, id: arqVisEditandoId };
-    } else {
-      const { db, collection, addDoc } = window.E140_DB;
-      const docRef = await addDoc(collection(db, 'arq_visitas'), dataDoc);
-      arqVisitasData.unshift({ id: docRef.id, ...dataDoc });
-      arqDetalleAbierta = docRef.id;
-    }
-
-    if(adjuntoUrl){
-      try {
-        await registrarAuditoria({
-          semana: '', area: 'arquitectura',
-          archivo_key: 'visita_arq',
-          archivo_label: `Visita Arquitectura · ${fecha}`,
-          nombre_original: adjuntoNombre,
-          tamano_bytes: arqVisFile.size,
-          cloudinary_url: adjuntoUrl,
-          cloudinary_public_id: adjuntoPublicId,
-          corte_fecha: fecha,
-          subido_por: userId,
-          subido_por_nombre: userName,
-          estado: 'ok',
-        });
-      } catch(audErr){ console.warn('[E140] Auditoría no se pudo registrar:', audErr); }
-    }
-
-    bFill.style.width = '100%';
-    banner.classList.add('success');
-    bIcon.textContent = '✓';
-    bText.textContent = arqVisEditandoId ? '¡Cambios guardados!' : '¡Visita registrada!';
-    bDetail.textContent = `${partidas.length} partida${partidas.length === 1 ? '' : 's'}`;
-
-    if(currentTab === 'arq-procesos'){
-      try { renderArqProcesos(); } catch(e){ console.warn(e); }
-    }
-
+    await setDoc(doc(db, 'arq_procesos_sig', codigo), payload, { merge: true });
+    arqSigSavingState[codigo] = 'saved';
+    arqSigRefreshFilaSavingState(codigo);
     setTimeout(() => {
-      if(cancel) cancel.disabled = false;
-      btn.disabled = false;
-    }, 1200);
-    setTimeout(() => closeArqVisitaModal(), 1800);
-
-  } catch(err){
-    console.error('[E140] Error publicando visita:', err);
-    banner.classList.add('error');
-    bIcon.textContent = '✕';
-    bText.textContent = 'Error al guardar';
-    bDetail.textContent = err.message || String(err);
-    btn.disabled = false;
-    if(cancel) cancel.disabled = false;
-  }
-}
-
-function abrirEditorVisitaArq(id){
-  if(!currentSession || (currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina')){
-    alert('Solo "adm" y "oficina" pueden editar visitas.');
-    return;
-  }
-  const v = arqVisitasData.find(x => x.id === id);
-  if(!v){ alert('No se encontró la visita.'); return; }
-
-  arqVisEditandoId = id;
-  arqVisFile = null;
-
-  document.getElementById('arqVisitaModalTitle').textContent = '✏️ EDITAR VISITA · ARQUITECTURA';
-  document.getElementById('arqVisitaModalSub').textContent = `Visita del ${formatFechaCorta(v.fecha)}`;
-  document.getElementById('arqVisPublishBtn').innerHTML = '💾 Guardar cambios';
-
-  document.getElementById('arqVisFecha').value = v.fecha || '';
-  document.getElementById('arqVisResponsable').value = v.responsable || '';
-  document.getElementById('arqVisComentario').value = v.comentario || '';
-
-  // Cargar partidas existentes
-  document.getElementById('arqPartidasContainer').innerHTML = '';
-  (v.partidas || []).forEach(p => agregarPartidaArq(p));
-  if((v.partidas || []).length === 0) agregarPartidaArq();
-
-  if(v.adjunto_url){
-    document.getElementById('arqVisDropzoneTitle').textContent = `📎 ${v.adjunto_nombre || 'Archivo cargado'}`;
-    document.getElementById('arqVisDropzone').classList.add('has-file');
-  } else {
-    document.getElementById('arqVisDropzoneTitle').textContent = 'CARGAR ACTA O FOTO (opcional)';
-    document.getElementById('arqVisDropzone').classList.remove('has-file');
-  }
-
-  document.getElementById('arqVisProgressBanner').style.display = 'none';
-  document.getElementById('arqVisPublishBtn').disabled = false;
-  document.getElementById('arqVisitaModal').classList.add('show');
-}
-
-function abrirEditorPartidaArq(visitaId, partidaIdx){
-  // Atajo: abre el modal con foco en la partida específica
-  abrirEditorVisitaArq(visitaId);
-  setTimeout(() => {
-    const rows = document.querySelectorAll('#arqPartidasContainer .arq-partida-row');
-    if(rows[partidaIdx]){
-      rows[partidaIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
-      const inp = rows[partidaIdx].querySelector('.arq-p-lev');
-      if(inp) inp.focus();
-      // Resaltar brevemente
-      rows[partidaIdx].style.boxShadow = '0 0 0 3px #FFD86B';
-      setTimeout(() => { rows[partidaIdx].style.boxShadow = ''; }, 2000);
+      if(arqSigSavingState[codigo] === 'saved'){
+        delete arqSigSavingState[codigo];
+        arqSigRefreshFilaSavingState(codigo);
+      }
+    }, 2000);
+    const ultimaEd = document.getElementById('arqSigUltimaEdicion');
+    if(ultimaEd){
+      const f = new Date();
+      const fechaTxt = f.toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'});
+      const horaTxt = f.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
+      ultimaEd.innerHTML = `🕒 Última edición: <b>${fechaTxt}</b> · ${horaTxt} · por <b>${arqSigEscapeHtml(data.editado_por)}</b>`;
     }
-  }, 250);
-}
-
-async function eliminarVisitaArq(id){
-  if(!currentSession || (currentSession.usuario !== 'adm' && currentSession.usuario !== 'oficina')){
-    alert('Solo "adm" y "oficina" pueden eliminar visitas.');
-    return;
-  }
-  const v = arqVisitasData.find(x => x.id === id);
-  if(!v) return;
-  if(!confirm(`¿Eliminar la visita del ${formatFechaCorta(v.fecha)}?\n\nResponsable: ${v.responsable}\nPartidas: ${(v.partidas || []).length}\n\nEsta acción NO se puede deshacer.`)) return;
-
-  try {
-    const { db, doc, deleteDoc } = window.E140_DB;
-    await deleteDoc(doc(db, 'arq_visitas', id));
-    arqVisitasData = arqVisitasData.filter(x => x.id !== id);
-    if(arqDetalleAbierta === id){
-      arqDetalleAbierta = null;
-      document.getElementById('arqProcDetalleCard').style.display = 'none';
-    }
-    if(currentTab === 'arq-procesos') renderArqProcesos();
-    alert('✓ Visita eliminada.');
   } catch(err){
-    console.error('[E140] Error eliminando visita:', err);
-    alert(`❌ Error: ${err.message || err}`);
+    console.error('[E140] Error guardando instructivo SIG', codigo, err);
+    arqSigSavingState[codigo] = 'error';
+    arqSigRefreshFilaSavingState(codigo);
   }
 }
 
-async function loadArqVisitasFromFirestore(){
+function arqSigRefreshFilaSavingState(codigo){
+  const tr = document.querySelector(`#arqSigTbody tr[data-codigo="${codigo}"]`);
+  if(!tr) return;
+  const wrap = tr.querySelector('.sig-comentario-wrap');
+  if(!wrap) return;
+  const oldMeta = wrap.querySelector('.sig-comentario-meta');
+  if(oldMeta) oldMeta.remove();
+  const state = arqSigSavingState[codigo];
+  if(!state) return;
+  const meta = document.createElement('span');
+  meta.className = 'sig-comentario-meta ' + (state === 'saving' ? 'sig-comentario-saving' : state === 'saved' ? 'sig-comentario-saved' : 'sig-comentario-error');
+  meta.textContent = state === 'saving' ? '💾 Guardando…' : state === 'saved' ? '✓ Guardado' : '⚠ Error · reintenta';
+  wrap.appendChild(meta);
+}
+
+async function loadArqProcesosSigFromFirestore(){
   if(!window.E140_DB) return;
   try {
-    const { db, collection, getDocs, query, orderBy } = window.E140_DB;
-    const q = query(collection(db, 'arq_visitas'), orderBy('registrado_ts', 'desc'));
-    const snapshot = await getDocs(q);
-    arqVisitasData = [];
-    snapshot.forEach(s => arqVisitasData.push({ id: s.id, ...s.data() }));
-    console.log(`[E140] Visitas Arquitectura cargadas: ${arqVisitasData.length}`);
+    const { db, collection, getDocs } = window.E140_DB;
+    const snapshot = await getDocs(collection(db, 'arq_procesos_sig'));
+    arqSigData = {};
+    snapshot.forEach(s => {
+      const d = s.data();
+      arqSigData[s.id] = {
+        estado: d.estado || null,
+        comentarios: d.comentarios || '',
+        editado_por: d.editado_por || '—',
+        ultima_edicion: d.ultima_edicion || null
+      };
+    });
+    console.log(`[E140] Instructivos SIG cargados: ${Object.keys(arqSigData).length}`);
     if(currentTab === 'arq-procesos'){
       try { renderArqProcesos(); } catch(e){ console.warn(e); }
     }
   } catch(err){
-    console.warn('[E140] No se pudieron cargar visitas Arq:', err.message || err);
+    console.warn('[E140] No se pudieron cargar instructivos SIG:', err.message || err);
+    if(currentTab === 'arq-procesos'){
+      try { renderArqProcesos(); } catch(e){ console.warn(e); }
+    }
   }
 }
+
+// ─── Placeholders de sub-pestañas Arquitectura aún pendientes de data ───
+function renderArqAvance(){ /* Avance por Partida · Acabados — pendiente data en obra */ }
+function renderArqPV(){     /* Alertas Postventa Reincidentes — pendiente data */ }
+function renderArqObs(){    /* Observaciones en Entrega — pendiente data */ }
+
 
 /* ═══════════════════════════════════════════════════════════════════
    REPORTE GERENCIAL MENSUAL · El cierre de oro
@@ -15129,7 +14945,7 @@ function cargarFotosFirestoreAsync(){
     loadPendientesFromFirestore();
     loadCapacitacionesFromFirestore();
     loadSsomaReportesFromFirestore();
-    loadArqVisitasFromFirestore();
+    loadArqProcesosSigFromFirestore();
   };
   if(window._E140_FIREBASE_READY){
     ejecutar();
