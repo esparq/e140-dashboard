@@ -16205,6 +16205,56 @@ function closeCargaModal(){
   document.getElementById('cargaModal').classList.remove('show');
 }
 
+// Cierra el modal y recarga datos automáticamente (desde Firestore + JSONs).
+// Sin recargar la página. Refresca KPIs, charts y selector de semana.
+async function cerrarYRefrescarDashboard(){
+  const btn = document.getElementById('cargaNextBtn');
+  const txtOriginal = btn ? btn.textContent : '';
+  if(btn){
+    btn.disabled = true;
+    btn.textContent = 'Actualizando…';
+  }
+
+  try {
+    // Recargar data desde JSONs (GitHub) + Firestore (acaba de guardarse acá)
+    const jsonData = await loadFromJSONs();
+    if(jsonData && jsonData.currentWeek){
+      applyDataToGlobal(jsonData);
+      MODE = 'json';
+      LAST_SYNC = new Date();
+      // Si la semana publicada está en los datos, hacer que sea la activa
+      const semanaPub = (cargaState.porArea.operaciones.semana
+                     || cargaState.porArea.logistica.semana
+                     || '').trim().toUpperCase();
+      if(semanaPub && jsonData.weeks[semanaPub]){
+        DATA.currentWeek = semanaPub;
+      }
+      populateWeekSelector();
+      renderCurrentWeek();
+      setSyncState('ok', 'Datos actualizados',
+        `Última sync: ${LAST_SYNC.toLocaleTimeString('es-PE')} · Modo JSON`);
+      showBanner('ok',
+        `✓ Dashboard actualizado. Semana <b>${DATA.currentWeek}</b> ahora visible.`, true);
+    }
+  } catch(err){
+    console.warn('[E140] Error recargando datos:', err);
+    showBanner('warn',
+      'Datos guardados, pero no se pudo refrescar automáticamente. Recarga con Ctrl+F5.');
+  } finally {
+    closeCargaModal();
+    // Reset del estado del modal para que la próxima vez arranque limpio
+    cargaState.step = 1;
+    AREAS_CARGADOR.forEach(area => {
+      cargaState.porArea[area].archivos = {};
+      cargaState.porArea[area].datos = null;
+      cargaState.porArea[area].semana = '';
+      cargaState.porArea[area].fecha = '';
+    });
+    cargaState.archivos = {};
+    if(btn){ btn.disabled = false; btn.textContent = txtOriginal; }
+  }
+}
+
 // ────────────────────────────────────────
 // CAMBIO DE TAB ENTRE ÁREAS
 // ────────────────────────────────────────
@@ -16321,9 +16371,9 @@ function renderCargaStep(){
     next.textContent = 'Publicar →';
     next.disabled = false;
   } else {
-    next.textContent = 'Cerrar';
+    next.textContent = '✓ Cerrar y ver dashboard actualizado';
     next.disabled = false;
-    next.onclick = closeCargaModal;
+    next.onclick = cerrarYRefrescarDashboard;
     return;
   }
   next.onclick = cargaStepNext;
