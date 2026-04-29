@@ -5300,6 +5300,12 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
           <div class="chart-subtitle">Comparativo ppto vs consumido · cantidades y soles</div>
           <div style="position:relative;height:300px"><canvas id="chartAcero"></canvas></div>
         </div>
+
+        <div class="chart-card" style="margin-top:14px;">
+          <div class="chart-title"><span class="num">17b</span> Evolutivo semanal · Acero</div>
+          <div class="chart-subtitle">Consumo acumulado (kg) y % de avance por semana</div>
+          <div style="position:relative;height:300px"><canvas id="chartAceroEvol"></canvas></div>
+        </div>
       </section>
 
       <!-- ═══════════════════════════════════════════
@@ -5345,6 +5351,12 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
             <div class="mini-row" id="kardexMinis" style="grid-template-columns:1fr;gap:8px;margin-top:6px"></div>
           </div>
         </div>
+
+        <div class="chart-card" style="margin-top:14px;">
+          <div class="chart-title"><span class="num">19b</span> Evolutivo semanal · Encofrado en obra</div>
+          <div class="chart-subtitle">Costo total · UNISPAN · Casa · Consumibles por semana (S/)</div>
+          <div style="position:relative;height:320px"><canvas id="chartKardexEvol"></canvas></div>
+        </div>
       </section>
 
       <!-- ═══════════════════════════════════════════
@@ -5382,6 +5394,12 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
           <div class="chart-title"><span class="num">20</span> Valorizaciones mensuales F1</div>
           <div class="chart-subtitle">Evolución mensual de los pagos al arrendador (Unispan)</div>
           <div style="position:relative;height:320px"><canvas id="chartArrMensual"></canvas></div>
+        </div>
+
+        <div class="chart-card" style="margin-top:14px;">
+          <div class="chart-title"><span class="num">20b</span> Evolutivo semanal · Arrendamiento F1</div>
+          <div class="chart-subtitle">Valorizado acumulado (S/) y % de avance por semana</div>
+          <div style="position:relative;height:300px"><canvas id="chartArrEvol"></canvas></div>
         </div>
       </section>
 
@@ -9561,6 +9579,9 @@ function renderAcero(){
       }
     });
   }
+
+  // Chart evolutivo semanal · Acero
+  renderEvolutivoAcero();
 }
 
 function renderKardex(){
@@ -9620,6 +9641,9 @@ function renderKardex(){
       km.appendChild(el);
     });
   }
+
+  // Chart evolutivo semanal · KARDEX
+  renderEvolutivoKardex();
 }
 
 function renderArrendamiento(){
@@ -9672,6 +9696,230 @@ function renderArrendamiento(){
       }
     });
   }
+
+  // Chart evolutivo semanal · Arrendamiento
+  renderEvolutivoArrendamiento();
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   EVOLUTIVOS SEMANALES · LOGÍSTICA
+   Iteran DATA.weeks ordenado por número de semana y extraen los KPIs clave.
+   Usan la data ya cargada de los JSON publicados (data-sXX-logistica.json).
+   ═══════════════════════════════════════════════════════════════════ */
+
+// Devuelve un array ordenado de [{ semana, num, data }] para iterar evolutivos
+function getSemanasOrdenadas(){
+  if(!DATA || !DATA.weeks) return [];
+  return Object.entries(DATA.weeks)
+    .map(([sem, data]) => ({
+      semana: sem,
+      num: parseInt(String(sem).replace(/\D/g,'')) || 0,
+      data: data,
+    }))
+    .filter(x => x.num > 0)
+    .sort((a,b) => a.num - b.num);
+}
+
+// Etiqueta corta para el eje X (S35, S36, ...)
+function _evolLabel(sem){ return String(sem || '').toUpperCase(); }
+
+// Opciones comunes para los 3 charts evolutivos
+function _evolOpts(yLeft, yRight){
+  const opts = {
+    responsive:true, maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{position:'top', labels:{boxWidth:12, padding:10, font:{size:11}}},
+      tooltip:{
+        backgroundColor:'rgba(0,30,60,.92)',
+        titleFont:{size:12,weight:'700'},
+        bodyFont:{size:11},
+        padding:10,
+        callbacks:{
+          label:c => {
+            const fn = c.dataset._fmt || (v => v);
+            return c.dataset.label + ': ' + fn(c.parsed.y);
+          }
+        }
+      }
+    },
+    scales:{
+      x:{grid:{display:false}, ticks:{font:{size:11,weight:'600'}}},
+      y:{
+        type:'linear', position:'left', beginAtZero:true,
+        grid:{color:'#EEF5FA'},
+        title:{display:!!yLeft, text:yLeft||'', font:{size:10,weight:'600'}, color:'#5A6B8A'},
+        ticks:{font:{size:10}, callback:v => v>=1000 ? (v/1000).toFixed(0)+'K' : v}
+      },
+    }
+  };
+  if(yRight){
+    opts.scales.y1 = {
+      type:'linear', position:'right', beginAtZero:true,
+      grid:{display:false},
+      title:{display:true, text:yRight, font:{size:10,weight:'600'}, color:'#5A6B8A'},
+      ticks:{font:{size:10}, callback:v => v.toFixed(0)+'%'},
+      max:120,
+    };
+  }
+  return opts;
+}
+
+// Render evolutivo · Acero (consumo kg + % avance)
+function renderEvolutivoAcero(){
+  destroyChart('chartAceroEvol');
+  const ctx = document.getElementById('chartAceroEvol');
+  if(!ctx) return;
+
+  const semanas = getSemanasOrdenadas().filter(s => s.data.acero);
+  if(semanas.length < 1){
+    // Mostrar placeholder
+    const c = ctx.getContext('2d');
+    c.clearRect(0,0,ctx.width,ctx.height);
+    c.fillStyle = '#97C5E0';
+    c.font = "italic 13px 'DM Sans'";
+    c.textAlign = 'center';
+    c.fillText('Sin histórico semanal disponible aún', ctx.width/2, ctx.height/2);
+    return;
+  }
+
+  const labels = semanas.map(s => _evolLabel(s.semana));
+  const consumido = semanas.map(s => s.data.acero?.consumido_kg || 0);
+  const avancePct = semanas.map(s => s.data.acero?.avance_pct || 0);
+
+  CHART_INSTANCES['chartAceroEvol'] = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: labels,
+      datasets:[
+        {
+          label:'Consumido (kg)',
+          data: consumido,
+          borderColor: COLORS.orange,
+          backgroundColor: 'rgba(224,123,57,.10)',
+          tension:0.3, fill:true, yAxisID:'y',
+          pointBackgroundColor: COLORS.orange,
+          pointRadius:4, pointHoverRadius:6,
+          borderWidth:2.5,
+          _fmt: v => Math.round(v).toLocaleString('es-PE')+' kg',
+        },
+        {
+          label:'% Avance',
+          data: avancePct,
+          borderColor: COLORS.blue,
+          backgroundColor: COLORS.blue,
+          tension:0.3, fill:false, yAxisID:'y1',
+          pointBackgroundColor: COLORS.blue,
+          pointRadius:4, pointHoverRadius:6,
+          borderWidth:2, borderDash:[6,4],
+          _fmt: v => v.toFixed(1)+'%',
+        },
+      ]
+    },
+    options: _evolOpts('Cantidad (kg)','% Avance')
+  });
+}
+
+// Render evolutivo · KARDEX (costo total, UNISPAN, Casa, Consumibles)
+function renderEvolutivoKardex(){
+  destroyChart('chartKardexEvol');
+  const ctx = document.getElementById('chartKardexEvol');
+  if(!ctx) return;
+
+  const semanas = getSemanasOrdenadas().filter(s => s.data.kardex);
+  if(semanas.length < 1){
+    const c = ctx.getContext('2d');
+    c.clearRect(0,0,ctx.width,ctx.height);
+    c.fillStyle = '#97C5E0';
+    c.font = "italic 13px 'DM Sans'";
+    c.textAlign = 'center';
+    c.fillText('Sin histórico semanal disponible aún', ctx.width/2, ctx.height/2);
+    return;
+  }
+
+  const labels = semanas.map(s => _evolLabel(s.semana));
+  const total    = semanas.map(s => s.data.kardex?.costo_total_obra || 0);
+  const unispan  = semanas.map(s => s.data.kardex?.costo_unispan_obra || 0);
+  const casa     = semanas.map(s => s.data.kardex?.costo_casa_obra || 0);
+  const consum   = semanas.map(s => s.data.kardex?.costo_consumibles_acum || 0);
+
+  const fmtS = v => 'S/ '+Math.round(v).toLocaleString('es-PE');
+
+  CHART_INSTANCES['chartKardexEvol'] = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: labels,
+      datasets:[
+        {label:'Costo total en obra',  data: total,
+         borderColor: COLORS.blue,   backgroundColor:'rgba(0,112,180,.10)',
+         tension:0.3, fill:true, borderWidth:3,
+         pointBackgroundColor: COLORS.blue, pointRadius:4, pointHoverRadius:6,
+         _fmt: fmtS},
+        {label:'UNISPAN',              data: unispan,
+         borderColor: COLORS.green,  backgroundColor: COLORS.green,
+         tension:0.3, fill:false, borderWidth:2,
+         pointBackgroundColor: COLORS.green, pointRadius:3, pointHoverRadius:5,
+         _fmt: fmtS},
+        {label:'Casa',                 data: casa,
+         borderColor: COLORS.orange, backgroundColor: COLORS.orange,
+         tension:0.3, fill:false, borderWidth:2,
+         pointBackgroundColor: COLORS.orange, pointRadius:3, pointHoverRadius:5,
+         _fmt: fmtS},
+        {label:'Consumibles (acum.)',  data: consum,
+         borderColor: COLORS.yellow, backgroundColor: COLORS.yellow,
+         tension:0.3, fill:false, borderWidth:2, borderDash:[4,3],
+         pointBackgroundColor: COLORS.yellow, pointRadius:3, pointHoverRadius:5,
+         _fmt: fmtS},
+      ]
+    },
+    options: _evolOpts('Costo (S/)')
+  });
+}
+
+// Render evolutivo · Arrendamiento F1 (valorizado acumulado + % avance)
+function renderEvolutivoArrendamiento(){
+  destroyChart('chartArrEvol');
+  const ctx = document.getElementById('chartArrEvol');
+  if(!ctx) return;
+
+  const semanas = getSemanasOrdenadas().filter(s => s.data.arrendamiento);
+  if(semanas.length < 1){
+    const c = ctx.getContext('2d');
+    c.clearRect(0,0,ctx.width,ctx.height);
+    c.fillStyle = '#97C5E0';
+    c.font = "italic 13px 'DM Sans'";
+    c.textAlign = 'center';
+    c.fillText('Sin histórico semanal disponible aún', ctx.width/2, ctx.height/2);
+    return;
+  }
+
+  const labels    = semanas.map(s => _evolLabel(s.semana));
+  const valorizado = semanas.map(s => s.data.arrendamiento?.f1_valorizado_sol || 0);
+  const avancePct  = semanas.map(s => s.data.arrendamiento?.f1_avance_pct || 0);
+
+  CHART_INSTANCES['chartArrEvol'] = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: labels,
+      datasets:[
+        {label:'Valorizado acumulado (S/)',
+         data: valorizado,
+         borderColor: COLORS.blueMid, backgroundColor:'rgba(58,145,197,.12)',
+         tension:0.3, fill:true, yAxisID:'y',
+         pointBackgroundColor: COLORS.blueMid, pointRadius:4, pointHoverRadius:6,
+         borderWidth:2.5,
+         _fmt: v => 'S/ '+Math.round(v).toLocaleString('es-PE')},
+        {label:'% Avance',
+         data: avancePct,
+         borderColor: COLORS.green, backgroundColor: COLORS.green,
+         tension:0.3, fill:false, yAxisID:'y1',
+         pointBackgroundColor: COLORS.green, pointRadius:4, pointHoverRadius:6,
+         borderWidth:2, borderDash:[6,4],
+         _fmt: v => v.toFixed(1)+'%'},
+      ]
+    },
+    options: _evolOpts('Valorizado (S/)','% Avance')
+  });
 }
 
 
