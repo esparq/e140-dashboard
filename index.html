@@ -4560,7 +4560,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
             <button class="hdr-btn" onclick="cargarPendientes(true)" title="Recargar pendientes" style="background:#fff;color:#A0521E;border-color:#E5C792;">
               <span>🔄</span> Actualizar
             </button>
-            <button class="hdr-btn hdr-btn-primary admin-only" onclick="openPendienteModal()" style="background:#A0521E;color:#fff;border-color:#A0521E;">
+            <button class="hdr-btn hdr-btn-primary" onclick="openPendienteModal()" style="background:#A0521E;color:#fff;border-color:#A0521E;">
               <span>+</span> Nueva tarea
             </button>
           </div>
@@ -17335,22 +17335,29 @@ const PEN_ESTADOS = {
 function rolUsuario(){
   if(!currentSession) return 'viewer';
   const u = currentSession.usuario;
-  // Quién puede crear pendientes
-  if(u === 'oficina' || u === 'adm') return 'creador';
-  // Quién es destinatario
+  // Quién forma parte del equipo de validación (puede cerrar/devolver, eliminar, editar metadata)
+  if(u === 'adm' || u === 'oficina' || u === 'gerencia') return 'validador';
+  // Destinatarios (residente y staff de obra)
   if(u === 'residente') return 'residente';
   if(u === 'staff') return 'staff';
   return 'viewer';
 }
 
+// ─── Helper: ¿Es del equipo de validación (adm/oficina/gerencia)? ───
+function esRolValidador(){
+  if(!currentSession) return false;
+  return ['adm','oficina','gerencia'].includes(currentSession.usuario);
+}
+
+// ─── Permisos específicos del módulo Pendientes ───
 function puedeCrearPendiente(){
-  const r = rolUsuario();
-  return r === 'creador';
+  // TODOS los usuarios autenticados pueden crear tareas
+  return !!currentSession;
 }
 function puedeEditarPendiente(p){
-  const r = rolUsuario();
-  if(r === 'creador') return true;
-  return false;
+  // El creador (cualquier rol) puede editar campos generales de su propia tarea
+  if(!currentSession) return false;
+  return p && p.creado_por === currentSession.usuario;
 }
 function puedeEditarMetadataPendiente(p){
   // Solo adm y oficina pueden editar fecha de vencimiento, asignado y prioridad
@@ -17359,27 +17366,36 @@ function puedeEditarMetadataPendiente(p){
   return currentSession.usuario === 'adm' || currentSession.usuario === 'oficina';
 }
 function puedeEliminarPendiente(p){
-  const r = rolUsuario();
-  return r === 'creador';
+  // Solo adm y oficina pueden eliminar (sin importar quién creó)
+  if(!currentSession) return false;
+  return currentSession.usuario === 'adm' || currentSession.usuario === 'oficina';
 }
 function puedeAvanzarTarea(p){
-  // El destinatario puede mover de pendiente → proceso → validar
-  const r = rolUsuario();
+  // Mover de pendiente → proceso → validar
+  if(!currentSession || !p) return false;
   if(p.estado === 'cerrada') return false;
-  if(r === 'creador') return true; // Creadores pueden mover en cualquier dirección
-  if((r === 'residente' || r === 'staff') && (p.estado === 'pendiente' || p.estado === 'proceso')){
-    return true;
-  }
+  // El asignado puede avanzar de pendiente o proceso
+  const r = rolUsuario();
+  const esAsignado = (r === p.asignado_a) || (r === 'residente' && p.asignado_a === 'residente') || (r === 'staff' && p.asignado_a === 'staff');
+  if(esAsignado && (p.estado === 'pendiente' || p.estado === 'proceso')) return true;
+  // El creador puede mover en cualquier dirección (control sobre su propia tarea)
+  if(p.creado_por === currentSession.usuario) return true;
+  // Validadores pueden mover cualquier tarea
+  if(esRolValidador()) return true;
   return false;
 }
 function puedeValidar(p){
-  // Solo el creador puede cerrar o devolver
-  return rolUsuario() === 'creador' && p.estado === 'validar';
+  // Cierre/devolución: el creador (cualquier rol) o cualquier validador (adm/oficina/gerencia)
+  if(!currentSession || !p) return false;
+  if(p.estado !== 'validar') return false;
+  if(p.creado_por === currentSession.usuario) return true;
+  return esRolValidador();
 }
 function puedeComentar(p){
-  if(p.estado === 'cerrada') return false;
-  const r = rolUsuario();
-  return r === 'creador' || r === 'residente' || r === 'staff';
+  if(!p || p.estado === 'cerrada') return false;
+  if(!currentSession) return false;
+  // Todos los usuarios autenticados pueden comentar (transparencia y trazabilidad)
+  return true;
 }
 
 // ─── Cargar pendientes desde Firestore ───
@@ -17595,14 +17611,14 @@ function renderLista(tareas){
 // ─── Modal: Crear / Editar tarea ───
 function openPendienteModal(){
   if(!puedeCrearPendiente()){
-    alert('Solo los usuarios "oficina" y "adm" pueden crear pendientes.');
+    alert('Debes iniciar sesión para crear tareas.');
     return;
   }
   penEditandoId = null;
   penAdjuntosNuevos = [];
 
   document.getElementById('penModalTitle').textContent = '📌 NUEVA TAREA';
-  document.getElementById('penModalSub').textContent = 'Crear pendiente para el residente';
+  document.getElementById('penModalSub').textContent = 'Crear pendiente y asignar a quien corresponda';
   document.getElementById('penPublishBtn').innerHTML = '📌 Crear tarea';
 
   // Reset campos
@@ -18160,6 +18176,21 @@ async function cambiarEstadoPendiente(id, nuevoEstado){
   const p = pendientesData.find(x => x.id === id);
   if(!p) return;
   if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
+
+  // Validar permisos según la transición
+  // - Cerrar/devolver desde "validar": requiere puedeValidar (creador o adm/oficina/gerencia)
+  // - Mover a "validar" o avanzar: requiere puedeAvanzarTarea
+  if(p.estado === 'validar' && (nuevoEstado === 'cerrada' || nuevoEstado === 'proceso')){
+    if(!puedeValidar(p)){
+      alert('Solo el creador de la tarea o los usuarios "adm", "oficina" y "gerencia" pueden validar (cerrar o devolver).');
+      return;
+    }
+  } else {
+    if(!puedeAvanzarTarea(p)){
+      alert('No tienes permiso para cambiar el estado de esta tarea.');
+      return;
+    }
+  }
 
   const estadoAnt = PEN_ESTADOS[p.estado] || { label: p.estado };
   const estadoNuevo = PEN_ESTADOS[nuevoEstado] || { label: nuevoEstado };
