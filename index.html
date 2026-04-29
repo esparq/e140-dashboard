@@ -706,6 +706,25 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .r-kpi.rk-red::before{background:var(--red);}
 .r-kpi-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px;}
 .r-kpi-value{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;line-height:1;color:var(--twitter-blue);}
+
+/* ─── Botón de edición de KPI (override) ─── */
+.rk-edit-btn{
+  position:absolute;top:8px;right:8px;
+  width:22px;height:22px;border-radius:50%;
+  background:var(--alice-blue);color:var(--twitter-blue);
+  border:1px solid #BFE0F5;cursor:pointer;
+  display:none;align-items:center;justify-content:center;
+  font-size:10px;line-height:1;padding:0;
+  transition:all .15s;z-index:5;
+}
+.rk-edit-btn:hover{background:var(--twitter-blue);color:#fff;border-color:var(--twitter-blue);transform:scale(1.08);}
+body.can-edit-kpi .rk-edit-btn{display:flex;}
+.rk-override-badge{
+  display:inline-block;background:#FFF3E0;color:#A0521E;
+  padding:2px 6px;border-radius:8px;font-size:9px;font-weight:700;
+  letter-spacing:.04em;margin-left:4px;vertical-align:middle;
+  border:1px solid #FFD8A8;
+}
 .r-kpi.rk-green .r-kpi-value{color:var(--green);}
 .r-kpi.rk-orange .r-kpi-value{color:var(--orange);}
 .r-kpi.rk-red .r-kpi-value{color:var(--red);}
@@ -8011,6 +8030,8 @@ async function initDashboard(){
   // Si hay al menos un JSON semanal subido al repo, se usa.
   // Si no hay JSONs o fallan todos, cae a DEMO_DATA.
   try {
+    // Cargar overrides de KPI primero (rápido, en paralelo con loadFromJSONs)
+    cargarKpiOverrides().catch(()=>{}); // sin bloquear
     const jsonData = await loadFromJSONs();
     if(jsonData && jsonData.currentWeek){
       applyDataToGlobal(jsonData);
@@ -8820,6 +8841,10 @@ function renderRKpis(d, dPrev){
   const getKpi = (weekKey, field) => {
     const w = DATA.weeks[weekKey];
     if(!w) return null;
+    // Override manual tiene prioridad sobre todo (residente/adm puede ajustar valores)
+    if(KPI_OVERRIDES[weekKey] && KPI_OVERRIDES[weekKey][field] != null){
+      return KPI_OVERRIDES[weekKey][field];
+    }
     // Prioridad: panelEjecutivo (datos nuevos) → kpis legacy (datos viejos)
     const pe = w.panelEjecutivo || {};
     const kp = w.kpis || {};
@@ -8918,11 +8943,21 @@ function renderRKpis(d, dPrev){
       kpi._reglaShow = reglaActual;
     }
 
+    // ¿Tiene override manual?
+    const cw = DATA.currentWeek;
+    const hasOverride = !!(KPI_OVERRIDES[cw] && KPI_OVERRIDES[cw][kpi.k] != null);
+    const overrideBadge = hasOverride ? '<span class="rk-override-badge" title="Valor editado manualmente · Click ✏ para gestionar">📝 Editado</span>' : '';
+    // Solo mostramos el botón ✏ para KPIs editables (por ahora solo 'avance')
+    const editBtn = (kpi.k === 'avance')
+      ? `<button class="rk-edit-btn" onclick="abrirKpiEditModal('avance')" title="Editar avance (residente/admin)">✏</button>`
+      : '';
+
     const div = document.createElement('div');
     div.className = 'r-kpi '+kpi.cls;
     const reglaShow = kpi._reglaShow || regla;
     div.innerHTML = `
-      <div class="r-kpi-label">${kpi.label}</div>
+      ${editBtn}
+      <div class="r-kpi-label">${kpi.label}${overrideBadge}</div>
       <div class="r-kpi-value">${kpi.value}</div>
       <div class="r-kpi-delta ${delta.cls}"><span class="arrow">${delta.arrow}</span>${delta.txt} <span class="vs">vs sem ant.</span></div>
       <div class="r-kpi-spark"><canvas id="rSpark_${i}"></canvas></div>
@@ -15613,7 +15648,7 @@ function hideLoginScreen(){
 function applySessionToUI(){
   if(!currentSession) return;
   // Aplicar clase de rol al body para que las reglas CSS oculten/muestren
-  document.body.classList.remove('role-admin', 'role-viewer', 'audit-allowed', 'report-allowed');
+  document.body.classList.remove('role-admin', 'role-viewer', 'audit-allowed', 'report-allowed', 'can-edit-kpi');
   document.body.classList.add('role-' + currentSession.rol);
 
   // Solo 'adm' y 'oficina' pueden ver la sección de Auditoría/Trazabilidad
@@ -15624,6 +15659,11 @@ function applySessionToUI(){
   // Solo 'adm' y 'gerencia' pueden ver la pestaña Reporte Gerencial
   if(currentSession.usuario === 'adm' || currentSession.usuario === 'gerencia'){
     document.body.classList.add('report-allowed');
+  }
+
+  // Solo 'adm' y 'residente' pueden editar KPIs (override de avance, etc.)
+  if(currentSession.usuario === 'adm' || currentSession.usuario === 'residente'){
+    document.body.classList.add('can-edit-kpi');
   }
 
   // Solo 'adm' puede ver la bitácora maestra dentro de Auditoría
@@ -16217,6 +16257,7 @@ async function cerrarYRefrescarDashboard(){
 
   try {
     // Recargar data desde JSONs (GitHub) + Firestore (acaba de guardarse acá)
+    await cargarKpiOverrides(); // refrescar overrides también
     const jsonData = await loadFromJSONs();
     if(jsonData && jsonData.currentWeek){
       applyDataToGlobal(jsonData);
@@ -17450,6 +17491,251 @@ async function ejecutarEliminacionSemana(){
       `<div class="gest-result-list" style="background:#FFEAEA;border-color:#F5A8A8;border-left-color:#A11;"><h4 style="color:#A11;">❌ Error al eliminar</h4>${err.message || err}</div>`;
     btn.textContent = '🗑️ Eliminar permanentemente';
     btn.disabled = false;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   KPI OVERRIDES · Edición manual del Avance de Obra (residente/adm)
+   El override se guarda en Firestore (colección 'kpi_overrides') con
+   docId = "{semana}_{kpi}" (ej. "S37_avance"). Es compartido entre
+   todos los usuarios. Para volver al cálculo automático, se elimina
+   el documento.
+   ═══════════════════════════════════════════════════════════════════ */
+
+// Caché de overrides por semana: { S37: { avance: 18.5 }, S36: { avance: 17.9 } }
+let KPI_OVERRIDES = {};
+// Estado del modal de edición actual
+let kpiEditCtx = null;
+
+// Cargar overrides desde Firestore al iniciar (se llama desde initDashboard)
+async function cargarKpiOverrides(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs } = window.E140_DB;
+    const snapshot = await getDocs(collection(db, 'kpi_overrides'));
+    const cache = {};
+    snapshot.forEach(docSnap => {
+      const d = docSnap.data();
+      if(!d || !d.semana || !d.kpi) return;
+      if(!cache[d.semana]) cache[d.semana] = {};
+      cache[d.semana][d.kpi] = d.valor;
+    });
+    KPI_OVERRIDES = cache;
+    const total = Object.values(cache).reduce((acc,sem) => acc + Object.keys(sem).length, 0);
+    if(total > 0){
+      console.log(`[E140] ${total} override(s) de KPI cargado(s) desde Firestore`);
+    }
+  } catch(err){
+    console.warn('[E140] No se pudieron cargar KPI overrides:', err.message || err);
+  }
+}
+
+// Permisos: solo adm y residente
+function puedeEditarKpi(){
+  return currentSession && (currentSession.usuario === 'adm' || currentSession.usuario === 'residente');
+}
+
+// Etiquetas de cada KPI editable
+const KPI_EDIT_LABELS = {
+  avance: { label: 'Avance de Obra', unit: '%', min: 0, max: 100, step: 0.1, decimals: 1 },
+};
+
+// Abrir el modal con el valor calculado actual y, si hay override, lo precarga
+function abrirKpiEditModal(kpiKey){
+  if(!puedeEditarKpi()){
+    alert('No tienes permisos para editar este KPI. Solo el residente y administrador pueden hacerlo.');
+    return;
+  }
+  const meta = KPI_EDIT_LABELS[kpiKey];
+  if(!meta){
+    console.error('KPI no editable:', kpiKey);
+    return;
+  }
+
+  const cw = DATA.currentWeek;
+  if(!cw){
+    alert('No hay semana activa.');
+    return;
+  }
+
+  // Calcular valor automático (sin override) — leemos directo del DATA
+  const w = DATA.weeks[cw];
+  let valorAuto = null;
+  if(w){
+    const pe = w.panelEjecutivo || {};
+    const kp = w.kpis || {};
+    if(kpiKey === 'avance') valorAuto = pe.avance != null ? pe.avance : kp.avanceObra;
+  }
+
+  // ¿Hay override actual?
+  const valorOverride = (KPI_OVERRIDES[cw] && KPI_OVERRIDES[cw][kpiKey] != null)
+    ? KPI_OVERRIDES[cw][kpiKey]
+    : null;
+
+  kpiEditCtx = { kpi: kpiKey, semana: cw, valorAuto: valorAuto, hadOverride: valorOverride != null };
+
+  // Llenar UI del modal
+  document.getElementById('kpiEditSubtitle').textContent =
+    `${meta.label} · ${cw}` + (valorOverride != null ? ' · Override activo' : '');
+  document.getElementById('kpiEditCalculado').textContent =
+    valorAuto != null ? valorAuto.toFixed(meta.decimals) + meta.unit : '—';
+
+  const input = document.getElementById('kpiEditInput');
+  input.min = meta.min; input.max = meta.max; input.step = meta.step;
+  input.value = valorOverride != null
+    ? valorOverride.toFixed(meta.decimals)
+    : (valorAuto != null ? valorAuto.toFixed(meta.decimals) : '');
+  input.classList.remove('invalid');
+
+  // Botón restore solo se habilita si hay override
+  const btnRestore = document.getElementById('kpiEditBtnRestore');
+  btnRestore.disabled = (valorOverride == null);
+  btnRestore.style.opacity = (valorOverride == null) ? '0.4' : '1';
+  btnRestore.style.cursor = (valorOverride == null) ? 'not-allowed' : 'pointer';
+
+  document.getElementById('kpiEditResult').innerHTML = '';
+  document.getElementById('kpiEditOverlay').classList.add('show');
+  setTimeout(() => input.focus(), 80);
+  setTimeout(() => input.select(), 100);
+}
+
+function cerrarKpiEditModal(){
+  document.getElementById('kpiEditOverlay').classList.remove('show');
+  kpiEditCtx = null;
+}
+
+// Guardar el override en Firestore + actualizar caché + re-render
+async function guardarKpiOverride(){
+  if(!kpiEditCtx) { cerrarKpiEditModal(); return; }
+  const { kpi, semana, valorAuto, hadOverride } = kpiEditCtx;
+  const meta = KPI_EDIT_LABELS[kpi];
+  const input = document.getElementById('kpiEditInput');
+  const valor = parseFloat(input.value);
+
+  // Validación de rango
+  if(isNaN(valor) || valor < meta.min || valor > meta.max){
+    input.classList.add('invalid');
+    document.getElementById('kpiEditResult').innerHTML =
+      `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ El valor debe estar entre ${meta.min} y ${meta.max}.</div>`;
+    return;
+  }
+
+  // Si no cambió respecto al override actual, no hacer nada
+  if(hadOverride && KPI_OVERRIDES[semana] && KPI_OVERRIDES[semana][kpi] === valor){
+    cerrarKpiEditModal();
+    return;
+  }
+
+  if(!window.E140_DB){
+    alert('Firestore no disponible.');
+    return;
+  }
+
+  const btn = document.getElementById('kpiEditBtnSave');
+  btn.disabled = true;
+  btn.textContent = 'Guardando…';
+
+  try {
+    const { db, doc, setDoc } = window.E140_DB;
+    const docId = `${semana.toLowerCase()}_${kpi}`;
+    await setDoc(doc(db, 'kpi_overrides', docId), {
+      semana: semana,
+      kpi: kpi,
+      valor: valor,
+      valor_auto: valorAuto,
+      actualizado_en: new Date().toISOString(),
+      actualizado_por: (currentSession && currentSession.usuario) || 'desconocido',
+      actualizado_nombre: (currentSession && currentSession.nombre) || 'Desconocido',
+    });
+
+    // Actualizar caché local
+    if(!KPI_OVERRIDES[semana]) KPI_OVERRIDES[semana] = {};
+    KPI_OVERRIDES[semana][kpi] = valor;
+
+    // Audit log
+    try {
+      if(typeof auditLog === 'function'){
+        auditLog({
+          modulo: 'data',
+          accion: 'editar',
+          entidad_id: docId,
+          entidad_nombre: `Override ${meta.label} · ${semana}`,
+          detalle: `Valor manual: ${valor.toFixed(meta.decimals)}${meta.unit} · Valor calculado: ${valorAuto != null ? valorAuto.toFixed(meta.decimals)+meta.unit : 'N/D'}`,
+        });
+      }
+    } catch(e){ console.warn(e); }
+
+    // Re-render del dashboard (recalcula KPIs y Utilidad en Riesgo)
+    cerrarKpiEditModal();
+    if(typeof renderCurrentWeek === 'function') renderCurrentWeek();
+    showBanner('ok',
+      `✓ ${meta.label} actualizado a <b>${valor.toFixed(meta.decimals)}${meta.unit}</b> para ${semana}. La Utilidad en Riesgo se recalculó automáticamente.`,
+      true);
+  } catch(err){
+    console.error('[E140] Error guardando override:', err);
+    document.getElementById('kpiEditResult').innerHTML =
+      `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ Error: ${err.message || err}</div>`;
+    btn.textContent = '💾 Guardar override';
+    btn.disabled = false;
+  }
+}
+
+// Eliminar el override → volver al valor calculado
+async function restaurarKpiAutomatico(){
+  if(!kpiEditCtx) { cerrarKpiEditModal(); return; }
+  const { kpi, semana, hadOverride } = kpiEditCtx;
+  if(!hadOverride){
+    // Nada que restaurar
+    cerrarKpiEditModal();
+    return;
+  }
+  const meta = KPI_EDIT_LABELS[kpi];
+
+  if(!confirm(`¿Restaurar ${meta.label} al valor calculado automático?\n\nSe eliminará el override manual de ${semana}.`)){
+    return;
+  }
+
+  if(!window.E140_DB){
+    alert('Firestore no disponible.');
+    return;
+  }
+
+  const btn = document.getElementById('kpiEditBtnRestore');
+  btn.disabled = true;
+  btn.textContent = 'Restaurando…';
+
+  try {
+    const { db, doc, deleteDoc } = window.E140_DB;
+    const docId = `${semana.toLowerCase()}_${kpi}`;
+    await deleteDoc(doc(db, 'kpi_overrides', docId));
+
+    // Actualizar caché local
+    if(KPI_OVERRIDES[semana]) delete KPI_OVERRIDES[semana][kpi];
+
+    // Audit log
+    try {
+      if(typeof auditLog === 'function'){
+        auditLog({
+          modulo: 'data',
+          accion: 'eliminar',
+          entidad_id: docId,
+          entidad_nombre: `Override ${meta.label} · ${semana}`,
+          detalle: `Restauró el cálculo automático (eliminó el override manual).`,
+        });
+      }
+    } catch(e){ console.warn(e); }
+
+    cerrarKpiEditModal();
+    if(typeof renderCurrentWeek === 'function') renderCurrentWeek();
+    showBanner('ok',
+      `↺ ${meta.label} restaurado al valor calculado automático para ${semana}.`,
+      true);
+  } catch(err){
+    console.error('[E140] Error restaurando:', err);
+    btn.textContent = '↺ Restaurar automático';
+    btn.disabled = false;
+    document.getElementById('kpiEditResult').innerHTML =
+      `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ Error: ${err.message || err}</div>`;
   }
 }
 
@@ -20427,6 +20713,10 @@ const CONFIG_V2 = {
  */
 function v2GetKpi(weekKey, field){
   if(!DATA || !DATA.weeks || !DATA.weeks[weekKey]) return null;
+  // Si hay override manual de este KPI para esta semana, devolverlo (cascada en cálculos)
+  if(KPI_OVERRIDES[weekKey] && KPI_OVERRIDES[weekKey][field] != null){
+    return KPI_OVERRIDES[weekKey][field];
+  }
   const w = DATA.weeks[weekKey];
   const pe = w.panelEjecutivo || {};
   const kp = w.kpis || {};
@@ -21193,6 +21483,47 @@ function v2RenderAll(){
 
 })();
 </script>
+
+<!-- ═══════════════════════════════════════════
+     MODAL EDICIÓN KPI · Override de Avance de Obra
+     ═══════════════════════════════════════════ -->
+<div class="gest-confirm-overlay" id="kpiEditOverlay">
+  <div class="gest-confirm-modal" style="max-width:460px;">
+    <div class="gest-confirm-head" style="background:linear-gradient(135deg,#0070B4 0%,#054C7E 100%);">
+      <h3>✏️ EDITAR AVANCE DE OBRA</h3>
+      <p id="kpiEditSubtitle">Ajuste manual del valor calculado</p>
+    </div>
+    <div class="gest-confirm-body">
+      <p style="font-size:12.5px;color:var(--text-muted);margin:0 0 6px;">
+        Este valor reemplazará temporalmente el cálculo automático y recalculará la <b style="color:var(--twitter-blue);">Utilidad en Riesgo</b>.
+      </p>
+      <div style="background:#EEF5FA;border-left:3px solid var(--twitter-blue);padding:8px 12px;border-radius:5px;margin:8px 0 14px;font-size:11.5px;">
+        <span style="color:var(--text-muted);">Valor calculado actual:</span>
+        <b id="kpiEditCalculado" style="color:var(--twitter-blue);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;margin-left:6px;">—</b>
+      </div>
+      <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Nuevo valor (%)</label>
+      <input type="number" class="gest-confirm-input" id="kpiEditInput"
+             min="0" max="100" step="0.1"
+             placeholder="0.0"
+             style="text-align:right;letter-spacing:.05em;font-family:'Bebas Neue',sans-serif;font-size:24px;">
+      <div style="font-size:10.5px;color:var(--text-muted);margin-top:6px;text-align:center;">
+        Rango: 0.0 – 100.0 · Decimales permitidos
+      </div>
+      <div id="kpiEditResult"></div>
+    </div>
+    <div class="gest-confirm-foot" style="justify-content:space-between;">
+      <button class="gest-confirm-btn gest-confirm-btn-cancel" id="kpiEditBtnRestore" onclick="restaurarKpiAutomatico()" style="color:#A0521E;border-color:#FFD8A8;background:#FFF3E0;">
+        ↺ Restaurar automático
+      </button>
+      <div style="display:flex;gap:8px;">
+        <button class="gest-confirm-btn gest-confirm-btn-cancel" onclick="cerrarKpiEditModal()">Cancelar</button>
+        <button class="gest-confirm-btn gest-confirm-btn-delete" id="kpiEditBtnSave" onclick="guardarKpiOverride()" style="background:var(--twitter-blue);">
+          💾 Guardar override
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════
      MODAL CONFIRMACIÓN ELIMINACIÓN DE SEMANA
