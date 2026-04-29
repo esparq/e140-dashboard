@@ -1940,6 +1940,102 @@ body.role-viewer .admin-only{display:none !important;}
 }
 
 /* ═══════════════════════════════════════════
+   GESTIÓN DE SEMANAS · Eliminar data cargada
+   ═══════════════════════════════════════════ */
+.gest-sem-card{
+  background:#fff;border:1px solid var(--border);border-radius:10px;
+  padding:14px 16px;margin-bottom:10px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  transition:border-color .15s, box-shadow .15s;
+}
+.gest-sem-card:hover{border-color:#BFE0F5;box-shadow:0 2px 8px rgba(25,118,210,.06);}
+.gest-sem-codigo{
+  font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1.5px;
+  color:var(--twitter-blue);min-width:60px;
+}
+.gest-sem-meta{flex:1;min-width:200px;font-size:11.5px;color:var(--text-muted);}
+.gest-sem-meta .gsm-fecha{color:var(--text);font-weight:600;}
+.gest-sem-areas{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.gest-sem-area-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:#EEF5FA;color:var(--twitter-blue);
+  padding:4px 9px;border-radius:14px;
+  font-size:11px;font-weight:600;
+  border:1px solid #BFE0F5;
+}
+.gest-sem-area-badge button{
+  background:transparent;border:none;color:#C44;cursor:pointer;
+  font-size:13px;line-height:1;padding:0;margin-left:2px;
+  width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:50%;
+}
+.gest-sem-area-badge button:hover{background:#FFEAEA;color:#A11;}
+.gest-sem-actions{display:flex;gap:6px;}
+.gest-sem-btn-delete{
+  background:#fff;color:#C44;border:1px solid #F5A8A8;
+  border-radius:6px;padding:7px 12px;
+  font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.04em;
+  cursor:pointer;transition:all .15s;
+}
+.gest-sem-btn-delete:hover{background:#C44;color:#fff;border-color:#C44;}
+
+/* Modal de confirmación de borrado */
+.gest-confirm-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);
+  z-index:10500;display:none;align-items:center;justify-content:center;
+  padding:20px;
+}
+.gest-confirm-overlay.show{display:flex;animation:fadeIn .15s ease;}
+.gest-confirm-modal{
+  background:#fff;border-radius:14px;max-width:520px;width:100%;
+  box-shadow:0 12px 40px rgba(0,0,0,.25);
+  overflow:hidden;
+}
+.gest-confirm-head{
+  background:linear-gradient(135deg,#C44 0%,#A11 100%);
+  color:#fff;padding:16px 22px;
+}
+.gest-confirm-head h3{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.5px;margin:0;}
+.gest-confirm-head p{font-size:12px;margin:4px 0 0;opacity:.92;}
+.gest-confirm-body{padding:20px 22px;}
+.gest-confirm-body p{font-size:13px;color:var(--text);line-height:1.55;margin:0 0 14px;}
+.gest-confirm-body p b{color:#A11;}
+.gest-confirm-input{
+  width:100%;padding:10px 12px;border:2px solid var(--border-mid);
+  border-radius:6px;font-family:'DM Mono',monospace;font-size:14px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;text-align:center;
+  margin-top:8px;
+}
+.gest-confirm-input:focus{outline:none;border-color:#A11;}
+.gest-confirm-input.invalid{border-color:#A11;background:#FFEAEA;}
+.gest-confirm-foot{
+  padding:14px 22px;background:#FAFBFC;border-top:1px solid var(--border);
+  display:flex;gap:10px;justify-content:flex-end;
+}
+.gest-confirm-btn{
+  border:none;border-radius:6px;padding:10px 18px;
+  font-family:inherit;font-size:12px;font-weight:600;letter-spacing:.04em;
+  cursor:pointer;transition:all .15s;
+}
+.gest-confirm-btn-cancel{background:#fff;color:var(--text);border:1px solid var(--border-mid);}
+.gest-confirm-btn-cancel:hover{background:#F5F5F7;}
+.gest-confirm-btn-delete{background:#C44;color:#fff;}
+.gest-confirm-btn-delete:hover:not(:disabled){background:#A11;}
+.gest-confirm-btn-delete:disabled{background:#DDD;cursor:not-allowed;color:#888;}
+
+/* Resultado post-eliminación */
+.gest-result-list{
+  background:#FFF8E5;border:1px solid #E5C792;border-left:4px solid #B8732B;
+  border-radius:6px;padding:12px 14px;margin-top:14px;font-size:12px;
+}
+.gest-result-list h4{font-size:12px;font-weight:700;color:#7A4A14;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em;}
+.gest-result-list code{
+  display:block;background:#fff;border:1px solid #E5C792;border-radius:4px;
+  padding:6px 10px;margin:3px 0;font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--text);
+}
+
+/* ═══════════════════════════════════════════
    STATUS DOSSIER · Placeholder "En construcción"
    ═══════════════════════════════════════════ */
 .dossier-placeholder{
@@ -6478,6 +6574,9 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
           <button class="audit-tab-btn" data-audtab="bitacora" onclick="auditSetTab('bitacora')" id="auditTabBitacoraBtn" style="display:none;">
             <span>🔒</span> Bitácora completa
           </button>
+          <button class="audit-tab-btn" data-audtab="gestion" onclick="auditSetTab('gestion')" id="auditTabGestionBtn" style="display:none;">
+            <span>🗑️</span> Gestión de semanas
+          </button>
         </div>
 
         <!-- Sub-pestaña 1: Trazabilidad de archivos (contenido existente) -->
@@ -6675,6 +6774,34 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
             </div>
           </div>
         </div><!-- /audit-tab-content bitacora -->
+
+        <!-- Sub-pestaña 3: Gestión de semanas (solo adm) -->
+        <div class="audit-tab-content" data-audtab-content="gestion">
+          <div style="background:#FFEBEB;border:1px solid #F5A8A8;border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px;">
+            <div style="font-size:22px;line-height:1;">⚠️</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:13px;color:#8A1A1A;margin-bottom:4px;">Gestión de semanas cargadas · Solo administrador</div>
+              <div style="font-size:11.5px;color:#7A2C2C;line-height:1.5;">
+                Permite eliminar data cargada por error. La eliminación borra los documentos de Firestore inmediatamente. Los archivos JSON de GitHub deben borrarse manualmente — el sistema te dará la lista exacta. Esta acción queda registrada en la bitácora.
+              </div>
+            </div>
+          </div>
+
+          <div class="aud-card">
+            <div class="aud-card-header">
+              <span class="aud-card-icon">📅</span>
+              <span class="aud-card-title">Semanas con data publicada</span>
+              <button class="aud-refresh-btn" style="margin-left:auto;font-size:11px;padding:6px 12px;" onclick="cargarSemanasGestion()" title="Recargar lista de semanas">
+                <span>🔄</span> Recargar
+              </button>
+            </div>
+            <div id="gestionSemanasContainer" style="padding:14px;">
+              <div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px;">
+                Carga las semanas con el botón "Recargar".
+              </div>
+            </div>
+          </div>
+        </div><!-- /audit-tab-content gestion -->
 
       </section>
 
@@ -13965,6 +14092,8 @@ function auditSetTab(name){
   });
   if(name === 'bitacora'){
     abrirAuditLog();
+  } else if(name === 'gestion'){
+    abrirGestionSemanas();
   }
 }
 
@@ -15253,6 +15382,8 @@ function applySessionToUI(){
   if(currentSession.usuario === 'adm'){
     const btnBit = document.getElementById('auditTabBitacoraBtn');
     if(btnBit) btnBit.style.display = '';
+    const btnGest = document.getElementById('auditTabGestionBtn');
+    if(btnGest) btnGest.style.display = '';
   }
 
   // Insertar info de usuario y botón de logout en el header
@@ -16771,6 +16902,256 @@ async function loadDatosFromFirestore(){
   } catch(err){
     console.warn('[E140] No se pudieron cargar datos desde Firestore:', err.message || err);
     return [];
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   GESTIÓN DE SEMANAS · Eliminar data cargada por error (solo adm)
+   ═══════════════════════════════════════════════════════════════════ */
+
+let gestionPendiente = null;  // { semana, area | null (todas), docIds[], jsonFiles[] }
+
+// Punto de entrada cuando se abre la sub-pestaña Gestión
+async function abrirGestionSemanas(){
+  if(!currentSession || currentSession.usuario !== 'adm'){
+    return;
+  }
+  await cargarSemanasGestion();
+}
+
+// Lee colección 'datos' de Firestore y agrupa por semana
+async function cargarSemanasGestion(){
+  const cont = document.getElementById('gestionSemanasContainer');
+  if(!cont) return;
+  cont.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px;">Cargando semanas desde Firestore…</div>';
+
+  if(!window.E140_DB){
+    cont.innerHTML = '<div style="text-align:center;padding:30px;color:#A11;font-size:13px;">⚠ Firestore no está disponible. Recarga la página.</div>';
+    return;
+  }
+
+  try {
+    const { db, collection, getDocs } = window.E140_DB;
+    const snapshot = await getDocs(collection(db, 'datos'));
+
+    // Agrupar por semana
+    const porSemana = {}; // { S38: { areas: { operaciones: {docId, actualizado_en}, ... }, ... } }
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      if(!data || !data.semana || !data.area) return;
+      const sem = data.semana;
+      if(!porSemana[sem]){
+        porSemana[sem] = { semana: sem, areas: {} };
+      }
+      porSemana[sem].areas[data.area] = {
+        docId: docSnap.id,
+        actualizado_en: data.actualizado_en || null,
+        actualizado_por: data.actualizado_por || null,
+        corte_fecha: data.corte_fecha || null,
+        n_archivos: Object.keys(data.archivos || {}).length,
+      };
+    });
+
+    const semanas = Object.values(porSemana).sort((a,b) => {
+      const na = parseInt(a.semana.replace(/\D/g,'')) || 0;
+      const nb = parseInt(b.semana.replace(/\D/g,'')) || 0;
+      return nb - na; // más recientes primero
+    });
+
+    if(semanas.length === 0){
+      cont.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px;">No hay semanas con data publicada.</div>';
+      return;
+    }
+
+    // Renderizar tarjetas
+    const labelsArea = {
+      operaciones: '🏗️ Operaciones',
+      logistica: '🚛 Logística',
+      arquitectura: '📐 Arquitectura',
+      ssoma: '⛑️ SSOMA',
+      calidad: '✅ Calidad',
+    };
+
+    let html = '';
+    for(const s of semanas){
+      const numAreas = Object.keys(s.areas).length;
+      // Fecha más reciente
+      const fechas = Object.values(s.areas).map(a => a.actualizado_en).filter(Boolean).sort();
+      const fechaMasReciente = fechas[fechas.length - 1];
+      const fechaCorte = Object.values(s.areas).map(a => a.corte_fecha).filter(Boolean)[0];
+
+      let badges = '';
+      for(const [area, info] of Object.entries(s.areas)){
+        const lbl = labelsArea[area] || area;
+        badges += `<span class="gest-sem-area-badge">${lbl} <button onclick="confirmarEliminacion('${s.semana}','${area}')" title="Eliminar solo ${area}">✕</button></span>`;
+      }
+
+      let metaHtml = '';
+      if(fechaCorte) metaHtml += `<span class="gsm-fecha">Corte: ${fmtFecha(fechaCorte)}</span>`;
+      if(fechaMasReciente){
+        const ts = new Date(fechaMasReciente);
+        metaHtml += `${metaHtml ? ' · ' : ''}Última actualización: ${ts.toLocaleString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}`;
+      }
+      metaHtml += `${metaHtml ? ' · ' : ''}${numAreas} área${numAreas===1?'':'s'}`;
+
+      html += `
+        <div class="gest-sem-card">
+          <div class="gest-sem-codigo">${s.semana}</div>
+          <div class="gest-sem-meta">${metaHtml}</div>
+          <div class="gest-sem-areas">${badges}</div>
+          <div class="gest-sem-actions">
+            <button class="gest-sem-btn-delete" onclick="confirmarEliminacion('${s.semana}', null)">🗑️ Eliminar todo</button>
+          </div>
+        </div>`;
+    }
+
+    cont.innerHTML = html;
+  } catch(err){
+    console.error('[E140] Error cargando semanas:', err);
+    cont.innerHTML = `<div style="text-align:center;padding:30px;color:#A11;font-size:13px;">⚠ Error: ${err.message || err}</div>`;
+  }
+}
+
+// Abrir modal de confirmación
+function confirmarEliminacion(semana, area){
+  // Calcular alcance: docIds Firestore + archivos JSON GitHub a borrar manualmente
+  const semLow = semana.toLowerCase();
+  let docIds, jsonFiles, mensaje, subtitle, expectedCode;
+
+  if(area === null){
+    // Eliminar todas las áreas de la semana
+    const AREAS = ['operaciones','logistica','arquitectura','ssoma','calidad'];
+    docIds = AREAS.map(a => `${semLow}_${a}`);
+    jsonFiles = [
+      `data/data-${semLow}.json`,  // legacy
+      ...AREAS.map(a => `data/data-${semLow}-${a}.json`),
+      `data/fotos-${semLow}.json`,
+    ];
+    mensaje = `Estás por eliminar <b>TODA la data de la semana ${semana}</b> (todas las áreas: Operaciones, Logística, Arquitectura, SSOMA, Calidad).`;
+    subtitle = 'Eliminar semana completa';
+    expectedCode = semana.toUpperCase();
+  } else {
+    // Eliminar solo un área
+    docIds = [`${semLow}_${area}`];
+    jsonFiles = [`data/data-${semLow}-${area}.json`];
+    const labelsArea = {
+      operaciones: 'Operaciones', logistica: 'Logística',
+      arquitectura: 'Arquitectura', ssoma: 'SSOMA', calidad: 'Calidad',
+    };
+    mensaje = `Estás por eliminar la data del área <b>${labelsArea[area] || area}</b> de la semana <b>${semana}</b>. Las otras áreas de esta semana se conservarán.`;
+    subtitle = `Eliminar ${labelsArea[area] || area} · ${semana}`;
+    expectedCode = `${semana.toUpperCase()}-${area.toUpperCase()}`;
+  }
+
+  gestionPendiente = { semana, area, docIds, jsonFiles, expectedCode };
+
+  // Abrir modal
+  document.getElementById('gestConfirmSubtitle').textContent = subtitle;
+  document.getElementById('gestConfirmMessage').innerHTML = mensaje;
+  document.getElementById('gestConfirmExpected').textContent = expectedCode;
+  const input = document.getElementById('gestConfirmInput');
+  input.value = '';
+  input.classList.remove('invalid');
+  document.getElementById('gestConfirmBtnDel').disabled = true;
+  document.getElementById('gestConfirmResult').innerHTML = '';
+  document.getElementById('gestConfirmOverlay').classList.add('show');
+
+  // Listener para validar texto
+  input.oninput = () => {
+    const ok = input.value.trim().toUpperCase() === expectedCode;
+    document.getElementById('gestConfirmBtnDel').disabled = !ok;
+    input.classList.toggle('invalid', input.value.length > 0 && !ok);
+  };
+  setTimeout(() => input.focus(), 100);
+}
+
+// Cerrar modal sin eliminar
+function cerrarGestConfirm(){
+  document.getElementById('gestConfirmOverlay').classList.remove('show');
+  gestionPendiente = null;
+}
+
+// Ejecutar la eliminación efectiva en Firestore
+async function ejecutarEliminacionSemana(){
+  if(!gestionPendiente){ cerrarGestConfirm(); return; }
+  const { semana, area, docIds, jsonFiles, expectedCode } = gestionPendiente;
+
+  // Doble check: validar input por si acaso
+  const input = document.getElementById('gestConfirmInput');
+  if(input.value.trim().toUpperCase() !== expectedCode){
+    input.classList.add('invalid');
+    return;
+  }
+
+  if(!window.E140_DB){
+    document.getElementById('gestConfirmResult').innerHTML =
+      '<div class="gest-result-list" style="background:#FFEAEA;border-color:#F5A8A8;color:#A11;"><h4>❌ Error</h4>Firestore no disponible.</div>';
+    return;
+  }
+
+  const btn = document.getElementById('gestConfirmBtnDel');
+  btn.disabled = true;
+  btn.textContent = 'Eliminando…';
+
+  try {
+    const { db, doc, deleteDoc } = window.E140_DB;
+    let borrados = [];
+    let noExistian = [];
+    for(const docId of docIds){
+      try {
+        await deleteDoc(doc(db, 'datos', docId));
+        borrados.push(docId);
+      } catch(e){
+        // Si no existe, no es error real
+        noExistian.push(docId);
+        console.warn(`[E140] doc ${docId} no se pudo eliminar:`, e.message || e);
+      }
+    }
+
+    // Audit log
+    try {
+      if(typeof auditLog === 'function'){
+        const alcance = area ? `área ${area}` : 'TODAS las áreas';
+        auditLog({
+          modulo: 'data',
+          accion: 'eliminar',
+          entidad_id: docIds.join(','),
+          entidad_nombre: `Data ${semana} · ${alcance}`,
+          detalle: `Eliminó ${borrados.length} documento(s) de Firestore. Pendiente borrar manualmente ${jsonFiles.length} archivo(s) JSON en GitHub.`,
+        });
+      }
+    } catch(e){ console.warn(e); }
+
+    // Mostrar resultado
+    let html = `<div class="gest-result-list" style="background:#E7F4EE;border-color:#9FCFB8;border-left-color:#1A6B4A;">
+      <h4 style="color:#1A6B4A;">✅ ${borrados.length} documento(s) eliminado(s) de Firestore</h4>`;
+    if(borrados.length > 0){
+      borrados.forEach(d => { html += `<code>${d}</code>`; });
+    }
+    html += '</div>';
+
+    html += `<div class="gest-result-list">
+      <h4>📌 Pendiente: borrar manualmente en GitHub</h4>
+      <div style="font-size:11px;color:#5C4119;margin-bottom:6px;">Ve al repositorio en GitHub Pages, navega a la carpeta <code style="display:inline;padding:1px 4px;">data/</code> y elimina (si existen) los siguientes archivos:</div>`;
+    jsonFiles.forEach(f => { html += `<code>${f}</code>`; });
+    html += `<div style="font-size:10.5px;color:#7A4A14;margin-top:8px;font-style:italic;">⚠ Mientras estos archivos existan en GitHub, los datos seguirán visibles en el dashboard al recargar.</div>
+    </div>`;
+
+    document.getElementById('gestConfirmResult').innerHTML = html;
+    btn.textContent = 'Cerrar';
+    btn.disabled = false;
+    btn.onclick = () => {
+      cerrarGestConfirm();
+      btn.onclick = ejecutarEliminacionSemana; // restaurar
+      btn.textContent = '🗑️ Eliminar permanentemente';
+      cargarSemanasGestion(); // refrescar lista
+    };
+  } catch(err){
+    console.error('[E140] Error eliminando:', err);
+    document.getElementById('gestConfirmResult').innerHTML =
+      `<div class="gest-result-list" style="background:#FFEAEA;border-color:#F5A8A8;border-left-color:#A11;"><h4 style="color:#A11;">❌ Error al eliminar</h4>${err.message || err}</div>`;
+    btn.textContent = '🗑️ Eliminar permanentemente';
+    btn.disabled = false;
   }
 }
 
@@ -20514,6 +20895,37 @@ function v2RenderAll(){
 
 })();
 </script>
+
+<!-- ═══════════════════════════════════════════
+     MODAL CONFIRMACIÓN ELIMINACIÓN DE SEMANA
+     ═══════════════════════════════════════════ -->
+<div class="gest-confirm-overlay" id="gestConfirmOverlay">
+  <div class="gest-confirm-modal">
+    <div class="gest-confirm-head">
+      <h3>🗑️ ELIMINAR DATA</h3>
+      <p id="gestConfirmSubtitle">Esta acción no se puede deshacer</p>
+    </div>
+    <div class="gest-confirm-body">
+      <p id="gestConfirmMessage">
+        Estás por eliminar <b>permanentemente</b> los datos seleccionados.
+      </p>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:6px;">
+        Para confirmar, escribe el código exacto en el campo siguiente:
+      </p>
+      <div style="margin-top:6px;font-size:11px;color:#A11;">
+        Esperado: <b id="gestConfirmExpected">S38</b>
+      </div>
+      <input type="text" class="gest-confirm-input" id="gestConfirmInput" placeholder="ESCRIBE AQUÍ" autocomplete="off">
+      <div id="gestConfirmResult"></div>
+    </div>
+    <div class="gest-confirm-foot">
+      <button class="gest-confirm-btn gest-confirm-btn-cancel" onclick="cerrarGestConfirm()">Cancelar</button>
+      <button class="gest-confirm-btn gest-confirm-btn-delete" id="gestConfirmBtnDel" onclick="ejecutarEliminacionSemana()" disabled>
+        🗑️ Eliminar permanentemente
+      </button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
