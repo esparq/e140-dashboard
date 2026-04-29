@@ -2553,6 +2553,31 @@ body.role-admin .ssoma-actions{display:flex !important;}
 .pen-det-meta-card .pen-det-label{margin-bottom:2px;}
 .pen-det-meta-card .pen-det-meta-val{font-size:12.5px;font-weight:600;color:var(--text);}
 
+/* Cards en modo editable (adm/oficina) */
+.pen-det-meta-card.editable{background:#fff;border-color:var(--border-mid);transition:all .15s;cursor:pointer;}
+.pen-det-meta-card.editable:hover{border-color:#054C7E;box-shadow:0 2px 6px rgba(5,76,126,.08);}
+.pen-det-meta-card.editable .pen-det-label{display:flex;align-items:center;justify-content:space-between;gap:6px;}
+.pen-det-meta-card.editable .pen-det-label::after{
+  content:'✎';font-size:11px;color:var(--text-muted);font-weight:400;
+  opacity:.5;transition:opacity .15s;
+}
+.pen-det-meta-card.editable:hover .pen-det-label::after{opacity:1;color:#054C7E;}
+.pen-det-meta-edit-input,
+.pen-det-meta-edit-select{
+  width:100%;padding:5px 8px;border:1px solid var(--border-mid);border-radius:4px;
+  font-family:inherit;font-size:12.5px;font-weight:600;color:var(--text);background:#fff;
+  margin-top:2px;
+}
+.pen-det-meta-edit-input:focus,
+.pen-det-meta-edit-select:focus{
+  outline:none;border-color:#054C7E;box-shadow:0 0 0 2px rgba(5,76,126,.12);
+}
+.pen-det-meta-saving{
+  display:inline-block;margin-left:6px;font-size:10px;color:var(--text-muted);font-style:italic;
+}
+.pen-det-meta-saving.saved{color:#1A6B4A;font-weight:600;}
+.pen-det-meta-saving.error{color:#D64045;font-weight:600;}
+
 /* Adjuntos */
 .pen-adjuntos-list{display:flex;flex-direction:column;gap:5px;margin-top:8px;}
 .pen-adjunto-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:#F4F9FD;border:1px solid #BFE0F5;border-radius:5px;font-size:11.5px;}
@@ -17306,6 +17331,12 @@ function puedeEditarPendiente(p){
   if(r === 'creador') return true;
   return false;
 }
+function puedeEditarMetadataPendiente(p){
+  // Solo adm y oficina pueden editar fecha de vencimiento, asignado y prioridad
+  if(!currentSession) return false;
+  if(p && p.estado === 'cerrada') return false; // Tarea cerrada no se modifica
+  return currentSession.usuario === 'adm' || currentSession.usuario === 'oficina';
+}
 function puedeEliminarPendiente(p){
   const r = rolUsuario();
   return r === 'creador';
@@ -17870,16 +17901,79 @@ function renderPendienteDetalle(p){
         </div>`;
       }).join('');
 
-  const cuerpo = `
-    <div class="pen-det-meta-row">
+  // Determinar si el usuario puede editar la metadata de la tarea
+  const puedeEditMeta = puedeEditarMetadataPendiente(p);
+
+  // Construir las 3 cards editables vs. las 2 fijas (creado por / creado el)
+  let cardVence, cardAsignado, cardPrioridad;
+
+  if(puedeEditMeta){
+    // Card "Vence" como input date
+    cardVence = `
+      <div class="pen-det-meta-card editable">
+        <div class="pen-det-label">Vence</div>
+        <input type="date" class="pen-det-meta-edit-input" id="penEditFechaMax"
+          value="${escapeHtml(p.fecha_max || '')}"
+          onchange="actualizarMetadataPendiente('${escapeHtml(p.id)}','fecha_max',this.value)">
+        <span class="pen-det-meta-saving" id="penEditSavingFecha"></span>
+      </div>`;
+
+    // Card "Asignado a" como select
+    const asignadoOpts = [
+      { val: 'residente', txt: 'Residente · José Rojas O.' },
+      { val: 'staff',     txt: 'Staff de Obra' },
+    ];
+    const asigOptsHtml = asignadoOpts.map(o =>
+      `<option value="${o.val}" ${p.asignado_a === o.val ? 'selected' : ''}>${escapeHtml(o.txt)}</option>`
+    ).join('');
+    cardAsignado = `
+      <div class="pen-det-meta-card editable">
+        <div class="pen-det-label">Asignado a</div>
+        <select class="pen-det-meta-edit-select" id="penEditAsignado"
+          onchange="actualizarMetadataPendiente('${escapeHtml(p.id)}','asignado_a',this.value)">
+          ${asigOptsHtml}
+        </select>
+        <span class="pen-det-meta-saving" id="penEditSavingAsig"></span>
+      </div>`;
+
+    // Card "Prioridad" como select (reemplaza al header pero también la mostramos aquí)
+    const prioOptsHtml = Object.keys(PEN_PRIORIDADES).map(k => {
+      const pp = PEN_PRIORIDADES[k];
+      return `<option value="${k}" ${p.prioridad === k ? 'selected' : ''}>${pp.icon} ${pp.label}</option>`;
+    }).join('');
+    cardPrioridad = `
+      <div class="pen-det-meta-card editable">
+        <div class="pen-det-label">Prioridad</div>
+        <select class="pen-det-meta-edit-select" id="penEditPrioridad"
+          onchange="actualizarMetadataPendiente('${escapeHtml(p.id)}','prioridad',this.value)">
+          ${prioOptsHtml}
+        </select>
+        <span class="pen-det-meta-saving" id="penEditSavingPrio"></span>
+      </div>`;
+  } else {
+    // Vista de solo lectura para roles sin permiso
+    cardVence = `
       <div class="pen-det-meta-card">
         <div class="pen-det-label">Vence</div>
         <div class="pen-det-meta-val" style="color:${venceColor};">${venceTxt}</div>
-      </div>
+      </div>`;
+    cardAsignado = `
       <div class="pen-det-meta-card">
         <div class="pen-det-label">Asignado a</div>
         <div class="pen-det-meta-val">${escapeHtml(p.asignado_a_nombre || p.asignado_a || '—')}</div>
-      </div>
+      </div>`;
+    cardPrioridad = `
+      <div class="pen-det-meta-card">
+        <div class="pen-det-label">Prioridad</div>
+        <div class="pen-det-meta-val">${pri.icon} ${pri.label}</div>
+      </div>`;
+  }
+
+  const cuerpo = `
+    <div class="pen-det-meta-row">
+      ${cardVence}
+      ${cardAsignado}
+      ${cardPrioridad}
       <div class="pen-det-meta-card">
         <div class="pen-det-label">Creado por</div>
         <div class="pen-det-meta-val">${escapeHtml(p.creado_por_nombre || '—')}</div>
@@ -18082,6 +18176,121 @@ async function cambiarEstadoPendiente(id, nuevoEstado){
   } catch(err){
     console.error('[E140] Error cambiando estado:', err);
     alert(`❌ Error: ${err.message || err}`);
+  }
+}
+
+// ─── Actualizar metadata editable (fecha_max, asignado_a, prioridad) · solo adm/oficina ───
+async function actualizarMetadataPendiente(id, campo, nuevoValor){
+  const p = pendientesData.find(x => x.id === id);
+  if(!p) return;
+  if(!puedeEditarMetadataPendiente(p)){
+    alert('Solo los usuarios "adm" y "oficina" pueden modificar esta información.');
+    return;
+  }
+  if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
+  if(!['fecha_max','asignado_a','prioridad'].includes(campo)){
+    console.warn('[E140] Campo no permitido:', campo);
+    return;
+  }
+
+  // Indicador visual de guardado
+  const savingIds = {
+    fecha_max:  'penEditSavingFecha',
+    asignado_a: 'penEditSavingAsig',
+    prioridad:  'penEditSavingPrio',
+  };
+  const setSaving = (state) => {
+    const el = document.getElementById(savingIds[campo]);
+    if(!el) return;
+    el.className = 'pen-det-meta-saving' + (state === 'saved' ? ' saved' : (state === 'error' ? ' error' : ''));
+    el.textContent = state === 'saving' ? '💾 Guardando…' : state === 'saved' ? '✓ Guardado' : state === 'error' ? '⚠ Error' : '';
+    if(state === 'saved') setTimeout(() => { if(el) el.textContent=''; }, 2000);
+  };
+
+  const valorAnterior = p[campo];
+  if(valorAnterior === nuevoValor) return; // sin cambios
+
+  setSaving('saving');
+
+  try {
+    const userId = (currentSession && currentSession.usuario) || 'desconocido';
+    const userName = (currentSession && currentSession.nombre) || 'Sin sesión';
+    const ahora = new Date().toISOString();
+    const ts = Date.now();
+
+    // Mapear el campo a un mensaje legible para el evento del chat
+    const labelCampo = ({
+      fecha_max:  'Fecha de vencimiento',
+      asignado_a: 'Asignado a',
+      prioridad:  'Prioridad',
+    })[campo];
+
+    // Si cambia asignado_a, actualizar también asignado_a_nombre
+    const updates = { [campo]: nuevoValor };
+    let nuevoNombreLegible = nuevoValor;
+    let anteriorNombreLegible = valorAnterior;
+
+    if(campo === 'asignado_a'){
+      const mapNombres = {
+        residente: 'Residente · José Rojas O.',
+        staff:     'Staff de Obra',
+      };
+      nuevoNombreLegible = mapNombres[nuevoValor] || nuevoValor;
+      anteriorNombreLegible = mapNombres[valorAnterior] || valorAnterior;
+      updates.asignado_a_nombre = nuevoNombreLegible;
+    } else if(campo === 'prioridad'){
+      const mapPrio = { alta:'🔴 Alta', media:'🟡 Media', baja:'🟢 Baja' };
+      nuevoNombreLegible = mapPrio[nuevoValor] || nuevoValor;
+      anteriorNombreLegible = mapPrio[valorAnterior] || valorAnterior;
+    }
+
+    // Crear evento en el chat
+    const evento = {
+      tipo: 'cambio_metadata',
+      texto: `✏️ ${labelCampo} actualizada: ${anteriorNombreLegible || '—'} → ${nuevoNombreLegible || '—'}`,
+      autor: userId,
+      autor_nombre: userName,
+      fecha: ahora,
+      ts: ts,
+      es_evento: true,
+    };
+    const comentariosActualizados = [...(p.comentarios || []), evento];
+    updates.comentarios = comentariosActualizados;
+    updates.ultimo_cambio_ts = ts;
+    updates.ultimo_cambio_por = userId;
+
+    const { db, doc, setDoc } = window.E140_DB;
+    await setDoc(doc(db, 'pendientes', id), updates, { merge: true });
+
+    // Actualizar cache local
+    p[campo] = nuevoValor;
+    if(campo === 'asignado_a') p.asignado_a_nombre = nuevoNombreLegible;
+    p.comentarios = comentariosActualizados;
+
+    setSaving('saved');
+
+    // Re-renderizar (mantiene el modal abierto pero refresca chat y badges)
+    renderPendienteDetalle(p);
+    renderPendientes();
+
+    // 📋 Audit log: cambio de metadata
+    try {
+      if(typeof auditLog === 'function'){
+        auditLog({
+          modulo: 'pendientes',
+          accion: 'editar',
+          entidad_id: id,
+          entidad_nombre: p.titulo || 'Pendiente',
+          detalle: `${labelCampo}: ${anteriorNombreLegible || '—'} → ${nuevoNombreLegible || '—'}`,
+          cambios: { antes: { [campo]: anteriorNombreLegible }, despues: { [campo]: nuevoNombreLegible } },
+        });
+      }
+    } catch(e){ console.warn(e); }
+
+  } catch(err){
+    console.error('[E140] Error actualizando metadata:', err);
+    setSaving('error');
+    alert(`❌ Error al guardar: ${err.message || err}`);
   }
 }
 
