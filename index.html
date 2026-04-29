@@ -3562,6 +3562,14 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
         </div>
 
         <div class="sig-form-field">
+          <label>
+            Responsable que crea esta tarea <span style="color:#D64045;">*</span>
+            <span style="font-weight:400;color:var(--text-muted);font-size:10.5px;margin-left:6px;">(nombre completo de quien la registra)</span>
+          </label>
+          <input type="text" id="penResponsable" placeholder="Ej: María Pérez" maxlength="80" autocomplete="name">
+        </div>
+
+        <div class="sig-form-field">
           <label>Descripción del pendiente <span style="color:#D64045;">*</span></label>
           <textarea id="penDescripcion" rows="4" placeholder="Describe el pendiente con todo el detalle posible para que el residente sepa qué hacer."></textarea>
         </div>
@@ -6367,7 +6375,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
             <div class="aud-page-icon">🔍</div>
             <div>
               <div class="aud-page-title">Auditoría · Trazabilidad de Archivos</div>
-              <div class="aud-page-sub">Registro completo de los archivos Excel cargados al dashboard · Acceso restringido a Administración y Oficina Técnica</div>
+              <div class="aud-page-sub">Registro completo de los archivos Excel cargados al dashboard · Acceso restringido a Administración y Oficina Central</div>
             </div>
           </div>
           <button class="aud-refresh-btn" onclick="auditOnRefreshClick()" title="Recargar registros desde Firestore">
@@ -9983,6 +9991,19 @@ function formatFechaCorta(input){
   const mm = String(d.getMonth()+1).padStart(2,'0');
   const yy = d.getFullYear();
   return `${dd}/${mm}/${yy}`;
+}
+
+// Formato fecha + hora (para timestamps con horario)
+function formatFechaHora(input){
+  if(!input) return '—';
+  const d = new Date(input);
+  if(isNaN(d.getTime())) return '—';
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mn = String(d.getMinutes()).padStart(2,'0');
+  return `${dd}/${mm}/${yy} · ${hh}:${mn}`;
 }
 
 
@@ -14997,7 +15018,7 @@ function hashSimple(str){
 const USERS = [
   { usuario: 'adm',       hash: hashSimple('innovacion'), rol: 'admin',  nombre: 'Administrador'   },
   { usuario: 'residente', hash: hashSimple('esparq2026'), rol: 'admin',  nombre: 'Residente · José Rojas O.' },
-  { usuario: 'oficina',   hash: hashSimple('esparq2026'), rol: 'admin',  nombre: 'Oficina Técnica' },
+  { usuario: 'oficina',   hash: hashSimple('esparq2026'), rol: 'admin',  nombre: 'Oficina Central' },
   { usuario: 'staff',     hash: hashSimple('e140obra'),   rol: 'viewer', nombre: 'Staff de Obra'   },
   { usuario: 'gerencia',  hash: hashSimple('esparq2026'), rol: 'viewer', nombre: 'Gerencia ESPARQ' },
 ];
@@ -17591,6 +17612,11 @@ function openPendienteModal(){
   document.getElementById('penDescripcion').value = '';
   document.getElementById('penAsignado').value = 'residente';
 
+  // Recordar el último responsable usado (cómodo cuando alguien crea varias tareas seguidas)
+  let ultimoResp = '';
+  try { ultimoResp = localStorage.getItem('e140_pen_ultimo_responsable') || ''; } catch(e){}
+  document.getElementById('penResponsable').value = ultimoResp;
+
   // Fecha máxima por defecto: 7 días desde hoy
   const fechaDef = new Date();
   fechaDef.setDate(fechaDef.getDate() + 7);
@@ -17661,6 +17687,7 @@ function removerAdjuntoNuevo(idx){
 
 async function publicarPendiente(){
   const titulo = document.getElementById('penTitulo').value.trim();
+  const responsable = document.getElementById('penResponsable').value.trim();
   const descripcion = document.getElementById('penDescripcion').value.trim();
   const area = document.getElementById('penArea').value;
   const prioridad = document.getElementById('penPrioridad').value;
@@ -17668,9 +17695,22 @@ async function publicarPendiente(){
   const asignadoA = document.getElementById('penAsignado').value;
 
   if(!titulo){ alert('El título es obligatorio.'); return; }
+  if(!responsable){
+    alert('El responsable que crea la tarea es obligatorio.\n\nVarias personas usan el usuario "oficina", por lo que debes registrar quién está creando esta tarea específica.');
+    document.getElementById('penResponsable').focus();
+    return;
+  }
+  if(responsable.length < 3){
+    alert('Ingresa el nombre completo del responsable (mínimo 3 caracteres).');
+    document.getElementById('penResponsable').focus();
+    return;
+  }
   if(!descripcion){ alert('La descripción es obligatoria.'); return; }
   if(!fechaMax){ alert('La fecha máxima de respuesta es obligatoria.'); return; }
   if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
+
+  // Recordar el responsable para próximas tareas (mismo dispositivo)
+  try { localStorage.setItem('e140_pen_ultimo_responsable', responsable); } catch(e){}
 
   const btn = document.getElementById('penPublishBtn');
   const cancel = document.querySelector('#penModal .hdr-btn:not(.hdr-btn-primary)');
@@ -17720,15 +17760,10 @@ async function publicarPendiente(){
     if(asignadoA === 'staff') asignadoNombre = 'Staff de Obra';
     else if(asignadoA === 'residente') asignadoNombre = 'Residente · José Rojas O.';
 
-    const evento = {
-      tipo: 'creado',
-      texto: `📌 Tarea creada por ${userName}`,
-      autor: userId,
-      autor_nombre: userName,
-      fecha: ahora,
-      ts: ts,
-      es_evento: true,
-    };
+    // Componer "Creado por" combinando el rol y el responsable real
+    // (ej: "Oficina Central · María Pérez")
+    const rolBase = userName; // 'Oficina Central' o 'Administrador' etc
+    const creadoPorCompleto = rolBase ? `${rolBase} · ${responsable}` : responsable;
 
     const docRef = await addDoc(collection(db, 'pendientes'), {
       titulo:       titulo,
@@ -17740,9 +17775,10 @@ async function publicarPendiente(){
       asignado_a:   asignadoA,
       asignado_a_nombre: asignadoNombre,
       adjuntos:     adjuntosSubidos,
-      comentarios:  [evento],
+      comentarios:  [],   // Sin evento inicial — el chat empieza limpio
       creado_por:        userId,
-      creado_por_nombre: userName,
+      creado_por_nombre: creadoPorCompleto,
+      responsable:       responsable,           // Campo separado para data limpia
       creado_en:    ahora,
       creado_ts:    ts,
     });
@@ -17762,9 +17798,10 @@ async function publicarPendiente(){
       asignado_a: asignadoA,
       asignado_a_nombre: asignadoNombre,
       adjuntos: adjuntosSubidos,
-      comentarios: [evento],
+      comentarios: [],
       creado_por: userId,
-      creado_por_nombre: userName,
+      creado_por_nombre: creadoPorCompleto,
+      responsable: responsable,
       creado_en: ahora,
       creado_ts: ts,
     });
@@ -17781,7 +17818,7 @@ async function publicarPendiente(){
         notify({
           tipo: 'pendientes',
           titulo: `📌 Nueva tarea: ${titulo}`,
-          descripcion: `<b>${userName}</b> creó una tarea (${prioLabel})${asignadoTxt}${fechaMax ? ` · vence <b>${fechaMax}</b>` : ''}.`,
+          descripcion: `<b>${creadoPorCompleto}</b> creó una tarea (${prioLabel})${asignadoTxt}${fechaMax ? ` · vence <b>${fechaMax}</b>` : ''}.`,
           prioridad: prioridad === 'alta' ? 'alta' : 'media',
           enlace: { tab:'pendientes', id: docRef.id },
         });
@@ -17885,9 +17922,15 @@ function renderPendienteDetalle(p){
     </div>`
   ).join('') || '<div style="color:var(--text-muted);font-size:11.5px;font-style:italic;">Sin adjuntos</div>';
 
-  const comentariosHtml = (p.comentarios || []).length === 0
+  const comentariosVisibles = (p.comentarios || []).filter(c => {
+    // Excluir el evento inicial "Tarea creada por X" (legacy de tareas existentes)
+    if(c && c.tipo === 'creado') return false;
+    return true;
+  });
+
+  const comentariosHtml = comentariosVisibles.length === 0
     ? '<div class="pen-chat-empty">💬 Aún no hay comentarios. Sé el primero en escribir.</div>'
-    : (p.comentarios || []).map(c => {
+    : comentariosVisibles.map(c => {
         const fechaC = c.fecha ? new Date(c.fecha).toLocaleString('es-PE', {day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
         const esEvento = c.es_evento;
         const claseRol = (c.autor === 'residente' || c.autor === 'staff') ? 'es-residente' : ((c.autor === 'oficina' || c.autor === 'adm') ? 'es-validador' : '');
@@ -17980,7 +18023,7 @@ function renderPendienteDetalle(p){
       </div>
       <div class="pen-det-meta-card">
         <div class="pen-det-label">Creado el</div>
-        <div class="pen-det-meta-val">${formatFechaCorta(p.creado_en || '')}</div>
+        <div class="pen-det-meta-val">${formatFechaHora(p.creado_en || '')}</div>
       </div>
     </div>
 
@@ -17995,7 +18038,7 @@ function renderPendienteDetalle(p){
     </div>
 
     <div class="pen-det-section">
-      <div class="pen-det-label">💬 Comentarios y eventos (${(p.comentarios || []).length})</div>
+      <div class="pen-det-label">💬 Comentarios y eventos (${comentariosVisibles.length})</div>
       <div class="pen-chat" id="penChatList">${comentariosHtml}</div>
       ${puedeComentar(p) ? `
         <div class="pen-chat-input-area">
