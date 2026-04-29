@@ -1801,6 +1801,69 @@ body.role-admin .ssoma-actions{display:flex !important;}
 }
 
 /* ═══════════════════════════════════════════
+   ARQ SIG · Sistema predictivo (Nivel 1 + Nivel 2 ligero)
+   Banner de alertas · badges de fechas · frente padre
+   ═══════════════════════════════════════════ */
+
+/* Banner ejecutivo de alertas predictivas */
+.sig-alerts-banner{display:flex;flex-direction:column;gap:0;background:#fff;border:1.5px solid #E0D2EA;border-radius:8px;margin-bottom:14px;overflow:hidden;box-shadow:0 2px 10px rgba(123,45,142,.05);}
+.sig-alerts-head{background:linear-gradient(135deg,#FAF6FC 0%,#F4ECFA 100%);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid #E0D2EA;flex-wrap:wrap;}
+.sig-alerts-head-title{display:flex;align-items:center;gap:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#5B2470;letter-spacing:.02em;}
+.sig-alerts-head-meta{font-size:10.5px;color:var(--text-muted);font-weight:500;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.sig-spi-pill{display:inline-flex;align-items:center;gap:4px;background:#fff;padding:3px 9px;border-radius:11px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border:1px solid var(--border-mid);}
+.sig-spi-pill.spi-good{background:#E7F4EE;color:#1A6B4A;border-color:#2D936C;}
+.sig-spi-pill.spi-warn{background:#FFF8EE;color:#7A3F18;border-color:#A0521E;}
+.sig-spi-pill.spi-bad{background:#FBEAEA;color:#8A2A2D;border-color:#D64045;}
+.sig-spi-pill.spi-na{background:#F0F2F5;color:#666;border-color:var(--border-mid);}
+.sig-alerts-list{display:flex;flex-direction:column;}
+.sig-alert-item{display:flex;align-items:flex-start;gap:11px;padding:11px 16px;border-bottom:1px solid var(--border);transition:background .12s;}
+.sig-alert-item:last-child{border-bottom:none;}
+.sig-alert-item:hover{background:#FBFDFE;}
+.sig-alert-icon{flex-shrink:0;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;}
+.sig-alert-item.lvl-critical .sig-alert-icon{background:#FBEAEA;color:#8A2A2D;}
+.sig-alert-item.lvl-warning  .sig-alert-icon{background:#FFF8EE;color:#7A3F18;}
+.sig-alert-item.lvl-info     .sig-alert-icon{background:#E6F2FB;color:#0070B4;}
+.sig-alert-item.lvl-success  .sig-alert-icon{background:#E7F4EE;color:#1A6B4A;}
+.sig-alert-content{flex:1;min-width:0;}
+.sig-alert-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;line-height:1.3;}
+.sig-alert-desc{font-size:11px;color:var(--text-muted);line-height:1.45;}
+.sig-alert-desc b{color:var(--text);}
+.sig-alert-action{flex-shrink:0;align-self:center;}
+.sig-alert-action button{background:#fff;border:1.5px solid #7B2D8E;color:#7B2D8E;padding:5px 11px;border-radius:5px;font-family:inherit;font-size:10.5px;font-weight:600;cursor:pointer;transition:all .15s;letter-spacing:.02em;white-space:nowrap;}
+.sig-alert-action button:hover{background:#7B2D8E;color:#fff;}
+.sig-alerts-empty{padding:24px 16px;text-align:center;color:var(--text-muted);font-size:12px;font-style:italic;}
+.sig-alerts-empty-icon{font-size:24px;display:block;margin-bottom:6px;opacity:.4;}
+.sig-alerts-toggle{background:transparent;border:none;color:#7B2D8E;font-family:inherit;font-size:10.5px;font-weight:600;cursor:pointer;padding:4px 8px;border-radius:4px;transition:background .12s;}
+.sig-alerts-toggle:hover{background:#F4ECFA;}
+
+/* ─── Sección de fecha en cada celda de "Estado en obra" ─── */
+.sig-fechas-grid{display:flex;flex-direction:column;gap:2px;align-items:center;line-height:1.3;}
+.sig-fecha-line{font-size:10px;color:var(--text-muted);font-weight:500;display:inline-flex;align-items:center;gap:3px;letter-spacing:.01em;}
+.sig-fecha-line.predicha{color:#054C7E;font-weight:700;}
+.sig-fecha-line.predicha-warn{color:#7A3F18;font-weight:700;}
+.sig-fecha-line.predicha-crit{color:#8A2A2D;font-weight:700;}
+.sig-fecha-line.predicha-ahead{color:#1A6B4A;font-weight:700;}
+.sig-fecha-delta-badge{display:inline-block;padding:1px 5px;border-radius:8px;font-size:9px;font-weight:700;letter-spacing:.03em;margin-left:3px;}
+.sig-fecha-delta-badge.delta-pos{background:#FBEAEA;color:#8A2A2D;}
+.sig-fecha-delta-badge.delta-warn{background:#FFF8EE;color:#7A3F18;}
+.sig-fecha-delta-badge.delta-neg{background:#E7F4EE;color:#1A6B4A;}
+
+/* Frente padre badge inline */
+.sig-frente-badge{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:9px;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:#F0F2F5;color:#5B2470;border:1px solid var(--border-mid);}
+.sig-frente-badge.f-sot{background:#FFF4E6;color:#A0521E;border-color:#E5C9A8;}
+.sig-frente-badge.f-sup{background:#E0EEF8;color:#054C7E;border-color:#A8CDE5;}
+.sig-frente-badge.f-alb{background:#E7F4EE;color:#1A6B4A;border-color:#A8DBC0;}
+
+/* Tag "iniciado anticipado" o "iniciado tarde" cuando hay manual + predicho */
+.sig-vs-prediccion{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:600;color:var(--text-muted);font-style:italic;letter-spacing:.02em;margin-top:2px;}
+.sig-vs-prediccion.adelantado{color:#1A6B4A;}
+.sig-vs-prediccion.atrasado{color:#8A2A2D;}
+
+/* Ajustes en el panel de mapeo: nueva columna "Frente padre" */
+.sig-mapping-table select{width:100%;padding:6px 22px 6px 9px;border:1px solid var(--border-mid);border-radius:5px;font-family:inherit;font-size:11px;color:var(--text);background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 10 6'><path fill='%237B2D8E' d='M0 0l5 6 5-6z'/></svg>") no-repeat right 8px center;background-size:8px;-webkit-appearance:none;-moz-appearance:none;appearance:none;cursor:pointer;}
+.sig-mapping-table select:focus{outline:none;border-color:#7B2D8E;box-shadow:0 0 0 2px rgba(123,45,142,.1);}
+
+/* ═══════════════════════════════════════════
    REPORTE GERENCIAL — Layout ejecutivo
    ═══════════════════════════════════════════ */
 
@@ -4775,10 +4838,11 @@ body.role-admin .ssoma-actions{display:flex !important;}
                 <tr>
                   <th style="width:42px;">#</th>
                   <th style="width:140px;">Código</th>
-                  <th style="min-width:180px;">Instructivo</th>
-                  <th style="min-width:280px;">Partida del cronograma</th>
-                  <th style="width:140px;">Fecha inicio prog.</th>
-                  <th style="width:90px;">Acciones</th>
+                  <th style="min-width:170px;">Instructivo</th>
+                  <th style="min-width:240px;">Partida del cronograma</th>
+                  <th style="width:130px;">Fecha inicio prog.</th>
+                  <th style="width:115px;">Frente padre</th>
+                  <th style="width:80px;">Acciones</th>
                 </tr>
               </thead>
               <tbody id="arqSigMappingTbody"></tbody>
@@ -4793,6 +4857,24 @@ body.role-admin .ssoma-actions{display:flex !important;}
               <button class="hdr-btn hdr-btn-primary" onclick="arqSigSeedDefaultMapping()" style="background:#7B2D8E;color:#fff;border-color:#7B2D8E;font-size:11.5px;padding:6px 12px;height:auto;" title="Restablecer al mapeo inicial sugerido">🔄 Cargar mapeo inicial</button>
             </div>
           </div>
+        </div>
+
+        <!-- Banner de alertas predictivas (Nivel 2 ligero) -->
+        <div class="sig-alerts-banner" id="arqSigAlertsBanner" style="display:none;">
+          <div class="sig-alerts-head">
+            <div class="sig-alerts-head-title">
+              <span style="font-size:16px;">🔮</span>
+              <span>Predicción & Alertas</span>
+              <span class="sig-spi-pill spi-na" id="arqSigSpiSotPill" style="display:none;">SOT —</span>
+              <span class="sig-spi-pill spi-na" id="arqSigSpiSupPill" style="display:none;">SUP —</span>
+              <span class="sig-spi-pill spi-na" id="arqSigSpiAlbPill" style="display:none;">ALB —</span>
+            </div>
+            <div class="sig-alerts-head-meta">
+              <span id="arqSigAlertsMeta">Basado en SPI acumulado del último corte</span>
+              <button class="sig-alerts-toggle" onclick="arqSigToggleAlertsExpanded()" id="arqSigAlertsToggleBtn">Ver todas</button>
+            </div>
+          </div>
+          <div class="sig-alerts-list" id="arqSigAlertsList"></div>
         </div>
 
         <!-- KPIs principales -->
@@ -6542,6 +6624,28 @@ function mergeJsonIntoWeek(week, json){
     if(existingMuros) resumenFrentes.push(existingMuros);
     week.avanceFisico.frentes = resumenFrentes;
   }
+
+  // ─── Persistir SPI por frente para uso del módulo SIG predictivo ───
+  week.spi = {
+    sot: {
+      semanal:    Number(sot?.spi_semanal)    || null,
+      acumulado:  Number(sot?.spi_acumulado)  || null,
+      pct_real:   Number(sot?.pct_real_promedio) || null,
+      pct_prog:   Number(sot?.pct_prog_promedio) || null,
+    },
+    sup: {
+      semanal:    Number(sup?.spi_semanal)    || null,
+      acumulado:  Number(sup?.spi_acumulado)  || null,
+      pct_real:   Number(sup?.pct_real_promedio) || null,
+      pct_prog:   Number(sup?.pct_prog_promedio) || null,
+    },
+    alb: {
+      semanal:    Number(alb?.spi_semanal)    || null,
+      acumulado:  Number(alb?.spi_acumulado)  || null,
+      pct_real:   Number(alb?.pct_real_promedio) || null,
+      pct_prog:   Number(alb?.pct_prog_promedio) || null,
+    },
+  };
 
   // ─── 03 Adquisiciones (opcional) ───
   const adq = json.archivos.adquisiciones;
@@ -10492,42 +10596,54 @@ const ARQ_SIG_CATALOGO = [
 // ─── Mapeo inicial sugerido (basado en Cronograma Meta E140 · Sem36) ───
 //   Editable desde el panel de configuración por adm/oficina
 //   Fechas en formato YYYY-MM-DD
+//   frente_padre: 'sot' | 'sup' | 'alb' | '' (ninguno)
 const ARQ_SIG_MAPPING_DEFAULT = {
-  'CON.003-AR-I01': { partida:'INSTALAR PISO Y ZÓCALO CERÁMICO + COLOCACIÓN CERÁMICO BAÑOS Y COCINAS', fecha_inicio:'2026-08-13' },
-  'CON.003-AR-I02': { partida:'TABIQUERÍA PLACA / TRAZO DE TABIQUES (Acabados Húmedos)',               fecha_inicio:'2026-08-13' },
-  'CON.003-AR-I03': { partida:'DESBASTE Y SOLAQUEO + EMPASTE DE MUROS Y CIELO RASO',                   fecha_inicio:'2026-08-13' },
-  'CON.003-AR-I04': { partida:'TABIQUERÍA PLACA (drywall en muros)',                                   fecha_inicio:'2026-08-13' },
-  'CON.003-AR-I05': { partida:'EMPASTE 1 / EMPASTE 2 DE CIELO RASO',                                   fecha_inicio:'2026-08-13' },
-  'CON.003-AR-I06': { partida:'LIMPIEZAS Y REBABAS DE PISO',                                           fecha_inicio:'2026-08-13' },
-  'CON.003-AR-I07': { partida:'PINTURA 1ra y 2da MANO MUROS Y TECHO',                                  fecha_inicio:'2026-08-13' },
-  'CON.003-AR-I08': { partida:'INSTALAR INODORO Y VANITORIO (Acabados Secos)',                         fecha_inicio:'2026-08-13' },
-  'CON.003-AR-I09': { partida:'',                                                                      fecha_inicio:'' },
-  'CON.003-AR-I10': { partida:'LIMPIEZA EDIFICIOS',                                                    fecha_inicio:'2026-09-11' },
-  'CON.003-AR-I11': { partida:'INSTALACIÓN DE PISO SPC',                                               fecha_inicio:'2026-08-13' },
-  'CON.003-AR-I12': { partida:'COLOCACIÓN DE CONTRAZÓCALO Y TAPAJUNTAS',                               fecha_inicio:'2026-08-13' },
-  'CON.003-AR-I14': { partida:'',                                                                      fecha_inicio:'' },
-  'CON.003-AR-I15': { partida:'',                                                                      fecha_inicio:'' },
-  'CON.003-AR-I16': { partida:'ACABADOS EN FACHADA · PINTURA',                                         fecha_inicio:'2026-09-03' },
-  'CON.003-AR-I17': { partida:'ACABADOS EN FACHADA · TEXTURADO',                                       fecha_inicio:'2026-09-03' },
-  'CON.003-AR-I18': { partida:'COLOCACIÓN DE PUERTAS + CERRADURAS',                                    fecha_inicio:'2026-08-13' },
-  'CON.003-AR-I19': { partida:'',                                                                      fecha_inicio:'' },
-  'CON.003-AR-I20': { partida:'',                                                                      fecha_inicio:'' },
-  'CON.003-AR-I22': { partida:'COLOCACIÓN DE PUERTAS + CERRADURAS (PET)',                              fecha_inicio:'2026-08-13' },
-  'CON.003-AR-I23': { partida:'',                                                                      fecha_inicio:'' },
-  'CON.003-AR-I24': { partida:'',                                                                      fecha_inicio:'' },
-  'CON.003-AR-I25': { partida:'',                                                                      fecha_inicio:'' },
-  'CON.003-AR-I26': { partida:'LIMPIEZAS Y REBABAS DE PISO (definición de niveles)',                   fecha_inicio:'2026-08-13' },
-  'CON.003-AR-I27': { partida:'ACABADOS EN FACHADA · TEXTUCRETO',                                      fecha_inicio:'2026-09-03' },
-  'CON.003-AR-I28': { partida:'',                                                                      fecha_inicio:'' },
-  'CON.003-AR-I29': { partida:'',                                                                      fecha_inicio:'' },
-  'CON.003-AR-I30': { partida:'',                                                                      fecha_inicio:'' },
-  'CON.003-AR-I31': { partida:'INSTALAR PLACAS ELÉCTRICAS Y LUMINARIAS',                               fecha_inicio:'2026-08-13' },
-  'CON.003-AR-I32': { partida:'BRUÑAS (Acabados Húmedos)',                                             fecha_inicio:'2026-08-13' },
-  'CON.003-AR-I33': { partida:'COLOCACIÓN DE VENTANAS, MAMPARAS Y CELOSÍAS',                           fecha_inicio:'2026-08-13' },
+  'CON.003-AR-I01': { partida:'INSTALAR PISO Y ZÓCALO CERÁMICO + COLOCACIÓN CERÁMICO BAÑOS Y COCINAS', fecha_inicio:'2026-08-13', frente_padre:'alb' },
+  'CON.003-AR-I02': { partida:'TABIQUERÍA PLACA / TRAZO DE TABIQUES (Acabados Húmedos)',               fecha_inicio:'2026-08-13', frente_padre:'alb' },
+  'CON.003-AR-I03': { partida:'DESBASTE Y SOLAQUEO + EMPASTE DE MUROS Y CIELO RASO',                   fecha_inicio:'2026-08-13', frente_padre:'alb' },
+  'CON.003-AR-I04': { partida:'TABIQUERÍA PLACA (drywall en muros)',                                   fecha_inicio:'2026-08-13', frente_padre:'alb' },
+  'CON.003-AR-I05': { partida:'EMPASTE 1 / EMPASTE 2 DE CIELO RASO',                                   fecha_inicio:'2026-08-13', frente_padre:'alb' },
+  'CON.003-AR-I06': { partida:'LIMPIEZAS Y REBABAS DE PISO',                                           fecha_inicio:'2026-08-13', frente_padre:'alb' },
+  'CON.003-AR-I07': { partida:'PINTURA 1ra y 2da MANO MUROS Y TECHO',                                  fecha_inicio:'2026-08-13', frente_padre:'alb' },
+  'CON.003-AR-I08': { partida:'INSTALAR INODORO Y VANITORIO (Acabados Secos)',                         fecha_inicio:'2026-08-13', frente_padre:'alb' },
+  'CON.003-AR-I09': { partida:'',                                                                      fecha_inicio:'',           frente_padre:'alb' },
+  'CON.003-AR-I10': { partida:'LIMPIEZA EDIFICIOS',                                                    fecha_inicio:'2026-09-11', frente_padre:'alb' },
+  'CON.003-AR-I11': { partida:'INSTALACIÓN DE PISO SPC',                                               fecha_inicio:'2026-08-13', frente_padre:'alb' },
+  'CON.003-AR-I12': { partida:'COLOCACIÓN DE CONTRAZÓCALO Y TAPAJUNTAS',                               fecha_inicio:'2026-08-13', frente_padre:'alb' },
+  'CON.003-AR-I14': { partida:'',                                                                      fecha_inicio:'',           frente_padre:'sup' },
+  'CON.003-AR-I15': { partida:'',                                                                      fecha_inicio:'',           frente_padre:'alb' },
+  'CON.003-AR-I16': { partida:'ACABADOS EN FACHADA · PINTURA',                                         fecha_inicio:'2026-09-03', frente_padre:'sup' },
+  'CON.003-AR-I17': { partida:'ACABADOS EN FACHADA · TEXTURADO',                                       fecha_inicio:'2026-09-03', frente_padre:'sup' },
+  'CON.003-AR-I18': { partida:'COLOCACIÓN DE PUERTAS + CERRADURAS',                                    fecha_inicio:'2026-08-13', frente_padre:'alb' },
+  'CON.003-AR-I19': { partida:'',                                                                      fecha_inicio:'',           frente_padre:'alb' },
+  'CON.003-AR-I20': { partida:'',                                                                      fecha_inicio:'',           frente_padre:'alb' },
+  'CON.003-AR-I22': { partida:'COLOCACIÓN DE PUERTAS + CERRADURAS (PET)',                              fecha_inicio:'2026-08-13', frente_padre:'alb' },
+  'CON.003-AR-I23': { partida:'',                                                                      fecha_inicio:'',           frente_padre:'sot' },
+  'CON.003-AR-I24': { partida:'',                                                                      fecha_inicio:'',           frente_padre:'sup' },
+  'CON.003-AR-I25': { partida:'',                                                                      fecha_inicio:'',           frente_padre:'sup' },
+  'CON.003-AR-I26': { partida:'LIMPIEZAS Y REBABAS DE PISO (definición de niveles)',                   fecha_inicio:'2026-08-13', frente_padre:'alb' },
+  'CON.003-AR-I27': { partida:'ACABADOS EN FACHADA · TEXTUCRETO',                                      fecha_inicio:'2026-09-03', frente_padre:'sup' },
+  'CON.003-AR-I28': { partida:'',                                                                      fecha_inicio:'',           frente_padre:'sup' },
+  'CON.003-AR-I29': { partida:'',                                                                      fecha_inicio:'',           frente_padre:'sot' },
+  'CON.003-AR-I30': { partida:'',                                                                      fecha_inicio:'',           frente_padre:'alb' },
+  'CON.003-AR-I31': { partida:'INSTALAR PLACAS ELÉCTRICAS Y LUMINARIAS',                               fecha_inicio:'2026-08-13', frente_padre:'alb' },
+  'CON.003-AR-I32': { partida:'BRUÑAS (Acabados Húmedos)',                                             fecha_inicio:'2026-08-13', frente_padre:'alb' },
+  'CON.003-AR-I33': { partida:'COLOCACIÓN DE VENTANAS, MAMPARAS Y CELOSÍAS',                           fecha_inicio:'2026-08-13', frente_padre:'alb' },
+};
+
+// ─── Etiquetas legibles de los frentes ───
+const ARQ_SIG_FRENTE_LABELS = {
+  sot: { short: 'SOT', long: 'Casco Sótanos',     color: 'f-sot' },
+  sup: { short: 'SUP', long: 'Casco Superiores',  color: 'f-sup' },
+  alb: { short: 'ALB', long: 'Albañilería',       color: 'f-alb' },
 };
 
 // ─── Constantes de comportamiento ───
-const ARQ_SIG_AUTO_DAYS = 14; // umbral de "Por iniciar" automático
+const ARQ_SIG_AUTO_DAYS = 14;             // umbral de "Por iniciar" automático
+const ARQ_SIG_SPI_WARN = 0.95;            // SPI por debajo → warning
+const ARQ_SIG_SPI_CRITICAL = 0.85;        // SPI por debajo → crítico
+const ARQ_SIG_ALERTAS_PREVIEW = 4;        // cuántas alertas mostrar plegado vs. expandido
+let arqSigAlertsExpanded = false;
 
 // ─── Estado del módulo ───
 let arqSigData = {};                     // { codigo: { estado, comentarios, ultima_edicion, editado_por } }
@@ -10560,7 +10676,86 @@ function arqSigComentarioDe(codigo){
 }
 
 function arqSigMapDe(codigo){
-  return arqSigMapping[codigo] || { partida:'', fecha_inicio:'' };
+  const m = arqSigMapping[codigo] || {};
+  return { partida: m.partida || '', fecha_inicio: m.fecha_inicio || '', frente_padre: m.frente_padre || '' };
+}
+
+// ─── Lectura del SPI activo desde DATA.weeks[currentWeek].spi ───
+function arqSigGetSpi(){
+  // Devuelve { sot:{acumulado, semanal, ...}, sup:{...}, alb:{...} } o null si no hay
+  try {
+    if(!window.DATA || !window.DATA.currentWeek || !window.DATA.weeks) return null;
+    const wk = window.DATA.weeks[window.DATA.currentWeek];
+    if(!wk || !wk.spi) return null;
+    return wk.spi;
+  } catch(e){ return null; }
+}
+
+function arqSigGetSpiFrente(frente){
+  // 'sot'|'sup'|'alb' → { acumulado, semanal, pct_real, pct_prog } o null
+  const spi = arqSigGetSpi();
+  if(!spi || !spi[frente]) return null;
+  const f = spi[frente];
+  // Considerar válido solo si tiene acumulado numérico > 0
+  if(!f.acumulado || isNaN(f.acumulado) || f.acumulado <= 0) return null;
+  return f;
+}
+
+// ─── Cálculo de la fecha predicha por SPI ───
+//   fecha_predicha = fecha_cronograma + ((1 - SPI) × dias_hasta_inicio)
+//   Solo aplica si la fecha está en el futuro y hay SPI válido para el frente
+function arqSigCalcFechaPredicha(codigo){
+  const map = arqSigMapDe(codigo);
+  if(!map.fecha_inicio) return null;
+  const fechaCron = arqSigParseDate(map.fecha_inicio);
+  if(!fechaCron) return null;
+  const dias = arqSigDiasHasta(map.fecha_inicio);
+  if(dias === null) return null;
+
+  const spiData = map.frente_padre ? arqSigGetSpiFrente(map.frente_padre) : null;
+  if(!spiData){
+    // Sin SPI disponible: la predicha es la misma que la cronograma
+    return {
+      fecha: map.fecha_inicio,
+      dias: dias,
+      delta_dias: 0,
+      spi_aplicado: null,
+      tiene_prediccion: false,
+      frente_padre: map.frente_padre || null,
+    };
+  }
+
+  // Solo desplazar si la fecha está en el futuro (no tiene sentido predecir el pasado)
+  if(dias <= 0){
+    return {
+      fecha: map.fecha_inicio,
+      dias: dias,
+      delta_dias: 0,
+      spi_aplicado: spiData.acumulado,
+      tiene_prediccion: false,
+      frente_padre: map.frente_padre,
+    };
+  }
+
+  // Aplicar atraso/adelanto proporcional al horizonte
+  const factor = 1 - spiData.acumulado;        // SPI 0.85 → factor 0.15
+  const deltaDias = Math.round(factor * dias); // Cuántos días desplazar (positivo = atraso)
+
+  const fechaPredichaTs = fechaCron.getTime() + deltaDias * 86400000;
+  const fechaPredicha = new Date(fechaPredichaTs);
+  const yyyy = fechaPredicha.getFullYear();
+  const mm = String(fechaPredicha.getMonth()+1).padStart(2,'0');
+  const dd = String(fechaPredicha.getDate()).padStart(2,'0');
+  const fechaStr = `${yyyy}-${mm}-${dd}`;
+
+  return {
+    fecha: fechaStr,
+    dias: arqSigDiasHasta(fechaStr),
+    delta_dias: deltaDias,
+    spi_aplicado: spiData.acumulado,
+    tiene_prediccion: true,
+    frente_padre: map.frente_padre,
+  };
 }
 
 function arqSigEscapeHtml(str){
@@ -10602,13 +10797,13 @@ function arqSigFormatFechaCorta(fechaStr){
 // Sub-estado auto: 'poriniciar-auto' (cuando faltan 0–14 días y no hay otro estado manual)
 function arqSigEstadoObraEfectivo(codigo){
   const est = arqSigEstadoDe(codigo);
-  // Si el estado manual ya es 'curso' o 'poriniciar', se respeta
   if(est === 'curso' || est === 'poriniciar') return { valor: est, esAuto: false };
-  // Auto-marcado: si no hay estado en obra manual y la fecha está dentro del umbral
-  const map = arqSigMapDe(codigo);
-  const dias = arqSigDiasHasta(map.fecha_inicio);
+  // Auto-marcado: usar la fecha PREDICHA si hay frente padre con SPI, sino la del cronograma
+  const pred = arqSigCalcFechaPredicha(codigo);
+  if(!pred) return { valor: null, esAuto: false };
+  const dias = pred.dias;
   if(dias !== null && dias >= 0 && dias <= ARQ_SIG_AUTO_DAYS){
-    return { valor: 'poriniciar-auto', esAuto: true, dias };
+    return { valor: 'poriniciar-auto', esAuto: true, dias, prediccion: pred };
   }
   return { valor: null, esAuto: false };
 }
@@ -10728,6 +10923,7 @@ function renderArqProcesos(){
   if(hoyEl) hoyEl.textContent = new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'});
 
   arqSigRenderTabla();
+  arqSigRenderAlertas();
   arqSigInitToolbar();
   // Si el panel de mapeo está abierto, refrescarlo también
   if(arqSigMappingPanelOpen) arqSigRenderMappingTable();
@@ -10815,23 +11011,78 @@ function arqSigRenderTabla(){
         <option value="poriniciar" ${selObraValor === 'poriniciar' ? 'selected' : ''}>📅 Por iniciar / Planificado</option>
       </select>`;
 
-    // Hint debajo del select de obra: si es auto, mostrar info; si tiene mapeo y faltan más de 14 días, mostrar fecha
+    // ─── Hint debajo del select de obra (predictivo) ───
+    // Muestra: fecha cronograma · fecha predicha (si aplica) · delta · frente padre
     let obraHint = '';
+    const pred = arqSigCalcFechaPredicha(it.codigo);
+
+    // Frente padre badge
+    let frenteBadge = '';
+    if(map.frente_padre && ARQ_SIG_FRENTE_LABELS[map.frente_padre]){
+      const lbl = ARQ_SIG_FRENTE_LABELS[map.frente_padre];
+      const spiData = arqSigGetSpiFrente(map.frente_padre);
+      const tooltip = spiData
+        ? `Frente padre: ${lbl.long} · SPI ${spiData.acumulado.toFixed(2)}`
+        : `Frente padre: ${lbl.long} · sin SPI activo`;
+      frenteBadge = `<span class="sig-frente-badge ${lbl.color}" title="${tooltip}">${lbl.short}</span>`;
+    }
+
     if(estObra.esAuto){
+      // Auto-marcado: mostrar AUTO + frente
       const claseHint = estObra.dias <= 7 ? 'sig-auto-hint warn' : 'sig-auto-hint';
-      obraHint = `<span class="${claseHint}"><span class="sig-auto-dot"></span>AUTO · ${estObra.dias} día${estObra.dias===1?'':'s'}</span>`;
-    } else if(map.fecha_inicio && !estObra.valor){
-      const dias = arqSigDiasHasta(map.fecha_inicio);
-      if(dias !== null){
-        if(dias < 0){
-          obraHint = `<span class="sig-fecha-prog overdue">⚠ Inició hace ${Math.abs(dias)}d</span>`;
-        } else {
-          obraHint = `<span class="sig-fecha-prog">📅 Inicia ${arqSigFormatFechaCorta(map.fecha_inicio)} (en ${dias}d)</span>`;
+      obraHint = `<div class="sig-fechas-grid">
+        <span class="${claseHint}"><span class="sig-auto-dot"></span>AUTO · ${estObra.dias} día${estObra.dias===1?'':'s'}</span>
+        ${frenteBadge}
+      </div>`;
+    } else if(map.fecha_inicio){
+      // Hay fecha cronograma. Mostrar cronograma + predicha si difieren
+      const lineas = [];
+      const fechaCronTxt = arqSigFormatFechaCorta(map.fecha_inicio);
+      const diasCron = arqSigDiasHasta(map.fecha_inicio);
+
+      if(pred && pred.tiene_prediccion && Math.abs(pred.delta_dias) >= 1){
+        // Hay predicción distinta del cronograma
+        const fechaPredTxt = arqSigFormatFechaCorta(pred.fecha);
+        lineas.push(`<span class="sig-fecha-line">📋 Cron: ${fechaCronTxt}</span>`);
+        let claseDelta = 'predicha';
+        let badgeDelta = '';
+        if(pred.delta_dias > 14){
+          claseDelta = 'predicha-crit';
+          badgeDelta = `<span class="sig-fecha-delta-badge delta-pos">+${pred.delta_dias}d</span>`;
+        } else if(pred.delta_dias > 0){
+          claseDelta = 'predicha-warn';
+          badgeDelta = `<span class="sig-fecha-delta-badge delta-warn">+${pred.delta_dias}d</span>`;
+        } else if(pred.delta_dias < 0){
+          claseDelta = 'predicha-ahead';
+          badgeDelta = `<span class="sig-fecha-delta-badge delta-neg">${pred.delta_dias}d</span>`;
+        }
+        lineas.push(`<span class="sig-fecha-line ${claseDelta}" title="Predicha por SPI ${pred.spi_aplicado.toFixed(2)} del frente ${pred.frente_padre.toUpperCase()}">🔮 Pred: ${fechaPredTxt} ${badgeDelta}</span>`);
+      } else if(diasCron !== null && diasCron < 0){
+        lineas.push(`<span class="sig-fecha-line predicha-crit">⚠ Inició hace ${Math.abs(diasCron)}d (cron: ${fechaCronTxt})</span>`);
+      } else {
+        // Cronograma sin predicción (o predicha = cronograma)
+        const txtFalta = (diasCron !== null && diasCron > 0) ? ` (en ${diasCron}d)` : '';
+        lineas.push(`<span class="sig-fecha-line">📋 Inicia ${fechaCronTxt}${txtFalta}</span>`);
+      }
+      if(frenteBadge) lineas.push(frenteBadge);
+
+      // Si hay manual + cronograma, agregar etiqueta vs predicción
+      if(estObra.valor === 'curso' && pred && pred.tiene_prediccion){
+        const diasPredHoy = pred.dias;
+        if(diasPredHoy > 0){
+          // El usuario marcó "En curso" pero la predicción decía que faltaban X días
+          lineas.push(`<span class="sig-vs-prediccion adelantado">⚡ Iniciado anticipado · pred. era en ${diasPredHoy}d</span>`);
+        } else if(diasPredHoy < -3){
+          lineas.push(`<span class="sig-vs-prediccion atrasado">⏱ Iniciado tarde · pred. era hace ${Math.abs(diasPredHoy)}d</span>`);
         }
       }
-    } else if(map.fecha_inicio && estObra.valor){
-      obraHint = `<span class="sig-fecha-prog">📅 ${arqSigFormatFechaCorta(map.fecha_inicio)}</span>`;
+
+      obraHint = `<div class="sig-fechas-grid">${lineas.join('')}</div>`;
+    } else if(frenteBadge){
+      // Sin fecha pero con frente padre asignado
+      obraHint = `<div class="sig-fechas-grid">${frenteBadge}</div>`;
     }
+
 
     const comentarioCls = `sig-comentario${com ? ' has-content' : ''}`;
     const savingState = arqSigSavingState[it.codigo];
@@ -10992,6 +11243,7 @@ function arqSigRenderMappingTable(){
     if(tienePartida || tieneFecha) mappedCount++;
     const partidaCls = tienePartida ? '' : 'sig-map-empty';
     const fechaCls = tieneFecha ? '' : 'sig-map-empty';
+    const fp = m.frente_padre || '';
     return `
       <tr data-codigo="${it.codigo}">
         <td style="font-weight:600;color:var(--text-muted);">${idx+1}</td>
@@ -11003,8 +11255,16 @@ function arqSigRenderMappingTable(){
         <td>
           <input type="date" class="${fechaCls}" value="${arqSigEscapeHtml(m.fecha_inicio || '')}" onchange="arqSigOnChangeMapping('${it.codigo}','fecha_inicio',this.value)">
         </td>
+        <td>
+          <select onchange="arqSigOnChangeMapping('${it.codigo}','frente_padre',this.value)" title="Frente del que depende esta partida (para predicción por SPI)">
+            <option value="" ${fp==='' ? 'selected' : ''}>— Ninguno —</option>
+            <option value="alb" ${fp==='alb' ? 'selected' : ''}>ALB · Albañilería</option>
+            <option value="sot" ${fp==='sot' ? 'selected' : ''}>SOT · Casco Sótanos</option>
+            <option value="sup" ${fp==='sup' ? 'selected' : ''}>SUP · Casco Superiores</option>
+          </select>
+        </td>
         <td style="text-align:center;">
-          <button class="sig-mapping-clear-btn" onclick="arqSigClearMappingRow('${it.codigo}')" title="Limpiar esta fila">✕ Limpiar</button>
+          <button class="sig-mapping-clear-btn" onclick="arqSigClearMappingRow('${it.codigo}')" title="Limpiar esta fila">✕</button>
         </td>
       </tr>`;
   }).join('');
@@ -11015,7 +11275,7 @@ function arqSigRenderMappingTable(){
 
 function arqSigOnChangeMapping(codigo, campo, valor){
   if(!arqSigPuedeEditar()) return;
-  if(!arqSigMapping[codigo]) arqSigMapping[codigo] = { partida:'', fecha_inicio:'' };
+  if(!arqSigMapping[codigo]) arqSigMapping[codigo] = { partida:'', fecha_inicio:'', frente_padre:'' };
   arqSigMapping[codigo][campo] = valor || '';
   // Debounce de guardado
   if(arqSigMappingTimers[codigo]) clearTimeout(arqSigMappingTimers[codigo]);
@@ -11036,7 +11296,7 @@ function arqSigOnChangeMapping(codigo, campo, valor){
 function arqSigClearMappingRow(codigo){
   if(!arqSigPuedeEditar()) return;
   if(!confirm(`¿Limpiar el mapeo del instructivo ${codigo}?`)) return;
-  arqSigMapping[codigo] = { partida:'', fecha_inicio:'' };
+  arqSigMapping[codigo] = { partida:'', fecha_inicio:'', frente_padre:'' };
   arqSigGuardarMappingFirestore(codigo);
   arqSigRenderMappingTable();
   arqSigRenderTabla();
@@ -11127,7 +11387,8 @@ async function arqSigGuardarMappingFirestore(codigo){
     const { db, doc, setDoc, deleteDoc, serverTimestamp } = window.E140_DB;
     const tienePartida = m && (m.partida || '').trim().length > 0;
     const tieneFecha = m && (m.fecha_inicio || '').trim().length > 0;
-    if(!tienePartida && !tieneFecha){
+    const tieneFrente = m && (m.frente_padre || '').trim().length > 0;
+    if(!tienePartida && !tieneFecha && !tieneFrente){
       // Borrar el doc si no tiene contenido
       try { await deleteDoc(doc(db, 'arq_procesos_sig_mapping', codigo)); } catch(e){}
     } else {
@@ -11135,6 +11396,7 @@ async function arqSigGuardarMappingFirestore(codigo){
         codigo,
         partida: (m.partida || '').trim(),
         fecha_inicio: (m.fecha_inicio || '').trim(),
+        frente_padre: (m.frente_padre || '').trim(),
         editado_por: (currentSession && currentSession.usuario) || '—',
         ultima_edicion: new Date().toISOString(),
         ts: serverTimestamp()
@@ -11168,6 +11430,204 @@ function arqSigRefreshFilaSavingState(codigo){
 }
 
 // ──────────────────────────────────────────
+// MOTOR DE ALERTAS PREDICTIVAS (Nivel 2 ligero)
+// ──────────────────────────────────────────
+function arqSigGenerarAlertas(){
+  const alertas = [];
+  const spi = arqSigGetSpi();
+
+  // 1) Alertas globales por SPI de cada frente
+  if(spi){
+    Object.keys(ARQ_SIG_FRENTE_LABELS).forEach(fkey => {
+      const f = spi[fkey];
+      if(!f || !f.acumulado || f.acumulado <= 0) return;
+      const lbl = ARQ_SIG_FRENTE_LABELS[fkey];
+      if(f.acumulado < ARQ_SIG_SPI_CRITICAL){
+        // Buscar instructivos afectados por este frente
+        const afectados = ARQ_SIG_CATALOGO.filter(it => arqSigMapDe(it.codigo).frente_padre === fkey).length;
+        alertas.push({
+          nivel: 'critical',
+          titulo: `⚠ Frente ${lbl.long} con SPI crítico`,
+          desc: `SPI acumulado <b>${f.acumulado.toFixed(2)}</b> · Hay <b>${afectados}</b> instructivo${afectados!==1?'s':''} mapeado${afectados!==1?'s':''} a este frente que se atrasarán proporcionalmente. Considera priorizar el levantamiento de partidas de ${lbl.short} antes de iniciar nuevas.`,
+          accion: { texto: `Filtrar ${lbl.short}`, fn: `arqSigFiltrarPorFrente('${fkey}')` },
+          peso: 100,
+        });
+      } else if(f.acumulado < ARQ_SIG_SPI_WARN){
+        alertas.push({
+          nivel: 'warning',
+          titulo: `Frente ${lbl.long} con leve atraso`,
+          desc: `SPI acumulado <b>${f.acumulado.toFixed(2)}</b> · Las fechas predichas de los instructivos asignados a este frente se desplazarán proporcionalmente. Aún manejable.`,
+          accion: { texto: `Filtrar ${lbl.short}`, fn: `arqSigFiltrarPorFrente('${fkey}')` },
+          peso: 60,
+        });
+      }
+    });
+  }
+
+  // 2) Instructivos auto-marcados (Por iniciar próximamente)
+  const proxAuto = [];
+  ARQ_SIG_CATALOGO.forEach(it => {
+    const estObra = arqSigEstadoObraEfectivo(it.codigo);
+    const estRev = arqSigEstadoRevisionEfectivo(it.codigo);
+    if(estObra.esAuto && estRev !== 'revisado'){
+      proxAuto.push({ it, dias: estObra.dias });
+    }
+  });
+  proxAuto.sort((a,b) => a.dias - b.dias);
+  proxAuto.slice(0, 3).forEach(x => {
+    const urgencia = x.dias <= 3 ? 'critical' : (x.dias <= 7 ? 'warning' : 'info');
+    alertas.push({
+      nivel: urgencia,
+      titulo: `📅 ${x.it.codigo} · ${x.it.partida}`,
+      desc: `Inicia en <b>${x.dias} día${x.dias===1?'':'s'}</b> · Revisa el instructivo SIG antes de la fecha programada para garantizar cumplimiento desde el primer día.`,
+      accion: { texto: 'Ir al instructivo', fn: `arqSigBuscarYScroll('${x.it.codigo}')` },
+      peso: urgencia === 'critical' ? 90 : (urgencia === 'warning' ? 70 : 40),
+    });
+  });
+
+  // 3) Instructivos cuya fecha cronograma ya pasó pero siguen sin marcarse
+  ARQ_SIG_CATALOGO.forEach(it => {
+    const map = arqSigMapDe(it.codigo);
+    if(!map.fecha_inicio) return;
+    const dias = arqSigDiasHasta(map.fecha_inicio);
+    if(dias === null || dias > 0) return; // solo pasadas
+    const estObra = arqSigEstadoObraEfectivo(it.codigo);
+    const estRev = arqSigEstadoRevisionEfectivo(it.codigo);
+    if(!estObra.valor && estRev !== 'revisado'){
+      alertas.push({
+        nivel: 'critical',
+        titulo: `🔴 ${it.codigo} · ${it.partida} sin marcar`,
+        desc: `Inició hace <b>${Math.abs(dias)} día${Math.abs(dias)===1?'':'s'}</b> según cronograma y aún no tiene estado registrado en obra. Verifica si la partida está en curso o reprogramar.`,
+        accion: { texto: 'Ir al instructivo', fn: `arqSigBuscarYScroll('${it.codigo}')` },
+        peso: 95,
+      });
+    }
+  });
+
+  // 4) Resumen positivo: si todos los próximos 14 días están bien
+  if(proxAuto.length === 0 && alertas.filter(a => a.nivel === 'critical' || a.nivel === 'warning').length === 0){
+    alertas.push({
+      nivel: 'success',
+      titulo: '✅ Sin alertas críticas',
+      desc: 'No hay instructivos con fecha próxima ni partidas con SPI crítico. El sistema sigue monitoreando los frentes activos.',
+      accion: null,
+      peso: 0,
+    });
+  }
+
+  // Ordenar por peso descendente
+  alertas.sort((a,b) => (b.peso||0) - (a.peso||0));
+  return alertas;
+}
+
+function arqSigRenderAlertas(){
+  const banner = document.getElementById('arqSigAlertsBanner');
+  const list = document.getElementById('arqSigAlertsList');
+  if(!banner || !list) return;
+
+  const alertas = arqSigGenerarAlertas();
+  banner.style.display = alertas.length > 0 ? 'block' : 'none';
+
+  // Pintar pills de SPI por frente
+  const spi = arqSigGetSpi();
+  ['sot','sup','alb'].forEach(fkey => {
+    const pill = document.getElementById(`arqSigSpi${fkey.charAt(0).toUpperCase()+fkey.slice(1)}Pill`);
+    if(!pill) return;
+    const f = spi && spi[fkey];
+    if(!f || !f.acumulado || f.acumulado <= 0){
+      pill.style.display = 'none';
+      return;
+    }
+    pill.style.display = 'inline-flex';
+    const v = f.acumulado;
+    let cls = 'spi-good';
+    if(v < ARQ_SIG_SPI_CRITICAL) cls = 'spi-bad';
+    else if(v < ARQ_SIG_SPI_WARN) cls = 'spi-warn';
+    pill.className = `sig-spi-pill ${cls}`;
+    pill.textContent = `${fkey.toUpperCase()} · SPI ${v.toFixed(2)}`;
+  });
+
+  // Mostrar lista (preview o expandida)
+  const mostrar = arqSigAlertsExpanded ? alertas : alertas.slice(0, ARQ_SIG_ALERTAS_PREVIEW);
+  const hayMas = alertas.length > ARQ_SIG_ALERTAS_PREVIEW;
+
+  if(alertas.length === 0){
+    list.innerHTML = `<div class="sig-alerts-empty"><span class="sig-alerts-empty-icon">🌟</span>Sin alertas en este momento.</div>`;
+  } else {
+    list.innerHTML = mostrar.map(a => {
+      const iconos = { critical:'🔴', warning:'🟡', info:'🔵', success:'✅' };
+      const ic = iconos[a.nivel] || '•';
+      const accionHtml = a.accion ? `<div class="sig-alert-action"><button onclick="${a.accion.fn}">${a.accion.texto}</button></div>` : '';
+      return `
+        <div class="sig-alert-item lvl-${a.nivel}">
+          <div class="sig-alert-icon">${ic}</div>
+          <div class="sig-alert-content">
+            <div class="sig-alert-title">${a.titulo}</div>
+            <div class="sig-alert-desc">${a.desc}</div>
+          </div>
+          ${accionHtml}
+        </div>`;
+    }).join('');
+  }
+
+  // Botón "Ver todas / Ver menos"
+  const toggleBtn = document.getElementById('arqSigAlertsToggleBtn');
+  if(toggleBtn){
+    if(hayMas){
+      toggleBtn.style.display = 'inline-block';
+      toggleBtn.textContent = arqSigAlertsExpanded ? `Ver menos` : `Ver todas (${alertas.length})`;
+    } else {
+      toggleBtn.style.display = 'none';
+    }
+  }
+
+  // Meta de fuente
+  const meta = document.getElementById('arqSigAlertsMeta');
+  if(meta){
+    if(spi){
+      const wk = (window.DATA && window.DATA.currentWeek) ? window.DATA.currentWeek : '—';
+      meta.textContent = `Basado en SPI · corte ${wk}`;
+    } else {
+      meta.textContent = 'Sin SPI disponible · cargue Excel semanal';
+    }
+  }
+}
+
+function arqSigToggleAlertsExpanded(){
+  arqSigAlertsExpanded = !arqSigAlertsExpanded;
+  arqSigRenderAlertas();
+}
+
+// Acciones desde alertas
+function arqSigFiltrarPorFrente(fkey){
+  // No hay filtro por frente directo, pero podemos hacer scroll y resaltar visualmente
+  // Por ahora, abrimos panel mapeo si está cerrado y hacemos scroll a la tabla
+  const tbl = document.getElementById('arqSigTbody');
+  if(tbl) tbl.scrollIntoView({ behavior:'smooth', block:'start' });
+  // Resaltar las filas brevemente
+  setTimeout(() => {
+    document.querySelectorAll('#arqSigTbody tr').forEach(tr => {
+      const cod = tr.dataset.codigo;
+      if(!cod) return;
+      const m = arqSigMapDe(cod);
+      if(m.frente_padre === fkey){
+        tr.style.boxShadow = 'inset 4px 0 0 #7B2D8E';
+        setTimeout(() => { tr.style.boxShadow = ''; }, 2400);
+      }
+    });
+  }, 200);
+}
+
+function arqSigBuscarYScroll(codigo){
+  const tr = document.querySelector(`#arqSigTbody tr[data-codigo="${codigo}"]`);
+  if(tr){
+    tr.scrollIntoView({ behavior:'smooth', block:'center' });
+    tr.style.boxShadow = 'inset 4px 0 0 #7B2D8E, 0 0 0 2px rgba(123,45,142,.3)';
+    setTimeout(() => { tr.style.boxShadow = ''; }, 2400);
+  }
+}
+
+// ──────────────────────────────────────────
 // CARGA INICIAL
 // ──────────────────────────────────────────
 async function loadArqProcesosSigFromFirestore(){
@@ -11196,7 +11656,8 @@ async function loadArqProcesosSigFromFirestore(){
       const d = s.data();
       arqSigMapping[s.id] = {
         partida: d.partida || '',
-        fecha_inicio: d.fecha_inicio || ''
+        fecha_inicio: d.fecha_inicio || '',
+        frente_padre: d.frente_padre || ''
       };
     });
     console.log(`[E140] Instructivos SIG (mapeos) cargados: ${Object.keys(arqSigMapping).length}`);
@@ -11209,10 +11670,11 @@ async function loadArqProcesosSigFromFirestore(){
         const m = ARQ_SIG_MAPPING_DEFAULT[codigo];
         const tienePartida = (m.partida || '').trim().length > 0;
         const tieneFecha = (m.fecha_inicio || '').trim().length > 0;
-        if(!tienePartida && !tieneFecha) return; // skip vacíos
+        const tieneFrente = (m.frente_padre || '').trim().length > 0;
+        if(!tienePartida && !tieneFecha && !tieneFrente) return; // skip vacíos
         arqSigMapping[codigo] = { ...m };
         const payload = {
-          codigo, partida: m.partida, fecha_inicio: m.fecha_inicio,
+          codigo, partida: m.partida, fecha_inicio: m.fecha_inicio, frente_padre: m.frente_padre || '',
           editado_por: 'sistema', ultima_edicion: new Date().toISOString(),
           ts: serverTimestamp()
         };
