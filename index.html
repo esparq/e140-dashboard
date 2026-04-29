@@ -1748,6 +1748,122 @@ body.role-viewer .admin-only{display:none !important;}
 .sig-action-btn.cap-edit-estado:hover{background:#FFF8EE;border-color:#A0521E;color:#A0521E;}
 
 /* ═══════════════════════════════════════════
+   AUDIT LOG · Bitácora (sub-pestaña en Auditoría)
+   ═══════════════════════════════════════════ */
+
+/* Tabs internos de Auditoría */
+.audit-tabs{
+  display:flex;gap:6px;padding:0;margin-bottom:18px;
+  border-bottom:1px solid var(--border);
+}
+.audit-tab-btn{
+  background:transparent;border:none;color:var(--text-muted);
+  padding:10px 16px;font-family:inherit;font-size:12px;font-weight:600;
+  cursor:pointer;letter-spacing:.02em;
+  border-bottom:2.5px solid transparent;margin-bottom:-1px;
+  transition:all .15s;display:inline-flex;align-items:center;gap:6px;
+}
+.audit-tab-btn:hover{color:#054C7E;}
+.audit-tab-btn.active{color:#054C7E;border-bottom-color:#054C7E;}
+.audit-tab-content{display:none;}
+.audit-tab-content.active{display:block;animation:fadeIn .2s ease;}
+
+/* Stats arriba de la bitácora */
+.audit-log-stats{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+  margin-bottom:14px;
+}
+@media(max-width:780px){.audit-log-stats{grid-template-columns:repeat(2,1fr);}}
+.audit-log-stat{
+  background:#fff;border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;display:flex;flex-direction:column;gap:3px;
+}
+.audit-log-stat-num{font-family:'DM Sans',sans-serif;font-size:22px;font-weight:700;color:var(--text);line-height:1;}
+.audit-log-stat-lab{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;}
+
+/* Filtros */
+.audit-log-filtros{
+  background:#fff;border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;margin-bottom:14px;
+  display:grid;grid-template-columns:repeat(4,1fr) auto auto;gap:8px;
+  align-items:flex-end;
+}
+@media(max-width:1100px){.audit-log-filtros{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:780px){.audit-log-filtros{grid-template-columns:repeat(2,1fr);}}
+.audit-log-filtro-field{display:flex;flex-direction:column;gap:4px;}
+.audit-log-filtro-label{font-size:9.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;}
+.audit-log-filtro-input,
+.audit-log-filtro-select{
+  padding:7px 10px;border:1px solid var(--border-mid);border-radius:5px;
+  font-family:inherit;font-size:11.5px;color:var(--text);background:#fff;
+  width:100%;
+}
+.audit-log-filtro-input:focus,.audit-log-filtro-select:focus{
+  outline:none;border-color:#054C7E;box-shadow:0 0 0 2px rgba(5,76,126,.12);
+}
+.audit-log-filtro-btn{
+  padding:8px 14px;border:1px solid var(--border-mid);background:#fff;color:var(--text);
+  border-radius:5px;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:5px;height:34px;white-space:nowrap;
+  transition:all .15s;
+}
+.audit-log-filtro-btn:hover{background:#F0F2F5;}
+.audit-log-filtro-btn.primary{
+  background:#1A6B4A;color:#fff;border-color:#1A6B4A;
+}
+.audit-log-filtro-btn.primary:hover{background:#155339;}
+
+/* Tabla */
+.audit-log-tabla-wrap{
+  background:#fff;border:1px solid var(--border);border-radius:10px;
+  overflow:hidden;
+}
+.audit-log-tabla{
+  width:100%;border-collapse:collapse;font-size:11.5px;
+}
+.audit-log-tabla thead{background:#FAFBFC;border-bottom:1.5px solid var(--border);}
+.audit-log-tabla th{
+  padding:10px 12px;text-align:left;font-size:9.5px;font-weight:700;
+  color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;
+}
+.audit-log-tabla td{
+  padding:11px 12px;border-bottom:1px solid #F0F2F5;vertical-align:top;
+}
+.audit-log-tabla tbody tr:hover{background:#FAFBFC;}
+.audit-log-tabla tbody tr:last-child td{border-bottom:none;}
+
+.audit-modulo-badge,
+.audit-accion-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 8px;border-radius:11px;
+  font-size:10px;font-weight:700;letter-spacing:.02em;
+  border:1px solid transparent;
+  white-space:nowrap;
+}
+
+.audit-log-detalle{
+  font-size:10.5px;color:var(--text-muted);line-height:1.4;
+  margin-top:3px;font-style:italic;
+}
+.audit-log-cambios{
+  font-size:9.5px;color:var(--text-muted);font-family:'DM Mono',monospace;
+  background:#FAFBFC;padding:5px 8px;border-radius:4px;border-left:2px solid #054C7E;
+  margin-top:5px;line-height:1.4;
+}
+.audit-log-cambios b{color:#054C7E;}
+
+.audit-id-chip{
+  display:inline-block;padding:2px 6px;background:#F0F2F5;color:var(--text-muted);
+  border-radius:3px;font-size:9px;font-family:'DM Mono',monospace;font-weight:700;cursor:help;
+}
+
+.audit-log-foot{
+  padding:10px 14px;background:#FAFBFC;border-top:1px solid var(--border);
+  font-size:11px;color:var(--text-muted);font-style:italic;
+  display:flex;justify-content:space-between;align-items:center;
+}
+
+/* ═══════════════════════════════════════════
    STATUS DOSSIER · Placeholder "En construcción"
    ═══════════════════════════════════════════ */
 .dossier-placeholder{
@@ -6229,11 +6345,23 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
               <div class="aud-page-sub">Registro completo de los archivos Excel cargados al dashboard · Acceso restringido a Administración y Oficina Técnica</div>
             </div>
           </div>
-          <button class="aud-refresh-btn" onclick="cargarAuditoria(true)" title="Recargar registros desde Firestore">
+          <button class="aud-refresh-btn" onclick="auditOnRefreshClick()" title="Recargar registros desde Firestore">
             <span>🔄</span> Actualizar
           </button>
         </div>
 
+        <!-- Sub-pestañas internas: Trazabilidad de archivos | Bitácora completa (solo adm) -->
+        <div class="audit-tabs">
+          <button class="audit-tab-btn active" data-audtab="trazabilidad" onclick="auditSetTab('trazabilidad')">
+            <span>📦</span> Trazabilidad de archivos
+          </button>
+          <button class="audit-tab-btn" data-audtab="bitacora" onclick="auditSetTab('bitacora')" id="auditTabBitacoraBtn" style="display:none;">
+            <span>🔒</span> Bitácora completa
+          </button>
+        </div>
+
+        <!-- Sub-pestaña 1: Trazabilidad de archivos (contenido existente) -->
+        <div class="audit-tab-content active" data-audtab-content="trazabilidad">
         <!-- Tarjetas resumen -->
         <div class="aud-stats">
           <div class="aud-stat-card">
@@ -6330,6 +6458,104 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
             </table>
           </div>
         </div>
+        </div><!-- /audit-tab-content trazabilidad -->
+
+        <!-- Sub-pestaña 2: Bitácora completa (solo adm) -->
+        <div class="audit-tab-content" data-audtab-content="bitacora" id="auditLogContainer">
+          <div style="background:#FFF8E5;border:1px solid #E5C792;border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px;">
+            <div style="font-size:22px;line-height:1;">🔒</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:13px;color:#5C4119;margin-bottom:4px;">Bitácora maestra · Solo administrador</div>
+              <div style="font-size:11.5px;color:#7A5A18;line-height:1.5;">
+                Registro completo de todas las acciones realizadas en el dashboard por cualquier usuario. Incluye creaciones, ediciones y eliminaciones. La información se conserva indefinidamente.
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="audit-log-stats">
+            <div class="audit-log-stat">
+              <div class="audit-log-stat-num" id="auditLogStatTotal">0</div>
+              <div class="audit-log-stat-lab">Registros totales</div>
+            </div>
+            <div class="audit-log-stat">
+              <div class="audit-log-stat-num" id="auditLogStatHoy">0</div>
+              <div class="audit-log-stat-lab">Acciones hoy</div>
+            </div>
+            <div class="audit-log-stat">
+              <div class="audit-log-stat-num" id="auditLogStatUsuarios">0</div>
+              <div class="audit-log-stat-lab">Usuarios activos</div>
+            </div>
+            <div class="audit-log-stat">
+              <div class="audit-log-stat-num" id="auditLogStatModulo" style="font-size:14px;">—</div>
+              <div class="audit-log-stat-lab">Módulo más activo</div>
+            </div>
+          </div>
+
+          <!-- Filtros -->
+          <div class="audit-log-filtros">
+            <div class="audit-log-filtro-field">
+              <label class="audit-log-filtro-label">Usuario</label>
+              <select class="audit-log-filtro-select" id="auditLogFiltroUsuario" onchange="auditLogOnFiltroChange()">
+                <option value="">Todos los usuarios</option>
+              </select>
+            </div>
+            <div class="audit-log-filtro-field">
+              <label class="audit-log-filtro-label">Módulo</label>
+              <select class="audit-log-filtro-select" id="auditLogFiltroModulo" onchange="auditLogOnFiltroChange()">
+                <option value="">Todos los módulos</option>
+              </select>
+            </div>
+            <div class="audit-log-filtro-field">
+              <label class="audit-log-filtro-label">Acción</label>
+              <select class="audit-log-filtro-select" id="auditLogFiltroAccion" onchange="auditLogOnFiltroChange()">
+                <option value="">Todas las acciones</option>
+              </select>
+            </div>
+            <div class="audit-log-filtro-field">
+              <label class="audit-log-filtro-label">Buscar texto</label>
+              <input type="text" class="audit-log-filtro-input" id="auditLogFiltroTexto" oninput="auditLogOnFiltroChange()" placeholder="Buscar por nombre, detalle…">
+            </div>
+            <div class="audit-log-filtro-field">
+              <label class="audit-log-filtro-label">Desde</label>
+              <input type="date" class="audit-log-filtro-input" id="auditLogFiltroFechaDesde" onchange="auditLogOnFiltroChange()">
+            </div>
+            <div class="audit-log-filtro-field">
+              <label class="audit-log-filtro-label">Hasta</label>
+              <input type="date" class="audit-log-filtro-input" id="auditLogFiltroFechaHasta" onchange="auditLogOnFiltroChange()">
+            </div>
+            <button class="audit-log-filtro-btn" onclick="auditLogResetFiltros()" title="Limpiar todos los filtros">
+              <span>↺</span> Limpiar
+            </button>
+            <button class="audit-log-filtro-btn primary" onclick="auditLogExportarExcel()" title="Exportar resultados filtrados a Excel">
+              <span>📥</span> Excel
+            </button>
+          </div>
+
+          <!-- Tabla -->
+          <div class="audit-log-tabla-wrap">
+            <table class="audit-log-tabla">
+              <thead>
+                <tr>
+                  <th style="width:130px;">Cuándo</th>
+                  <th style="width:170px;">Quién</th>
+                  <th style="width:140px;">Módulo</th>
+                  <th style="width:90px;">Acción</th>
+                  <th>Entidad / Detalle</th>
+                  <th class="td-center" style="width:55px;">ID</th>
+                </tr>
+              </thead>
+              <tbody id="auditLogTbody">
+                <tr><td colspan="6" style="padding:36px 16px;text-align:center;color:var(--text-muted);font-size:12px;font-style:italic;">⏳ Cargando bitácora…</td></tr>
+              </tbody>
+            </table>
+            <div class="audit-log-foot">
+              <span id="auditLogTotalShown">—</span>
+              <span>Persistencia indefinida · ordenado más reciente primero</span>
+            </div>
+          </div>
+        </div><!-- /audit-tab-content bitacora -->
+
       </section>
 
     </div>
@@ -10492,6 +10718,20 @@ async function publicarCapacitacion(){
           });
         }
       } catch(e){ console.warn(e); }
+
+      // 📋 Audit log: creación de capacitación
+      try {
+        if(typeof auditLog === 'function'){
+          const totalAsist = (dataDoc.asistentes || []).length;
+          auditLog({
+            modulo: 'calidad-cap',
+            accion: 'crear',
+            entidad_id: docRef.id,
+            entidad_nombre: tema,
+            detalle: `Fecha ${fecha} · Instructor ${dataDoc.instructor || '—'} · ${totalAsist} asistente${totalAsist===1?'':'s'}`,
+          });
+        }
+      } catch(e){ console.warn(e); }
     }
 
     // Registrar en auditoría si hay Excel
@@ -10594,6 +10834,20 @@ async function eliminarCapacitacion(id){
     capacitacionesData = capacitacionesData.filter(x => x.id !== id);
     if(capDetalleAbierta === id) capDetalleAbierta = null;
     renderCalidadCap();
+
+    // 📋 Audit log: eliminación de capacitación
+    try {
+      if(typeof auditLog === 'function'){
+        auditLog({
+          modulo: 'calidad-cap',
+          accion: 'eliminar',
+          entidad_id: id,
+          entidad_nombre: c.tema || 'Capacitación',
+          detalle: `Fecha ${c.fecha || '—'} · Instructor ${c.instructor || '—'} · ${(c.personal||[]).length} asistente${(c.personal||[]).length===1?'':'s'}`,
+        });
+      }
+    } catch(e){ console.warn(e); }
+
     alert('✓ Capacitación eliminada.');
   } catch(err){
     console.error('[E140] Error eliminando capacitación:', err);
@@ -11139,6 +11393,24 @@ async function procesarPublicacionSsoma(opts){
           descripcion: `Registrado por <b>${userName}</b>${gravedad ? ` · gravedad <b>${gravedad}</b>` : ''}${opts.extraData.fecha ? ` · ${opts.extraData.fecha}` : ''}.`,
           prioridad: esIncidente ? 'alta' : 'media',
           enlace: { tab:'ssoma-sst' },
+        });
+      }
+    } catch(e){ console.warn(e); }
+
+    // 📋 Audit log: registro SSOMA
+    try {
+      if(typeof auditLog === 'function'){
+        const tipoTxtAud = opts.tipo === 'charla' ? 'Charla SSOMA' :
+                           opts.tipo === 'inspeccion' ? 'Inspección SST' :
+                           opts.tipo === 'incidente' ? 'Incidente/Casi-accidente' : 'Reporte SSOMA';
+        const temaAud = opts.extraData.tema || opts.extraData.descripcion || opts.extraData.titulo || '—';
+        const gravedadAud = opts.extraData.gravedad || opts.extraData.severidad || '';
+        auditLog({
+          modulo: 'ssoma',
+          accion: 'crear',
+          entidad_id: docRef.id,
+          entidad_nombre: `${tipoTxtAud}: ${temaAud}`,
+          detalle: `${gravedadAud ? `Gravedad ${gravedadAud} · ` : ''}${opts.extraData.fecha ? `Fecha ${opts.extraData.fecha}` : ''}${adjuntoUrl ? ' · con adjunto' : ''}`,
         });
       }
     } catch(e){ console.warn(e); }
@@ -11900,6 +12172,29 @@ function arqSigSetEstado(codigo, nuevoEstado){
           prioridad: 'baja',
           enlace: { tab:'arq-procesos', codigo: codigo },
           dedupKey: `sig_estado_${codigo}_${nuevoEstado}_${currentSession.usuario}_${hoyStr}`,
+        });
+      }
+    }
+  } catch(e){ console.warn(e); }
+
+  // 📋 Audit log: marcado de instructivo SIG
+  try {
+    if(typeof auditLog === 'function' && nuevoEstado && nuevoEstado !== estadoAnterior){
+      const it = ARQ_SIG_CATALOGO.find(x => x.codigo === codigo);
+      if(it){
+        const estadoLblAud = ({
+          'revisado': 'Revisado / N.A.',
+          'pendiente-rev': 'Pendiente',
+          'curso': 'En curso',
+          'poriniciar': 'Por iniciar / Planificado',
+        })[nuevoEstado] || nuevoEstado;
+        auditLog({
+          modulo: 'arq-procesos',
+          accion: 'marcar',
+          entidad_id: codigo,
+          entidad_nombre: `${codigo} · ${it.partida}`,
+          detalle: `Estado: ${estadoLblAud}${estadoAnterior ? ` (antes: ${estadoAnterior})` : ''}`,
+          cambios: { antes: { estado: estadoAnterior || null }, despues: { estado: nuevoEstado } },
         });
       }
     }
@@ -13157,6 +13452,398 @@ function notifInit(){
       try { notifLoadFromFirestore({ silent: false }); } catch(e){}
     }
   });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   AUDIT LOG · Bitácora maestra de actividad (solo visible para adm)
+   Persistencia indefinida en Firestore.
+   ═══════════════════════════════════════════════════════════════════ */
+
+const AUDIT_MODULOS = {
+  pendientes:     { icon:'📌', label:'Pendientes',         color:'#A0521E' },
+  ssoma:          { icon:'🦺', label:'SSOMA',              color:'#8A2A2D' },
+  'calidad-sig':  { icon:'✅', label:'Calidad SIG',        color:'#1A6B4A' },
+  'calidad-cap':  { icon:'🎓', label:'Capacitaciones',     color:'#1A6B4A' },
+  'calidad-nc':   { icon:'⚠',  label:'No Conformidades',   color:'#7A3F18' },
+  'arq-procesos': { icon:'📐', label:'Procesos SIG Arq.',  color:'#5B2470' },
+  fotos:          { icon:'📸', label:'Fotos',              color:'#076285' },
+  data:           { icon:'📊', label:'Data semanal',       color:'#054C7E' },
+  reporte:        { icon:'📄', label:'Reporte Gerencial',  color:'#5B2470' },
+  sistema:        { icon:'⚙',  label:'Sistema',             color:'#666' },
+};
+
+const AUDIT_ACCIONES = {
+  crear:    { label:'Creó',          color:'#1A6B4A' },
+  editar:   { label:'Editó',         color:'#054C7E' },
+  eliminar: { label:'Eliminó',       color:'#8A2A2D' },
+  marcar:   { label:'Marcó',         color:'#5B2470' },
+  cargar:   { label:'Cargó',         color:'#054C7E' },
+  publicar: { label:'Publicó',       color:'#1A6B4A' },
+  asignar:  { label:'Asignó',        color:'#054C7E' },
+  config:   { label:'Configuró',     color:'#7A3F18' },
+};
+
+let auditLogData = [];           // últimos N registros cargados
+let auditLogFiltros = {
+  usuario: '',
+  modulo: '',
+  accion: '',
+  fechaDesde: '',
+  fechaHasta: '',
+  texto: '',
+};
+
+// ────────────────────────────────────────────
+// API CENTRAL: auditLog()
+// Llamada desde cualquier módulo para registrar actividad
+// ────────────────────────────────────────────
+async function auditLog(opts){
+  // opts: { modulo, accion, entidad_id?, entidad_nombre, detalle?, cambios? }
+  if(!opts || !opts.modulo || !opts.accion) return null;
+  if(!currentSession) return null;
+
+  const ahora = Date.now();
+  const registro = {
+    id: `audit_${ahora}_${Math.random().toString(36).slice(2,8)}`,
+    timestamp_ms:    ahora,
+    fecha_iso:       new Date(ahora).toISOString(),
+    usuario:         currentSession.usuario,
+    nombre:          currentSession.nombre || currentSession.usuario,
+    rol:             currentSession.rol || '',
+    modulo:          opts.modulo,
+    accion:          opts.accion,
+    entidad_id:      opts.entidad_id || null,
+    entidad_nombre:  (opts.entidad_nombre || '').toString().substring(0, 200),
+    detalle:         (opts.detalle || '').toString().substring(0, 500),
+    cambios:         opts.cambios || null,    // { antes:{}, despues:{} } cuando aplica
+  };
+
+  // Cache local
+  auditLogData.unshift(registro);
+
+  // Persistir en Firestore (no bloqueante)
+  if(window.E140_DB){
+    try {
+      const { db, doc, setDoc, serverTimestamp } = window.E140_DB;
+      await setDoc(doc(db, 'audit_log', registro.id), {
+        ...registro,
+        ts: serverTimestamp(),
+      }, { merge: true });
+    } catch(err){
+      console.warn('[E140] auditLog: no se pudo persistir', err);
+    }
+  }
+
+  return registro;
+}
+
+// ────────────────────────────────────────────
+// CARGA desde Firestore
+// ────────────────────────────────────────────
+async function auditLogLoadFromFirestore(){
+  if(!window.E140_DB) return;
+  if(!currentSession || currentSession.usuario !== 'adm') return; // Solo adm carga
+  try {
+    const { db, collection, getDocs, query, orderBy, limit } = window.E140_DB;
+    // Cargar las últimas 1000 entradas (suficiente para meses de uso)
+    const q = query(collection(db, 'audit_log'), orderBy('timestamp_ms', 'desc'), limit(1000));
+    const snapshot = await getDocs(q);
+    auditLogData = [];
+    snapshot.forEach(s => {
+      const d = s.data();
+      auditLogData.push({
+        id: s.id,
+        timestamp_ms:    d.timestamp_ms || 0,
+        fecha_iso:       d.fecha_iso || '',
+        usuario:         d.usuario || '—',
+        nombre:          d.nombre || d.usuario || '—',
+        rol:             d.rol || '',
+        modulo:          d.modulo || 'sistema',
+        accion:          d.accion || 'editar',
+        entidad_id:      d.entidad_id || null,
+        entidad_nombre:  d.entidad_nombre || '',
+        detalle:         d.detalle || '',
+        cambios:         d.cambios || null,
+      });
+    });
+    console.log(`[E140] Audit log cargado: ${auditLogData.length} registros`);
+  } catch(err){
+    console.warn('[E140] No se pudo cargar audit_log:', err.message || err);
+  }
+}
+
+// ────────────────────────────────────────────
+// FORMATEADORES
+// ────────────────────────────────────────────
+function auditEscapeHtml(str){
+  if(str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function auditFormatTimeAgo(ts){
+  if(!ts) return '—';
+  const now = Date.now();
+  const diff = Math.floor((now - ts) / 1000);
+  if(diff < 60) return 'ahora';
+  if(diff < 3600) return `hace ${Math.floor(diff/60)} min`;
+  if(diff < 86400) return `hace ${Math.floor(diff/3600)} h`;
+  if(diff < 604800) return `hace ${Math.floor(diff/86400)} d`;
+  return new Date(ts).toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'2-digit'});
+}
+
+function auditFormatFechaCompleta(ts){
+  if(!ts) return '—';
+  const d = new Date(ts);
+  const fecha = d.toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const hora = d.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
+  return `${fecha} · ${hora}`;
+}
+
+// ────────────────────────────────────────────
+// FILTROS Y RENDER
+// ────────────────────────────────────────────
+function auditLogAplicarFiltros(){
+  const f = auditLogFiltros;
+  return auditLogData.filter(r => {
+    if(f.usuario && r.usuario !== f.usuario) return false;
+    if(f.modulo && r.modulo !== f.modulo) return false;
+    if(f.accion && r.accion !== f.accion) return false;
+    if(f.fechaDesde){
+      const ts = new Date(f.fechaDesde + 'T00:00:00').getTime();
+      if(r.timestamp_ms < ts) return false;
+    }
+    if(f.fechaHasta){
+      const ts = new Date(f.fechaHasta + 'T23:59:59').getTime();
+      if(r.timestamp_ms > ts) return false;
+    }
+    if(f.texto){
+      const q = f.texto.toLowerCase();
+      const haystack = [r.entidad_nombre, r.detalle, r.usuario, r.nombre].join(' ').toLowerCase();
+      if(!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function auditLogRender(){
+  if(!currentSession || currentSession.usuario !== 'adm') return;
+  const wrap = document.getElementById('auditLogContainer');
+  if(!wrap) return;
+
+  const lista = auditLogAplicarFiltros();
+
+  // Stats arriba
+  const totalEl = document.getElementById('auditLogStatTotal');
+  const usuariosEl = document.getElementById('auditLogStatUsuarios');
+  const moduloEl = document.getElementById('auditLogStatModulo');
+  const hoyEl = document.getElementById('auditLogStatHoy');
+  if(totalEl) totalEl.textContent = lista.length;
+  if(usuariosEl){
+    const usuariosUnicos = new Set(lista.map(r => r.usuario)).size;
+    usuariosEl.textContent = usuariosUnicos;
+  }
+  if(moduloEl){
+    const counts = {};
+    lista.forEach(r => { counts[r.modulo] = (counts[r.modulo]||0)+1; });
+    const top = Object.entries(counts).sort((a,b) => b[1]-a[1])[0];
+    if(top){
+      const lbl = AUDIT_MODULOS[top[0]] ? AUDIT_MODULOS[top[0]].label : top[0];
+      moduloEl.textContent = `${lbl} (${top[1]})`;
+    } else {
+      moduloEl.textContent = '—';
+    }
+  }
+  if(hoyEl){
+    const hoyTs = new Date().setHours(0,0,0,0);
+    const hoyCount = lista.filter(r => r.timestamp_ms >= hoyTs).length;
+    hoyEl.textContent = hoyCount;
+  }
+
+  // Filtros (poblar dropdowns con valores únicos)
+  const selUsuario = document.getElementById('auditLogFiltroUsuario');
+  const selModulo  = document.getElementById('auditLogFiltroModulo');
+  const selAccion  = document.getElementById('auditLogFiltroAccion');
+  if(selUsuario && !selUsuario.dataset.populated){
+    const usuariosUnicos = [...new Set(auditLogData.map(r => r.usuario))].sort();
+    selUsuario.innerHTML = '<option value="">Todos los usuarios</option>' +
+      usuariosUnicos.map(u => `<option value="${auditEscapeHtml(u)}">${auditEscapeHtml(u)}</option>`).join('');
+    selUsuario.dataset.populated = '1';
+  }
+  if(selModulo && !selModulo.dataset.populated){
+    const opciones = Object.keys(AUDIT_MODULOS).map(k => {
+      const m = AUDIT_MODULOS[k];
+      return `<option value="${k}">${m.icon} ${auditEscapeHtml(m.label)}</option>`;
+    }).join('');
+    selModulo.innerHTML = '<option value="">Todos los módulos</option>' + opciones;
+    selModulo.dataset.populated = '1';
+  }
+  if(selAccion && !selAccion.dataset.populated){
+    const opciones = Object.keys(AUDIT_ACCIONES).map(k =>
+      `<option value="${k}">${auditEscapeHtml(AUDIT_ACCIONES[k].label)}</option>`).join('');
+    selAccion.innerHTML = '<option value="">Todas las acciones</option>' + opciones;
+    selAccion.dataset.populated = '1';
+  }
+
+  // Tabla principal
+  const tbody = document.getElementById('auditLogTbody');
+  if(!tbody) return;
+
+  if(lista.length === 0){
+    tbody.innerHTML = `
+      <tr><td colspan="6" style="padding:36px 16px;text-align:center;color:var(--text-muted);font-size:12px;font-style:italic;">
+        <div style="font-size:36px;margin-bottom:10px;opacity:.4;">🔍</div>
+        <b>Sin registros</b> · ${auditLogData.length === 0 ? 'aún no hay actividad capturada' : 'no hay coincidencias para los filtros aplicados'}.
+      </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = lista.slice(0, 500).map((r, idx) => {
+    const m = AUDIT_MODULOS[r.modulo] || AUDIT_MODULOS.sistema;
+    const a = AUDIT_ACCIONES[r.accion] || { label: r.accion, color:'#666' };
+    const fechaCompleta = auditFormatFechaCompleta(r.timestamp_ms);
+    const tiempoCorto = auditFormatTimeAgo(r.timestamp_ms);
+    const detalleHtml = r.detalle ? `<div class="audit-log-detalle">${auditEscapeHtml(r.detalle)}</div>` : '';
+    const cambiosHtml = r.cambios ? `<div class="audit-log-cambios"><b>Antes:</b> ${auditEscapeHtml(JSON.stringify(r.cambios.antes||{}).substring(0,80))} <b>Después:</b> ${auditEscapeHtml(JSON.stringify(r.cambios.despues||{}).substring(0,80))}</div>` : '';
+    return `<tr>
+      <td class="td-mono" style="white-space:nowrap;">
+        <div style="font-weight:700;color:var(--text);">${tiempoCorto}</div>
+        <div style="font-size:9.5px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-top:2px;">${fechaCompleta}</div>
+      </td>
+      <td>
+        <div style="display:flex;align-items:center;gap:7px;">
+          <div style="width:28px;height:28px;border-radius:50%;background:#F0F2F5;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text);flex-shrink:0;">${auditEscapeHtml((r.nombre||'?').charAt(0).toUpperCase())}</div>
+          <div style="min-width:0;">
+            <div style="font-weight:700;font-size:11.5px;line-height:1.25;">${auditEscapeHtml(r.nombre)}</div>
+            <div style="font-size:9.5px;color:var(--text-muted);">@${auditEscapeHtml(r.usuario)}</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <span class="audit-modulo-badge" style="background:${m.color}15;color:${m.color};border-color:${m.color}40;">
+          ${m.icon} ${auditEscapeHtml(m.label)}
+        </span>
+      </td>
+      <td>
+        <span class="audit-accion-badge" style="background:${a.color}15;color:${a.color};">
+          ${auditEscapeHtml(a.label)}
+        </span>
+      </td>
+      <td>
+        <div style="font-weight:600;font-size:11.5px;color:var(--text);line-height:1.3;">${auditEscapeHtml(r.entidad_nombre || '—')}</div>
+        ${detalleHtml}
+        ${cambiosHtml}
+      </td>
+      <td class="td-center">
+        ${r.entidad_id ? `<span class="audit-id-chip" title="${auditEscapeHtml(r.entidad_id)}">ID</span>` : '—'}
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Mostrar contador "viendo X de Y"
+  const cntEl = document.getElementById('auditLogTotalShown');
+  if(cntEl){
+    if(lista.length > 500){
+      cntEl.textContent = `Mostrando 500 de ${lista.length} (refina los filtros para ver más)`;
+    } else {
+      cntEl.textContent = `${lista.length} registro${lista.length === 1 ? '' : 's'}`;
+    }
+  }
+}
+
+function auditLogOnFiltroChange(){
+  const u = document.getElementById('auditLogFiltroUsuario');
+  const m = document.getElementById('auditLogFiltroModulo');
+  const a = document.getElementById('auditLogFiltroAccion');
+  const fd = document.getElementById('auditLogFiltroFechaDesde');
+  const fh = document.getElementById('auditLogFiltroFechaHasta');
+  const tx = document.getElementById('auditLogFiltroTexto');
+  auditLogFiltros = {
+    usuario:    u ? u.value : '',
+    modulo:     m ? m.value : '',
+    accion:     a ? a.value : '',
+    fechaDesde: fd ? fd.value : '',
+    fechaHasta: fh ? fh.value : '',
+    texto:      tx ? tx.value.trim() : '',
+  };
+  auditLogRender();
+}
+
+function auditLogResetFiltros(){
+  ['auditLogFiltroUsuario','auditLogFiltroModulo','auditLogFiltroAccion',
+   'auditLogFiltroFechaDesde','auditLogFiltroFechaHasta','auditLogFiltroTexto'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  auditLogFiltros = { usuario:'', modulo:'', accion:'', fechaDesde:'', fechaHasta:'', texto:'' };
+  auditLogRender();
+}
+
+async function auditLogExportarExcel(){
+  const lista = auditLogAplicarFiltros();
+  if(lista.length === 0){
+    alert('No hay registros para exportar.');
+    return;
+  }
+  // Construir hoja con SheetJS (ya disponible)
+  if(typeof XLSX === 'undefined'){
+    alert('SheetJS no está disponible.');
+    return;
+  }
+  const headers = ['Fecha y hora','Usuario','Rol','Módulo','Acción','Entidad','Detalle','ID'];
+  const rows = lista.map(r => [
+    auditFormatFechaCompleta(r.timestamp_ms),
+    r.nombre + ' (@'+r.usuario+')',
+    r.rol,
+    (AUDIT_MODULOS[r.modulo] && AUDIT_MODULOS[r.modulo].label) || r.modulo,
+    (AUDIT_ACCIONES[r.accion] && AUDIT_ACCIONES[r.accion].label) || r.accion,
+    r.entidad_nombre,
+    r.detalle,
+    r.entidad_id || '',
+  ]);
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  // Anchos de columna
+  ws['!cols'] = [{wch:22},{wch:25},{wch:14},{wch:18},{wch:14},{wch:40},{wch:60},{wch:24}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Bitácora');
+  const ahora = new Date();
+  const fname = `Bitacora_E140_${ahora.toISOString().slice(0,10)}.xlsx`;
+  XLSX.writeFile(wb, fname);
+}
+
+// ────────────────────────────────────────────
+// Inicialización al entrar a la sub-pestaña
+// ────────────────────────────────────────────
+async function abrirAuditLog(){
+  if(!currentSession || currentSession.usuario !== 'adm') return;
+  // Cargar si está vacío o si ha pasado más de 60s desde la última carga
+  await auditLogLoadFromFirestore();
+  auditLogRender();
+}
+
+// Cambiar entre sub-pestañas de Auditoría
+function auditSetTab(name){
+  document.querySelectorAll('.audit-tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.audtab === name);
+  });
+  document.querySelectorAll('.audit-tab-content').forEach(c => {
+    c.classList.toggle('active', c.dataset.audtabContent === name);
+  });
+  if(name === 'bitacora'){
+    abrirAuditLog();
+  }
+}
+
+// Botón "Actualizar" del header sirve para refrescar la sub-pestaña activa
+function auditOnRefreshClick(){
+  const activeTab = document.querySelector('.audit-tab-btn.active');
+  const tab = activeTab ? activeTab.dataset.audtab : 'trazabilidad';
+  if(tab === 'bitacora'){
+    abrirAuditLog();
+  } else {
+    cargarAuditoria(true);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -14429,6 +15116,12 @@ function applySessionToUI(){
     document.body.classList.add('report-allowed');
   }
 
+  // Solo 'adm' puede ver la bitácora maestra dentro de Auditoría
+  if(currentSession.usuario === 'adm'){
+    const btnBit = document.getElementById('auditTabBitacoraBtn');
+    if(btnBit) btnBit.style.display = '';
+  }
+
   // Insertar info de usuario y botón de logout en el header
   const thRight = document.querySelector('.th-right');
   if(thRight && !document.getElementById('hdrUserBlock')){
@@ -15595,6 +16288,19 @@ async function publicarFotosOnline(){
       }
     } catch(e){ console.warn(e); }
 
+    // 📋 Audit log: publicación de fotos
+    try {
+      if(typeof auditLog === 'function'){
+        auditLog({
+          modulo: 'fotos',
+          accion: 'publicar',
+          entidad_id: sem,
+          entidad_nombre: `${total} fotos · ${sem}`,
+          detalle: `Corte ${fotosState.fecha} · ${total} foto${total===1?'':'s'} subida${total===1?'':'s'}`,
+        });
+      }
+    } catch(e){ console.warn(e); }
+
     // Reactivar cerrar después de 2.5s
     setTimeout(() => {
       if(cancel) cancel.disabled = false;
@@ -15757,6 +16463,24 @@ async function guardarDatosFirestore(semana, area, datos){
           prioridad: 'baja',
           enlace: { tab:'resumen' },
           dedupKey: `data_${semana}_${area}_${hoyStr}`,
+        });
+      }
+    } catch(e){ console.warn(e); }
+
+    // 📋 Audit log: carga de Excel semanal
+    try {
+      if(typeof auditLog === 'function'){
+        const areaLabelAud = ({
+          operaciones: 'Operaciones', calidad: 'Calidad', ssoma: 'SSOMA',
+          arquitectura: 'Arquitectura', logistica: 'Logística',
+        })[area] || area;
+        const numArchivosAud = Object.keys(datos.archivos || {}).length;
+        auditLog({
+          modulo: 'data',
+          accion: 'cargar',
+          entidad_id: docId,
+          entidad_nombre: `Data ${semana} · ${areaLabelAud}`,
+          detalle: `${numArchivosAud} archivo${numArchivosAud===1?'':'s'} procesado${numArchivosAud===1?'':'s'}${datos.corte_fecha ? ` · corte ${datos.corte_fecha}` : ''}`,
         });
       }
     } catch(e){ console.warn(e); }
@@ -16352,6 +17076,34 @@ async function publicarInspeccionSIG(){
           });
         }
       } catch(e){ console.warn(e); }
+
+      // 📋 Audit log: inspección SIG creada
+      try {
+        if(typeof auditLog === 'function'){
+          auditLog({
+            modulo: 'calidad-sig',
+            accion: 'crear',
+            entidad_id: docId,
+            entidad_nombre: `Inspección SIG · ${sem} · ${pct.toFixed(1)}%`,
+            detalle: `Inspector ${inspector} · Fecha ${fecha} · Puntaje ${puntajeObt}/${puntajeMax}${observaciones ? ' · ' + observaciones.substring(0,80) : ''}`,
+          });
+        }
+      } catch(e){ console.warn(e); }
+    }
+
+    // 📋 Audit log: edición de inspección SIG
+    if(modoEdicion){
+      try {
+        if(typeof auditLog === 'function'){
+          auditLog({
+            modulo: 'calidad-sig',
+            accion: 'editar',
+            entidad_id: docId,
+            entidad_nombre: `Inspección SIG · ${sem} · ${pct.toFixed(1)}%`,
+            detalle: `Editado por ${userName} · Inspector ${inspector} · Fecha ${fecha}${pdfReemplazado ? ' · PDF reemplazado' : ''}`,
+          });
+        }
+      } catch(e){ console.warn(e); }
     }
 
     // PASO 3: registrar en auditoría si se subió/reemplazó PDF
@@ -16478,6 +17230,20 @@ async function eliminarInspeccionSIG(id){
     if(currentTab === 'calidad-sig'){
       try { renderCalidadSIG(); } catch(e){}
     }
+
+    // 📋 Audit log: eliminación de inspección SIG
+    try {
+      if(typeof auditLog === 'function'){
+        auditLog({
+          modulo: 'calidad-sig',
+          accion: 'eliminar',
+          entidad_id: id,
+          entidad_nombre: `Inspección SIG · ${inspeccion.semana || '—'} · ${inspeccion.cumplimiento_pct}%`,
+          detalle: `Inspector ${inspeccion.inspector || '—'} · Fecha ${inspeccion.fecha_inspeccion || '—'}`,
+        });
+      }
+    } catch(e){ console.warn(e); }
+
     alert(`✓ Inspección eliminada correctamente.\n\n${detalle}`);
   } catch(err){
     console.error('[E140] Error eliminando inspección SIG:', err);
@@ -16991,6 +17757,19 @@ async function publicarPendiente(){
       }
     } catch(e){ console.warn(e); }
 
+    // 📋 Audit log: creación de pendiente
+    try {
+      if(typeof auditLog === 'function'){
+        auditLog({
+          modulo: 'pendientes',
+          accion: 'crear',
+          entidad_id: docRef.id,
+          entidad_nombre: titulo,
+          detalle: `Prioridad ${prioridad} · Área ${area}${asignadoNombre ? ` · Asignada a ${asignadoNombre}` : ''}${fechaMax ? ` · Vence ${fechaMax}` : ''}`,
+        });
+      }
+    } catch(e){ console.warn(e); }
+
     setTimeout(() => {
       if(cancel) cancel.disabled = false;
       btn.disabled = false;
@@ -17286,6 +18065,20 @@ async function cambiarEstadoPendiente(id, nuevoEstado){
 
     renderPendienteDetalle(p);
     renderPendientes();
+
+    // 📋 Audit log: cambio de estado de pendiente
+    try {
+      if(typeof auditLog === 'function'){
+        auditLog({
+          modulo: 'pendientes',
+          accion: 'editar',
+          entidad_id: id,
+          entidad_nombre: p.titulo || 'Pendiente',
+          detalle: `Estado: ${estadoAnt.label} → ${estadoNuevo.label}`,
+          cambios: { antes: { estado: estadoAnt.label }, despues: { estado: estadoNuevo.label } },
+        });
+      }
+    } catch(e){ console.warn(e); }
   } catch(err){
     console.error('[E140] Error cambiando estado:', err);
     alert(`❌ Error: ${err.message || err}`);
@@ -17307,6 +18100,20 @@ async function eliminarPendiente(id){
     pendientesData = pendientesData.filter(x => x.id !== id);
     closePendienteDetalleModal();
     renderPendientes();
+
+    // 📋 Audit log: eliminación de pendiente
+    try {
+      if(typeof auditLog === 'function'){
+        auditLog({
+          modulo: 'pendientes',
+          accion: 'eliminar',
+          entidad_id: id,
+          entidad_nombre: p.titulo || 'Pendiente',
+          detalle: `Estado al eliminar: ${p.estado || '—'} · Prioridad ${p.prioridad || '—'} · Área ${p.area || '—'}`,
+        });
+      }
+    } catch(e){ console.warn(e); }
+
     alert('✓ Tarea eliminada.');
   } catch(err){
     console.error('[E140] Error eliminando tarea:', err);
