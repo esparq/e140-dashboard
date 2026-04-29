@@ -1627,11 +1627,109 @@ body.role-viewer .admin-only{display:none !important;}
 .cap-mini-desaprobado .cap-mini-num{color:#8A2A2D;}
 .cap-mini-pendiente .cap-mini-num{color:#7A3F18;}
 .cap-mini-lab{font-size:9.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600;}
-.cap-resumen-tabla-wrap{max-height:200px;overflow-y:auto;border-radius:5px;background:#fff;}
+.cap-resumen-tabla-wrap{max-height:240px;overflow-y:auto;border-radius:5px;background:#fff;}
 .cap-resumen-tabla{width:100%;border-collapse:collapse;font-size:11.5px;}
 .cap-resumen-tabla th{position:sticky;top:0;background:#FAFBFC;color:var(--text-muted);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);}
 .cap-resumen-tabla td{padding:7px 10px;border-bottom:1px solid #F0F2F5;}
 .cap-resumen-tabla tr:last-child td{border-bottom:none;}
+
+/* ─── Acciones por fila en la tabla del modal de capacitación ─── */
+.cap-row-actions{display:inline-flex;align-items:center;gap:4px;}
+.cap-row-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:5px;border:1px solid var(--border);
+  background:#fff;cursor:pointer;font-size:13px;color:var(--text-muted);
+  transition:all .15s;padding:0;line-height:1;
+}
+.cap-row-btn:hover{transform:translateY(-1px);}
+.cap-row-btn.edit:hover{background:#E0EEF8;border-color:var(--twitter-blue);color:var(--twitter-blue);}
+.cap-row-btn.delete:hover{background:#FBEAEA;border-color:#D64045;color:#D64045;}
+
+/* Botón "Agregar persona" arriba de la tabla */
+.cap-resumen-toolbar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 0 10px 0;margin-bottom:10px;border-bottom:1px dashed var(--border-mid);
+  gap:10px;flex-wrap:wrap;
+}
+.cap-resumen-toolbar-info{font-size:10.5px;color:var(--text-muted);font-style:italic;}
+.cap-add-person-btn{
+  background:#1976D2;color:#fff;border:none;
+  padding:7px 13px;border-radius:6px;
+  font-family:inherit;font-size:11px;font-weight:700;
+  cursor:pointer;letter-spacing:.02em;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:all .15s;
+}
+.cap-add-person-btn:hover{background:#0D47A1;transform:translateY(-1px);box-shadow:0 4px 10px rgba(25,118,210,.25);}
+.cap-add-person-btn:active{transform:translateY(0);}
+
+/* ─── Mini-modal de edición/creación de persona ─── */
+.cap-edit-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);
+  z-index:9800;display:none;align-items:center;justify-content:center;
+  padding:20px;animation:fadeIn .2s ease;
+}
+.cap-edit-overlay.show{display:flex;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.cap-edit-card{
+  background:#fff;border-radius:14px;width:100%;max-width:440px;
+  box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden;
+  animation:scaleIn .25s cubic-bezier(.2,.8,.4,1.05);
+}
+@keyframes scaleIn{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
+.cap-edit-head{
+  padding:14px 18px;background:linear-gradient(135deg,#1976D2 0%,#0D47A1 100%);
+  color:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.cap-edit-title{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;letter-spacing:.02em;display:flex;align-items:center;gap:8px;}
+.cap-edit-close{
+  background:rgba(255,255,255,.18);border:none;color:#fff;
+  width:28px;height:28px;border-radius:6px;cursor:pointer;
+  font-size:14px;display:flex;align-items:center;justify-content:center;
+  transition:all .12s;
+}
+.cap-edit-close:hover{background:rgba(255,255,255,.28);}
+.cap-edit-body{padding:18px;}
+.cap-edit-field{margin-bottom:12px;}
+.cap-edit-field:last-child{margin-bottom:0;}
+.cap-edit-label{
+  display:block;font-size:10.5px;font-weight:700;
+  color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;
+  margin-bottom:5px;
+}
+.cap-edit-input,.cap-edit-select{
+  width:100%;padding:9px 11px;border:1px solid var(--border-mid);
+  border-radius:6px;font-family:inherit;font-size:13px;color:var(--text);
+  background:#fff;transition:all .12s;
+}
+.cap-edit-input:focus,.cap-edit-select:focus{
+  outline:none;border-color:#1976D2;box-shadow:0 0 0 3px rgba(25,118,210,.12);
+}
+.cap-edit-foot{
+  padding:12px 18px;background:#FAFBFC;
+  display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);
+}
+.cap-edit-btn-cancel{
+  background:#fff;color:var(--text);border:1px solid var(--border-mid);
+  padding:8px 16px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .12s;
+}
+.cap-edit-btn-cancel:hover{background:#F0F2F5;}
+.cap-edit-btn-save{
+  background:#1976D2;color:#fff;border:1px solid #1976D2;
+  padding:8px 18px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:700;
+  cursor:pointer;transition:all .12s;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.cap-edit-btn-save:hover{background:#0D47A1;}
+.cap-edit-btn-save:disabled{opacity:.5;cursor:not-allowed;}
+
+/* Estado vacío en la tabla */
+.cap-resumen-empty{
+  padding:30px 16px;text-align:center;color:var(--text-muted);
+  font-size:12px;font-style:italic;
+}
+.cap-resumen-empty-icon{font-size:28px;display:block;margin-bottom:8px;opacity:.4;}
 
 /* Estados de capacitación (badges) */
 .cap-estado-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:11px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
@@ -3036,9 +3134,23 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
               </div>
             </div>
             <div class="cap-resumen-tabla-wrap">
+              <div class="cap-resumen-toolbar">
+                <span class="cap-resumen-toolbar-info">💡 Puedes editar o eliminar cada persona, o agregar nuevas manualmente.</span>
+                <button type="button" class="cap-add-person-btn" onclick="capAddPersona()">
+                  <span style="font-size:14px;line-height:1;">+</span>
+                  <span>Agregar persona</span>
+                </button>
+              </div>
               <table class="cap-resumen-tabla">
                 <thead>
-                  <tr><th>#</th><th>Apellidos</th><th>Nombre</th><th>Cargo</th><th class="td-center">Estado</th></tr>
+                  <tr>
+                    <th>#</th>
+                    <th>Apellidos</th>
+                    <th>Nombre</th>
+                    <th>Cargo</th>
+                    <th class="td-center">Estado</th>
+                    <th class="td-center" style="width:75px;">Acciones</th>
+                  </tr>
                 </thead>
                 <tbody id="capResumenTbody"></tbody>
               </table>
@@ -9801,7 +9913,9 @@ function openCapModal(){
   document.getElementById('capDropzoneSubtitle').textContent = 'Excel con columnas: Apellidos · Nombre · Cargo · Nota · Obra · Estado · Hasta 5 MB';
   document.getElementById('capDropzone').classList.remove('has-file');
   document.getElementById('capExcelInfo').style.display = 'none';
-  document.getElementById('capResumenPersonal').style.display = 'none';
+  // Mostrar siempre el panel del personal (con estado vacío si no hay datos)
+  // para permitir agregar manualmente sin necesidad de cargar Excel
+  mostrarResumenCapPersonal();
   document.getElementById('capEvidenciaTitle').textContent = 'CARGAR FOTO O PDF (opcional)';
   document.getElementById('capEvidenciaDropzone').classList.remove('has-file');
   document.getElementById('capProgressBanner').style.display = 'none';
@@ -9965,22 +10079,137 @@ function mostrarResumenCapPersonal(){
   document.getElementById('capCntDesaprobado').textContent = cDes;
   document.getElementById('capCntPendiente').textContent = cPen;
 
-  tbody.innerHTML = capPersonalParseado.map((p, i) => {
-    let badge = '';
-    if(p.estado === 'aprobado')           badge = '<span class="cap-estado-badge cap-estado-aprobado">✓ Aprobado</span>';
-    else if(p.estado === 'desaprobado')   badge = '<span class="cap-estado-badge cap-estado-desaprobado">✗ Desaprobado</span>';
-    else                                   badge = '<span class="cap-estado-badge cap-estado-pendiente">⏳ Pendiente</span>';
-    return `<tr>
-      <td>${i + 1}</td>
-      <td><b>${escapeHtml(p.apellidos || '—')}</b></td>
-      <td>${escapeHtml(p.nombre || '—')}</td>
-      <td>${escapeHtml(p.cargo || '—')}</td>
-      <td class="td-center">${badge}</td>
-    </tr>`;
-  }).join('');
+  if(capPersonalParseado.length === 0){
+    tbody.innerHTML = `
+      <tr><td colspan="6">
+        <div class="cap-resumen-empty">
+          <span class="cap-resumen-empty-icon">👥</span>
+          <b>Sin personas todavía</b><br>
+          Carga un Excel o agrega personas manualmente con el botón <b>+ Agregar persona</b>.
+        </div>
+      </td></tr>`;
+  } else {
+    tbody.innerHTML = capPersonalParseado.map((p, i) => {
+      let badge = '';
+      if(p.estado === 'aprobado')           badge = '<span class="cap-estado-badge cap-estado-aprobado">✓ Aprobado</span>';
+      else if(p.estado === 'desaprobado')   badge = '<span class="cap-estado-badge cap-estado-desaprobado">✗ Desaprobado</span>';
+      else                                   badge = '<span class="cap-estado-badge cap-estado-pendiente">⏳ Pendiente</span>';
+      return `<tr>
+        <td>${i + 1}</td>
+        <td><b>${escapeHtml(p.apellidos || '—')}</b></td>
+        <td>${escapeHtml(p.nombre || '—')}</td>
+        <td>${escapeHtml(p.cargo || '—')}</td>
+        <td class="td-center">${badge}</td>
+        <td class="td-center">
+          <div class="cap-row-actions">
+            <button type="button" class="cap-row-btn edit" onclick="capEditPersona(${i})" title="Editar">✏️</button>
+            <button type="button" class="cap-row-btn delete" onclick="capDeletePersona(${i})" title="Eliminar">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
 
   cont.style.display = '';
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// EDICIÓN DE PERSONAS (capacitación) — agregar / editar / eliminar
+// ═══════════════════════════════════════════════════════════════════
+
+let capEditIndex = -1; // -1 = modo agregar, otro número = índice a editar
+
+function capAddPersona(){
+  capEditIndex = -1;
+  document.getElementById('capEditIcon').textContent = '➕';
+  document.getElementById('capEditHeading').textContent = 'Agregar persona';
+  document.getElementById('capEditSaveLabel').textContent = 'Agregar';
+  // Limpiar campos
+  document.getElementById('capEditApellidos').value = '';
+  document.getElementById('capEditNombre').value = '';
+  document.getElementById('capEditCargo').value = '';
+  document.getElementById('capEditEstado').value = 'aprobado';
+  // Abrir modal
+  document.getElementById('capEditOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('capEditApellidos').focus(), 50);
+}
+
+function capEditPersona(idx){
+  if(idx < 0 || idx >= capPersonalParseado.length) return;
+  const p = capPersonalParseado[idx];
+  capEditIndex = idx;
+  document.getElementById('capEditIcon').textContent = '✏️';
+  document.getElementById('capEditHeading').textContent = `Editar persona #${idx + 1}`;
+  document.getElementById('capEditSaveLabel').textContent = 'Guardar';
+  document.getElementById('capEditApellidos').value = p.apellidos || '';
+  document.getElementById('capEditNombre').value = p.nombre || '';
+  document.getElementById('capEditCargo').value = p.cargo || '';
+  document.getElementById('capEditEstado').value = p.estado || 'aprobado';
+  document.getElementById('capEditOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('capEditApellidos').focus(), 50);
+}
+
+function capDeletePersona(idx){
+  if(idx < 0 || idx >= capPersonalParseado.length) return;
+  const p = capPersonalParseado[idx];
+  const nombreCompleto = `${p.apellidos || ''} ${p.nombre || ''}`.trim() || `persona #${idx + 1}`;
+  if(!confirm(`¿Eliminar a ${nombreCompleto} de la lista?\n\nEsta acción no se puede deshacer.`)) return;
+  capPersonalParseado.splice(idx, 1);
+  mostrarResumenCapPersonal();
+}
+
+function capCloseEditModal(){
+  document.getElementById('capEditOverlay').classList.remove('show');
+  capEditIndex = -1;
+}
+
+function capSaveEditModal(){
+  const apellidos = document.getElementById('capEditApellidos').value.trim();
+  const nombre = document.getElementById('capEditNombre').value.trim();
+  const cargo = document.getElementById('capEditCargo').value.trim();
+  const estado = document.getElementById('capEditEstado').value;
+
+  if(!apellidos){
+    alert('Los apellidos son obligatorios.');
+    document.getElementById('capEditApellidos').focus();
+    return;
+  }
+  if(!nombre){
+    alert('El nombre es obligatorio.');
+    document.getElementById('capEditNombre').focus();
+    return;
+  }
+
+  if(capEditIndex === -1){
+    // Modo agregar
+    capPersonalParseado.push({
+      apellidos, nombre, cargo: cargo || '', estado,
+      // Mantener campos opcionales que el resto del flujo pudiera esperar
+      nota: '', obra: '', _origen: 'manual'
+    });
+  } else {
+    // Modo editar — preservar campos extra si los hubiera
+    const existing = capPersonalParseado[capEditIndex] || {};
+    capPersonalParseado[capEditIndex] = {
+      ...existing,
+      apellidos, nombre, cargo: cargo || '', estado,
+    };
+  }
+
+  capCloseEditModal();
+  mostrarResumenCapPersonal();
+}
+
+// Permitir Enter para guardar y Escape para cerrar dentro del modal
+document.addEventListener('keydown', (e) => {
+  const overlay = document.getElementById('capEditOverlay');
+  if(!overlay || !overlay.classList.contains('show')) return;
+  if(e.key === 'Escape'){ capCloseEditModal(); }
+  else if(e.key === 'Enter' && (e.target.classList.contains('cap-edit-input') || e.target.classList.contains('cap-edit-select'))){
+    e.preventDefault();
+    capSaveEditModal();
+  }
+});
 
 function handleCapEvidenciaFile(file){
   if(!file) return;
@@ -18561,6 +18790,49 @@ function v2RenderAll(){
   <div class="notif-foot">
     <span class="notif-foot-info" id="notifFootInfo">—</span>
     <button class="notif-head-btn" onclick="notifRequestPushPermission()" id="notifPushBtn" style="background:#1976D2;border-color:#1976D2;display:none;">🔔 Activar push</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Mini-modal · Editar/Agregar persona en capacitación
+     ═══════════════════════════════════════════ -->
+<div class="cap-edit-overlay" id="capEditOverlay" onclick="if(event.target===this)capCloseEditModal()">
+  <div class="cap-edit-card">
+    <div class="cap-edit-head">
+      <div class="cap-edit-title">
+        <span id="capEditIcon">✏️</span>
+        <span id="capEditHeading">Editar persona</span>
+      </div>
+      <button class="cap-edit-close" onclick="capCloseEditModal()" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="cap-edit-body">
+      <div class="cap-edit-field">
+        <label class="cap-edit-label" for="capEditApellidos">Apellidos *</label>
+        <input type="text" class="cap-edit-input" id="capEditApellidos" placeholder="Ej: Rojas Otiniano" autocomplete="off">
+      </div>
+      <div class="cap-edit-field">
+        <label class="cap-edit-label" for="capEditNombre">Nombre *</label>
+        <input type="text" class="cap-edit-input" id="capEditNombre" placeholder="Ej: José" autocomplete="off">
+      </div>
+      <div class="cap-edit-field">
+        <label class="cap-edit-label" for="capEditCargo">Cargo</label>
+        <input type="text" class="cap-edit-input" id="capEditCargo" placeholder="Ej: Residente" autocomplete="off">
+      </div>
+      <div class="cap-edit-field">
+        <label class="cap-edit-label" for="capEditEstado">Estado *</label>
+        <select class="cap-edit-select" id="capEditEstado">
+          <option value="aprobado">✓ Aprobado</option>
+          <option value="desaprobado">✗ Desaprobado</option>
+          <option value="pendiente">⏳ Pendiente</option>
+        </select>
+      </div>
+    </div>
+    <div class="cap-edit-foot">
+      <button class="cap-edit-btn-cancel" onclick="capCloseEditModal()">Cancelar</button>
+      <button class="cap-edit-btn-save" id="capEditSaveBtn" onclick="capSaveEditModal()">
+        <span>✓</span><span id="capEditSaveLabel">Guardar</span>
+      </button>
+    </div>
   </div>
 </div>
 
