@@ -17635,6 +17635,9 @@ async function guardarKpiOverride(){
   btn.disabled = true;
   btn.textContent = 'Guardando…';
 
+  let success = false;
+  let errMsg = null;
+
   try {
     const { db, doc, setDoc } = window.E140_DB;
     const docId = `${semana.toLowerCase()}_${kpi}`;
@@ -17651,8 +17654,9 @@ async function guardarKpiOverride(){
     // Actualizar caché local
     if(!KPI_OVERRIDES[semana]) KPI_OVERRIDES[semana] = {};
     KPI_OVERRIDES[semana][kpi] = valor;
+    success = true;
 
-    // Audit log
+    // Audit log (no bloquea si falla)
     try {
       if(typeof auditLog === 'function'){
         auditLog({
@@ -17663,20 +17667,32 @@ async function guardarKpiOverride(){
           detalle: `Valor manual: ${valor.toFixed(meta.decimals)}${meta.unit} · Valor calculado: ${valorAuto != null ? valorAuto.toFixed(meta.decimals)+meta.unit : 'N/D'}`,
         });
       }
-    } catch(e){ console.warn(e); }
-
-    // Re-render del dashboard (recalcula KPIs y Utilidad en Riesgo)
-    cerrarKpiEditModal();
-    if(typeof renderCurrentWeek === 'function') renderCurrentWeek();
-    showBanner('ok',
-      `✓ ${meta.label} actualizado a <b>${valor.toFixed(meta.decimals)}${meta.unit}</b> para ${semana}. La Utilidad en Riesgo se recalculó automáticamente.`,
-      true);
+    } catch(e){ console.warn('[E140] auditLog falló:', e); }
   } catch(err){
     console.error('[E140] Error guardando override:', err);
-    document.getElementById('kpiEditResult').innerHTML =
-      `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ Error: ${err.message || err}</div>`;
+    errMsg = err.message || String(err);
+  } finally {
+    // Restaurar SIEMPRE el botón
     btn.textContent = '💾 Guardar override';
     btn.disabled = false;
+
+    if(success){
+      // Cerrar modal y refrescar UI
+      cerrarKpiEditModal();
+      try {
+        if(typeof renderCurrentWeek === 'function') renderCurrentWeek();
+      } catch(e){ console.warn('[E140] renderCurrentWeek falló:', e); }
+      try {
+        if(typeof showBanner === 'function'){
+          showBanner('ok',
+            `✓ ${meta.label} actualizado a <b>${valor.toFixed(meta.decimals)}${meta.unit}</b> para ${semana}. La Utilidad en Riesgo se recalculó automáticamente.`,
+            true);
+        }
+      } catch(e){ console.warn('[E140] showBanner falló:', e); }
+    } else if(errMsg){
+      document.getElementById('kpiEditResult').innerHTML =
+        `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ Error: ${errMsg}</div>`;
+    }
   }
 }
 
@@ -17704,6 +17720,9 @@ async function restaurarKpiAutomatico(){
   btn.disabled = true;
   btn.textContent = 'Restaurando…';
 
+  let success = false;
+  let errMsg = null;
+
   try {
     const { db, doc, deleteDoc } = window.E140_DB;
     const docId = `${semana.toLowerCase()}_${kpi}`;
@@ -17711,8 +17730,9 @@ async function restaurarKpiAutomatico(){
 
     // Actualizar caché local
     if(KPI_OVERRIDES[semana]) delete KPI_OVERRIDES[semana][kpi];
+    success = true;
 
-    // Audit log
+    // Audit log (no bloquea)
     try {
       if(typeof auditLog === 'function'){
         auditLog({
@@ -17723,19 +17743,31 @@ async function restaurarKpiAutomatico(){
           detalle: `Restauró el cálculo automático (eliminó el override manual).`,
         });
       }
-    } catch(e){ console.warn(e); }
-
-    cerrarKpiEditModal();
-    if(typeof renderCurrentWeek === 'function') renderCurrentWeek();
-    showBanner('ok',
-      `↺ ${meta.label} restaurado al valor calculado automático para ${semana}.`,
-      true);
+    } catch(e){ console.warn('[E140] auditLog falló:', e); }
   } catch(err){
     console.error('[E140] Error restaurando:', err);
+    errMsg = err.message || String(err);
+  } finally {
+    // Restaurar SIEMPRE el botón
     btn.textContent = '↺ Restaurar automático';
     btn.disabled = false;
-    document.getElementById('kpiEditResult').innerHTML =
-      `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ Error: ${err.message || err}</div>`;
+
+    if(success){
+      cerrarKpiEditModal();
+      try {
+        if(typeof renderCurrentWeek === 'function') renderCurrentWeek();
+      } catch(e){ console.warn('[E140] renderCurrentWeek falló:', e); }
+      try {
+        if(typeof showBanner === 'function'){
+          showBanner('ok',
+            `↺ ${meta.label} restaurado al valor calculado automático para ${semana}.`,
+            true);
+        }
+      } catch(e){ console.warn('[E140] showBanner falló:', e); }
+    } else if(errMsg){
+      document.getElementById('kpiEditResult').innerHTML =
+        `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ Error: ${errMsg}</div>`;
+    }
   }
 }
 
