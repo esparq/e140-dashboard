@@ -2980,7 +2980,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
         <div class="sig-form-row">
           <div class="sig-form-field">
             <label>Semana del proyecto <span style="color:var(--twitter-blue);font-weight:700;">(auto)</span></label>
-            <input type="text" id="sigSemCod" placeholder="S37" autocomplete="off">
+            <input type="text" id="sigSemCod" placeholder="S37" autocomplete="off" readonly tabindex="-1" style="background:#F4F6F9;color:var(--text-muted);cursor:not-allowed;font-weight:700;" title="La semana se calcula automáticamente desde la fecha de inspección">
           </div>
           <div class="sig-form-field">
             <label>Fecha de inspección</label>
@@ -2991,9 +2991,9 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
         <!-- Fila 2: % Cumplimiento + Inspector -->
         <div class="sig-form-row">
           <div class="sig-form-field">
-            <label>% Cumplimiento SIG <span style="color:#D64045;">*</span></label>
+            <label>% Cumplimiento SIG <span style="color:var(--twitter-blue);font-weight:700;">(auto)</span></label>
             <div class="sig-input-suffix">
-              <input type="number" id="sigCumplimiento" placeholder="100" min="0" max="100" step="1" oninput="actualizarPreviewSIG()">
+              <input type="number" id="sigCumplimiento" placeholder="0" min="0" max="100" step="0.01" readonly tabindex="-1" style="background:#F4F6F9;color:var(--text-muted);cursor:not-allowed;font-weight:700;" title="Se calcula automáticamente: (Puntaje obtenido ÷ Puntaje máximo) × 100">
               <span class="sig-suffix">%</span>
             </div>
           </div>
@@ -3003,15 +3003,15 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
           </div>
         </div>
 
-        <!-- Fila 3: Puntaje obtenido y máximo -->
+        <!-- Fila 3: Puntaje obtenido y máximo (estos SÍ se editan, calculan el %) -->
         <div class="sig-form-row">
           <div class="sig-form-field">
-            <label>Puntaje obtenido</label>
-            <input type="number" id="sigPuntajeObt" placeholder="104" min="0" step="1">
+            <label>Puntaje obtenido <span style="color:#D64045;">*</span></label>
+            <input type="number" id="sigPuntajeObt" placeholder="104" min="0" step="0.01" oninput="recalcularCumplimientoSIG()">
           </div>
           <div class="sig-form-field">
-            <label>Puntaje máximo</label>
-            <input type="number" id="sigPuntajeMax" placeholder="104" min="0" step="1" value="104">
+            <label>Puntaje máximo <span style="color:#D64045;">*</span></label>
+            <input type="number" id="sigPuntajeMax" placeholder="104" min="0" step="0.01" value="104" oninput="recalcularCumplimientoSIG()">
           </div>
         </div>
 
@@ -15976,7 +15976,10 @@ function abrirSigModalCommon(opts){
   }
 
   modal.classList.add('show');
-  setTimeout(() => cumplInput.focus(), 100);
+  // Recalcular el % al abrir (por si hay puntajes precargados en modo edición)
+  setTimeout(() => recalcularCumplimientoSIG(), 50);
+  // Focus en el primer campo editable significativo: puntaje obtenido
+  setTimeout(() => pObtInput.focus(), 150);
 }
 
 function closeSigModal(){
@@ -15998,6 +16001,28 @@ function handleSigPdf(file){
   document.getElementById('sigDropzoneTitle').textContent = `📄 ${file.name}`;
   document.getElementById('sigDropzoneSubtitle').textContent = `${formatBytes(file.size)} · Click aquí para cambiar el archivo`;
   document.getElementById('sigDropzone').classList.add('has-file');
+}
+
+function recalcularCumplimientoSIG(){
+  // % Cumplimiento = (Puntaje obtenido / Puntaje máximo) × 100
+  const obt = parseFloat(document.getElementById('sigPuntajeObt').value);
+  const max = parseFloat(document.getElementById('sigPuntajeMax').value);
+  const cumplInput = document.getElementById('sigCumplimiento');
+  if(!cumplInput) return;
+
+  if(isNaN(obt) || isNaN(max) || max <= 0){
+    // Sin datos válidos: limpiar el campo
+    cumplInput.value = '';
+    actualizarPreviewSIG();
+    return;
+  }
+
+  // Calcular y redondear a 2 decimales
+  const pct = Math.round((obt / max) * 10000) / 100;
+  // Limitar entre 0 y 100 (por seguridad si alguien pone obt > max)
+  const pctClamp = Math.max(0, Math.min(100, pct));
+  cumplInput.value = pctClamp;
+  actualizarPreviewSIG();
 }
 
 function actualizarPreviewSIG(){
@@ -16030,6 +16055,19 @@ async function publicarInspeccionSIG(){
 
   if(!/^S\d{1,3}$/.test(sem)){ alert('Código de semana inválido. Formato esperado: S37'); return; }
   if(!fecha){ alert('Fecha de inspección requerida.'); return; }
+  if(puntajeObt === null || isNaN(puntajeObt) || puntajeObt < 0){
+    alert('Indica el puntaje obtenido (mayor o igual a 0).');
+    document.getElementById('sigPuntajeObt').focus();
+    return;
+  }
+  if(puntajeMax === null || isNaN(puntajeMax) || puntajeMax <= 0){
+    alert('El puntaje máximo debe ser mayor a 0.');
+    document.getElementById('sigPuntajeMax').focus();
+    return;
+  }
+  if(puntajeObt > puntajeMax){
+    if(!confirm(`El puntaje obtenido (${puntajeObt}) es mayor que el puntaje máximo (${puntajeMax}). ¿Continuar de todas formas?`)) return;
+  }
   if(isNaN(pct) || pct < 0 || pct > 100){ alert('% Cumplimiento debe ser un valor entre 0 y 100.'); return; }
   if(!inspector){ alert('Indica el nombre del inspector.'); return; }
 
