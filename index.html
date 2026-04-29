@@ -280,8 +280,9 @@ body.audit-allowed .audit-only{display:revert !important;}
 body.audit-allowed .sb-item.audit-only{display:flex !important;}
 
 /* Visibilidad del Reporte Gerencial · solo adm + gerencia */
-.report-only{display:none !important;}
-body.report-allowed .report-only{display:revert !important;}
+/* Esta clase oculta solo el BOTÓN del sidebar para los demás roles. */
+/* La sección se controla por la clase .active estándar + guard en setTab. */
+.sb-item.report-only{display:none !important;}
 body.report-allowed .sb-item.report-only{display:flex !important;}
 
 /* Botones de acción para editar/eliminar inspecciones (solo audit-allowed) */
@@ -4332,9 +4333,9 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
       <!-- ═══════════════════════════════════════════
            SECCIÓN — REPORTE GERENCIAL
            Genera PDF/Excel ejecutivo con todos los KPIs del mes
-           Solo visible para adm y gerencia
+           Solo visible para adm y gerencia (validado en setTab)
            ═══════════════════════════════════════════ -->
-      <section class="section report-only" id="sec-reporte">
+      <section class="section" id="sec-reporte">
         <!-- Header -->
         <div class="rep-page-header">
           <div class="rep-page-title-wrap">
@@ -7730,8 +7731,8 @@ function setTab(tab){
   document.querySelectorAll('.section').forEach(s=>{
     const isActive = s.id==='sec-'+tab;
     s.classList.toggle('active', isActive);
-    // Para secciones audit-only o report-only, forzar display cuando están activas (su style inline es display:none)
-    if(s.classList.contains('audit-only') || s.classList.contains('report-only')){
+    // Para secciones audit-only, forzar display:flex cuando están activas (su style inline es display:none)
+    if(s.classList.contains('audit-only')){
       s.style.display = isActive ? '' : 'none';
     }
   });
@@ -12099,6 +12100,9 @@ function notifFormatTimeAgo(ts){
 
 function notifPuedeVer(notif){
   if(!currentSession) return false;
+  // ─── El usuario 'adm' SIEMPRE ve todas las notificaciones ───
+  // (incluso las antiguas con campo `para` que no lo incluya)
+  if(currentSession.usuario === 'adm') return true;
   // Si tiene lista 'para', validar; sino, todos la ven
   if(Array.isArray(notif.para) && notif.para.length > 0){
     return notif.para.includes(currentSession.usuario);
@@ -12428,17 +12432,21 @@ async function notifEjecutarCron(){
 // ──────────────────────────────────────────
 // CARGA / GUARDADO Firestore
 // ──────────────────────────────────────────
-async function notifLoadFromFirestore(){
+async function notifLoadFromFirestore(opts){
+  // opts: { silent?: bool } → si silent, no animar campana ni mostrar toast en cargas posteriores
   if(!window.E140_DB) return;
+  const isInitialLoad = !opts || !opts.silent;
   try {
     const { db, collection, getDocs, query, orderBy, limit } = window.E140_DB;
     // Cargar las últimas 200 notificaciones
     const q = query(collection(db, 'notificaciones'), orderBy('timestamp_ms', 'desc'), limit(200));
     const snapshot = await getDocs(q);
+    const idsAnteriores = new Set(notifsData.map(n => n.id));
+    const nuevasArr = [];
     notifsData = [];
     snapshot.forEach(s => {
       const d = s.data();
-      notifsData.push({
+      const notif = {
         id: s.id,
         tipo: d.tipo || 'sistema',
         titulo: d.titulo || '',
@@ -12450,10 +12458,38 @@ async function notifLoadFromFirestore(){
         prioridad: d.prioridad || 'media',
         origen_usuario: d.origen_usuario || 'sistema',
         dedup_key: d.dedup_key || null,
-      });
+      };
+      notifsData.push(notif);
+      // Detectar si es nueva (no estaba antes)
+      if(!isInitialLoad && !idsAnteriores.has(notif.id)){
+        nuevasArr.push(notif);
+      }
     });
-    console.log(`[E140] Notificaciones cargadas: ${notifsData.length}`);
+    console.log(`[E140] Notificaciones cargadas: ${notifsData.length}` + (nuevasArr.length > 0 ? ` (${nuevasArr.length} nuevas detectadas en polling)` : ''));
     notifRender();
+
+    // Si hay notifs nuevas tras un polling, dispararlas (toast/sonido) si aplican al usuario
+    if(nuevasArr.length > 0 && !isInitialLoad){
+      // Ordenar por timestamp y procesar la más reciente para evitar spam
+      nuevasArr.sort((a,b) => (b.timestamp_ms||0) - (a.timestamp_ms||0));
+      // Solo disparar efectos si la notif viene de OTRO usuario (no la que el propio user generó)
+      const nuevasParaMi = nuevasArr.filter(n =>
+        notifPuedeVer(n) &&
+        n.origen_usuario !== (currentSession?.usuario || '')
+      );
+      if(nuevasParaMi.length > 0){
+        notifPlaySound();
+        // Mostrar toast solo de la más reciente (evita 5 toasts encimados)
+        notifShowToast(nuevasParaMi[0]);
+        // Animar campana
+        const bell = document.getElementById('notifBellBtn');
+        if(bell){
+          bell.classList.remove('shake');
+          void bell.offsetWidth;
+          bell.classList.add('shake');
+        }
+      }
+    }
   } catch(err){
     console.warn('[E140] No se pudieron cargar notificaciones:', err.message || err);
   }
@@ -12706,6 +12742,21 @@ function notifInit(){
   setInterval(() => {
     try { notifEjecutarCron(); } catch(e){}
   }, 3600 * 1000);
+
+  // ─── Polling cada 60s para sincronizar notificaciones de otros usuarios ───
+  // Esto hace que el adm (y todos) reciban en tiempo casi-real las acciones de otros.
+  // Solo se ejecuta si la pestaña está visible (ahorra batería en móvil).
+  setInterval(() => {
+    if(document.hidden) return; // pestaña en background → skip
+    try { notifLoadFromFirestore({ silent: false }); } catch(e){}
+  }, 60 * 1000);
+
+  // Refresco inmediato cuando la pestaña vuelve a estar visible
+  document.addEventListener('visibilitychange', () => {
+    if(!document.hidden){
+      try { notifLoadFromFirestore({ silent: false }); } catch(e){}
+    }
+  });
 }
 
 /* ═══════════════════════════════════════════════════════════════════
