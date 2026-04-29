@@ -18578,10 +18578,27 @@ function identificarArchivoPorArea(file, area){
   for(const a of expArea){
     const pref = a.prefijo.toLowerCase();
     if(name.startsWith(pref + '_') || name.startsWith(pref + '.') || name.startsWith(pref + '__')){
-      return a;
+      // Devolver una copia con el campo hoja:'_DASHBOARD_DATA' incluido
+      return { ...a, hoja: '_DASHBOARD_DATA' };
     }
   }
-  // Si no calza con un prefijo del área, igual lo aceptamos como genérico
+  // Si no calza con la propia área, buscar si pertenece a OTRA área para dar mensaje útil
+  for(const otraArea of Object.keys(ARCHIVOS_POR_AREA)){
+    if(otraArea === area) continue;
+    for(const a of (ARCHIVOS_POR_AREA[otraArea] || [])){
+      const pref = a.prefijo.toLowerCase();
+      if(name.startsWith(pref + '_') || name.startsWith(pref + '.') || name.startsWith(pref + '__')){
+        // Match en otra área → devolver con info clara para que el usuario lo mueva
+        return {
+          ...a,
+          hoja: '_DASHBOARD_DATA',
+          areaCorrecta: otraArea,
+          label: a.label + ' (mover a ' + otraArea + ')'
+        };
+      }
+    }
+  }
+  // Si no calza con ningún prefijo, lo aceptamos como genérico
   // (útil para Arquitectura, SSOMA y Calidad que aún no tienen prefijos definidos)
   return {
     prefijo: '?',
