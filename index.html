@@ -276,8 +276,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .sb-item.sb-auditoria.active{background:#FFE0B3;color:#7A3F18;border-color:#A0521E;font-weight:700;}
 
 /* Regla aplicada al body cuando el usuario es 'adm' u 'oficina' */
-body.audit-allowed .audit-only{display:revert !important;}
+/* Visibilidad de Auditoría · solo adm + oficina */
+/* Esta clase oculta botones del sidebar y celdas de tablas (acciones) para roles sin permiso. */
+/* La sección se controla por la clase .active estándar + guard en setTab. */
+.sb-item.audit-only{display:none !important;}
+th.audit-only, td.audit-only{display:none !important;}
 body.audit-allowed .sb-item.audit-only{display:flex !important;}
+body.audit-allowed th.audit-only,
+body.audit-allowed td.audit-only{display:table-cell !important;}
 
 /* Visibilidad del Reporte Gerencial · solo adm + gerencia */
 /* Esta clase oculta solo el BOTÓN del sidebar para los demás roles. */
@@ -3836,7 +3842,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
 
     <div class="sb-divider" style="margin-top:auto"></div>
     <div class="sb-nav" style="padding-top:4px;padding-bottom:4px">
-      <button class="sb-item sb-auditoria audit-only" id="sbAuditoria" data-tab="auditoria" onclick="setTab('auditoria')" style="display:none;">
+      <button class="sb-item sb-auditoria audit-only" id="sbAuditoria" data-tab="auditoria" onclick="setTab('auditoria')">
         <span class="sb-num">🔍</span>
         <span class="sb-label">Auditoría</span>
       </button>
@@ -4973,7 +4979,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
                   <th>Responsable</th>
                   <th class="td-center">Detalle</th>
                   <th class="td-center">Adjunto</th>
-                  <th class="td-center audit-only" style="display:none;">Acciones</th>
+                  <th class="td-center audit-only">Acciones</th>
                 </tr>
               </thead>
               <tbody id="ssomaSstTabla">
@@ -5484,7 +5490,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
                   <th class="td-center">Calificación</th>
                   <th>Observaciones</th>
                   <th class="td-center">PDF</th>
-                  <th class="td-center audit-only" style="display:none;">Acciones</th>
+                  <th class="td-center audit-only">Acciones</th>
                 </tr>
               </thead>
               <tbody id="calSIGTblDetalle">
@@ -5652,7 +5658,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
                   <th class="td-center">Capacitados</th>
                   <th class="td-center">% Aprobación</th>
                   <th class="td-center">Detalle</th>
-                  <th class="td-center audit-only" style="display:none;">Acciones</th>
+                  <th class="td-center audit-only">Acciones</th>
                 </tr>
               </thead>
               <tbody id="calCapTblHistorico">
@@ -5933,7 +5939,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
            SECCIÓN — AUDITORÍA / TRAZABILIDAD
            Solo visible para usuarios 'adm' y 'oficina'
            ═══════════════════════════════════════════ -->
-      <section class="section audit-only" id="sec-auditoria" style="display:none;">
+      <section class="section" id="sec-auditoria">
         <!-- Header de la sección con título y acciones -->
         <div class="aud-page-header">
           <div class="aud-page-title-wrap">
@@ -7731,10 +7737,6 @@ function setTab(tab){
   document.querySelectorAll('.section').forEach(s=>{
     const isActive = s.id==='sec-'+tab;
     s.classList.toggle('active', isActive);
-    // Para secciones audit-only, forzar display:flex cuando están activas (su style inline es display:none)
-    if(s.classList.contains('audit-only')){
-      s.style.display = isActive ? '' : 'none';
-    }
   });
   // Scroll top
   document.getElementById('scrollArea').scrollTop = 0;
@@ -9196,7 +9198,7 @@ function renderSsomaSstHistorial(){
       <td>${escapeHtml(r.responsable || r.trabajador || '—')}</td>
       <td class="td-center">${detalle}</td>
       <td class="td-center">${adjBtn}</td>
-      <td class="td-center audit-only" style="display:none;white-space:nowrap;">${accionesHtml}</td>
+      <td class="td-center audit-only" style="white-space:nowrap;">${accionesHtml}</td>
     </tr>`;
   }).join('');
 
@@ -9426,7 +9428,7 @@ function renderCalidadSIG(){
           <td class="td-center"><span class="sig-preview-badge ${cal.clase}" style="font-size:10px;padding:3px 8px;">${cal.texto}</span></td>
           <td>${obsHtml}</td>
           <td class="td-center">${pdfBtn}</td>
-          <td class="td-center audit-only" style="display:none;white-space:nowrap;">${accionesHtml}</td>
+          <td class="td-center audit-only" style="white-space:nowrap;">${accionesHtml}</td>
         </tr>`;
       }).join('');
     }
@@ -9661,7 +9663,7 @@ function renderCalidadCap(){
           <td class="td-center">${cap}</td>
           <td class="td-center"><b style="color:${colorApr};">${pctApr.toFixed(0)}%</b></td>
           <td class="td-center"><button class="aud-btn-download" onclick="verDetalleCapacitacion('${escapeHtml(c.id)}')" style="padding:4px 10px;font-size:10px;">👁 Ver</button></td>
-          <td class="td-center audit-only" style="display:none;white-space:nowrap;">${accionesHtml}</td>
+          <td class="td-center audit-only" style="white-space:nowrap;">${accionesHtml}</td>
         </tr>`;
       }).join('');
     }
