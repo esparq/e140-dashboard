@@ -8913,8 +8913,10 @@ function renderRKpis(d, dPrev){
     }
   }
 
-  // Construir series históricas con todas las semanas disponibles (orden cronológico)
-  const chron = [...WEEKS_ORDER].reverse();   // de más antigua a más reciente
+  // Construir series históricas con todas las semanas disponibles (orden cronológico).
+  // WEEKS_ORDER ya viene ASCENDENTE (S30, S31, ..., S37), así que NO lo invertimos.
+  // Las semanas más antiguas quedan a la izquierda, las más recientes a la derecha.
+  const chron = [...WEEKS_ORDER];
 
   // Helper: extraer un KPI del panelEjecutivo o del fallback kpis legacy
   const getKpi = (weekKey, field) => {
@@ -9092,8 +9094,9 @@ function renderRFrentes(d){
 function renderRPulso(){
   const cid = 'rChartPulso';
   destroyChart(cid);
-  // Construir la serie con TODAS las semanas cronológicamente
-  const chron = [...WEEKS_ORDER].reverse();
+  // Construir la serie con TODAS las semanas cronológicamente (más antigua → más reciente).
+  // WEEKS_ORDER ya está ordenado ascendente, NO invertir.
+  const chron = [...WEEKS_ORDER];
   const labels = chron.map(w=>w);
   const contratacion = chron.map(w=>DATA.weeks[w]?.kpis?.contratacionPct ?? null);
   const mo = chron.map(w=>DATA.weeks[w]?.kpis?.moPct ?? null);
@@ -9254,7 +9257,8 @@ function renderRAreas(){
 function renderREvoPersonal(){
   const cid = 'rChartPersonal';
   destroyChart(cid);
-  const chron = [...WEEKS_ORDER].reverse();
+  // Cronológico ascendente: más antigua a la izquierda, más reciente a la derecha
+  const chron = [...WEEKS_ORDER];
   const labels = chron.map(w=>w);
   const data = chron.map(w=>DATA.weeks[w]?.kpis?.personal ?? null);
   CHART_INSTANCES[cid] = new Chart(document.getElementById(cid),{
@@ -9277,7 +9281,8 @@ function renderREvoPersonal(){
 function renderREvoMO(){
   const cid = 'rChartMOEvo';
   destroyChart(cid);
-  const chron = [...WEEKS_ORDER].reverse();
+  // Cronológico ascendente: más antigua a la izquierda, más reciente a la derecha
+  const chron = [...WEEKS_ORDER];
   const labels = chron.map(w=>w);
   const acum = chron.map(w=>DATA.weeks[w]?.mo?.acumulado ?? null);
   const pct  = chron.map(w=>DATA.weeks[w]?.mo?.porcAcumulado ?? null);
@@ -21696,7 +21701,8 @@ function v2RenderUtilidadRiesgo(){
   // Sparkline tendencia 4 semanas (usa valores histórico o placeholder)
   const ctx = document.getElementById('urSpark');
   if(ctx){
-    const chron = [...WEEKS_ORDER].reverse();
+    // Cronológico ascendente: WEEKS_ORDER ya está bien, NO invertir
+    const chron = [...WEEKS_ORDER];
     const last4 = chron.slice(-4);
     const series = last4.map(wk => {
       const s = v2GetKpi(wk, 'spiMeta');
@@ -21940,7 +21946,8 @@ function v2RenderVelocidad(){
   const card = document.getElementById('velocidadCard');
   if(!card) return;
   const cw = DATA.currentWeek;
-  const chron = [...WEEKS_ORDER].reverse();
+  // Cronológico ascendente: más antigua a la izquierda, más reciente a la derecha
+  const chron = [...WEEKS_ORDER];
   const idx = chron.indexOf(cw);
 
   const avanceActual = v2GetKpi(cw, 'avance');
