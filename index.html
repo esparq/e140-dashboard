@@ -18743,6 +18743,13 @@ function puedeComentar(p){
   return true;
 }
 
+// Solo 'adm' puede reabrir una tarea cerrada (acción correctiva en caso de cierre por error)
+function puedeReabrirTarea(p){
+  if(!currentSession || !p) return false;
+  if(p.estado !== 'cerrada') return false;
+  return currentSession.usuario === 'adm';
+}
+
 // ─── Cargar pendientes desde Firestore ───
 async function cargarPendientes(force = false){
   const kanbanRoot = document.getElementById('penColPendiente');
@@ -19607,6 +19614,10 @@ function renderPendienteDetalle(p){
     botones.push(`<button class="hdr-btn" onclick="cambiarEstadoPendiente('${escapeHtml(p.id)}','proceso')" style="background:#fff;color:#A0521E;border-color:#A0521E;">↩️ Devolver al residente</button>`);
     botones.push(`<button class="hdr-btn hdr-btn-primary" onclick="cambiarEstadoPendiente('${escapeHtml(p.id)}','cerrada')" style="background:#1A6B4A;color:#fff;border-color:#1A6B4A;">✓ Validar y cerrar</button>`);
   }
+  // ↩️ Reabrir tarea cerrada (solo adm) — para corregir cierres por error
+  if(puedeReabrirTarea(p)){
+    botones.push(`<button class="hdr-btn hdr-btn-primary" onclick="cambiarEstadoPendiente('${escapeHtml(p.id)}','pendiente')" style="background:#A0521E;color:#fff;border-color:#A0521E;" title="Solo adm — Reabrir tarea cerrada por error">↩️ Reabrir tarea</button>`);
+  }
   if(puedeEliminarPendiente(p)){
     botones.unshift(`<button class="hdr-btn" onclick="eliminarPendiente('${escapeHtml(p.id)}')" style="background:#fff;color:#D64045;border-color:#E5A4A6;margin-right:auto;">🗑️ Eliminar</button>`);
   }
@@ -19699,9 +19710,19 @@ async function cambiarEstadoPendiente(id, nuevoEstado){
   if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
 
   // Validar permisos según la transición
+  // - Reabrir desde "cerrada": requiere puedeReabrirTarea (solo adm)
   // - Cerrar/devolver desde "validar": requiere puedeValidar (creador o adm/oficina/gerencia)
   // - Mover a "validar" o avanzar: requiere puedeAvanzarTarea
-  if(p.estado === 'validar' && (nuevoEstado === 'cerrada' || nuevoEstado === 'proceso')){
+  if(p.estado === 'cerrada'){
+    if(!puedeReabrirTarea(p)){
+      alert('⛔ Solo el administrador puede reabrir una tarea cerrada.');
+      return;
+    }
+    // Confirmación adicional: reabrir es una acción correctiva
+    if(!confirm(`¿Reabrir la tarea "${p.titulo}"?\n\nLa tarea volverá al estado "${({pendiente:'Pendiente',proceso:'En proceso',validar:'Por validar'})[nuevoEstado] || nuevoEstado}" y se borrarán las marcas de cierre. Quedará registro en el chat.`)){
+      return;
+    }
+  } else if(p.estado === 'validar' && (nuevoEstado === 'cerrada' || nuevoEstado === 'proceso')){
     if(!puedeValidar(p)){
       alert('Solo el creador de la tarea o los usuarios "adm", "oficina" y "gerencia" pueden validar (cerrar o devolver).');
       return;
@@ -19722,9 +19743,15 @@ async function cambiarEstadoPendiente(id, nuevoEstado){
     const ahora = new Date().toISOString();
     const ts = Date.now();
 
+    // Texto del evento (más explícito si es reapertura)
+    const esReapertura = (estadoAnt.label === (PEN_ESTADOS.cerrada || {}).label) || p.estado === 'cerrada';
+    const textoEvento = esReapertura
+      ? `↩️ Tarea REABIERTA por ${userName} · Estado: ${estadoAnt.label} → ${estadoNuevo.label}`
+      : `${estadoNuevo.icon} Estado cambiado: ${estadoAnt.label} → ${estadoNuevo.label}`;
+
     const evento = {
-      tipo: 'cambio_estado',
-      texto: `${estadoNuevo.icon} Estado cambiado: ${estadoAnt.label} → ${estadoNuevo.label}`,
+      tipo: esReapertura ? 'reapertura' : 'cambio_estado',
+      texto: textoEvento,
       autor: userId,
       autor_nombre: userName,
       fecha: ahora,
@@ -19744,6 +19771,13 @@ async function cambiarEstadoPendiente(id, nuevoEstado){
       updates.cerrada_en = ahora;
       updates.cerrada_por = userName;
     }
+    // Si reabrimos, marcar el evento de reapertura y limpiar las marcas de cierre
+    if(esReapertura){
+      updates.cerrada_en = null;
+      updates.cerrada_por = null;
+      updates.reabierta_en = ahora;
+      updates.reabierta_por = userName;
+    }
 
     const { db, doc, setDoc } = window.E140_DB;
     await setDoc(doc(db, 'pendientes', id), updates, { merge: true });
@@ -19751,6 +19785,7 @@ async function cambiarEstadoPendiente(id, nuevoEstado){
     p.estado = nuevoEstado;
     p.comentarios = comentariosActualizados;
     if(nuevoEstado === 'cerrada'){ p.cerrada_en = ahora; p.cerrada_por = userName; }
+    if(esReapertura){ p.cerrada_en = null; p.cerrada_por = null; p.reabierta_en = ahora; p.reabierta_por = userName; }
 
     renderPendienteDetalle(p);
     renderPendientes();
