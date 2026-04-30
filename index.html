@@ -9178,72 +9178,168 @@ function renderRAreas(){
   if(!cont) return;
   cont.innerHTML = '';
 
-  // ─── Cálculo del % Operaciones (consolidado del panel de KPIs ejecutivos) ───
-  // Tomamos los KPIs de la semana actual y promediamos su nivel de cumplimiento.
-  // Si no hay data, queda en null.
+  const d = wk();
+
+  // ──────────────────────────────────────────────────────
+  // CALCULADOR GENÉRICO: cada KPI da un % de cumplimiento (0-100)
+  // donde 100 = cumple meta, 0 = no cumple. Los KPIs se promedian SIMPLE.
+  // Si un KPI no tiene data esa semana → no entra al promedio (no penaliza).
+  // ──────────────────────────────────────────────────────
+  const promediar = (cumplimientos) => {
+    const validos = cumplimientos.filter(c => c != null && !isNaN(c));
+    if(validos.length === 0) return null;
+    return validos.reduce((a,b) => a+b, 0) / validos.length;
+  };
+
+  // ─── ÁREA 1: OPERACIONES ───
+  // KPIs con meta: avance vs prog, CPI, SPI Meta, SPI Contractual, MO ≤ 25% CD, Personal ≤ 86 pax
   let opePct = null;
   try {
-    const d = wk();
-    if(d && d.kpis){
-      const k = d.kpis;
-      const factores = [];
-      // Avance físico (% real de obra) — meta implícita 100% del programa
-      if(k.avance != null) factores.push(Math.min(100, k.avance));
-      // SPI Contractual: 1.0 = 100% cumplimiento
-      if(k.spiContractual != null) factores.push(Math.min(100, k.spiContractual * 100));
-      // CPI: 1.0 = 100% cumplimiento
-      if(k.cpi != null) factores.push(Math.min(100, k.cpi * 100));
-      if(factores.length > 0){
-        opePct = factores.reduce((a,b)=>a+b, 0) / factores.length;
+    if(d){
+      const kp = d.kpis || {};
+      const pe = d.panelEjecutivo || {};
+      const get = (a, b) => pe[a] != null ? pe[a] : kp[b];
+      const avance         = get('avance',         'avanceObra');
+      const cpi            = get('cpi',            'cpi');
+      const spiMeta        = get('spiMeta',        'spiMeta');
+      const spiContractual = get('spiContractual', 'spiContractual');
+      const moConsumida    = get('moConsumida',    'moConsumida');
+      const personal       = get('personal',       'personal');
+      const costoDirecto   = kp.costoDirecto;
+
+      const cumps = [];
+      // Avance: % de obra ejecutado (objetivo 100% al final del proyecto, pero medimos progreso)
+      if(avance != null) cumps.push(Math.min(100, avance));
+      // CPI: 1.0 = 100%
+      if(cpi != null) cumps.push(Math.min(100, cpi * 100));
+      // SPI Meta: 1.0 = 100%
+      if(spiMeta != null) cumps.push(Math.min(100, spiMeta * 100));
+      // SPI Contractual: 1.0 = 100%
+      if(spiContractual != null) cumps.push(Math.min(100, spiContractual * 100));
+      // MO ≤ 25% del Costo Directo (cumple si % menor a 25, escala inversa)
+      if(moConsumida != null && costoDirecto && costoDirecto > 0){
+        const moPct = (moConsumida / costoDirecto) * 100;
+        // Si moPct ≤ 25 → cumplimiento 100. Si moPct > 25, baja proporcional hasta 0 al 50%.
+        const cump = moPct <= 25 ? 100 : Math.max(0, 100 - ((moPct - 25) / 25) * 100);
+        cumps.push(cump);
       }
+      // Personal ≤ 86 pax (cumple si menor a la meta)
+      if(personal != null){
+        const cump = personal <= 86 ? 100 : Math.max(0, 100 - ((personal - 86) / 86) * 100);
+        cumps.push(cump);
+      }
+      opePct = promediar(cumps);
     }
   } catch(e){ opePct = null; }
 
+  // ─── ÁREA 2: LOGÍSTICA ───
+  // KPIs con meta: % avance Acero, % avance Arrendamiento F1, % avance Adquisiciones
+  let logPct = null;
+  try {
+    if(d){
+      const cumps = [];
+      // % Avance acero (consumo vs ppto)
+      if(d.acero && d.acero.avance_pct != null){
+        cumps.push(Math.min(100, d.acero.avance_pct));
+      }
+      // % Avance arrendamiento F1
+      if(d.arrendamiento && d.arrendamiento.f1_avance_pct != null){
+        cumps.push(Math.min(100, d.arrendamiento.f1_avance_pct));
+      }
+      // % Avance contratación de adquisiciones
+      const adqPct = (d.kpis && d.kpis.contratacionPct)
+        || (d.adquisiciones && d.adquisiciones.avance_contratacion_pct);
+      if(adqPct != null){
+        cumps.push(Math.min(100, adqPct));
+      }
+      logPct = promediar(cumps);
+    }
+  } catch(e){ logPct = null; }
+
+  // ─── ÁREA 3: ARQUITECTURA ───
+  // KPIs con meta: % de instructivos SIG con estado revisión "Revisado" o "No Aplica" / total
+  let arqPct = null;
+  try {
+    if(typeof ARQ_SIG_CATALOGO !== 'undefined' && ARQ_SIG_CATALOGO.length > 0){
+      const total = ARQ_SIG_CATALOGO.length;
+      let cumplidos = 0;
+      ARQ_SIG_CATALOGO.forEach(it => {
+        const er = (typeof arqSigEstadoRevisionEfectivo === 'function')
+          ? arqSigEstadoRevisionEfectivo(it.codigo)
+          : null;
+        if(er === 'revisado' || er === 'noaplica') cumplidos++;
+      });
+      arqPct = total > 0 ? (cumplidos / total) * 100 : null;
+    }
+  } catch(e){ arqPct = null; }
+
+  // ─── ÁREA 4: SSOMA ───
+  // KPIs: % cumplimiento promedio de inspecciones (Índice de Gravedad bajo no entra
+  // como KPI directo porque su meta es ≤ valor; lo dejamos fuera para promedio).
+  let ssomaPct = null;
+  try {
+    if(typeof ssomaReportesData !== 'undefined' && Array.isArray(ssomaReportesData)){
+      const inspecciones = ssomaReportesData.filter(r => r.tipo === 'inspeccion');
+      if(inspecciones.length > 0){
+        const promInsp = inspecciones.reduce((s, x) => s + (Number(x.cumplimiento_pct) || 0), 0) / inspecciones.length;
+        ssomaPct = Math.min(100, promInsp);
+      }
+    }
+  } catch(e){ ssomaPct = null; }
+
+  // ─── ÁREA 5: CALIDAD ───
+  // KPIs: promedio histórico de % cumplimiento de inspecciones SIG
+  let calPct = null;
+  try {
+    if(typeof inspeccionesSIG !== 'undefined' && Array.isArray(inspeccionesSIG) && inspeccionesSIG.length > 0){
+      const promCal = inspeccionesSIG.reduce((s, x) => s + (Number(x.cumplimiento_pct) || 0), 0) / inspeccionesSIG.length;
+      calPct = Math.min(100, promCal);
+    }
+  } catch(e){ calPct = null; }
+
   // ─── Definición de áreas a mostrar ───
-  // Todas las áreas excepto Operaciones quedan en "Pendiente Sem 38" hasta
-  // que se cargue la data oficial de cada responsable.
   const areas = [
     {
       key:        'operaciones',
       icono:      '🏗️',
       nombre:     'Operaciones',
       pct:        opePct,
-      nota:       'Promedio de Avance, SPI y CPI',
+      nota:       'Avance · CPI · SPI Meta · SPI Contractual · MO · Personal',
       destacada:  true
     },
     {
       key:        'arquitectura',
       icono:      '📐',
       nombre:     'Arquitectura',
-      pct:        null,
-      nota:       'Pendiente · se actualiza en Sem 38'
+      pct:        arqPct,
+      nota:       arqPct == null ? 'Pendiente · sin instructivos cargados' : 'Procesos homologados revisados/n.a. del total'
     },
     {
       key:        'ssoma',
       icono:      '⛑️',
       nombre:     'SSOMA',
-      pct:        null,
-      nota:       'Pendiente · se actualiza en Sem 38'
+      pct:        ssomaPct,
+      nota:       ssomaPct == null ? 'Pendiente · sin inspecciones registradas' : 'Promedio % cumplimiento de inspecciones'
     },
     {
       key:        'logistica',
       icono:      '🚛',
       nombre:     'Logística',
-      pct:        null,
-      nota:       'Pendiente · se actualiza en Sem 38'
+      pct:        logPct,
+      nota:       logPct == null ? 'Pendiente · sin data de logística esta semana' : '% avance Acero · Arrendamiento · Adquisiciones'
     },
     {
       key:        'calidad',
       icono:      '✅',
       nombre:     'Calidad',
-      pct:        null,
-      nota:       'Pendiente · se actualiza en Sem 38'
+      pct:        calPct,
+      nota:       calPct == null ? 'Pendiente · sin inspecciones SIG registradas' : 'Promedio histórico % cumplimiento SIG'
     }
   ];
 
   // ─── Helper: clasificar por % ───
   const clasificar = (pct) => {
-    if(pct == null) return { color:'ar-grey', label:'⏳ Pendiente Sem 38' };
+    if(pct == null) return { color:'ar-grey', label:'⏳ Sin data' };
     if(pct >= 90)   return { color:'ar-green',  label:'✓ Cumple' };
     if(pct >= 75)   return { color:'ar-orange', label:'⚠ En seguimiento' };
     return            { color:'ar-red',    label:'✗ No cumple' };
@@ -9254,7 +9350,6 @@ function renderRAreas(){
     const cls = clasificar(a.pct);
     const el = document.createElement('div');
     el.className = 'r-area-card ' + cls.color;
-    // Operaciones lleva un borde más grueso y un fondo sutilmente distintivo
     if(a.destacada){
       el.style.borderTopWidth = '6px';
       el.style.background = 'linear-gradient(135deg,#FFFFFF 0%,#EEF5FA 100%)';
