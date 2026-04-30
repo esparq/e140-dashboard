@@ -3400,7 +3400,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
       <div class="dropzone fotos-dropzone" id="fotosDropzone" onclick="document.getElementById('fileInputFotos').click()" style="margin-top:14px;">
         <div class="dropzone-icon" style="font-size:32px;">📷</div>
         <div class="dropzone-title" style="font-size:14px;">ARRASTRA O SELECCIONA FOTOS</div>
-        <div class="dropzone-subtitle">JPG · PNG · WebP · Máximo 10 fotos · Hasta 2 MB cada una</div>
+        <div class="dropzone-subtitle">JPG · PNG · WebP · Máximo 20 fotos · Hasta 2 MB cada una</div>
         <button class="dropzone-btn" type="button">Seleccionar fotos</button>
         <input type="file" id="fileInputFotos" multiple accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none">
       </div>
@@ -16763,7 +16763,7 @@ function renderUniversalRoutingFeedback(conteo, noReconocidos){
    Las fotos se publican como archivo aparte: data/fotos-sXX.json
    ═══════════════════════════════════════════════════════════════════ */
 
-const MAX_FOTOS         = 10;        // Máximo de fotos por semana
+const MAX_FOTOS         = 20;        // Máximo de fotos por semana
 const MAX_FOTO_SIZE     = 2 * 1024 * 1024; // 2 MB por foto
 const MAX_FOTO_WIDTH    = 1600;      // Redimensionar fotos grandes a este ancho máximo
 const FOTO_JPEG_QUALITY = 0.82;      // Calidad JPEG al comprimir
