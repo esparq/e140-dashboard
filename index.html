@@ -2278,7 +2278,13 @@ body.role-admin .ssoma-actions{display:flex !important;}
 .sig-table tbody tr.sig-row-poriniciar{background:#EAF3FB !important;}
 .sig-table tbody tr.sig-row-planificado{background:#F5F8FB !important;}
 .sig-table tbody tr.sig-row-terminado{background:#E7F4EE !important;}
-.sig-table tbody td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--text);vertical-align:middle;}
+.sig-table tbody td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--text);vertical-align:top;}
+/* Las celdas con dropdowns deben mostrar el select en la misma altura aunque la celda
+   de "Estado en obra" tenga contenido extra debajo (hint + badge frente). */
+.sig-table tbody td.sig-cell-select{vertical-align:top;padding-top:10px;}
+.sig-table tbody td.sig-cell-select select{margin-top:0;}
+/* La celda de comentarios se alinea arriba para mantener simetría visual */
+.sig-table tbody td.sig-cell-coment{vertical-align:top;padding-top:10px;}
 .sig-table tbody tr:last-child td{border-bottom:none;}
 
 /* Código del instructivo */
@@ -3754,7 +3760,9 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
       <div class="sig-form">
         <div class="sig-form-row">
           <div class="sig-form-field">
-            <label>Área <span style="color:#D64045;">*</span></label>
+            <label>Área que origina <span style="color:#D64045;">*</span>
+              <span style="font-weight:400;color:var(--text-muted);font-size:10.5px;margin-left:6px;">(de dónde viene esta tarea)</span>
+            </label>
             <select id="penArea">
               <option value="operaciones">🏗️ Operaciones</option>
               <option value="logistica">🚛 Logística</option>
@@ -3798,12 +3806,26 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
             <input type="date" id="penFechaMax">
           </div>
           <div class="sig-form-field">
-            <label>Asignado a</label>
-            <select id="penAsignado">
-              <option value="residente" selected>Residente · José Rojas O.</option>
-              <option value="staff">Staff de Obra</option>
+            <label>Dirigido al área <span style="color:#D64045;">*</span>
+              <span style="font-weight:400;color:var(--text-muted);font-size:10.5px;margin-left:6px;">(área destino)</span>
+            </label>
+            <select id="penDirigidoArea">
+              <option value="">— Selecciona área destino —</option>
+              <option value="operaciones">🏗️ Operaciones</option>
+              <option value="logistica">🚛 Logística</option>
+              <option value="arquitectura">📐 Arquitectura</option>
+              <option value="ssoma">⛑️ SSOMA</option>
+              <option value="calidad">✅ Calidad</option>
             </select>
           </div>
+        </div>
+
+        <div class="sig-form-field">
+          <label>
+            Dirigido a la persona <span style="color:#D64045;">*</span>
+            <span style="font-weight:400;color:var(--text-muted);font-size:10.5px;margin-left:6px;">(nombre completo de quien recibe la tarea)</span>
+          </label>
+          <input type="text" id="penDirigidoPersona" placeholder="Ej: José Rojas O." maxlength="80" autocomplete="name">
         </div>
 
         <!-- Adjuntos opcionales -->
@@ -4908,7 +4930,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
                     <th>Área</th>
                     <th>Título</th>
                     <th class="td-center">Vence</th>
-                    <th>Asignado a</th>
+                    <th>Dirigido a</th>
                     <th>Creado por</th>
                     <th class="td-center">Acciones</th>
                   </tr>
@@ -12706,13 +12728,13 @@ function arqSigRenderTabla(){
         <td class="td-center" style="font-weight:600;color:var(--text-muted);font-size:11px;">${numOrig}</td>
         <td><span class="sig-codigo">${arqSigEscapeHtml(it.codigo)}</span><span class="sig-rev-badge" title="Revisión vigente del documento">Rev.${it.rev}</span></td>
         <td><span class="sig-partida">${arqSigEscapeHtml(it.partida)}</span></td>
-        <td>
+        <td class="sig-cell-select">
           <div class="sig-select-wrap">${selRev}</div>
         </td>
-        <td>
+        <td class="sig-cell-select">
           <div class="sig-select-wrap">${selObra}${obraHint}</div>
         </td>
-        <td>
+        <td class="sig-cell-coment">
           <div class="sig-comentario-wrap">
             <textarea class="${comentarioCls}" rows="1" placeholder="${puedeEditar ? 'Notas, hallazgos, levantamientos…' : '— Sin comentarios —'}" data-codigo="${it.codigo}" oninput="arqSigOnComentarioInput(this)" ${disabledAttr}>${arqSigEscapeHtml(com)}</textarea>
             ${savingMeta}
@@ -15344,7 +15366,7 @@ function generarReporteExcel(){
   const uniqueIds = new Set();
   const pendUnicos = pendTodos.filter(p => { if(uniqueIds.has(p.id)) return false; uniqueIds.add(p.id); return true; });
   if(pendUnicos.length > 0){
-    const penRows = [['Estado', 'Prioridad', 'Área', 'Título', 'Asignado a', 'Creado por', 'Fecha creación', 'Fecha vence', 'Fecha cierre']];
+    const penRows = [['Estado', 'Prioridad', 'Área que origina', 'Título', 'Dirigido a', 'Creado por', 'Fecha creación', 'Fecha vence', 'Fecha cierre']];
     pendUnicos.forEach(p => {
       penRows.push([
         p.estado || '',
@@ -18940,7 +18962,7 @@ function openPendienteModal(){
   penAdjuntosNuevos = [];
 
   document.getElementById('penModalTitle').textContent = '📌 NUEVA TAREA';
-  document.getElementById('penModalSub').textContent = 'Crear pendiente y asignar a quien corresponda';
+  document.getElementById('penModalSub').textContent = 'Crea una tarea y dirígela al área y persona destinataria';
   document.getElementById('penPublishBtn').innerHTML = '📌 Crear tarea';
 
   // Reset campos
@@ -18948,12 +18970,19 @@ function openPendienteModal(){
   document.getElementById('penPrioridad').value = 'media';
   document.getElementById('penTitulo').value = '';
   document.getElementById('penDescripcion').value = '';
-  document.getElementById('penAsignado').value = 'residente';
+  document.getElementById('penDirigidoArea').value = '';
+  document.getElementById('penDirigidoPersona').value = '';
 
-  // Recordar el último responsable usado (cómodo cuando alguien crea varias tareas seguidas)
-  let ultimoResp = '';
-  try { ultimoResp = localStorage.getItem('e140_pen_ultimo_responsable') || ''; } catch(e){}
+  // Recordar últimos valores usados (cómodo cuando alguien crea varias tareas seguidas)
+  let ultimoResp = '', ultimoDirArea = '', ultimoDirPersona = '';
+  try {
+    ultimoResp = localStorage.getItem('e140_pen_ultimo_responsable') || '';
+    ultimoDirArea = localStorage.getItem('e140_pen_ultimo_dirigido_area') || '';
+    ultimoDirPersona = localStorage.getItem('e140_pen_ultimo_dirigido_persona') || '';
+  } catch(e){}
   document.getElementById('penResponsable').value = ultimoResp;
+  if(ultimoDirArea) document.getElementById('penDirigidoArea').value = ultimoDirArea;
+  if(ultimoDirPersona) document.getElementById('penDirigidoPersona').value = ultimoDirPersona;
 
   // Fecha máxima por defecto: 7 días desde hoy
   const fechaDef = new Date();
@@ -19030,9 +19059,10 @@ async function publicarPendiente(){
   const area = document.getElementById('penArea').value;
   const prioridad = document.getElementById('penPrioridad').value;
   const fechaMax = document.getElementById('penFechaMax').value;
-  const asignadoA = document.getElementById('penAsignado').value;
+  const dirigidoArea = document.getElementById('penDirigidoArea').value;
+  const dirigidoPersona = document.getElementById('penDirigidoPersona').value.trim();
 
-  if(!titulo){ alert('El título es obligatorio.'); return; }
+  if(!titulo){ alert('El título es obligatorio.'); document.getElementById('penTitulo').focus(); return; }
   if(!responsable){
     alert('El responsable que crea la tarea es obligatorio.\n\nVarias personas usan el usuario "oficina", por lo que debes registrar quién está creando esta tarea específica.');
     document.getElementById('penResponsable').focus();
@@ -19043,12 +19073,31 @@ async function publicarPendiente(){
     document.getElementById('penResponsable').focus();
     return;
   }
-  if(!descripcion){ alert('La descripción es obligatoria.'); return; }
-  if(!fechaMax){ alert('La fecha máxima de respuesta es obligatoria.'); return; }
+  if(!descripcion){ alert('La descripción es obligatoria.'); document.getElementById('penDescripcion').focus(); return; }
+  if(!fechaMax){ alert('La fecha máxima de respuesta es obligatoria.'); document.getElementById('penFechaMax').focus(); return; }
+  if(!dirigidoArea){
+    alert('Debes seleccionar a qué área va dirigida esta tarea.');
+    document.getElementById('penDirigidoArea').focus();
+    return;
+  }
+  if(!dirigidoPersona){
+    alert('Debes ingresar el nombre de la persona a la que va dirigida la tarea.');
+    document.getElementById('penDirigidoPersona').focus();
+    return;
+  }
+  if(dirigidoPersona.length < 3){
+    alert('Ingresa el nombre completo de la persona destinataria (mínimo 3 caracteres).');
+    document.getElementById('penDirigidoPersona').focus();
+    return;
+  }
   if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
 
-  // Recordar el responsable para próximas tareas (mismo dispositivo)
-  try { localStorage.setItem('e140_pen_ultimo_responsable', responsable); } catch(e){}
+  // Recordar para próximas tareas (mismo dispositivo)
+  try {
+    localStorage.setItem('e140_pen_ultimo_responsable', responsable);
+    localStorage.setItem('e140_pen_ultimo_dirigido_persona', dirigidoPersona);
+    localStorage.setItem('e140_pen_ultimo_dirigido_area', dirigidoArea);
+  } catch(e){}
 
   const btn = document.getElementById('penPublishBtn');
   const cancel = document.querySelector('#penModal .hdr-btn:not(.hdr-btn-primary)');
@@ -19093,10 +19142,21 @@ async function publicarPendiente(){
     const userId = (currentSession && currentSession.usuario) || 'desconocido';
     const userName = (currentSession && currentSession.nombre) || 'Sin sesión';
 
-    // Asignado_a_nombre según selección
-    let asignadoNombre = 'Residente';
-    if(asignadoA === 'staff') asignadoNombre = 'Staff de Obra';
-    else if(asignadoA === 'residente') asignadoNombre = 'Residente · José Rojas O.';
+    // Mapeo de área a label para mostrar en lista
+    const AREA_LABELS = {
+      operaciones: '🏗️ Operaciones',
+      logistica: '🚛 Logística',
+      arquitectura: '📐 Arquitectura',
+      ssoma: '⛑️ SSOMA',
+      calidad: '✅ Calidad',
+    };
+    const dirigidoAreaLabel = AREA_LABELS[dirigidoArea] || dirigidoArea;
+
+    // El campo legacy 'asignado_a' lo mapeamos a un slot de rol genérico para compatibilidad
+    // con el resto del código que filtra por residente/staff/etc.
+    // Si el dirigidoArea es "operaciones" lo mapeamos a "residente", de lo contrario a "staff"
+    const asignadoA = dirigidoArea === 'operaciones' ? 'residente' : 'staff';
+    const asignadoNombre = `${dirigidoAreaLabel} · ${dirigidoPersona}`;
 
     // Componer "Creado por" combinando el rol y el responsable real
     // (ej: "Oficina Central · María Pérez")
@@ -19110,8 +19170,13 @@ async function publicarPendiente(){
       prioridad:    prioridad,
       estado:       'pendiente',
       fecha_max:    fechaMax,
-      asignado_a:   asignadoA,
+      // Campos legacy (mantenidos para compatibilidad con filtros existentes)
+      asignado_a:        asignadoA,
       asignado_a_nombre: asignadoNombre,
+      // Nuevos campos: dirigido a (área + persona)
+      dirigido_area:        dirigidoArea,
+      dirigido_area_label:  dirigidoAreaLabel,
+      dirigido_persona:     dirigidoPersona,
       adjuntos:     adjuntosSubidos,
       comentarios:  [],   // Sin evento inicial — el chat empieza limpio
       creado_por:        userId,
@@ -19135,6 +19200,9 @@ async function publicarPendiente(){
       fecha_max: fechaMax,
       asignado_a: asignadoA,
       asignado_a_nombre: asignadoNombre,
+      dirigido_area: dirigidoArea,
+      dirigido_area_label: dirigidoAreaLabel,
+      dirigido_persona: dirigidoPersona,
       adjuntos: adjuntosSubidos,
       comentarios: [],
       creado_por: userId,
