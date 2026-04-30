@@ -8096,8 +8096,12 @@ async function initDashboard(){
     const jsonData = await loadFromJSONs();
     // Cargar overrides ANTES del primer render para que se apliquen a los KPIs
     await cargarKpiOverrides();
+    // Cargar semanas paralizadas ANTES del render para que aparezcan en el selector
+    await cargarSemanasParalizadas();
     if(jsonData && jsonData.currentWeek){
       applyDataToGlobal(jsonData);
+      // Crear las semanas paralizadas heredando KPIs de la semana activa anterior
+      aplicarHerenciaTodasParalizadas();
       MODE = 'json';
       LAST_SYNC = new Date();
       hideLoading();
@@ -8671,9 +8675,18 @@ function populateWeekSelector(){
     if(!d) return;
     const opt = document.createElement('option');
     opt.value = w;
-    const marker = d._incompleta ? ' (incompleta)' : '';
+    const paralizada = esSemanaParalizada(w);
+    let marker = '';
+    if(paralizada) marker = ' · ⏸ PARALIZADA';
+    else if(d._incompleta) marker = ' (incompleta)';
     opt.textContent = `${w} · ${d.corte}${marker}`;
-    if(d._incompleta) opt.style.color = '#8A7A55';
+    if(paralizada){
+      opt.style.color = '#A0521E';
+      opt.style.background = '#FFF4E6';
+      opt.style.fontWeight = '600';
+    } else if(d._incompleta){
+      opt.style.color = '#8A7A55';
+    }
     sel.appendChild(opt);
   });
   sel.value = DATA.currentWeek;
@@ -8766,6 +8779,9 @@ function renderCurrentWeek(){
   // Header superior (semana + corte)
   document.getElementById('hdrSem').textContent = 'SEM '+d.semNum;
   document.getElementById('hdrCorte').textContent = 'Corte: '+d.corte;
+
+  // Banner de semana paralizada (naranja, encima del contenido)
+  renderParalizadaBanner();
 
   // Render según pestaña
   switch(currentTab){
@@ -16395,9 +16411,12 @@ async function cerrarYRefrescarDashboard(){
   try {
     // Recargar data desde JSONs (GitHub) + Firestore (acaba de guardarse acá)
     await cargarKpiOverrides(); // refrescar overrides también
+    await cargarSemanasParalizadas(); // refrescar semanas paralizadas
     const jsonData = await loadFromJSONs();
     if(jsonData && jsonData.currentWeek){
       applyDataToGlobal(jsonData);
+      // Aplicar herencia de semanas paralizadas tras cargar datos
+      aplicarHerenciaTodasParalizadas();
       MODE = 'json';
       LAST_SYNC = new Date();
       // Si la semana publicada está en los datos, hacer que sea la activa
@@ -17470,13 +17489,46 @@ async function cargarSemanasGestion(){
       }
       metaHtml += `${metaHtml ? ' · ' : ''}${numAreas} área${numAreas===1?'':'s'}`;
 
+      // Detectar si la semana está paralizada
+      const paralizada = esSemanaParalizada(s.semana);
+      const paralizadaMeta = paralizada ? SEMANAS_PARALIZADAS[s.semana.toUpperCase()] : null;
+      const cardExtraStyle = paralizada ? 'border-left:4px solid #E07B39;background:#FFF8EE;' : '';
+      const paralizadaBadge = paralizada
+        ? `<div style="margin-top:6px;padding:6px 10px;background:#FFE5C2;border-radius:4px;font-size:11px;color:#7A3F18;"><b>⏸ PARALIZADA</b> — ${escapeHtml(paralizadaMeta.motivo || '')}${paralizadaMeta.fecha_inicio ? ` · ${paralizadaMeta.fecha_inicio} → ${paralizadaMeta.fecha_fin || '?'}` : ''}</div>`
+        : '';
+
+      // Botones de paralización (solo adm)
+      let paralizarBtns = '';
+      if(puedeMarcarParalizada()){
+        if(paralizada){
+          paralizarBtns = `<button class="gest-sem-btn-delete" style="background:#E07B39;border-color:#E07B39;" onclick="abrirModalParalizar('${s.semana}')">⏸ Editar paralización</button>`;
+        } else {
+          paralizarBtns = `<button class="gest-sem-btn-delete" style="background:#fff;color:#A0521E;border-color:#E5B47C;" onclick="abrirModalParalizar('${s.semana}')">⏸ Marcar paralizada</button>`;
+        }
+      }
+
       html += `
-        <div class="gest-sem-card">
-          <div class="gest-sem-codigo">${s.semana}</div>
+        <div class="gest-sem-card" style="${cardExtraStyle}">
+          <div class="gest-sem-codigo">${s.semana}${paralizada ? ' ⏸' : ''}</div>
           <div class="gest-sem-meta">${metaHtml}</div>
+          ${paralizadaBadge}
           <div class="gest-sem-areas">${badges}</div>
           <div class="gest-sem-actions">
+            ${paralizarBtns}
             <button class="gest-sem-btn-delete" onclick="confirmarEliminacion('${s.semana}', null)">🗑️ Eliminar todo</button>
+          </div>
+        </div>`;
+    }
+
+    // Card adicional: crear nueva semana paralizada (cuando no existe en data/)
+    if(puedeMarcarParalizada()){
+      html += `
+        <div class="gest-sem-card" style="border:2px dashed #E5B47C;background:#FFFAF0;text-align:center;cursor:pointer;" onclick="abrirModalParalizar('')">
+          <div style="font-size:14px;color:#A0521E;font-weight:600;padding:12px 0;">
+            ⏸ + Marcar nueva semana como paralizada
+          </div>
+          <div style="font-size:11px;color:#7A4A14;">
+            Útil para semanas sin data cargada (ej: paro de obra)
           </div>
         </div>`;
     }
@@ -17629,6 +17681,355 @@ async function ejecutarEliminacionSemana(){
     btn.textContent = '🗑️ Eliminar permanentemente';
     btn.disabled = false;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SEMANAS PARALIZADAS · Marcar semanas sin actividad (solo adm)
+   Ej: paro de obra, feriados largos, etc.
+   - Documento Firestore: 'semanas_paralizadas/{SXX}'
+     Campos: { semana, motivo, fecha_inicio, fecha_fin, marcado_por, marcado_en }
+   - Render: badge naranja "⏸ Paralizada" en el selector + banner en el dashboard
+   - KPIs: heredan los valores de la última semana NO paralizada anterior
+   ═══════════════════════════════════════════════════════════════════ */
+
+// Caché local de semanas paralizadas: { S33: {motivo, fecha_inicio, fecha_fin, ...}, S34: {...} }
+let SEMANAS_PARALIZADAS = {};
+
+// Cargar las semanas paralizadas desde Firestore (al iniciar)
+async function cargarSemanasParalizadas(){
+  let waitMs = 0;
+  while(!window._E140_FIREBASE_READY && waitMs < 5000){
+    await new Promise(r => setTimeout(r, 200));
+    waitMs += 200;
+  }
+  if(!window.E140_DB){
+    console.warn('[E140] Firestore no disponible, no se cargaron semanas paralizadas');
+    return;
+  }
+  try {
+    const { db, collection, getDocs } = window.E140_DB;
+    const snapshot = await getDocs(collection(db, 'semanas_paralizadas'));
+    const cache = {};
+    snapshot.forEach(docSnap => {
+      const d = docSnap.data();
+      if(!d || !d.semana) return;
+      cache[d.semana.toUpperCase()] = d;
+    });
+    SEMANAS_PARALIZADAS = cache;
+    const total = Object.keys(cache).length;
+    if(total > 0){
+      console.log(`[E140] ${total} semana(s) paralizada(s) cargada(s):`, Object.keys(cache).join(', '));
+    }
+  } catch(err){
+    console.warn('[E140] No se pudieron cargar semanas paralizadas:', err.message || err);
+  }
+}
+
+// Helper: ¿la semana X está paralizada?
+function esSemanaParalizada(semana){
+  if(!semana) return false;
+  return !!SEMANAS_PARALIZADAS[semana.toUpperCase()];
+}
+
+// Helper: dada una semana paralizada, devolver la última semana válida (no paralizada) anterior
+function getUltimaSemanaActivaAnterior(semana){
+  if(!semana) return null;
+  const num = parseInt(String(semana).replace(/\D/g,''));
+  if(!num) return null;
+  // Buscar SXX-1, SXX-2, ... hasta encontrar una semana cargada Y no paralizada
+  for(let n = num - 1; n > 0 && n >= num - 20; n--){
+    const cand = `S${n}`;
+    if(DATA.weeks[cand] && !esSemanaParalizada(cand)){
+      return cand;
+    }
+  }
+  return null;
+}
+
+// Permisos: solo adm puede marcar/desmarcar
+function puedeMarcarParalizada(){
+  return currentSession && currentSession.usuario === 'adm';
+}
+
+// Abrir modal para marcar nueva semana o gestionar existente
+function abrirModalParalizar(semanaPreset){
+  if(!puedeMarcarParalizada()){
+    alert('⛔ Solo el administrador puede marcar semanas como paralizadas.');
+    return;
+  }
+  const isEdit = !!(semanaPreset && SEMANAS_PARALIZADAS[semanaPreset.toUpperCase()]);
+  const data = isEdit ? SEMANAS_PARALIZADAS[semanaPreset.toUpperCase()] : null;
+
+  // Crear modal dinámicamente si no existe
+  let modal = document.getElementById('paralizarOverlay');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'paralizarOverlay';
+    modal.className = 'gest-confirm-overlay';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div class="gest-confirm-modal" style="max-width:500px;">
+      <div class="gest-confirm-head" style="background:linear-gradient(135deg,#E07B39 0%,#A0521E 100%);">
+        <h3>⏸ ${isEdit ? 'EDITAR PARALIZACIÓN' : 'MARCAR SEMANA COMO PARALIZADA'}</h3>
+        <p>${isEdit ? `Gestionar paralización de ${semanaPreset}` : 'La obra estuvo paralizada esa semana'}</p>
+      </div>
+      <div class="gest-confirm-body">
+        <p style="font-size:12.5px;color:var(--text-muted);margin:0 0 12px;">
+          Las semanas paralizadas <b>heredan los KPIs de la última semana activa anterior</b>. Útil para periodos sin actividad como paros de obra, feriados largos, etc.
+        </p>
+
+        <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Semana</label>
+        <input type="text" class="gest-confirm-input" id="paralizarSemana"
+               value="${semanaPreset || ''}" placeholder="Ej: S33"
+               style="text-transform:uppercase;text-align:center;letter-spacing:.05em;"
+               ${isEdit ? 'readonly' : ''}>
+        <div style="font-size:10.5px;color:var(--text-muted);margin-top:4px;text-align:center;">
+          Formato: S## (ej: S33, S34)
+        </div>
+
+        <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 4px;">Motivo de paralización <span style="color:#A11;">*</span></label>
+        <textarea id="paralizarMotivo" rows="3" placeholder="Ej: Paro de obra por permisos municipales"
+          style="width:100%;padding:8px 10px;font-family:inherit;font-size:12.5px;border:2px solid var(--border-mid);border-radius:6px;resize:vertical;">${data ? data.motivo || '' : ''}</textarea>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+          <div>
+            <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Fecha de inicio</label>
+            <input type="date" id="paralizarFechaIni" value="${data ? data.fecha_inicio || '' : ''}"
+              style="width:100%;padding:8px 10px;border:2px solid var(--border-mid);border-radius:6px;font-family:inherit;font-size:12.5px;">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Fecha de fin</label>
+            <input type="date" id="paralizarFechaFin" value="${data ? data.fecha_fin || '' : ''}"
+              style="width:100%;padding:8px 10px;border:2px solid var(--border-mid);border-radius:6px;font-family:inherit;font-size:12.5px;">
+          </div>
+        </div>
+
+        <div id="paralizarResult"></div>
+      </div>
+      <div class="gest-confirm-foot" style="${isEdit ? 'justify-content:space-between;' : ''}">
+        ${isEdit ? `<button class="gest-confirm-btn gest-confirm-btn-cancel" onclick="desmarcarParalizada('${semanaPreset}')" style="color:#A11;border-color:#F5A8A8;background:#FFEAEA;">↺ Quitar paralización</button>` : ''}
+        <div style="display:flex;gap:8px;${isEdit ? '' : 'margin-left:auto;'}">
+          <button class="gest-confirm-btn gest-confirm-btn-cancel" onclick="cerrarModalParalizar()">Cancelar</button>
+          <button class="gest-confirm-btn gest-confirm-btn-delete" id="paralizarBtnSave" onclick="guardarSemanaParalizada()" style="background:#E07B39;border-color:#E07B39;">
+            ⏸ ${isEdit ? 'Actualizar' : 'Marcar paralizada'}
+          </button>
+        </div>
+      </div>
+    </div>`;
+  modal.classList.add('show');
+  setTimeout(() => {
+    const sem = document.getElementById('paralizarSemana');
+    if(sem && !isEdit) sem.focus();
+    else { const m = document.getElementById('paralizarMotivo'); if(m) m.focus(); }
+  }, 100);
+}
+
+function cerrarModalParalizar(){
+  const m = document.getElementById('paralizarOverlay');
+  if(m) m.classList.remove('show');
+}
+
+async function guardarSemanaParalizada(){
+  const semana = document.getElementById('paralizarSemana').value.trim().toUpperCase();
+  const motivo = document.getElementById('paralizarMotivo').value.trim();
+  const fechaIni = document.getElementById('paralizarFechaIni').value;
+  const fechaFin = document.getElementById('paralizarFechaFin').value;
+
+  // Validaciones
+  if(!semana || !semana.match(/^S\d+$/)){
+    document.getElementById('paralizarResult').innerHTML =
+      `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ Formato inválido. Usa S## (ej: S33).</div>`;
+    return;
+  }
+  if(!motivo || motivo.length < 3){
+    document.getElementById('paralizarResult').innerHTML =
+      `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ Indica el motivo (mínimo 3 caracteres).</div>`;
+    return;
+  }
+
+  if(!window.E140_DB){
+    document.getElementById('paralizarResult').innerHTML =
+      `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ Firestore no disponible.</div>`;
+    return;
+  }
+
+  const btn = document.getElementById('paralizarBtnSave');
+  btn.disabled = true;
+  btn.textContent = 'Guardando…';
+
+  try {
+    const { db, doc, setDoc } = window.E140_DB;
+    const ahora = new Date().toISOString();
+    const userName = (currentSession && currentSession.nombre) || 'Administrador';
+    const data = {
+      semana: semana,
+      motivo: motivo,
+      fecha_inicio: fechaIni || null,
+      fecha_fin: fechaFin || null,
+      marcado_por: (currentSession && currentSession.usuario) || 'adm',
+      marcado_nombre: userName,
+      marcado_en: ahora,
+    };
+    await setDoc(doc(db, 'semanas_paralizadas', semana), data);
+    SEMANAS_PARALIZADAS[semana] = data;
+
+    // Crear/actualizar la semana en DATA.weeks heredando de la anterior
+    aplicarHerenciaSemanaParalizada(semana);
+
+    // Refrescar UI
+    if(typeof populateWeekSelector === 'function') populateWeekSelector();
+    if(typeof renderCurrentWeek === 'function') renderCurrentWeek();
+    if(typeof cargarSemanasGestion === 'function') cargarSemanasGestion();
+
+    // Audit log
+    try {
+      if(typeof auditLog === 'function'){
+        auditLog({
+          modulo: 'data',
+          accion: 'editar',
+          entidad_id: semana,
+          entidad_nombre: `Semana paralizada ${semana}`,
+          detalle: `Motivo: ${motivo}${fechaIni ? ` · ${fechaIni}` : ''}${fechaFin ? ` → ${fechaFin}` : ''}`,
+        });
+      }
+    } catch(e){ console.warn(e); }
+
+    cerrarModalParalizar();
+    if(typeof showBanner === 'function'){
+      showBanner('ok', `⏸ <b>${semana}</b> marcada como paralizada. KPIs heredados de la última semana activa anterior.`, true);
+    }
+  } catch(err){
+    console.error('[E140] Error marcando paralizada:', err);
+    document.getElementById('paralizarResult').innerHTML =
+      `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ Error: ${err.message || err}</div>`;
+  } finally {
+    btn.textContent = '⏸ Marcar paralizada';
+    btn.disabled = false;
+  }
+}
+
+async function desmarcarParalizada(semana){
+  if(!puedeMarcarParalizada()) return;
+  if(!confirm(`¿Quitar la marca de paralización de ${semana}?\n\nLa semana volverá a aparecer en su estado normal (con o sin data según lo cargado).`)){
+    return;
+  }
+  if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
+
+  try {
+    const { db, doc, deleteDoc } = window.E140_DB;
+    await deleteDoc(doc(db, 'semanas_paralizadas', semana.toUpperCase()));
+    delete SEMANAS_PARALIZADAS[semana.toUpperCase()];
+
+    // Si la semana en DATA.weeks fue creada solo por herencia, eliminarla
+    if(DATA.weeks[semana] && DATA.weeks[semana]._heredada_paralizacion){
+      delete DATA.weeks[semana];
+      // Re-ordenar WEEKS_ORDER
+      const idx = WEEKS_ORDER.indexOf(semana);
+      if(idx > -1) WEEKS_ORDER.splice(idx, 1);
+      // Si era la semana activa, cambiar a otra
+      if(DATA.currentWeek === semana){
+        DATA.currentWeek = WEEKS_ORDER[WEEKS_ORDER.length - 1] || null;
+      }
+    }
+
+    // Audit log
+    try {
+      if(typeof auditLog === 'function'){
+        auditLog({
+          modulo: 'data',
+          accion: 'eliminar',
+          entidad_id: semana,
+          entidad_nombre: `Semana paralizada ${semana}`,
+          detalle: 'Quitó la marca de paralización (la semana vuelve a su estado normal).',
+        });
+      }
+    } catch(e){ console.warn(e); }
+
+    cerrarModalParalizar();
+    if(typeof populateWeekSelector === 'function') populateWeekSelector();
+    if(typeof renderCurrentWeek === 'function') renderCurrentWeek();
+    if(typeof cargarSemanasGestion === 'function') cargarSemanasGestion();
+    if(typeof showBanner === 'function'){
+      showBanner('ok', `↺ Marca de paralización de <b>${semana}</b> removida.`, true);
+    }
+  } catch(err){
+    console.error('[E140] Error desmarcando:', err);
+    alert(`Error: ${err.message || err}`);
+  }
+}
+
+// Crea o actualiza la semana paralizada en DATA.weeks heredando KPIs de la anterior activa
+function aplicarHerenciaSemanaParalizada(semana){
+  if(!semana) return;
+  const semU = semana.toUpperCase();
+  const ant = getUltimaSemanaActivaAnterior(semU);
+  if(!ant){
+    console.warn(`[E140] No hay semana activa anterior a ${semU} para heredar KPIs`);
+    return;
+  }
+
+  // Clonar la data de la semana anterior pero marcarla como paralizada
+  const fuente = DATA.weeks[ant];
+  if(!fuente) return;
+
+  const meta = SEMANAS_PARALIZADAS[semU] || {};
+  const corte = meta.fecha_fin || meta.fecha_inicio || (fuente.corte || '');
+
+  // Deep clone simple via JSON
+  const clone = JSON.parse(JSON.stringify(fuente));
+  clone.corte = corte;
+  clone._paralizada = true;
+  clone._heredada_paralizacion = true;
+  clone._paralizacion_motivo = meta.motivo || '';
+  clone._paralizacion_origen = ant;
+
+  DATA.weeks[semU] = clone;
+
+  // Mantener WEEKS_ORDER ordenado por número de semana
+  if(!WEEKS_ORDER.includes(semU)){
+    WEEKS_ORDER.push(semU);
+    WEEKS_ORDER.sort((a,b) => {
+      const na = parseInt(String(a).replace(/\D/g,'')) || 0;
+      const nb = parseInt(String(b).replace(/\D/g,'')) || 0;
+      return na - nb;
+    });
+  }
+}
+
+// Aplicar herencia a TODAS las semanas paralizadas (después de cargar datos)
+function aplicarHerenciaTodasParalizadas(){
+  Object.keys(SEMANAS_PARALIZADAS).forEach(sem => aplicarHerenciaSemanaParalizada(sem));
+}
+
+// Renderizar banner naranja persistente cuando la semana actual está paralizada.
+function renderParalizadaBanner(){
+  const zone = document.getElementById('bannerZone');
+  if(!zone) return;
+  // Eliminar cualquier banner anterior
+  const prev = zone.querySelector('.paralizada-banner');
+  if(prev) prev.remove();
+
+  const cw = DATA.currentWeek;
+  if(!cw || !esSemanaParalizada(cw)) return;
+
+  const meta = SEMANAS_PARALIZADAS[cw.toUpperCase()] || {};
+  const motivo = meta.motivo || 'Sin motivo registrado';
+  const origen = (DATA.weeks[cw] && DATA.weeks[cw]._paralizacion_origen) || '';
+  const rangoFechas = (meta.fecha_inicio || meta.fecha_fin)
+    ? ` · ${meta.fecha_inicio || '?'} → ${meta.fecha_fin || '?'}`
+    : '';
+
+  const banner = document.createElement('div');
+  banner.className = 'sync-banner paralizada-banner';
+  banner.style.cssText = 'background:linear-gradient(135deg,#FFF4E6 0%,#FFE5C2 100%);border:1px solid #E5B47C;border-left:4px solid #E07B39;color:#7A3F18;';
+  banner.innerHTML = `
+    <span class="banner-ico" style="background:#E07B39;color:#fff;">⏸</span>
+    <span>
+      <b>${cw} · Obra paralizada</b> — ${motivo}${rangoFechas}.
+      ${origen ? `Mostrando KPIs heredados de <b>${origen}</b> (última semana activa).` : 'Sin semana de referencia para herencia.'}
+    </span>`;
+  zone.appendChild(banner);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
