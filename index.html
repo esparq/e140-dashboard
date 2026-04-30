@@ -17878,6 +17878,7 @@ function abrirModalParalizar(semanaPreset){
 }
 
 // Detecta TODAS las semanas (S##) que cubre un rango de fechas (lunes-domingo)
+// Y para cada una indica su estado: vacía, ya paralizada, o con data real publicada.
 function detectarSemanasEnRango(fechaIni, fechaFin){
   if(!fechaIni || !fechaFin) return [];
   const semIni = fechaASemana(fechaIni);
@@ -17888,10 +17889,15 @@ function detectarSemanasEnRango(fechaIni, fechaFin){
   const semanas = [];
   for(let n = semIni.semNum; n <= semFin.semNum; n++){
     const codigo = 'S' + (n < 10 ? '0' + n : n);
-    // Calcular rango lunes-domingo de esta semana
     const msPerDay = 24*60*60*1000;
     const lunes = new Date(PROYECTO_INICIO.getTime() + (n - 1) * 7 * msPerDay);
     const domingo = new Date(lunes.getTime() + 6 * msPerDay);
+
+    // ¿Tiene data REAL publicada? (existe en DATA.weeks y NO es herencia de paralización)
+    const w = DATA.weeks[codigo];
+    const tieneDataReal = !!(w && !w._heredada_paralizacion);
+    const yaParalizada = !!SEMANAS_PARALIZADAS[codigo];
+
     semanas.push({
       codigo: codigo,
       semNum: n,
@@ -17899,7 +17905,10 @@ function detectarSemanasEnRango(fechaIni, fechaFin){
       domingo: domingo,
       lunesFmt: fmtFechaCorta(lunes),
       domingoFmt: fmtFechaCorta(domingo),
-      yaParalizada: !!SEMANAS_PARALIZADAS[codigo],
+      yaParalizada: yaParalizada,
+      tieneDataReal: tieneDataReal,
+      // Si tiene data real Y no está marcada como paralizada → se debe excluir
+      excluir: tieneDataReal && !yaParalizada,
     });
   }
   return semanas;
@@ -17950,32 +17959,70 @@ function actualizarPreviewSemanas(){
     return;
   }
 
+  // Separar semanas a marcar de las protegidas (con data real)
+  const aMarcar = semanas.filter(s => !s.excluir);
+  const protegidas = semanas.filter(s => s.excluir);
+
   // Render del preview con tarjetas de cada semana
   const cards = semanas.map(s => {
-    const ya = s.yaParalizada ? '<span style="color:#A11;font-size:10px;font-weight:700;">YA PARALIZADA · se sobrescribirá</span>' : '';
-    const bg = s.yaParalizada ? '#FFF8E1' : '#FFE5C2';
-    const borderL = s.yaParalizada ? '#E5C792' : '#E07B39';
+    let icono, bg, borderL, label, txtCol = '#7A3F18';
+    if(s.excluir){
+      // Semana con data real publicada → SE EXCLUYE
+      icono = '🛡️';
+      bg = '#E7F4EE';
+      borderL = '#1A6B4A';
+      txtCol = '#0F4A33';
+      label = '<span style="color:#1A6B4A;font-size:10px;font-weight:700;">DATA PUBLICADA · se mantiene intacta</span>';
+    } else if(s.yaParalizada){
+      // Ya estaba paralizada → se sobrescribirá
+      icono = '⏸';
+      bg = '#FFF8E1';
+      borderL = '#E5C792';
+      label = '<span style="color:#A0521E;font-size:10px;font-weight:700;">YA PARALIZADA · se actualizará</span>';
+    } else {
+      // Semana vacía → se marcará
+      icono = '⏸';
+      bg = '#FFE5C2';
+      borderL = '#E07B39';
+      label = '<span style="color:#7A3F18;font-size:10px;font-weight:700;">SE MARCARÁ COMO PARALIZADA</span>';
+    }
     return `
       <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:${bg};border-left:3px solid ${borderL};border-radius:4px;margin-bottom:5px;">
-        <div style="font-size:14px;font-weight:700;color:#7A3F18;letter-spacing:.05em;">${s.codigo}</div>
+        <div style="font-size:16px;">${icono}</div>
+        <div style="font-size:14px;font-weight:700;color:${txtCol};letter-spacing:.05em;">${s.codigo}</div>
         <div style="font-size:11.5px;color:#5A6B8A;flex:1;">📅 ${s.lunesFmt} → ${s.domingoFmt}</div>
-        ${ya}
+        ${label}
       </div>`;
   }).join('');
 
-  const cantidadTxt = semanas.length === 1 ? '1 semana detectada' : `${semanas.length} semanas detectadas`;
+  // Resumen del header del preview
+  let headerTxt;
+  if(aMarcar.length === 0){
+    headerTxt = `🛡️ Todas las semanas del rango tienen data publicada · No se marcará ninguna`;
+  } else if(protegidas.length === 0){
+    const cant = aMarcar.length === 1 ? '1 semana detectada' : `${aMarcar.length} semanas detectadas`;
+    headerTxt = `⏸ ${cant} · Se marcarán como paralizadas`;
+  } else {
+    headerTxt = `⏸ ${aMarcar.length} semana(s) se marcarán como paralizadas · 🛡️ ${protegidas.length} semana(s) protegida(s) por tener data publicada`;
+  }
+
   preview.innerHTML = `
     <div style="text-align:left;">
-      <div style="font-size:11.5px;font-weight:700;color:#7A3F18;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">
-        ⏸ ${cantidadTxt} · Se marcarán todas como paralizadas
+      <div style="font-size:11.5px;font-weight:700;color:#7A3F18;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;line-height:1.4;">
+        ${headerTxt}
       </div>
       ${cards}
+      ${protegidas.length > 0 ? `
+        <div style="margin-top:10px;padding:8px 10px;background:#F0F8F4;border:1px solid #C2DFCC;border-radius:4px;font-size:11px;color:#0F4A33;line-height:1.5;">
+          🛡️ <b>Protección automática:</b> Las semanas con data ya publicada NO serán modificadas. Si quieres marcarlas como paralizadas, primero debes eliminarlas en "Eliminar todo" y luego volver a marcar.
+        </div>` : ''}
     </div>`;
   preview.style.background = '#FFF8EE';
   preview.style.borderColor = '#E5B47C';
   preview.style.color = 'inherit';
   preview.style.borderStyle = 'solid';
-  if(btnSave) btnSave.disabled = false;
+  // Habilitar botón solo si hay al menos 1 semana a marcar
+  if(btnSave) btnSave.disabled = (aMarcar.length === 0);
 }
 
 function cerrarModalParalizar(){
@@ -18015,18 +18062,26 @@ async function guardarSemanaParalizada(){
 
   // Determinar las semanas a guardar
   let semanasObjetivo = [];
+  let semanasExcluidas = []; // Las que tienen data real (se protegen)
   if(isEdit){
-    // Edición: una sola semana ya conocida
+    // Edición: una sola semana ya conocida (no se aplica filtro de protección)
     semanasObjetivo = [semanaInput.value.toUpperCase()];
   } else {
-    // Creación: detectar todas las semanas en el rango
+    // Creación: detectar todas las semanas en el rango y filtrar las protegidas
     const detectadas = detectarSemanasEnRango(fechaIni, fechaFin);
     if(detectadas.length === 0){
       document.getElementById('paralizarResult').innerHTML =
         `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ No se detectaron semanas en el rango. Verifica las fechas.</div>`;
       return;
     }
-    semanasObjetivo = detectadas.map(s => s.codigo);
+    semanasObjetivo = detectadas.filter(s => !s.excluir).map(s => s.codigo);
+    semanasExcluidas = detectadas.filter(s => s.excluir).map(s => s.codigo);
+
+    if(semanasObjetivo.length === 0){
+      document.getElementById('paralizarResult').innerHTML =
+        `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ Todas las semanas del rango tienen data publicada. No hay nada que marcar como paralizado.</div>`;
+      return;
+    }
   }
 
   const btn = document.getElementById('paralizarBtnSave');
@@ -18087,11 +18142,14 @@ async function guardarSemanaParalizada(){
 
     // Mostrar feedback
     if(typeof showBanner === 'function'){
+      const protegidasTxt = semanasExcluidas.length > 0
+        ? ` 🛡️ Protegidas (con data publicada): ${semanasExcluidas.join(', ')}.`
+        : '';
       if(errores.length === 0){
         if(exitos === 1){
-          showBanner('ok', `⏸ <b>${semanasObjetivo[0]}</b> marcada como paralizada. KPIs heredados de la última semana activa.`, true);
+          showBanner('ok', `⏸ <b>${semanasObjetivo[0]}</b> marcada como paralizada. KPIs heredados de la última semana activa.${protegidasTxt}`, true);
         } else {
-          showBanner('ok', `⏸ <b>${exitos} semanas</b> marcadas como paralizadas: ${semanasObjetivo.join(', ')}. KPIs heredados.`, true);
+          showBanner('ok', `⏸ <b>${exitos} semanas</b> marcadas como paralizadas: ${semanasObjetivo.join(', ')}. KPIs heredados.${protegidasTxt}`, true);
         }
       } else {
         showBanner('warn', `⏸ ${exitos} semana(s) guardada(s), pero hubo errores en: ${errores.join(' · ')}`);
