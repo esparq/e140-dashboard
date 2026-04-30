@@ -7265,7 +7265,7 @@ function buildDataFromSheets(raw){
     const w = data.weeks[sem];
     w.adquisiciones.porEspecialidad = {labels:a.labels, contratado:a.contratado, margenPct:a.margenPct};
     const margenTot = a.contratado.reduce((s,v,i)=>s+v*(a.margenPct[i]||0)/100, 0);
-    w.adquisiciones.subheader = `Fuente: <b>03 · Cuadro de adquisiciones</b> — ${a.items||a.labels.length} ítems · S/ ${(a.totContrat/1e6).toFixed(2)} M contratado · Margen S/ ${(margenTot/1e6).toFixed(2)} M (${a.totContrat>0?(margenTot/a.totContrat*100).toFixed(1):'0'}%)`;
+    w.adquisiciones.subheader = `Fuente: <b>03 · Cuadro de adquisiciones</b> — ${a.items||a.labels.length} ítems · S/ ${(a.totContrat/1e6).toFixed(2)} M contratado · Margen S/ ${(margenTot/1e6).toFixed(2)} M (${a.totContrat>0?(margenTot/a.totContrat*100).toFixed(2):'0'}%)`;
   });
 
   // ── ADICIONALES ────────────────────────────────────
@@ -8739,16 +8739,22 @@ function fmtSN(v){
   if(v===null||v===undefined||isNaN(v))return '—';
   return Number(v).toLocaleString('es-PE',{maximumFractionDigits:0});
 }
-function fmtPct(v,dec=1){
+// Formatea un número con 2 decimales y separador de miles peruano.
+// Ej: 1897900.5 → "1,897,900.50"
+function fmtSN2(v){
+  if(v===null||v===undefined||isNaN(v))return '—';
+  return Number(v).toLocaleString('es-PE',{minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function fmtPct(v,dec=2){
   if(v===null||v===undefined||isNaN(v))return '—';
   return v.toFixed(dec)+'%';
 }
-function fmtS(v){ return 'S/ '+fmtSN(v); }
+function fmtS(v){ return 'S/ '+fmtSN2(v); }
 function fmtSMon(v){
   if(v===null||v===undefined||isNaN(v)) return '—';
   if(v>=1e6) return 'S/ '+(v/1e6).toFixed(2)+' M';
-  if(v>=1e3) return 'S/ '+(v/1e3).toFixed(0)+' K';
-  return 'S/ '+fmtSN(v);
+  if(v>=1e3) return 'S/ '+(v/1e3).toFixed(2)+' K';
+  return 'S/ '+fmtSN2(v);
 }
 
 // Compara con semana anterior (si existe en WEEKS_ORDER)
@@ -8766,7 +8772,7 @@ function getDelta(actual, prev, esPct){
   const cls = d>0.001 ? "up" : (d<-0.001 ? "down" : "flat");
   const arrow = d>0.001 ? "↑" : (d<-0.001 ? "↓" : "–");
   let txt;
-  if(esPct) txt = (d>=0?"+":"")+d.toFixed(1)+" pp";
+  if(esPct) txt = (d>=0?"+":"")+d.toFixed(2)+" pp";
   else if(Math.abs(d)>=1000) txt = (d>=0?"+":"")+fmtSMon(Math.abs(d)).replace('S/ ','S/ '+(d>=0?"":"-"));
   else txt = (d>=0?"+":"")+fmtSN(d);
   return {val:d, txt, cls, arrow};
@@ -8835,8 +8841,8 @@ function renderResumen(){
   const diasRest = CONSTANTES.plazoDias - diasTrans;
   const pctTrans = (diasTrans/CONSTANTES.plazoDias)*100;
   document.getElementById('rBannerPlazo').innerHTML = `Día <b>${diasTrans}</b> de ${CONSTANTES.plazoDias} · <b>${diasRest} d restantes</b>`;
-  document.getElementById('rProgressFill').style.width = pctTrans.toFixed(1)+'%';
-  document.getElementById('rProgressPct').textContent = pctTrans.toFixed(1)+'% TRANSCURRIDO';
+  document.getElementById('rProgressFill').style.width = pctTrans.toFixed(2)+'%';
+  document.getElementById('rProgressPct').textContent = pctTrans.toFixed(2)+'% TRANSCURRIDO';
 
   // A.bis · Estado por Área (primer panel — vista global por área)
   renderRAreas();
@@ -8982,10 +8988,10 @@ function renderRKpis(d, dPrev){
 
   // Formateadores específicos
   const fmtPersonal = v => (v==null||isNaN(v)) ? '—' : String(Math.round(v))+' pax';
-  const fmtMO       = v => (v==null||isNaN(v)) ? '—' : 'S/ '+Math.round(v).toLocaleString('es-PE');
+  const fmtMO       = v => (v==null||isNaN(v)) ? '—' : 'S/ '+v.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
   const fmtCPI      = v => (v==null||isNaN(v)) ? '—' : v.toFixed(2);
   const fmtSPI      = v => (v==null||isNaN(v)) ? '—' : v.toFixed(2);
-  const fmtAv       = v => (v==null||isNaN(v)) ? '—' : v.toFixed(1)+'%';
+  const fmtAv       = v => (v==null||isNaN(v)) ? '—' : v.toFixed(2)+'%';
 
   // Colores según criterio: verde si saludable, naranja si intermedio, rojo si alerta
   const clsCPI      = v => v == null ? '' : (v >= 1 ? 'rk-green' : v >= 0.9 ? 'rk-orange' : 'rk-red');
@@ -9242,7 +9248,7 @@ function renderRAreas(){
       el.style.background = 'linear-gradient(135deg,#FFFFFF 0%,#EEF5FA 100%)';
       el.style.boxShadow = '0 2px 8px rgba(0,112,180,.08)';
     }
-    const pctTxt = a.pct == null ? '—' : a.pct.toFixed(0) + '%';
+    const pctTxt = a.pct == null ? '—' : a.pct.toFixed(2) + '%';
     const tagOpe = a.destacada
       ? '<span style="display:inline-block;font-size:8.5px;font-weight:700;padding:2px 5px;border-radius:3px;background:var(--twitter-blue);color:#fff;letter-spacing:.05em;line-height:1.2;">PRINCIPAL</span>'
       : '';
@@ -9303,11 +9309,11 @@ function renderREvoMO(){
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:10,font:{size:11}}},
         tooltip:{callbacks:{label:c=>{
-          if(c.dataset.type==='line') return c.dataset.label+': '+(c.parsed.y||0).toFixed(1)+'%';
+          if(c.dataset.type==='line') return c.dataset.label+': '+(c.parsed.y||0).toFixed(2)+'%';
           return c.dataset.label+': '+fmtSMon(c.parsed.y||0);
         }}}},
       scales:{
-        y1:{position:'left',beginAtZero:true,grid:{color:'#EEF5FA'},ticks:{callback:v=>(v/1e6).toFixed(1)+' M'}},
+        y1:{position:'left',beginAtZero:true,grid:{color:'#EEF5FA'},ticks:{callback:v=>(v/1e6).toFixed(2)+' M'}},
         y2:{position:'right',beginAtZero:true,max:30,grid:{display:false},ticks:{callback:v=>v+'%'}},
         x:{grid:{display:false}}
       }
@@ -9462,7 +9468,7 @@ function renderMO(){
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},
         tooltip:{callbacks:{label:c=>{
-          if(c.dataset.type==='line')return c.dataset.label+': '+c.parsed.y.toFixed(1)+'%';
+          if(c.dataset.type==='line')return c.dataset.label+': '+c.parsed.y.toFixed(2)+'%';
           return c.dataset.label+': '+fmtSMon(c.parsed.y);
         }}}},
       scales:{
@@ -9576,7 +9582,7 @@ function renderAdq(){
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:8,font:{size:10}}}},
       scales:{
-        y:{beginAtZero:true,grid:{color:'#EEF5FA'},ticks:{callback:v=>'S/ '+(v/1e6).toFixed(1)+'M'}},
+        y:{beginAtZero:true,grid:{color:'#EEF5FA'},ticks:{callback:v=>'S/ '+(v/1e6).toFixed(2)+'M'}},
         y1:{position:'right',beginAtZero:true,max:35,grid:{display:false},ticks:{callback:v=>v+'%'}},
         x:{grid:{display:false}}
       }
@@ -9660,9 +9666,9 @@ function renderAcero(){
   const ac = d.acero || {};
   
   // Helpers de formato
-  const fmtKg = v => (v == null || isNaN(v)) ? '—' : Math.round(v).toLocaleString('es-PE') + ' kg';
-  const fmtSol = v => (v == null || isNaN(v)) ? '—' : 'S/ ' + Math.round(v).toLocaleString('es-PE');
-  const fmtPct = v => (v == null || isNaN(v)) ? '—' : v.toFixed(1) + '%';
+  const fmtKg = v => (v == null || isNaN(v)) ? '—' : v.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' kg';
+  const fmtSol = v => (v == null || isNaN(v)) ? '—' : 'S/ ' + v.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const fmtPct = v => (v == null || isNaN(v)) ? '—' : v.toFixed(2) + '%';
 
   // KPI cards
   document.getElementById('aceroPptoKg').textContent = fmtKg(ac.ppto_kg);
@@ -9713,7 +9719,7 @@ function renderKardex(){
   const d = wk();
   const kx = d.kardex || {};
   
-  const fmtSol = v => (v == null || isNaN(v)) ? '—' : 'S/ ' + Math.round(v).toLocaleString('es-PE');
+  const fmtSol = v => (v == null || isNaN(v)) ? '—' : 'S/ ' + v.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
 
   // KPI cards de costo
   document.getElementById('kardexCostoTotal').textContent = fmtSol(kx.costo_total_obra);
@@ -9775,8 +9781,8 @@ function renderArrendamiento(){
   const d = wk();
   const ar = d.arrendamiento || {};
   
-  const fmtSol = v => (v == null || isNaN(v)) ? '—' : 'S/ ' + Math.round(v).toLocaleString('es-PE');
-  const fmtPct = v => (v == null || isNaN(v)) ? '—' : v.toFixed(1) + '%';
+  const fmtSol = v => (v == null || isNaN(v)) ? '—' : 'S/ ' + v.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const fmtPct = v => (v == null || isNaN(v)) ? '—' : v.toFixed(2) + '%';
 
   // KPI cards
   document.getElementById('arrContractual').textContent = fmtSol(ar.f1_contractual_sol);
@@ -9937,7 +9943,7 @@ function renderEvolutivoAcero(){
           pointBackgroundColor: COLORS.blue,
           pointRadius:4, pointHoverRadius:6,
           borderWidth:2, borderDash:[6,4],
-          _fmt: v => v.toFixed(1)+'%',
+          _fmt: v => v.toFixed(2)+'%',
         },
       ]
     },
@@ -9968,7 +9974,7 @@ function renderEvolutivoKardex(){
   const casa     = semanas.map(s => s.data.kardex?.costo_casa_obra || 0);
   const consum   = semanas.map(s => s.data.kardex?.costo_consumibles_acum || 0);
 
-  const fmtS = v => 'S/ '+Math.round(v).toLocaleString('es-PE');
+  const fmtS = v => 'S/ '+v.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
 
   CHART_INSTANCES['chartKardexEvol'] = new Chart(ctx, {
     type:'line',
@@ -10033,14 +10039,14 @@ function renderEvolutivoArrendamiento(){
          tension:0.3, fill:true, yAxisID:'y',
          pointBackgroundColor: COLORS.blueMid, pointRadius:4, pointHoverRadius:6,
          borderWidth:2.5,
-         _fmt: v => 'S/ '+Math.round(v).toLocaleString('es-PE')},
+         _fmt: v => 'S/ '+v.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2})},
         {label:'% Avance',
          data: avancePct,
          borderColor: COLORS.green, backgroundColor: COLORS.green,
          tension:0.3, fill:false, yAxisID:'y1',
          pointBackgroundColor: COLORS.green, pointRadius:4, pointHoverRadius:6,
          borderWidth:2, borderDash:[6,4],
-         _fmt: v => v.toFixed(1)+'%'},
+         _fmt: v => v.toFixed(2)+'%'},
       ]
     },
     options: _evolOpts('Valorizado (S/)','% Avance')
@@ -10147,7 +10153,7 @@ function renderSsomaSST(){
   document.getElementById('ssomaIFDetalle').textContent = `${accTP.length} acc. TP / ${hhTrabajadasEstimadas.toLocaleString('es-PE')} HH`;
   setKpiStatus('ssomaIFStatus', indFrec, 5, 'max');
 
-  document.getElementById('ssomaIG').textContent = indGrav.toFixed(1);
+  document.getElementById('ssomaIG').textContent = indGrav.toFixed(2);
   document.getElementById('ssomaIGDetalle').textContent = `${totalDiasPerdidos} días perdidos × 10⁶ / HH`;
   setKpiStatus('ssomaIGStatus', indGrav, 100, 'max');
 
@@ -10156,7 +10162,7 @@ function renderSsomaSST(){
     ? inspecciones.reduce((s, x) => s + (Number(x.cumplimiento_pct) || 0), 0) / inspecciones.length
     : null;
   if(promInsp !== null){
-    document.getElementById('ssomaInsp').textContent = promInsp.toFixed(0) + '%';
+    document.getElementById('ssomaInsp').textContent = promInsp.toFixed(2) + '%';
     document.getElementById('ssomaInspDetalle').textContent = `${inspecciones.length} inspección${inspecciones.length === 1 ? '' : 'es'} registrada${inspecciones.length === 1 ? '' : 's'}`;
     setKpiStatus('ssomaInspStatus', promInsp, 90, 'min');
   } else {
@@ -10291,7 +10297,7 @@ function renderSsomaSstHistorial(){
       tipoBadge = '<span class="ssoma-tipo-badge ssoma-tipo-inspeccion">📋 Inspección</span>';
       const pct = Number(r.cumplimiento_pct) || 0;
       const colorPct = pct >= 90 ? '#1A6B4A' : (pct >= 70 ? '#A0521E' : '#8A2A2D');
-      detalle = `<b style="color:${colorPct};">${pct.toFixed(0)}%</b>`;
+      detalle = `<b style="color:${colorPct};">${pct.toFixed(2)}%</b>`;
     } else if(r.tipo === 'incidente'){
       const sevConfig = {
         incidente:      { lab: 'INCIDENTE',         cls: 'ssoma-sev-incidente' },
@@ -10400,7 +10406,7 @@ function renderCalidadSIG(){
   const elSigDet = document.getElementById('calSIGDetalle');
   const elSigSt = document.getElementById('calSIGStatus');
   if(ultima){
-    elSig.textContent = ultima.cumplimiento_pct.toFixed(0) + '%';
+    elSig.textContent = ultima.cumplimiento_pct.toFixed(2) + '%';
     elSigDet.textContent = `${ultima.semana || ''} · ${formatFechaCorta(ultima.fecha_inspeccion)}`;
     const cal = calificacionSIG(ultima.cumplimiento_pct);
     elSigSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
@@ -10434,7 +10440,7 @@ function renderCalidadSIG(){
   const elPrSt = document.getElementById('calSIGPromStatus');
   if(total > 0){
     const promedio = ordenadas.reduce((s, x) => s + (x.cumplimiento_pct || 0), 0) / total;
-    elPr.textContent = promedio.toFixed(1) + '%';
+    elPr.textContent = promedio.toFixed(2) + '%';
     elPrDet.textContent = `Promedio de ${total} inspección${total === 1 ? '' : 'es'}`;
     elPrSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
     if(promedio >= 85)       elPrSt.classList.add('kpi-meta-cumple');
@@ -10551,7 +10557,7 @@ function renderCalidadSIG(){
           <td class="td-center"><span class="aud-sem">${escapeHtml(x.semana || '—')}</span></td>
           <td class="td-center">${formatFechaCorta(x.fecha_inspeccion)}</td>
           <td>${escapeHtml(x.inspector || 'No registrado')}</td>
-          <td class="td-center"><b style="font-size:14px;color:${cal.color};">${(x.cumplimiento_pct || 0).toFixed(0)}%</b></td>
+          <td class="td-center"><b style="font-size:14px;color:${cal.color};">${(x.cumplimiento_pct || 0).toFixed(2)}%</b></td>
           <td class="td-center"><span class="sig-preview-badge ${cal.clase}" style="font-size:10px;padding:3px 8px;">${cal.texto}</span></td>
           <td>${obsHtml}</td>
           <td class="td-center">${pdfBtn}</td>
@@ -10628,7 +10634,7 @@ function renderCalidadNC(){
   } else if(data.ncTotal === 0){
     ncPct = 0;
   }
-  document.getElementById('calNCReincPct').textContent = ncPct == null ? '—' : ncPct.toFixed(1) + '%';
+  document.getElementById('calNCReincPct').textContent = ncPct == null ? '—' : ncPct.toFixed(2) + '%';
 
   const setStatus = (id, valor, metaMax, modo) => {
     const el = document.getElementById(id);
@@ -10729,7 +10735,7 @@ function renderCalidadCap(){
     const pctAsist = tot > 0 ? (cap / tot) * 100 : 0;
     const pctAprob = cap > 0 ? (apr / cap) * 100 : 0;
 
-    elAsist.textContent = pctAsist.toFixed(0) + '%';
+    elAsist.textContent = pctAsist.toFixed(2) + '%';
     elAsistDet.textContent = `${cap} de ${tot} convocados · ${pendientes} pendiente${pendientes === 1 ? '' : 's'}`;
     elAsistSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
     if(pctAsist >= 90)      elAsistSt.classList.add('kpi-meta-cumple');
@@ -10737,7 +10743,7 @@ function renderCalidadCap(){
     else                    elAsistSt.classList.add('kpi-meta-nocumple');
     elAsistSt.textContent = pctAsist >= 90 ? '✓ Cumple' : (pctAsist >= 70 ? '⚠ En seguimiento' : '✗ No cumple');
 
-    elAprob.textContent = pctAprob.toFixed(0) + '%';
+    elAprob.textContent = pctAprob.toFixed(2) + '%';
     elAprobDet.textContent = cap === 0 ? 'Sin personal capacitado aún' : `${apr} de ${cap} aprobaron (nota ≥ 13)`;
     elAprobSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
     if(pctAprob >= 100)     elAprobSt.classList.add('kpi-meta-cumple');
@@ -10801,7 +10807,7 @@ function renderCalidadCap(){
           <td>${escapeHtml(c.instructor || '—')}</td>
           <td class="td-center">${tot}</td>
           <td class="td-center">${cap}</td>
-          <td class="td-center"><b style="color:${colorApr};">${pctApr.toFixed(0)}%</b></td>
+          <td class="td-center"><b style="color:${colorApr};">${pctApr.toFixed(2)}%</b></td>
           <td class="td-center"><button class="aud-btn-download" onclick="verDetalleCapacitacion('${escapeHtml(c.id)}')" style="padding:4px 10px;font-size:10px;">👁 Ver</button></td>
           <td class="td-center audit-only" style="white-space:nowrap;">${accionesHtml}</td>
         </tr>`;
@@ -12477,7 +12483,7 @@ function renderArqProcesos(){
 
   const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent = val; };
   set('arqSigTotal', total);
-  set('arqSigTotalStatus', `Rev. promedio: ${(ARQ_SIG_CATALOGO.reduce((s,i)=>s+i.rev,0)/total).toFixed(1)}`);
+  set('arqSigTotalStatus', `Rev. promedio: ${(ARQ_SIG_CATALOGO.reduce((s,i)=>s+i.rev,0)/total).toFixed(2)}`);
   set('arqSigRevisados', revisados);
   set('arqSigRevisadosDet', `${total > 0 ? Math.round(revisados/total*100) : 0}% del total`);
   set('arqSigCurso', enCurso);
@@ -14741,13 +14747,13 @@ function renderRepResumenEjecutivo(d, mesKey){
       cls: d.ssomaMes.filter(r => r.tipo === 'incidente' && r.severidad === 'accidente_tp').length > 0 ? 'alerta' : 'ok',
     },
     {
-      num: sigPctProm !== null ? sigPctProm.toFixed(0) + '%' : '—',
+      num: sigPctProm !== null ? sigPctProm.toFixed(2) + '%' : '—',
       lab: '% Cumplimiento SIG',
       sub: `${d.sigMes.length} inspección${d.sigMes.length === 1 ? '' : 'es'}`,
       cls: sigPctProm === null ? '' : (sigPctProm >= 85 ? 'ok' : (sigPctProm >= 65 ? 'warn' : 'alerta')),
     },
     {
-      num: capAprob !== null ? capAprob.toFixed(0) + '%' : '—',
+      num: capAprob !== null ? capAprob.toFixed(2) + '%' : '—',
       lab: '% Aprobación Capacitaciones',
       sub: `${d.capsMes.length} capacitación${d.capsMes.length === 1 ? '' : 'es'} · ${capTotal} evaluados`,
       cls: capAprob === null ? '' : (capAprob >= 90 ? 'ok' : 'warn'),
@@ -14802,7 +14808,7 @@ function renderRepSsoma(d){
   document.getElementById('repSsomaInsp').textContent = inspecciones.length;
   document.getElementById('repSsomaInc').textContent = incidentes.length;
   document.getElementById('repSsomaAsist').textContent = totalAsist;
-  document.getElementById('repSsomaInspProm').textContent = promInsp !== null ? promInsp.toFixed(0) + '%' : '—';
+  document.getElementById('repSsomaInspProm').textContent = promInsp !== null ? promInsp.toFixed(2) + '%' : '—';
   document.getElementById('repSsomaAccTP').textContent = accTP.length;
 
   // Detalle: tabla de incidentes del mes
@@ -14863,11 +14869,11 @@ function renderRepCalidad(d){
     else califText = '✗ Deficiente';
   }
 
-  document.getElementById('repCalSig').textContent = promSig !== null ? promSig.toFixed(0) + '%' : '—';
+  document.getElementById('repCalSig').textContent = promSig !== null ? promSig.toFixed(2) + '%' : '—';
   document.getElementById('repCalInsp').textContent = sigMes.length;
   document.getElementById('repCalCap').textContent = d.capsMes.length;
   document.getElementById('repCalCapPers').textContent = totalPersonas;
-  document.getElementById('repCalAprob').textContent = pctAprob !== null ? pctAprob.toFixed(0) + '%' : '—';
+  document.getElementById('repCalAprob').textContent = pctAprob !== null ? pctAprob.toFixed(2) + '%' : '—';
   document.getElementById('repCalCalif').textContent = califText;
 
   // Detalle: capacitaciones del mes
@@ -14896,7 +14902,7 @@ function renderRepCalidad(d){
     sigMes.forEach(s => {
       const pct = s.cumplimiento_pct || 0;
       const cal = pct >= 85 ? 'Satisfactorio' : (pct >= 65 ? 'Aceptable' : 'Deficiente');
-      html += `<tr><td>${formatFechaCorta(s.fecha_inspeccion)}</td><td>${escapeHtml(s.inspector || '—')}</td><td style="text-align:center;"><b>${pct.toFixed(0)}%</b></td><td>${cal}</td></tr>`;
+      html += `<tr><td>${formatFechaCorta(s.fecha_inspeccion)}</td><td>${escapeHtml(s.inspector || '—')}</td><td style="text-align:center;"><b>${pct.toFixed(2)}%</b></td><td>${cal}</td></tr>`;
     });
     html += '</tbody></table>';
   }
@@ -14918,7 +14924,7 @@ function renderRepPendientes(d){
       const d2 = new Date(p.cerrada_en);
       return s + Math.max(0, (d2 - d1) / (24*60*60*1000));
     }, 0);
-    promDias = (sumDias / cerradas.length).toFixed(1);
+    promDias = (sumDias / cerradas.length).toFixed(2);
   }
 
   document.getElementById('repPenAbiertas').textContent = d.penAbiertas.length;
@@ -15032,7 +15038,7 @@ function generarReportePDF(){
       if(!p.creado_en || !p.cerrada_en) return s;
       return s + Math.max(0, (new Date(p.cerrada_en) - new Date(p.creado_en)) / (24*60*60*1000));
     }, 0);
-    promDias = (sumDias / dataMes.penCerradasMes.length).toFixed(1);
+    promDias = (sumDias / dataMes.penCerradasMes.length).toFixed(2);
   }
 
   // Página A4 horizontal: 297mm × 210mm
@@ -15081,8 +15087,8 @@ function generarReportePDF(){
     { num: String(diasSinAcc), lab: 'DÍAS SIN ACCIDENTES', sub: accTPHasta.length === 0 ? 'Desde inicio del proyecto' : 'Último: '+formatFechaCorta(accTPHasta[0].fecha), color: diasSinAcc > 30 ? [26,107,74] : (diasSinAcc > 7 ? [122,63,24] : [138,42,45]) },
     { num: String(ssomaCharlas.length), lab: 'CHARLAS SSOMA', sub: 'Charlas diarias del mes', color: [26,107,74] },
     { num: String(ssomaInc.length), lab: 'INCIDENTES', sub: accTPMes.length+' con tiempo perdido', color: accTPMes.length > 0 ? [138,42,45] : [26,107,74] },
-    { num: sigPctProm !== null ? sigPctProm.toFixed(0)+'%' : '—', lab: '% SIG', sub: dataMes.sigMes.length+' inspección(es)', color: sigPctProm === null ? [80,80,80] : (sigPctProm >= 85 ? [26,107,74] : (sigPctProm >= 65 ? [122,63,24] : [138,42,45])) },
-    { num: capAprob !== null ? capAprob.toFixed(0)+'%' : '—', lab: '% APROBACIÓN CAP.', sub: dataMes.capsMes.length+' capacitación(es)', color: capAprob === null ? [80,80,80] : (capAprob >= 90 ? [26,107,74] : [122,63,24]) },
+    { num: sigPctProm !== null ? sigPctProm.toFixed(2) + '%' : '—', lab: '% SIG', sub: dataMes.sigMes.length+' inspección(es)', color: sigPctProm === null ? [80,80,80] : (sigPctProm >= 85 ? [26,107,74] : (sigPctProm >= 65 ? [122,63,24] : [138,42,45])) },
+    { num: capAprob !== null ? capAprob.toFixed(2) + '%' : '—', lab: '% APROBACIÓN CAP.', sub: dataMes.capsMes.length+' capacitación(es)', color: capAprob === null ? [80,80,80] : (capAprob >= 90 ? [26,107,74] : [122,63,24]) },
     { num: String(dataMes.penCerradasMes.length), lab: 'PENDIENTES CERRADOS', sub: dataMes.penCreadasMes.length+' creadas en el mes', color: [26,107,74] },
   ];
   const cardW = (PW - M*2 - 5*3) / 6;
@@ -15135,7 +15141,7 @@ function generarReportePDF(){
       ['Charlas dictadas', String(ssomaCharlas.length)],
       ['Asistentes a charlas', String(totAsist)],
       ['Inspecciones SST', String(ssomaInsp.length)],
-      ['% Cumplimiento prom.', promInsp !== null ? promInsp.toFixed(0) + '%' : '—'],
+      ['% Cumplimiento prom.', promInsp !== null ? promInsp.toFixed(2) + '%' : '—'],
       ['Incidentes reportados', String(ssomaInc.length)],
       ['Acc. con tiempo perdido', String(accTPMes.length)],
       ['Días perdidos del mes', String(accTPMes.reduce((s,a) => s + (Number(a.dias_perdidos)||0), 0))],
@@ -15161,13 +15167,13 @@ function generarReportePDF(){
     startY: colY + 4,
     head: [['Indicador Calidad', 'Valor']],
     body: [
-      ['% Cumplimiento SIG', sigPctProm !== null ? sigPctProm.toFixed(0) + '%' : '—'],
+      ['% Cumplimiento SIG', sigPctProm !== null ? sigPctProm.toFixed(2) + '%' : '—'],
       ['Inspecciones SIG', String(dataMes.sigMes.length)],
       ['Capacitaciones', String(dataMes.capsMes.length)],
       ['Personal en lista', String(totalPersonas)],
       ['Personas evaluadas', String(capTotal)],
       ['Personas aprobadas', String(capAprobados)],
-      ['% Aprobación', capAprob !== null ? capAprob.toFixed(0) + '%' : '—'],
+      ['% Aprobación', capAprob !== null ? capAprob.toFixed(2) + '%' : '—'],
     ],
     theme: 'striped',
     headStyles: { fillColor: [26, 107, 74], textColor: 255, fontSize: 7.5, cellPadding: 1.5 },
@@ -15228,7 +15234,7 @@ function generarReportePDF(){
   dataMes.sigMes.forEach(s => {
     const pct = Number(s.cumplimiento_pct) || 0;
     const cal = pct >= 85 ? 'Satisfactorio' : (pct >= 65 ? 'Aceptable' : 'Deficiente');
-    eventos.push([formatFechaCorta(s.fecha_inspeccion), 'CALIDAD', `Insp. SIG ${pct.toFixed(0)}%`, s.inspector || '—', cal]);
+    eventos.push([formatFechaCorta(s.fecha_inspeccion), 'CALIDAD', `Insp. SIG ${pct.toFixed(2)}%`, s.inspector || '—', cal]);
   });
   dataMes.capsMes.forEach(c => {
     eventos.push([formatFechaCorta(c.fecha), 'CALIDAD', 'Capacitación', c.instructor || '—', (c.tema || '').slice(0, 70)]);
@@ -15314,7 +15320,7 @@ function generarReporteExcel(){
     ['Días perdidos del mes', accTP.reduce((s, a) => s + (Number(a.dias_perdidos) || 0), 0)],
     [],
     ['── CALIDAD ──'],
-    ['% Cumplimiento SIG promedio', sigPctProm !== null ? sigPctProm.toFixed(1) + '%' : '—'],
+    ['% Cumplimiento SIG promedio', sigPctProm !== null ? sigPctProm.toFixed(2) + '%' : '—'],
     ['Inspecciones SIG del mes', dataMes.sigMes.length],
     ['Capacitaciones del mes', dataMes.capsMes.length],
     [],
@@ -15496,9 +15502,9 @@ function renderCrono(){
   });
 
   // Barra
-  document.getElementById('cronoBarFill').style.width = pctTrans.toFixed(1)+'%';
+  document.getElementById('cronoBarFill').style.width = pctTrans.toFixed(2)+'%';
   const marker = document.getElementById('cronoBarMarker');
-  marker.style.left = pctTrans.toFixed(1)+'%';
+  marker.style.left = pctTrans.toFixed(2)+'%';
   marker.textContent = `HOY · SEM ${d.semNum}`;
 }
 
@@ -17122,7 +17128,7 @@ async function publicarFotosOnline(){
 
       bIcon.textContent = '⏳';
       bText.textContent = `Subiendo foto ${numStr} de ${total}…`;
-      bFill.style.width = ((numStr - 1) / total * 90).toFixed(0) + '%';
+      bFill.style.width = ((numStr - 1) / total * 90).toFixed(2) + '%';
       bDetail.textContent = `${f.desc} (${formatBytes(estimateBase64Size(f.url))})`;
 
       // Si ya tiene URL de Cloudinary (porque era una foto pre-existente), no la re-subimos
@@ -18418,7 +18424,7 @@ function puedeEditarKpi(){
 
 // Etiquetas de cada KPI editable
 const KPI_EDIT_LABELS = {
-  avance: { label: 'Avance de Obra', unit: '%', min: 0, max: 100, step: 0.1, decimals: 1 },
+  avance: { label: 'Avance de Obra', unit: '%', min: 0, max: 100, step: 0.01, decimals: 2 },
 };
 
 // Abrir el modal con el valor calculado actual y, si hay override, lo precarga
@@ -19192,7 +19198,7 @@ async function publicarInspeccionSIG(){
       // 🔔 Notificación inspección SIG nueva
       try {
         if(typeof notify === 'function'){
-          const cumpTxt = pct != null ? `${pct.toFixed(1)}%` : '—';
+          const cumpTxt = pct != null ? `${pct.toFixed(2)}%` : '—';
           const cumpEmoji = pct >= 90 ? '✅' : (pct >= 70 ? '🟡' : '🔴');
           notify({
             tipo: 'calidad',
@@ -19211,7 +19217,7 @@ async function publicarInspeccionSIG(){
             modulo: 'calidad-sig',
             accion: 'crear',
             entidad_id: docId,
-            entidad_nombre: `Inspección SIG · ${sem} · ${pct.toFixed(1)}%`,
+            entidad_nombre: `Inspección SIG · ${sem} · ${pct.toFixed(2)}%`,
             detalle: `Inspector ${inspector} · Fecha ${fecha} · Puntaje ${puntajeObt}/${puntajeMax}${observaciones ? ' · ' + observaciones.substring(0,80) : ''}`,
           });
         }
@@ -19226,7 +19232,7 @@ async function publicarInspeccionSIG(){
             modulo: 'calidad-sig',
             accion: 'editar',
             entidad_id: docId,
-            entidad_nombre: `Inspección SIG · ${sem} · ${pct.toFixed(1)}%`,
+            entidad_nombre: `Inspección SIG · ${sem} · ${pct.toFixed(2)}%`,
             detalle: `Editado por ${userName} · Inspector ${inspector} · Fecha ${fecha}${pdfReemplazado ? ' · PDF reemplazado' : ''}`,
           });
         }
@@ -19864,7 +19870,7 @@ async function publicarPendiente(){
       const f = penAdjuntosNuevos[i];
       bIcon.textContent = '⏳';
       bText.textContent = `Subiendo adjunto ${i + 1} de ${penAdjuntosNuevos.length}…`;
-      bFill.style.width = ((i / Math.max(penAdjuntosNuevos.length, 1)) * 70).toFixed(0) + '%';
+      bFill.style.width = ((i / Math.max(penAdjuntosNuevos.length, 1)) * 70).toFixed(2) + '%';
       bDetail.textContent = `${f.name} (${formatBytes(f.size)})`;
 
       const result = await uploadGenericoToCloudinary(f, 'pendientes', 'tarea');
@@ -20838,8 +20844,8 @@ function estimateBase64Size(dataUrl){
 
 function formatBytes(bytes){
   if(bytes < 1024) return bytes + ' B';
-  if(bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
-  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+  if(bytes < 1024*1024) return (bytes/1024).toFixed(2) + ' KB';
+  return (bytes/(1024*1024)).toFixed(2) + ' MB';
 }
 
 // ─── Cargar fotos desde Firestore al iniciar el dashboard ───
@@ -21626,8 +21632,8 @@ function renderPreview(){
     return;
   }
 
-  const fmtPct = v => v != null ? (v*100).toFixed(1)+'%' : '—';
-  const fmtSol = v => v != null ? 'S/ '+Math.round(v).toLocaleString('es-PE') : '—';
+  const fmtPct = v => v != null ? (v*100).toFixed(2)+'%' : '—';
+  const fmtSol = v => v != null ? 'S/ '+v.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—';
   const fmtNum = v => v != null ? v.toFixed(2) : '—';
 
   let html = `
@@ -21969,29 +21975,29 @@ function v2RenderUtilidadRiesgo(){
   // Aplicar
   card.className = 'util-riesgo ' + clase;
   document.getElementById('urSemaforo').textContent = semaforo;
-  document.getElementById('urValue').textContent = utilRiesgoPct.toFixed(1) + '%';
+  document.getElementById('urValue').textContent = utilRiesgoPct.toFixed(2) + '%';
   document.getElementById('urLectura').textContent = lectura;
 
   // Componentes compactos (chips de la tarjeta principal)
   document.getElementById('urComponentes').innerHTML = `
     <div class="ur-componente">
       <div class="ur-componente-lbl">Desv. SPI Contractual</div>
-      <div class="ur-componente-val">${desvSpi.toFixed(1)}%</div>
+      <div class="ur-componente-val">${desvSpi.toFixed(2)}%</div>
     </div>
     <div class="ur-componente">
       <div class="ur-componente-lbl">Desv. CPI MO Acum.</div>
-      <div class="ur-componente-val">${desvCpi.toFixed(1)}%</div>
+      <div class="ur-componente-val">${desvCpi.toFixed(2)}%</div>
     </div>
     <div class="ur-componente">
       <div class="ur-componente-lbl">Desv. Avance</div>
-      <div class="ur-componente-val">${desvAvance.toFixed(1)}%</div>
+      <div class="ur-componente-val">${desvAvance.toFixed(2)}%</div>
     </div>
   `;
 
   // ─── Caja de fórmula: desglose detallado del cálculo ───
-  const pesoPctSpi    = (w.spi    * 100).toFixed(1);
-  const pesoPctMo     = (w.mo     * 100).toFixed(1);
-  const pesoPctAvance = (w.avance * 100).toFixed(1);
+  const pesoPctSpi    = (w.spi    * 100).toFixed(2);
+  const pesoPctMo     = (w.mo     * 100).toFixed(2);
+  const pesoPctAvance = (w.avance * 100).toFixed(2);
   const contribSpi    = w.spi    * desvSpi;
   const contribMo     = w.mo     * desvCpi;
   const contribAvance = w.avance * desvAvance;
@@ -22002,20 +22008,20 @@ function v2RenderUtilidadRiesgo(){
       <div class="ur-break-col bc-spi">
         <div class="ur-break-label">Desv. SPI Contractual · Peso ${pesoPctSpi}%</div>
         <div class="ur-break-metric">SPI Contractual: <b>${spi != null ? spi.toFixed(2) : '—'}</b> · ideal <b>1.00</b></div>
-        <div class="ur-break-metric">Desviación: (1 − ${spi != null ? spi.toFixed(2) : '0'}) × 100 = <b>${desvSpi.toFixed(1)}%</b></div>
-        <div class="ur-break-calc">${pesoPctSpi}% × ${desvSpi.toFixed(1)}% = <span class="contrib">${contribSpi.toFixed(2)} pp</span></div>
+        <div class="ur-break-metric">Desviación: (1 − ${spi != null ? spi.toFixed(2) : '0'}) × 100 = <b>${desvSpi.toFixed(2)}%</b></div>
+        <div class="ur-break-calc">${pesoPctSpi}% × ${desvSpi.toFixed(2)}% = <span class="contrib">${contribSpi.toFixed(2)} pp</span></div>
       </div>
       <div class="ur-break-col bc-mo">
         <div class="ur-break-label">Desv. CPI MO Acumulado · Peso ${pesoPctMo}%</div>
         <div class="ur-break-metric">CPI MO Acum.: <b>${cpi != null ? cpi.toFixed(2) : '—'}</b> · ideal <b>≥ 1.00</b></div>
-        <div class="ur-break-metric">Desviación: (1 − ${cpi != null ? Math.min(cpi, 1).toFixed(2) : '0'}) × 100 = <b>${desvCpi.toFixed(1)}%</b></div>
-        <div class="ur-break-calc">${pesoPctMo}% × ${desvCpi.toFixed(1)}% = <span class="contrib">${contribMo.toFixed(2)} pp</span></div>
+        <div class="ur-break-metric">Desviación: (1 − ${cpi != null ? Math.min(cpi, 1).toFixed(2) : '0'}) × 100 = <b>${desvCpi.toFixed(2)}%</b></div>
+        <div class="ur-break-calc">${pesoPctMo}% × ${desvCpi.toFixed(2)}% = <span class="contrib">${contribMo.toFixed(2)} pp</span></div>
       </div>
       <div class="ur-break-col bc-avance">
         <div class="ur-break-label">Desv. Avance · Peso ${pesoPctAvance}%</div>
-        <div class="ur-break-metric">Avance real: <b>${avance != null ? avance.toFixed(1) : '—'}%</b> · programado: <b>${avanceProgramado.toFixed(1)}%</b></div>
-        <div class="ur-break-metric">Desviación: ${avanceProgramado.toFixed(1)}% − ${avance != null ? avance.toFixed(1) : '0'}% = <b>${desvAvance.toFixed(1)}%</b></div>
-        <div class="ur-break-calc">${pesoPctAvance}% × ${desvAvance.toFixed(1)}% = <span class="contrib">${contribAvance.toFixed(2)} pp</span></div>
+        <div class="ur-break-metric">Avance real: <b>${avance != null ? avance.toFixed(2) : '—'}%</b> · programado: <b>${avanceProgramado.toFixed(2)}%</b></div>
+        <div class="ur-break-metric">Desviación: ${avanceProgramado.toFixed(2)}% − ${avance != null ? avance.toFixed(2) : '0'}% = <b>${desvAvance.toFixed(2)}%</b></div>
+        <div class="ur-break-calc">${pesoPctAvance}% × ${desvAvance.toFixed(2)}% = <span class="contrib">${contribAvance.toFixed(2)} pp</span></div>
       </div>
     `;
   }
@@ -22025,7 +22031,7 @@ function v2RenderUtilidadRiesgo(){
     totalEl.innerHTML = `
       <span>Suma ponderada:</span>
       <span>${contribSpi.toFixed(2)} + ${contribMo.toFixed(2)} + ${contribAvance.toFixed(2)} =</span>
-      <b>${utilRiesgoPct.toFixed(1)}%</b>
+      <b>${utilRiesgoPct.toFixed(2)}%</b>
     `;
   }
 
@@ -22142,11 +22148,11 @@ function v2RenderProyecciones(){
       cardEl.classList.remove('pc-bad','pc-warn'); cardEl.classList.add('pc-ok');
     } else if(desviacionPct <= 10){
       deltaEl.className = 'proy-delta d-warn';
-      deltaEl.innerHTML = `⚠ Alerta · ${signo}${desviacionPct.toFixed(1)}% vs ppto`;
+      deltaEl.innerHTML = `⚠ Alerta · ${signo}${desviacionPct.toFixed(2)}% vs ppto`;
       cardEl.classList.remove('pc-bad','pc-ok'); cardEl.classList.add('pc-warn');
     } else {
       deltaEl.className = 'proy-delta d-bad';
-      deltaEl.innerHTML = `✗ Crítico · ${signo}${desviacionPct.toFixed(1)}% vs ppto`;
+      deltaEl.innerHTML = `✗ Crítico · ${signo}${desviacionPct.toFixed(2)}% vs ppto`;
       cardEl.classList.remove('pc-ok','pc-warn'); cardEl.classList.add('pc-bad');
     }
     document.getElementById('proyEacFooter').innerHTML = `AC: S/${Math.round(ac).toLocaleString('es-PE')} · BAC: S/${Math.round(bac).toLocaleString('es-PE')} · EV: S/${Math.round(ev).toLocaleString('es-PE')}`;
@@ -22164,23 +22170,23 @@ function v2RenderProyecciones(){
     const utilProy = utilPlan * (0.5 + 0.5 * cpiClamp);
     const delta = utilProy - utilPlan;
 
-    document.getElementById('proyUtilPlaneada').textContent = utilPlan.toFixed(1) + '%';
-    document.getElementById('proyUtilProyectada').textContent = utilProy.toFixed(1) + '%';
+    document.getElementById('proyUtilPlaneada').textContent = utilPlan.toFixed(2) + '%';
+    document.getElementById('proyUtilProyectada').textContent = utilProy.toFixed(2) + '%';
 
     const deltaEl = document.getElementById('proyUtilDelta');
     const cardEl = document.getElementById('proyCardUtil');
     const signo = delta >= 0 ? '+' : '';
     if(delta >= 0){
       deltaEl.className = 'proy-delta d-ok';
-      deltaEl.innerHTML = `↑ ${signo}${delta.toFixed(1)} pp (ahorro)`;
+      deltaEl.innerHTML = `↑ ${signo}${delta.toFixed(2)} pp (ahorro)`;
       cardEl.classList.remove('pc-bad','pc-warn'); cardEl.classList.add('pc-ok');
     } else if(delta >= -2){
       deltaEl.className = 'proy-delta d-warn';
-      deltaEl.innerHTML = `→ ${delta.toFixed(1)} pp (ligera pérdida)`;
+      deltaEl.innerHTML = `→ ${delta.toFixed(2)} pp (ligera pérdida)`;
       cardEl.classList.remove('pc-bad','pc-ok'); cardEl.classList.add('pc-warn');
     } else {
       deltaEl.className = 'proy-delta d-bad';
-      deltaEl.innerHTML = `↓ ${delta.toFixed(1)} pp (pérdida proyectada)`;
+      deltaEl.innerHTML = `↓ ${delta.toFixed(2)} pp (pérdida proyectada)`;
       cardEl.classList.remove('pc-ok','pc-warn'); cardEl.classList.add('pc-bad');
     }
     document.getElementById('proyUtilFooter').textContent = `Utilidad planeada: ${utilPlan}% · Modulada por CPI ${cpi.toFixed(2)}`;
@@ -22398,7 +22404,7 @@ function v2RenderSeparacionAdicionales(){
   if(!pctEl) return;
 
   if(pctAdicSobreMo != null){
-    pctEl.textContent = pctAdicSobreMo.toFixed(1) + '%';
+    pctEl.textContent = pctAdicSobreMo.toFixed(2) + '%';
     montoEl.textContent = 'S/ ' + Math.round(adicSol).toLocaleString('es-PE');
     moEl.textContent = 'S/ ' + Math.round(moReal).toLocaleString('es-PE');
   } else {
