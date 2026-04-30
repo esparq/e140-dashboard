@@ -17742,9 +17742,12 @@ function getUltimaSemanaActivaAnterior(semana){
   const num = parseInt(String(semana).replace(/\D/g,''));
   if(!num) return null;
   // Buscar SXX-1, SXX-2, ... hasta encontrar una semana cargada Y no paralizada
-  for(let n = num - 1; n > 0 && n >= num - 20; n--){
-    const cand = `S${n}`;
-    if(DATA.weeks[cand] && !esSemanaParalizada(cand)){
+  // Probar ambos formatos: con y sin cero a la izquierda (S05 vs S5)
+  for(let n = num - 1; n > 0 && n >= num - 30; n--){
+    const candPad = 'S' + (n < 10 ? '0' + n : n);
+    const candNoPad = 'S' + n;
+    const cand = DATA.weeks[candPad] ? candPad : (DATA.weeks[candNoPad] ? candNoPad : null);
+    if(cand && !esSemanaParalizada(cand)){
       return cand;
     }
   }
@@ -18215,30 +18218,84 @@ async function desmarcarParalizada(semana){
   }
 }
 
-// Crea o actualiza la semana paralizada en DATA.weeks heredando KPIs de la anterior activa
+// Busca la siguiente semana activa (con data, no paralizada) DESPUÉS de la dada.
+// Útil cuando no hay semana anterior para heredar (ej. paralizaciones al inicio del proyecto).
+function getSiguienteSemanaActiva(semana){
+  if(!semana) return null;
+  const num = parseInt(String(semana).replace(/\D/g,''));
+  if(!num) return null;
+  for(let n = num + 1; n <= num + 30; n++){
+    const cand = `S${n < 10 ? '0' + n : n}`;
+    if(DATA.weeks[cand] && !esSemanaParalizada(cand)){
+      return cand;
+    }
+  }
+  return null;
+}
+
+// Crea o actualiza la semana paralizada en DATA.weeks heredando KPIs.
+// Estrategia:
+//   1) Heredar de la última semana ACTIVA ANTERIOR (caso normal)
+//   2) Si no existe, heredar de la siguiente semana ACTIVA (caso paralizaciones al inicio)
+//   3) Si no hay ninguna, crear semana vacía (con KPIs en null) para que aparezca en el selector
 function aplicarHerenciaSemanaParalizada(semana){
   if(!semana) return;
   const semU = semana.toUpperCase();
-  const ant = getUltimaSemanaActivaAnterior(semU);
-  if(!ant){
-    console.warn(`[E140] No hay semana activa anterior a ${semU} para heredar KPIs`);
-    return;
+
+  let ant = getUltimaSemanaActivaAnterior(semU);
+  let origen = null;
+  let fuente = null;
+
+  if(ant && DATA.weeks[ant]){
+    origen = ant;
+    fuente = DATA.weeks[ant];
+  } else {
+    // Fallback 1: usar la siguiente semana activa (paralizaciones al inicio)
+    const sig = getSiguienteSemanaActiva(semU);
+    if(sig && DATA.weeks[sig]){
+      origen = sig;
+      fuente = DATA.weeks[sig];
+      console.log(`[E140] ${semU}: sin semana anterior, heredando de la siguiente activa (${sig})`);
+    }
   }
 
-  // Clonar la data de la semana anterior pero marcarla como paralizada
-  const fuente = DATA.weeks[ant];
-  if(!fuente) return;
-
   const meta = SEMANAS_PARALIZADAS[semU] || {};
-  const corte = meta.fecha_fin || meta.fecha_inicio || (fuente.corte || '');
 
-  // Deep clone simple via JSON
-  const clone = JSON.parse(JSON.stringify(fuente));
-  clone.corte = corte;
+  // Calcular fecha de corte (sábado de la semana, igual que en otras semanas)
+  let corte = meta.fecha_fin || meta.fecha_inicio || '';
+  if(!corte){
+    const num = parseInt(String(semU).replace(/\D/g,''));
+    if(num){
+      const msPerDay = 24*60*60*1000;
+      const lunes = new Date(PROYECTO_INICIO.getTime() + (num - 1) * 7 * msPerDay);
+      const sabado = new Date(lunes.getTime() + 5 * msPerDay);
+      corte = sabado.toISOString().split('T')[0];
+    }
+  }
+
+  let clone;
+  if(fuente){
+    // Deep clone simple via JSON
+    clone = JSON.parse(JSON.stringify(fuente));
+    clone.corte = corte;
+  } else {
+    // Fallback 2: crear semana vacía con estructura mínima para que aparezca en el selector
+    console.warn(`[E140] ${semU}: sin semana de referencia (anterior ni siguiente), creando vacía`);
+    clone = {
+      corte: corte,
+      kpis: {},
+      panelEjecutivo: {},
+      avanceFisico: { partidas: [], frentes: [] },
+      acero: {}, kardex: {}, arrendamiento: {},
+      adicionales: { items: [] },
+      _vacia: true,
+    };
+  }
+
   clone._paralizada = true;
   clone._heredada_paralizacion = true;
   clone._paralizacion_motivo = meta.motivo || '';
-  clone._paralizacion_origen = ant;
+  clone._paralizacion_origen = origen;
 
   DATA.weeks[semU] = clone;
 
