@@ -1654,7 +1654,17 @@ body.can-upload-fotos .upload-fotos-only{display:inline-flex;}
 
 .foto-edit-modal{position:fixed;inset:0;background:rgba(0,30,60,.7);display:none;align-items:center;justify-content:center;z-index:3000;padding:20px;}
 .foto-edit-modal.show{display:flex;}
-.foto-edit-card{background:#fff;border-radius:10px;padding:24px;max-width:420px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.3);}
+.foto-edit-card{background:#fff;border-radius:10px;padding:24px;max-width:420px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.3);position:relative;}
+.foto-edit-close{
+  position:absolute;top:10px;right:10px;
+  width:30px;height:30px;border-radius:50%;
+  background:#F4F8FB;border:1px solid #BFD8E8;
+  color:#5A6B8A;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;line-height:1;padding:0;
+  transition:all .15s;
+}
+.foto-edit-close:hover{background:#D64045;color:#fff;border-color:#D64045;}
 .foto-edit-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;color:var(--twitter-blue);margin-bottom:14px;}
 .foto-edit-field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
 .foto-edit-field label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;}
@@ -3335,8 +3345,9 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
 <!-- ═══════════════════════════════════════════
      MODAL DE EDICIÓN DE FOTO (descripción + hito)
      ═══════════════════════════════════════════ -->
-<div class="foto-edit-modal" id="fotoEditModal">
+<div class="foto-edit-modal" id="fotoEditModal" onclick="if(event.target===this) closeFotoEditModal()">
   <div class="foto-edit-card">
+    <button class="foto-edit-close" onclick="closeFotoEditModal()" aria-label="Cerrar" title="Cerrar (Esc)">✕</button>
     <div class="foto-edit-title">📷 Editar foto</div>
     <div class="foto-edit-field">
       <label>Descripción</label>
@@ -17058,6 +17069,16 @@ function closeFotoEditModal(){
   document.getElementById('fotoEditModal').classList.remove('show');
   fotoEditingIndex = -1;
 }
+
+// Cerrar el modal de edición de foto con tecla ESC
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape'){
+    const modal = document.getElementById('fotoEditModal');
+    if(modal && modal.classList.contains('show')){
+      closeFotoEditModal();
+    }
+  }
+});
 
 function saveFotoEdit(){
   if(fotoEditingIndex < 0) return;
