@@ -8030,9 +8030,9 @@ async function initDashboard(){
   // Si hay al menos un JSON semanal subido al repo, se usa.
   // Si no hay JSONs o fallan todos, cae a DEMO_DATA.
   try {
-    // Cargar overrides de KPI primero (rápido, en paralelo con loadFromJSONs)
-    cargarKpiOverrides().catch(()=>{}); // sin bloquear
     const jsonData = await loadFromJSONs();
+    // Cargar overrides ANTES del primer render para que se apliquen a los KPIs
+    await cargarKpiOverrides();
     if(jsonData && jsonData.currentWeek){
       applyDataToGlobal(jsonData);
       MODE = 'json';
@@ -17509,7 +17509,16 @@ let kpiEditCtx = null;
 
 // Cargar overrides desde Firestore al iniciar (se llama desde initDashboard)
 async function cargarKpiOverrides(){
-  if(!window.E140_DB) return;
+  // Esperar a que Firebase esté listo (máximo 5s)
+  let waitMs = 0;
+  while(!window._E140_FIREBASE_READY && waitMs < 5000){
+    await new Promise(r => setTimeout(r, 200));
+    waitMs += 200;
+  }
+  if(!window.E140_DB){
+    console.warn('[E140] Firestore no disponible, no se cargaron KPI overrides');
+    return;
+  }
   try {
     const { db, collection, getDocs } = window.E140_DB;
     const snapshot = await getDocs(collection(db, 'kpi_overrides'));
@@ -17522,9 +17531,7 @@ async function cargarKpiOverrides(){
     });
     KPI_OVERRIDES = cache;
     const total = Object.values(cache).reduce((acc,sem) => acc + Object.keys(sem).length, 0);
-    if(total > 0){
-      console.log(`[E140] ${total} override(s) de KPI cargado(s) desde Firestore`);
-    }
+    console.log(`[E140] ${total} override(s) de KPI cargado(s) desde Firestore`);
   } catch(err){
     console.warn('[E140] No se pudieron cargar KPI overrides:', err.message || err);
   }
