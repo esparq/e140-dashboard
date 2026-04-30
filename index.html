@@ -18704,10 +18704,11 @@ function puedeEditarPendiente(p){
   return p && p.creado_por === currentSession.usuario;
 }
 function puedeEditarMetadataPendiente(p){
-  // Solo adm y oficina pueden editar fecha de vencimiento, asignado y prioridad
+  // adm, oficina y residente pueden editar la metadata de la tarea
   if(!currentSession) return false;
   if(p && p.estado === 'cerrada') return false; // Tarea cerrada no se modifica
-  return currentSession.usuario === 'adm' || currentSession.usuario === 'oficina';
+  const u = currentSession.usuario;
+  return u === 'adm' || u === 'oficina' || u === 'residente';
 }
 function puedeEliminarPendiente(p){
   // Solo adm y oficina pueden eliminar (sin importar quién creó)
@@ -19293,6 +19294,7 @@ function openPendienteDetalle(id){
   const p = pendientesData.find(x => x.id === id);
   if(!p){ alert('No se encontró la tarea.'); return; }
   penDetalleId = id;
+  penDetalleEditMode = false; // Siempre abrir en modo vista
   renderPendienteDetalle(p);
   document.getElementById('penDetalleModal').classList.add('show');
 }
@@ -19300,6 +19302,51 @@ function openPendienteDetalle(id){
 function closePendienteDetalleModal(){
   document.getElementById('penDetalleModal').classList.remove('show');
   penDetalleId = null;
+  penDetalleEditMode = false;
+}
+
+// Estado de modo edición del modal de detalle
+let penDetalleEditMode = false;
+
+function togglePenEditMode(){
+  penDetalleEditMode = !penDetalleEditMode;
+  if(penDetalleId){
+    const p = pendientesData.find(x => x.id === penDetalleId);
+    if(p) renderPendienteDetalle(p);
+  }
+}
+
+// Migración automática: si la tarea no tiene dirigido_area/persona, usar el legacy asignado_a
+function obtenerDirigidoArea(p){
+  if(p.dirigido_area) return p.dirigido_area;
+  // Fallback legacy: el campo asignado_a era 'residente' o 'staff' — no era un área propia
+  // En tareas viejas no hay área destinataria explícita, así que usamos el área de origen
+  return p.area || '';
+}
+function obtenerDirigidoAreaLabel(p){
+  const AREA_LABELS = {
+    operaciones: '🏗️ Operaciones',
+    logistica: '🚛 Logística',
+    arquitectura: '📐 Arquitectura',
+    ssoma: '⛑️ SSOMA',
+    calidad: '✅ Calidad',
+    innovacion: '💡 Integración e Innovación',
+  };
+  if(p.dirigido_area_label) return p.dirigido_area_label;
+  if(p.dirigido_area) return AREA_LABELS[p.dirigido_area] || p.dirigido_area;
+  // Fallback legacy
+  return AREA_LABELS[p.area] || p.area || '—';
+}
+function obtenerDirigidoPersona(p){
+  if(p.dirigido_persona) return p.dirigido_persona;
+  // Fallback legacy: el asignado_a_nombre venía con etiquetas tipo "Residente · José Rojas O."
+  // Extraemos solo el nombre después del " · "
+  if(p.asignado_a_nombre){
+    const partes = p.asignado_a_nombre.split('·');
+    if(partes.length >= 2) return partes.slice(1).join('·').trim();
+    return p.asignado_a_nombre;
+  }
+  return p.asignado_a || '—';
 }
 
 function renderPendienteDetalle(p){
@@ -19329,7 +19376,6 @@ function renderPendienteDetalle(p){
   ).join('') || '<div style="color:var(--text-muted);font-size:11.5px;font-style:italic;">Sin adjuntos</div>';
 
   const comentariosVisibles = (p.comentarios || []).filter(c => {
-    // Excluir el evento inicial "Tarea creada por X" (legacy de tareas existentes)
     if(c && c.tipo === 'creado') return false;
     return true;
   });
@@ -19352,12 +19398,59 @@ function renderPendienteDetalle(p){
 
   // Determinar si el usuario puede editar la metadata de la tarea
   const puedeEditMeta = puedeEditarMetadataPendiente(p);
+  // Modo edición activo solo si tiene permisos Y el toggle está activado
+  const enEdicion = puedeEditMeta && penDetalleEditMode;
 
-  // Construir las 3 cards editables vs. las 2 fijas (creado por / creado el)
-  let cardVence, cardAsignado, cardPrioridad;
+  // Datos derivados (con migración automática para tareas viejas)
+  const dirigidoArea     = obtenerDirigidoArea(p);
+  const dirigidoAreaLbl  = obtenerDirigidoAreaLabel(p);
+  const dirigidoPersona  = obtenerDirigidoPersona(p);
 
-  if(puedeEditMeta){
-    // Card "Vence" como input date
+  // ─── SECCIÓN: Información principal (área origen, prioridad, vence, dirigido a) ───
+  const AREA_OPCIONES = [
+    {val:'operaciones', txt:'🏗️ Operaciones'},
+    {val:'logistica',   txt:'🚛 Logística'},
+    {val:'arquitectura',txt:'📐 Arquitectura'},
+    {val:'ssoma',       txt:'⛑️ SSOMA'},
+    {val:'calidad',     txt:'✅ Calidad'},
+    {val:'innovacion',  txt:'💡 Integración e Innovación'},
+  ];
+  const AREA_DESTINO = AREA_OPCIONES.filter(x => x.val !== 'innovacion'); // 5 áreas para destino
+
+  const areaOrigOpts = AREA_OPCIONES.map(o =>
+    `<option value="${o.val}" ${p.area === o.val ? 'selected' : ''}>${escapeHtml(o.txt)}</option>`
+  ).join('');
+
+  const areaDestOpts = AREA_DESTINO.map(o =>
+    `<option value="${o.val}" ${dirigidoArea === o.val ? 'selected' : ''}>${escapeHtml(o.txt)}</option>`
+  ).join('');
+
+  const prioOpts = Object.keys(PEN_PRIORIDADES).map(k => {
+    const pp = PEN_PRIORIDADES[k];
+    return `<option value="${k}" ${p.prioridad === k ? 'selected' : ''}>${pp.icon} ${pp.label}</option>`;
+  }).join('');
+
+  // Construir las cards (vista vs. edición)
+  let cardArea, cardPrio, cardVence, cardDirArea, cardDirPersona, cardResp;
+
+  if(enEdicion){
+    // ───────── MODO EDICIÓN ─────────
+    cardArea = `
+      <div class="pen-det-meta-card editable">
+        <div class="pen-det-label">Área que origina</div>
+        <select class="pen-det-meta-edit-select" id="penEditArea"
+          onchange="actualizarMetadataPendiente('${escapeHtml(p.id)}','area',this.value)">${areaOrigOpts}</select>
+        <span class="pen-det-meta-saving" id="penEditSavingArea"></span>
+      </div>`;
+
+    cardPrio = `
+      <div class="pen-det-meta-card editable">
+        <div class="pen-det-label">Prioridad</div>
+        <select class="pen-det-meta-edit-select" id="penEditPrioridad"
+          onchange="actualizarMetadataPendiente('${escapeHtml(p.id)}','prioridad',this.value)">${prioOpts}</select>
+        <span class="pen-det-meta-saving" id="penEditSavingPrio"></span>
+      </div>`;
+
     cardVence = `
       <div class="pen-det-meta-card editable">
         <div class="pen-det-label">Vence</div>
@@ -19367,62 +19460,100 @@ function renderPendienteDetalle(p){
         <span class="pen-det-meta-saving" id="penEditSavingFecha"></span>
       </div>`;
 
-    // Card "Asignado a" como select
-    const asignadoOpts = [
-      { val: 'residente', txt: 'Residente · José Rojas O.' },
-      { val: 'staff',     txt: 'Staff de Obra' },
-    ];
-    const asigOptsHtml = asignadoOpts.map(o =>
-      `<option value="${o.val}" ${p.asignado_a === o.val ? 'selected' : ''}>${escapeHtml(o.txt)}</option>`
-    ).join('');
-    cardAsignado = `
+    cardDirArea = `
       <div class="pen-det-meta-card editable">
-        <div class="pen-det-label">Asignado a</div>
-        <select class="pen-det-meta-edit-select" id="penEditAsignado"
-          onchange="actualizarMetadataPendiente('${escapeHtml(p.id)}','asignado_a',this.value)">
-          ${asigOptsHtml}
-        </select>
-        <span class="pen-det-meta-saving" id="penEditSavingAsig"></span>
+        <div class="pen-det-label">Dirigido al área</div>
+        <select class="pen-det-meta-edit-select" id="penEditDirArea"
+          onchange="actualizarMetadataPendiente('${escapeHtml(p.id)}','dirigido_area',this.value)">${areaDestOpts}</select>
+        <span class="pen-det-meta-saving" id="penEditSavingDirArea"></span>
       </div>`;
 
-    // Card "Prioridad" como select (reemplaza al header pero también la mostramos aquí)
-    const prioOptsHtml = Object.keys(PEN_PRIORIDADES).map(k => {
-      const pp = PEN_PRIORIDADES[k];
-      return `<option value="${k}" ${p.prioridad === k ? 'selected' : ''}>${pp.icon} ${pp.label}</option>`;
-    }).join('');
-    cardPrioridad = `
+    cardDirPersona = `
       <div class="pen-det-meta-card editable">
-        <div class="pen-det-label">Prioridad</div>
-        <select class="pen-det-meta-edit-select" id="penEditPrioridad"
-          onchange="actualizarMetadataPendiente('${escapeHtml(p.id)}','prioridad',this.value)">
-          ${prioOptsHtml}
-        </select>
-        <span class="pen-det-meta-saving" id="penEditSavingPrio"></span>
+        <div class="pen-det-label">Dirigido a la persona</div>
+        <input type="text" class="pen-det-meta-edit-input" id="penEditDirPersona"
+          value="${escapeHtml(dirigidoPersona)}" maxlength="80"
+          onblur="actualizarMetadataPendiente('${escapeHtml(p.id)}','dirigido_persona',this.value.trim())">
+        <span class="pen-det-meta-saving" id="penEditSavingDirPersona"></span>
       </div>`;
+
+    cardResp = `
+      <div class="pen-det-meta-card editable">
+        <div class="pen-det-label">Responsable que crea</div>
+        <input type="text" class="pen-det-meta-edit-input" id="penEditResponsable"
+          value="${escapeHtml(p.responsable || '')}" maxlength="80"
+          onblur="actualizarMetadataPendiente('${escapeHtml(p.id)}','responsable',this.value.trim())">
+        <span class="pen-det-meta-saving" id="penEditSavingResp"></span>
+      </div>`;
+
   } else {
-    // Vista de solo lectura para roles sin permiso
+    // ───────── MODO VISTA ─────────
+    cardArea = `
+      <div class="pen-det-meta-card">
+        <div class="pen-det-label">Área que origina</div>
+        <div class="pen-det-meta-val">${area.icon} ${escapeHtml(area.label)}</div>
+      </div>`;
+    cardPrio = `
+      <div class="pen-det-meta-card">
+        <div class="pen-det-label">Prioridad</div>
+        <div class="pen-det-meta-val">${pri.icon} ${escapeHtml(pri.label)}</div>
+      </div>`;
     cardVence = `
       <div class="pen-det-meta-card">
         <div class="pen-det-label">Vence</div>
         <div class="pen-det-meta-val" style="color:${venceColor};">${venceTxt}</div>
       </div>`;
-    cardAsignado = `
+    cardDirArea = `
       <div class="pen-det-meta-card">
-        <div class="pen-det-label">Asignado a</div>
-        <div class="pen-det-meta-val">${escapeHtml(p.asignado_a_nombre || p.asignado_a || '—')}</div>
+        <div class="pen-det-label">Dirigido al área</div>
+        <div class="pen-det-meta-val">${escapeHtml(dirigidoAreaLbl)}</div>
       </div>`;
-    cardPrioridad = `
+    cardDirPersona = `
       <div class="pen-det-meta-card">
-        <div class="pen-det-label">Prioridad</div>
-        <div class="pen-det-meta-val">${pri.icon} ${pri.label}</div>
+        <div class="pen-det-label">Dirigido a la persona</div>
+        <div class="pen-det-meta-val">${escapeHtml(dirigidoPersona)}</div>
+      </div>`;
+    cardResp = `
+      <div class="pen-det-meta-card">
+        <div class="pen-det-label">Responsable que crea</div>
+        <div class="pen-det-meta-val">${escapeHtml(p.responsable || '—')}</div>
       </div>`;
   }
 
+  // Banner de migración para tareas viejas
+  let bannerLegacy = '';
+  if(!p.dirigido_area && p.asignado_a){
+    bannerLegacy = `
+      <div style="background:#FFF8E1;border:1px solid #E5C792;border-left:4px solid #B8732B;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#7A4A14;">
+        ⚠ <b>Tarea con formato anterior</b> — Esta tarea no tiene los campos "Dirigido a área/persona" originales. Se está mostrando inferido del campo legacy. ${puedeEditMeta ? 'Puedes actualizarla con el botón "Editar".' : ''}
+      </div>`;
+  }
+
+  // Botón Editar (visible solo si tiene permisos)
+  const editToggleBtn = puedeEditMeta ? `
+    <button class="hdr-btn" onclick="togglePenEditMode()" style="${enEdicion ? 'background:#1A6B4A;color:#fff;border-color:#1A6B4A;' : 'background:#fff;color:var(--twitter-blue);border-color:var(--twitter-blue);'}font-size:11px;padding:6px 12px;float:right;">
+      ${enEdicion ? '✓ Terminar edición' : '✏ Editar'}
+    </button>` : '';
+
+  // Descripción: editable si está en modo edición
+  const descripcionHtml = enEdicion
+    ? `<textarea class="pen-det-meta-edit-input" id="penEditDescripcion" rows="4"
+        style="width:100%;font-family:inherit;font-size:12.5px;padding:8px 10px;border:1.5px solid var(--border-mid);border-radius:5px;"
+        onblur="actualizarMetadataPendiente('${escapeHtml(p.id)}','descripcion',this.value.trim())">${escapeHtml(p.descripcion || '')}</textarea>
+       <span class="pen-det-meta-saving" id="penEditSavingDesc"></span>`
+    : `<div class="pen-det-value" style="white-space:pre-wrap;">${escapeHtml(p.descripcion || '')}</div>`;
+
   const cuerpo = `
+    ${editToggleBtn}
+    <div style="clear:both;"></div>
+    ${bannerLegacy}
     <div class="pen-det-meta-row">
+      ${cardArea}
+      ${cardPrio}
       ${cardVence}
-      ${cardAsignado}
-      ${cardPrioridad}
+      ${cardDirArea}
+      ${cardDirPersona}
+      ${cardResp}
       <div class="pen-det-meta-card">
         <div class="pen-det-label">Creado por</div>
         <div class="pen-det-meta-val">${escapeHtml(p.creado_por_nombre || '—')}</div>
@@ -19435,7 +19566,7 @@ function renderPendienteDetalle(p){
 
     <div class="pen-det-section">
       <div class="pen-det-label">Descripción del pendiente</div>
-      <div class="pen-det-value" style="white-space:pre-wrap;">${escapeHtml(p.descripcion || '')}</div>
+      ${descripcionHtml}
     </div>
 
     <div class="pen-det-section">
@@ -19648,20 +19779,31 @@ async function actualizarMetadataPendiente(id, campo, nuevoValor){
   const p = pendientesData.find(x => x.id === id);
   if(!p) return;
   if(!puedeEditarMetadataPendiente(p)){
-    alert('Solo los usuarios "adm" y "oficina" pueden modificar esta información.');
+    alert('Solo los usuarios "adm", "oficina" y "residente" pueden modificar esta información.');
     return;
   }
   if(!window.E140_DB){ alert('Firestore no disponible.'); return; }
-  if(!['fecha_max','asignado_a','prioridad'].includes(campo)){
+  const camposPermitidos = [
+    'fecha_max', 'asignado_a', 'prioridad',
+    'area', 'descripcion', 'titulo', 'responsable',
+    'dirigido_area', 'dirigido_persona',
+  ];
+  if(!camposPermitidos.includes(campo)){
     console.warn('[E140] Campo no permitido:', campo);
     return;
   }
 
   // Indicador visual de guardado
   const savingIds = {
-    fecha_max:  'penEditSavingFecha',
-    asignado_a: 'penEditSavingAsig',
-    prioridad:  'penEditSavingPrio',
+    fecha_max:        'penEditSavingFecha',
+    asignado_a:       'penEditSavingAsig',
+    prioridad:        'penEditSavingPrio',
+    area:             'penEditSavingArea',
+    descripcion:      'penEditSavingDesc',
+    titulo:           'penEditSavingTit',
+    responsable:      'penEditSavingResp',
+    dirigido_area:    'penEditSavingDirArea',
+    dirigido_persona: 'penEditSavingDirPersona',
   };
   const setSaving = (state) => {
     const el = document.getElementById(savingIds[campo]);
@@ -19672,7 +19814,25 @@ async function actualizarMetadataPendiente(id, campo, nuevoValor){
   };
 
   const valorAnterior = p[campo];
-  if(valorAnterior === nuevoValor) return; // sin cambios
+  // Para texto: comparar trimmed; si está vacío y antes era undefined, no hacer nada
+  if((valorAnterior || '') === (nuevoValor || '')) return; // sin cambios
+
+  // Validaciones específicas por campo
+  if(campo === 'dirigido_persona' && nuevoValor && nuevoValor.length < 3){
+    alert('El nombre de la persona destinataria debe tener al menos 3 caracteres.');
+    setSaving('error');
+    return;
+  }
+  if(campo === 'responsable' && nuevoValor && nuevoValor.length < 3){
+    alert('El nombre del responsable debe tener al menos 3 caracteres.');
+    setSaving('error');
+    return;
+  }
+  if(campo === 'descripcion' && (!nuevoValor || nuevoValor.trim().length === 0)){
+    alert('La descripción no puede estar vacía.');
+    setSaving('error');
+    return;
+  }
 
   setSaving('saving');
 
@@ -19684,15 +19844,29 @@ async function actualizarMetadataPendiente(id, campo, nuevoValor){
 
     // Mapear el campo a un mensaje legible para el evento del chat
     const labelCampo = ({
-      fecha_max:  'Fecha de vencimiento',
-      asignado_a: 'Asignado a',
-      prioridad:  'Prioridad',
+      fecha_max:        'Fecha de vencimiento',
+      asignado_a:       'Asignado a',
+      prioridad:        'Prioridad',
+      area:             'Área que origina',
+      descripcion:      'Descripción',
+      titulo:           'Título',
+      responsable:      'Responsable que crea',
+      dirigido_area:    'Dirigido al área',
+      dirigido_persona: 'Dirigido a la persona',
     })[campo];
 
-    // Si cambia asignado_a, actualizar también asignado_a_nombre
     const updates = { [campo]: nuevoValor };
     let nuevoNombreLegible = nuevoValor;
     let anteriorNombreLegible = valorAnterior;
+
+    const AREA_LABELS = {
+      operaciones: '🏗️ Operaciones',
+      logistica: '🚛 Logística',
+      arquitectura: '📐 Arquitectura',
+      ssoma: '⛑️ SSOMA',
+      calidad: '✅ Calidad',
+      innovacion: '💡 Integración e Innovación',
+    };
 
     if(campo === 'asignado_a'){
       const mapNombres = {
@@ -19706,6 +19880,25 @@ async function actualizarMetadataPendiente(id, campo, nuevoValor){
       const mapPrio = { alta:'🔴 Alta', media:'🟡 Media', baja:'🟢 Baja' };
       nuevoNombreLegible = mapPrio[nuevoValor] || nuevoValor;
       anteriorNombreLegible = mapPrio[valorAnterior] || valorAnterior;
+    } else if(campo === 'area'){
+      nuevoNombreLegible = AREA_LABELS[nuevoValor] || nuevoValor;
+      anteriorNombreLegible = AREA_LABELS[valorAnterior] || valorAnterior;
+    } else if(campo === 'dirigido_area'){
+      nuevoNombreLegible = AREA_LABELS[nuevoValor] || nuevoValor;
+      anteriorNombreLegible = AREA_LABELS[valorAnterior] || (valorAnterior || '—');
+      updates.dirigido_area_label = nuevoNombreLegible;
+      // También sincronizar el legacy asignado_a_nombre para compatibilidad
+      const personaActual = p.dirigido_persona || obtenerDirigidoPersona(p);
+      updates.asignado_a_nombre = `${nuevoNombreLegible} · ${personaActual}`;
+    } else if(campo === 'dirigido_persona'){
+      // Actualizar también el legacy asignado_a_nombre
+      const areaLbl = p.dirigido_area_label || obtenerDirigidoAreaLabel(p);
+      updates.asignado_a_nombre = `${areaLbl} · ${nuevoValor}`;
+    } else if(campo === 'descripcion' || campo === 'titulo' || campo === 'responsable'){
+      // Truncar para el log si es muy largo
+      const truncar = (s) => (s && s.length > 50) ? s.substring(0,47) + '...' : (s || '—');
+      nuevoNombreLegible = truncar(nuevoValor);
+      anteriorNombreLegible = truncar(valorAnterior);
     }
 
     // Crear evento en el chat
@@ -19729,6 +19922,8 @@ async function actualizarMetadataPendiente(id, campo, nuevoValor){
     // Actualizar cache local
     p[campo] = nuevoValor;
     if(campo === 'asignado_a') p.asignado_a_nombre = nuevoNombreLegible;
+    if(campo === 'dirigido_area'){ p.dirigido_area_label = nuevoNombreLegible; p.asignado_a_nombre = updates.asignado_a_nombre; }
+    if(campo === 'dirigido_persona') p.asignado_a_nombre = updates.asignado_a_nombre;
     p.comentarios = comentariosActualizados;
 
     setSaving('saved');
