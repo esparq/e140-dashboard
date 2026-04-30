@@ -17773,61 +17773,209 @@ function abrirModalParalizar(semanaPreset){
     modal.className = 'gest-confirm-overlay';
     document.body.appendChild(modal);
   }
-  modal.innerHTML = `
-    <div class="gest-confirm-modal" style="max-width:500px;">
-      <div class="gest-confirm-head" style="background:linear-gradient(135deg,#E07B39 0%,#A0521E 100%);">
-        <h3>⏸ ${isEdit ? 'EDITAR PARALIZACIÓN' : 'MARCAR SEMANA COMO PARALIZADA'}</h3>
-        <p>${isEdit ? `Gestionar paralización de ${semanaPreset}` : 'La obra estuvo paralizada esa semana'}</p>
-      </div>
-      <div class="gest-confirm-body">
-        <p style="font-size:12.5px;color:var(--text-muted);margin:0 0 12px;">
-          Las semanas paralizadas <b>heredan los KPIs de la última semana activa anterior</b>. Útil para periodos sin actividad como paros de obra, feriados largos, etc.
-        </p>
 
-        <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Semana</label>
-        <input type="text" class="gest-confirm-input" id="paralizarSemana"
-               value="${semanaPreset || ''}" placeholder="Ej: S33"
-               style="text-transform:uppercase;text-align:center;letter-spacing:.05em;"
-               ${isEdit ? 'readonly' : ''}>
-        <div style="font-size:10.5px;color:var(--text-muted);margin-top:4px;text-align:center;">
-          Formato: S## (ej: S33, S34)
+  if(isEdit){
+    // ── MODO EDICIÓN: una sola semana, mostrar info de cuál se está editando ──
+    modal.innerHTML = `
+      <div class="gest-confirm-modal" style="max-width:500px;">
+        <div class="gest-confirm-head" style="background:linear-gradient(135deg,#E07B39 0%,#A0521E 100%);">
+          <h3>⏸ EDITAR PARALIZACIÓN · ${semanaPreset}</h3>
+          <p>Gestionar paralización registrada</p>
         </div>
-
-        <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 4px;">Motivo de paralización <span style="color:#A11;">*</span></label>
-        <textarea id="paralizarMotivo" rows="3" placeholder="Ej: Paro de obra por permisos municipales"
-          style="width:100%;padding:8px 10px;font-family:inherit;font-size:12.5px;border:2px solid var(--border-mid);border-radius:6px;resize:vertical;">${data ? data.motivo || '' : ''}</textarea>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
-          <div>
-            <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Fecha de inicio</label>
-            <input type="date" id="paralizarFechaIni" value="${data ? data.fecha_inicio || '' : ''}"
-              style="width:100%;padding:8px 10px;border:2px solid var(--border-mid);border-radius:6px;font-family:inherit;font-size:12.5px;">
+        <div class="gest-confirm-body">
+          <div style="background:#FFF3E0;border-left:3px solid #E07B39;padding:8px 12px;border-radius:5px;margin-bottom:14px;font-size:11.5px;color:#7A3F18;">
+            ✏️ Editando paralización de <b>${semanaPreset}</b>. Para borrarla, usa el botón naranja abajo a la izquierda.
           </div>
-          <div>
-            <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Fecha de fin</label>
-            <input type="date" id="paralizarFechaFin" value="${data ? data.fecha_fin || '' : ''}"
-              style="width:100%;padding:8px 10px;border:2px solid var(--border-mid);border-radius:6px;font-family:inherit;font-size:12.5px;">
+
+          <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Motivo de paralización <span style="color:#A11;">*</span></label>
+          <textarea id="paralizarMotivo" rows="3" placeholder="Ej: Paro de obra por permisos municipales"
+            style="width:100%;padding:8px 10px;font-family:inherit;font-size:12.5px;border:2px solid var(--border-mid);border-radius:6px;resize:vertical;">${data ? data.motivo || '' : ''}</textarea>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+            <div>
+              <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Fecha de inicio</label>
+              <input type="date" id="paralizarFechaIni" value="${data ? data.fecha_inicio || '' : ''}"
+                style="width:100%;padding:8px 10px;border:2px solid var(--border-mid);border-radius:6px;font-family:inherit;font-size:12.5px;">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Fecha de fin</label>
+              <input type="date" id="paralizarFechaFin" value="${data ? data.fecha_fin || '' : ''}"
+                style="width:100%;padding:8px 10px;border:2px solid var(--border-mid);border-radius:6px;font-family:inherit;font-size:12.5px;">
+            </div>
+          </div>
+
+          <input type="hidden" id="paralizarSemana" value="${semanaPreset}">
+          <div id="paralizarResult"></div>
+        </div>
+        <div class="gest-confirm-foot" style="justify-content:space-between;">
+          <button class="gest-confirm-btn gest-confirm-btn-cancel" onclick="desmarcarParalizada('${semanaPreset}')" style="color:#A11;border-color:#F5A8A8;background:#FFEAEA;">↺ Quitar paralización</button>
+          <div style="display:flex;gap:8px;">
+            <button class="gest-confirm-btn gest-confirm-btn-cancel" onclick="cerrarModalParalizar()">Cancelar</button>
+            <button class="gest-confirm-btn gest-confirm-btn-delete" id="paralizarBtnSave" onclick="guardarSemanaParalizada()" style="background:#E07B39;border-color:#E07B39;">
+              ⏸ Actualizar
+            </button>
           </div>
         </div>
+      </div>`;
+  } else {
+    // ── MODO CREACIÓN: detectar semanas automáticamente desde las fechas ──
+    modal.innerHTML = `
+      <div class="gest-confirm-modal" style="max-width:520px;">
+        <div class="gest-confirm-head" style="background:linear-gradient(135deg,#E07B39 0%,#A0521E 100%);">
+          <h3>⏸ MARCAR PERIODO PARALIZADO</h3>
+          <p>El sistema detectará automáticamente las semanas afectadas</p>
+        </div>
+        <div class="gest-confirm-body">
+          <p style="font-size:12.5px;color:var(--text-muted);margin:0 0 14px;">
+            Indica las <b>fechas de inicio y fin</b> del periodo de paralización. El sistema calculará automáticamente las semanas (lunes a domingo) y las marcará como paralizadas, heredando los KPIs de la última semana activa anterior.
+          </p>
 
-        <div id="paralizarResult"></div>
-      </div>
-      <div class="gest-confirm-foot" style="${isEdit ? 'justify-content:space-between;' : ''}">
-        ${isEdit ? `<button class="gest-confirm-btn gest-confirm-btn-cancel" onclick="desmarcarParalizada('${semanaPreset}')" style="color:#A11;border-color:#F5A8A8;background:#FFEAEA;">↺ Quitar paralización</button>` : ''}
-        <div style="display:flex;gap:8px;${isEdit ? '' : 'margin-left:auto;'}">
+          <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Motivo de paralización <span style="color:#A11;">*</span></label>
+          <textarea id="paralizarMotivo" rows="2" placeholder="Ej: Paro de obra por permisos municipales"
+            style="width:100%;padding:8px 10px;font-family:inherit;font-size:12.5px;border:2px solid var(--border-mid);border-radius:6px;resize:vertical;"></textarea>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+            <div>
+              <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Fecha de inicio <span style="color:#A11;">*</span></label>
+              <input type="date" id="paralizarFechaIni"
+                onchange="actualizarPreviewSemanas()"
+                style="width:100%;padding:8px 10px;border:2px solid var(--border-mid);border-radius:6px;font-family:inherit;font-size:12.5px;">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Fecha de fin <span style="color:#A11;">*</span></label>
+              <input type="date" id="paralizarFechaFin"
+                onchange="actualizarPreviewSemanas()"
+                style="width:100%;padding:8px 10px;border:2px solid var(--border-mid);border-radius:6px;font-family:inherit;font-size:12.5px;">
+            </div>
+          </div>
+
+          <!-- Preview dinámico de las semanas detectadas -->
+          <div id="paralizarPreview" style="margin-top:14px;padding:12px;background:#F4F8FB;border:1px dashed #BFD8E8;border-radius:6px;font-size:12px;color:#5A6B8A;text-align:center;">
+            👆 Selecciona las fechas para ver qué semanas se marcarán
+          </div>
+
+          <div id="paralizarResult"></div>
+        </div>
+        <div class="gest-confirm-foot" style="justify-content:flex-end;">
           <button class="gest-confirm-btn gest-confirm-btn-cancel" onclick="cerrarModalParalizar()">Cancelar</button>
-          <button class="gest-confirm-btn gest-confirm-btn-delete" id="paralizarBtnSave" onclick="guardarSemanaParalizada()" style="background:#E07B39;border-color:#E07B39;">
-            ⏸ ${isEdit ? 'Actualizar' : 'Marcar paralizada'}
+          <button class="gest-confirm-btn gest-confirm-btn-delete" id="paralizarBtnSave" onclick="guardarSemanaParalizada()" style="background:#E07B39;border-color:#E07B39;" disabled>
+            ⏸ Marcar paralizada
           </button>
         </div>
-      </div>
-    </div>`;
+      </div>`;
+  }
+
   modal.classList.add('show');
   setTimeout(() => {
-    const sem = document.getElementById('paralizarSemana');
-    if(sem && !isEdit) sem.focus();
-    else { const m = document.getElementById('paralizarMotivo'); if(m) m.focus(); }
+    if(isEdit){
+      const m = document.getElementById('paralizarMotivo');
+      if(m) m.focus();
+    } else {
+      const fi = document.getElementById('paralizarFechaIni');
+      if(fi) fi.focus();
+    }
   }, 100);
+}
+
+// Detecta TODAS las semanas (S##) que cubre un rango de fechas (lunes-domingo)
+function detectarSemanasEnRango(fechaIni, fechaFin){
+  if(!fechaIni || !fechaFin) return [];
+  const semIni = fechaASemana(fechaIni);
+  const semFin = fechaASemana(fechaFin);
+  if(!semIni || !semFin) return [];
+  if(semIni.semNum > semFin.semNum) return [];
+
+  const semanas = [];
+  for(let n = semIni.semNum; n <= semFin.semNum; n++){
+    const codigo = 'S' + (n < 10 ? '0' + n : n);
+    // Calcular rango lunes-domingo de esta semana
+    const msPerDay = 24*60*60*1000;
+    const lunes = new Date(PROYECTO_INICIO.getTime() + (n - 1) * 7 * msPerDay);
+    const domingo = new Date(lunes.getTime() + 6 * msPerDay);
+    semanas.push({
+      codigo: codigo,
+      semNum: n,
+      lunes: lunes,
+      domingo: domingo,
+      lunesFmt: fmtFechaCorta(lunes),
+      domingoFmt: fmtFechaCorta(domingo),
+      yaParalizada: !!SEMANAS_PARALIZADAS[codigo],
+    });
+  }
+  return semanas;
+}
+
+// Actualiza el preview de semanas detectadas en el modal de creación
+function actualizarPreviewSemanas(){
+  const preview = document.getElementById('paralizarPreview');
+  const btnSave = document.getElementById('paralizarBtnSave');
+  const fi = document.getElementById('paralizarFechaIni');
+  const ff = document.getElementById('paralizarFechaFin');
+  if(!preview || !fi || !ff) return;
+
+  const fechaIni = fi.value;
+  const fechaFin = ff.value;
+
+  // Validaciones básicas
+  if(!fechaIni && !fechaFin){
+    preview.innerHTML = '👆 Selecciona las fechas para ver qué semanas se marcarán';
+    preview.style.background = '#F4F8FB';
+    preview.style.borderColor = '#BFD8E8';
+    if(btnSave) btnSave.disabled = true;
+    return;
+  }
+  if(!fechaIni || !fechaFin){
+    preview.innerHTML = '⏳ Falta una fecha…';
+    preview.style.background = '#FFF8E1';
+    preview.style.borderColor = '#E5C792';
+    if(btnSave) btnSave.disabled = true;
+    return;
+  }
+  if(fechaIni > fechaFin){
+    preview.innerHTML = '⚠ La fecha de inicio debe ser anterior o igual a la fecha de fin.';
+    preview.style.background = '#FFEAEA';
+    preview.style.borderColor = '#F5A8A8';
+    preview.style.color = '#A11';
+    if(btnSave) btnSave.disabled = true;
+    return;
+  }
+
+  const semanas = detectarSemanasEnRango(fechaIni, fechaFin);
+  if(semanas.length === 0){
+    preview.innerHTML = '⚠ No se pudieron detectar semanas. Verifica que las fechas estén dentro del rango de obra.';
+    preview.style.background = '#FFEAEA';
+    preview.style.borderColor = '#F5A8A8';
+    preview.style.color = '#A11';
+    if(btnSave) btnSave.disabled = true;
+    return;
+  }
+
+  // Render del preview con tarjetas de cada semana
+  const cards = semanas.map(s => {
+    const ya = s.yaParalizada ? '<span style="color:#A11;font-size:10px;font-weight:700;">YA PARALIZADA · se sobrescribirá</span>' : '';
+    const bg = s.yaParalizada ? '#FFF8E1' : '#FFE5C2';
+    const borderL = s.yaParalizada ? '#E5C792' : '#E07B39';
+    return `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:${bg};border-left:3px solid ${borderL};border-radius:4px;margin-bottom:5px;">
+        <div style="font-size:14px;font-weight:700;color:#7A3F18;letter-spacing:.05em;">${s.codigo}</div>
+        <div style="font-size:11.5px;color:#5A6B8A;flex:1;">📅 ${s.lunesFmt} → ${s.domingoFmt}</div>
+        ${ya}
+      </div>`;
+  }).join('');
+
+  const cantidadTxt = semanas.length === 1 ? '1 semana detectada' : `${semanas.length} semanas detectadas`;
+  preview.innerHTML = `
+    <div style="text-align:left;">
+      <div style="font-size:11.5px;font-weight:700;color:#7A3F18;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">
+        ⏸ ${cantidadTxt} · Se marcarán todas como paralizadas
+      </div>
+      ${cards}
+    </div>`;
+  preview.style.background = '#FFF8EE';
+  preview.style.borderColor = '#E5B47C';
+  preview.style.color = 'inherit';
+  preview.style.borderStyle = 'solid';
+  if(btnSave) btnSave.disabled = false;
 }
 
 function cerrarModalParalizar(){
@@ -17836,20 +17984,26 @@ function cerrarModalParalizar(){
 }
 
 async function guardarSemanaParalizada(){
-  const semana = document.getElementById('paralizarSemana').value.trim().toUpperCase();
   const motivo = document.getElementById('paralizarMotivo').value.trim();
   const fechaIni = document.getElementById('paralizarFechaIni').value;
   const fechaFin = document.getElementById('paralizarFechaFin').value;
+  const semanaInput = document.getElementById('paralizarSemana');
+  const isEdit = !!(semanaInput && semanaInput.value);
 
   // Validaciones
-  if(!semana || !semana.match(/^S\d+$/)){
-    document.getElementById('paralizarResult').innerHTML =
-      `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ Formato inválido. Usa S## (ej: S33).</div>`;
-    return;
-  }
   if(!motivo || motivo.length < 3){
     document.getElementById('paralizarResult').innerHTML =
       `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ Indica el motivo (mínimo 3 caracteres).</div>`;
+    return;
+  }
+  if(!fechaIni || !fechaFin){
+    document.getElementById('paralizarResult').innerHTML =
+      `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ Las fechas de inicio y fin son obligatorias.</div>`;
+    return;
+  }
+  if(fechaIni > fechaFin){
+    document.getElementById('paralizarResult').innerHTML =
+      `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ La fecha de inicio debe ser anterior o igual a la fecha de fin.</div>`;
     return;
   }
 
@@ -17859,57 +18013,96 @@ async function guardarSemanaParalizada(){
     return;
   }
 
+  // Determinar las semanas a guardar
+  let semanasObjetivo = [];
+  if(isEdit){
+    // Edición: una sola semana ya conocida
+    semanasObjetivo = [semanaInput.value.toUpperCase()];
+  } else {
+    // Creación: detectar todas las semanas en el rango
+    const detectadas = detectarSemanasEnRango(fechaIni, fechaFin);
+    if(detectadas.length === 0){
+      document.getElementById('paralizarResult').innerHTML =
+        `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ No se detectaron semanas en el rango. Verifica las fechas.</div>`;
+      return;
+    }
+    semanasObjetivo = detectadas.map(s => s.codigo);
+  }
+
   const btn = document.getElementById('paralizarBtnSave');
   btn.disabled = true;
   btn.textContent = 'Guardando…';
+
+  let exitos = 0;
+  let errores = [];
 
   try {
     const { db, doc, setDoc } = window.E140_DB;
     const ahora = new Date().toISOString();
     const userName = (currentSession && currentSession.nombre) || 'Administrador';
-    const data = {
-      semana: semana,
-      motivo: motivo,
-      fecha_inicio: fechaIni || null,
-      fecha_fin: fechaFin || null,
-      marcado_por: (currentSession && currentSession.usuario) || 'adm',
-      marcado_nombre: userName,
-      marcado_en: ahora,
-    };
-    await setDoc(doc(db, 'semanas_paralizadas', semana), data);
-    SEMANAS_PARALIZADAS[semana] = data;
 
-    // Crear/actualizar la semana en DATA.weeks heredando de la anterior
-    aplicarHerenciaSemanaParalizada(semana);
+    for(const semana of semanasObjetivo){
+      try {
+        const data = {
+          semana: semana,
+          motivo: motivo,
+          fecha_inicio: fechaIni || null,
+          fecha_fin: fechaFin || null,
+          marcado_por: (currentSession && currentSession.usuario) || 'adm',
+          marcado_nombre: userName,
+          marcado_en: ahora,
+        };
+        await setDoc(doc(db, 'semanas_paralizadas', semana), data);
+        SEMANAS_PARALIZADAS[semana] = data;
+        aplicarHerenciaSemanaParalizada(semana);
+        exitos++;
+      } catch(err){
+        console.error(`[E140] Error guardando ${semana}:`, err);
+        errores.push(`${semana}: ${err.message || err}`);
+      }
+    }
 
     // Refrescar UI
     if(typeof populateWeekSelector === 'function') populateWeekSelector();
     if(typeof renderCurrentWeek === 'function') renderCurrentWeek();
     if(typeof cargarSemanasGestion === 'function') cargarSemanasGestion();
 
-    // Audit log
+    // Audit log (uno por cada semana)
     try {
       if(typeof auditLog === 'function'){
-        auditLog({
-          modulo: 'data',
-          accion: 'editar',
-          entidad_id: semana,
-          entidad_nombre: `Semana paralizada ${semana}`,
-          detalle: `Motivo: ${motivo}${fechaIni ? ` · ${fechaIni}` : ''}${fechaFin ? ` → ${fechaFin}` : ''}`,
-        });
+        for(const semana of semanasObjetivo){
+          if(!SEMANAS_PARALIZADAS[semana]) continue;
+          auditLog({
+            modulo: 'data',
+            accion: isEdit ? 'editar' : 'crear',
+            entidad_id: semana,
+            entidad_nombre: `Semana paralizada ${semana}`,
+            detalle: `Motivo: ${motivo} · ${fechaIni} → ${fechaFin}`,
+          });
+        }
       }
     } catch(e){ console.warn(e); }
 
     cerrarModalParalizar();
+
+    // Mostrar feedback
     if(typeof showBanner === 'function'){
-      showBanner('ok', `⏸ <b>${semana}</b> marcada como paralizada. KPIs heredados de la última semana activa anterior.`, true);
+      if(errores.length === 0){
+        if(exitos === 1){
+          showBanner('ok', `⏸ <b>${semanasObjetivo[0]}</b> marcada como paralizada. KPIs heredados de la última semana activa.`, true);
+        } else {
+          showBanner('ok', `⏸ <b>${exitos} semanas</b> marcadas como paralizadas: ${semanasObjetivo.join(', ')}. KPIs heredados.`, true);
+        }
+      } else {
+        showBanner('warn', `⏸ ${exitos} semana(s) guardada(s), pero hubo errores en: ${errores.join(' · ')}`);
+      }
     }
   } catch(err){
-    console.error('[E140] Error marcando paralizada:', err);
+    console.error('[E140] Error general:', err);
     document.getElementById('paralizarResult').innerHTML =
       `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ Error: ${err.message || err}</div>`;
   } finally {
-    btn.textContent = '⏸ Marcar paralizada';
+    btn.textContent = isEdit ? '⏸ Actualizar' : '⏸ Marcar paralizada';
     btn.disabled = false;
   }
 }
