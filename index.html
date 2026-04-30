@@ -1376,6 +1376,11 @@ body.can-edit-kpi .rk-edit-btn{display:flex;}
 
 /* Ocultar elementos solo para admins cuando es viewer */
 body.role-viewer .admin-only{display:none !important;}
+/* Botón "Cargar fotos" del panel fotográfico:
+   visible para roles 'admin' (adm, oficina, residente) y para 'staff' (rol=viewer).
+   Por defecto oculto. Se muestra cuando el body tiene la clase 'can-upload-fotos'. */
+.upload-fotos-only{display:none;}
+body.can-upload-fotos .upload-fotos-only{display:inline-flex;}
 
 @media(max-width:540px){
   .login-card{padding:28px 24px 22px;}
@@ -6519,7 +6524,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
       <section class="section" id="sec-fotos">
         <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
           <span>Panel Fotográfico de la Semana</span>
-          <button class="hdr-btn hdr-btn-primary admin-only" onclick="openFotosModal()" style="background:var(--twitter-blue);color:var(--white);border-color:var(--twitter-blue);padding:7px 14px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">
+          <button class="hdr-btn hdr-btn-primary upload-fotos-only" onclick="openFotosModal()" style="background:var(--twitter-blue);color:var(--white);border-color:var(--twitter-blue);padding:7px 14px;font-size:12px;align-items:center;gap:6px;">
             <span>📷</span> Cargar Fotos
           </button>
         </div>
@@ -15806,7 +15811,7 @@ function hideLoginScreen(){
 function applySessionToUI(){
   if(!currentSession) return;
   // Aplicar clase de rol al body para que las reglas CSS oculten/muestren
-  document.body.classList.remove('role-admin', 'role-viewer', 'audit-allowed', 'report-allowed', 'can-edit-kpi');
+  document.body.classList.remove('role-admin', 'role-viewer', 'audit-allowed', 'report-allowed', 'can-edit-kpi', 'can-upload-fotos');
   document.body.classList.add('role-' + currentSession.rol);
 
   // Solo 'adm' y 'oficina' pueden ver la sección de Auditoría/Trazabilidad
@@ -15822,6 +15827,13 @@ function applySessionToUI(){
   // Solo 'adm' y 'residente' pueden editar KPIs (override de avance, etc.)
   if(currentSession.usuario === 'adm' || currentSession.usuario === 'residente'){
     document.body.classList.add('can-edit-kpi');
+  }
+
+  // 'adm', 'oficina', 'residente' y 'staff' pueden subir fotos al Panel Fotográfico
+  // (staff es viewer pero específicamente tiene este permiso para cargar registros visuales)
+  const u = currentSession.usuario;
+  if(u === 'adm' || u === 'oficina' || u === 'residente' || u === 'staff'){
+    document.body.classList.add('can-upload-fotos');
   }
 
   // Solo 'adm' puede ver la bitácora maestra dentro de Auditoría
@@ -16747,6 +16759,16 @@ let fotoEditingIndex = -1; // Índice de la foto que se está editando
 
 // ─── Apertura del modal de fotos ───
 function openFotosModal(){
+  // Validación de permisos: 'adm', 'oficina', 'residente' y 'staff' pueden cargar fotos
+  if(currentSession){
+    const u = currentSession.usuario;
+    const permitido = (u === 'adm' || u === 'oficina' || u === 'residente' || u === 'staff');
+    if(!permitido){
+      alert('⛔ No tienes permiso para cargar fotos al Panel Fotográfico.\n\nUsuarios permitidos: adm, oficina, residente, staff.');
+      return;
+    }
+  }
+
   // Reset
   fotosState = { semana: '', fecha: '', fotos: [] };
   fotoEditingIndex = -1;
