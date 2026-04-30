@@ -8765,7 +8765,7 @@ function getPrevWeek(w){
   if(i > 0) return WEEKS_ORDER[i - 1];
   return null;
 }
-function getDelta(actual, prev, esPct){
+function getDelta(actual, prev, esPct, esEntero){
   if(actual===null||actual===undefined||isNaN(actual)) return {val:null, txt:"sin dato", cls:"flat", arrow:"–"};
   if(prev===null||prev===undefined||isNaN(prev)) return {val:null, txt:"sin histórico", cls:"flat", arrow:"–"};
   const d = actual - prev;
@@ -8773,8 +8773,9 @@ function getDelta(actual, prev, esPct){
   const arrow = d>0.001 ? "↑" : (d<-0.001 ? "↓" : "–");
   let txt;
   if(esPct) txt = (d>=0?"+":"")+d.toFixed(2)+" pp";
+  else if(esEntero) txt = (d>=0?"+":"")+fmtSN(d);
   else if(Math.abs(d)>=1000) txt = (d>=0?"+":"")+fmtSMon(Math.abs(d)).replace('S/ ','S/ '+(d>=0?"":"-"));
-  else txt = (d>=0?"+":"")+fmtSN(d);
+  else txt = (d>=0?"+":"")+fmtSN2(d);
   return {val:d, txt, cls, arrow};
 }
 
@@ -9004,11 +9005,11 @@ function renderRKpis(d, dPrev){
     {k:'spiMeta',        label:'SPI Meta',          value:fmtSPI(cur.spiMeta),          raw:cur.spiMeta,        prevRaw:prev?prev.spiMeta:null,        esPct:false, cls:clsSPI(cur.spiMeta),  color:COLORS.blueMid,spark:series.spiMeta,     subLabel:'Sec ejec / prog acum.'},
     {k:'spiContractual', label:'SPI Contractual',   value:fmtSPI(cur.spiContractual),   raw:cur.spiContractual, prevRaw:prev?prev.spiContractual:null, esPct:false, cls:clsSPI(cur.spiContractual), color:COLORS.blue, spark:series.spiContractual, subLabel:'Pendiente fuente'},
     {k:'moConsumida',    label:'MO Consumida',      value:fmtMO(cur.moConsumida),       raw:cur.moConsumida,    prevRaw:prev?prev.moConsumida:null,    esPct:false, cls:'',                   color:COLORS.blue,   spark:series.moConsumida, subLabel:'S/ · Acum. real'},
-    {k:'personal',       label:'Personal en Obra',  value:fmtPersonal(cur.personal),    raw:cur.personal,       prevRaw:prev?prev.personal:null,       esPct:false, cls:'rk-orange',          color:COLORS.orange, spark:series.personal,    subLabel:'Dotación actual'},
+    {k:'personal',       label:'Personal en Obra',  value:fmtPersonal(cur.personal),    raw:cur.personal,       prevRaw:prev?prev.personal:null,       esPct:false, esEntero:true, cls:'rk-orange',          color:COLORS.orange, spark:series.personal,    subLabel:'Dotación actual'},
   ];
 
   kpis.forEach((kpi,i)=>{
-    const delta = getDelta(kpi.raw, kpi.prevRaw, kpi.esPct);
+    const delta = getDelta(kpi.raw, kpi.prevRaw, kpi.esPct, kpi.esEntero);
 
     // Evaluar meta del KPI
     const regla = METAS_KPI[kpi.k];
