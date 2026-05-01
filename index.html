@@ -696,7 +696,35 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 
 /* R KPI Poster */
 .r-kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:10px;}
-.r-kpi{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 12px;position:relative;overflow:hidden;max-height:100px;}
+.r-kpi{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 12px;position:relative;overflow:hidden;max-height:100px;cursor:pointer;transition:all .15s;}
+.r-kpi:hover{box-shadow:0 4px 12px rgba(0,112,180,.15);transform:translateY(-1px);border-color:var(--twitter-blue);}
+
+/* ─── Modal de detalle de KPI con gráfica evolutiva ─── */
+.kpi-evol-modal{position:fixed;inset:0;background:rgba(0,30,60,.72);display:none;align-items:center;justify-content:center;z-index:3500;padding:20px;}
+.kpi-evol-modal.show{display:flex;animation:fadeIn .2s ease-out;}
+.kpi-evol-card{background:#fff;border-radius:12px;max-width:920px;width:100%;max-height:90vh;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4);display:flex;flex-direction:column;position:relative;}
+.kpi-evol-head{background:linear-gradient(135deg,#0070B4 0%,#054C7E 100%);color:#fff;padding:18px 22px;}
+.kpi-evol-head h3{margin:0;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.5px;}
+.kpi-evol-head p{margin:4px 0 0;font-size:12px;opacity:.85;}
+.kpi-evol-close{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;border:none;cursor:pointer;font-size:16px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.kpi-evol-close:hover{background:rgba(255,255,255,.32);transform:scale(1.06);}
+.kpi-evol-body{padding:22px;overflow-y:auto;flex:1;}
+.kpi-evol-body .kpi-evol-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+.kpi-evol-summary .kpi-evol-stat{background:#F4F8FB;border:1px solid #BFD8E8;border-radius:8px;padding:10px 12px;text-align:center;}
+.kpi-evol-stat .stat-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:3px;}
+.kpi-evol-stat .stat-val{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:var(--twitter-blue);line-height:1;}
+.kpi-evol-stat .stat-week{font-size:10.5px;color:#5A6B8A;margin-top:2px;}
+.kpi-evol-chart-wrap{position:relative;height:340px;background:#FAFCFE;border:1px solid #E5EEF5;border-radius:8px;padding:14px;}
+.kpi-evol-table{width:100%;margin-top:14px;border-collapse:collapse;font-size:12px;}
+.kpi-evol-table th{background:#F4F8FB;color:#5A6B8A;font-weight:600;padding:8px 10px;text-align:left;border-bottom:1px solid #D8E5EE;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;}
+.kpi-evol-table td{padding:7px 10px;border-bottom:1px solid #F0F4F8;}
+.kpi-evol-table tr.actual{background:#FFF3E0;font-weight:700;}
+.kpi-evol-table tr:hover{background:#F8FBFD;}
+.kpi-evol-table .td-num{text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;}
+.kpi-evol-table .td-delta{font-size:11px;text-align:right;}
+.kpi-evol-table .td-delta.up{color:var(--green);}
+.kpi-evol-table .td-delta.down{color:var(--red);}
+.kpi-evol-table .td-delta.flat{color:var(--text-muted);}
 .r-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--blue-bell);}
 .r-kpi.rk-primary::before{background:var(--twitter-blue);}
 .r-kpi.rk-dark::before{background:var(--blue-bell-dk);}
@@ -9059,6 +9087,12 @@ function renderRKpis(d, dPrev){
 
     const div = document.createElement('div');
     div.className = 'r-kpi '+kpi.cls;
+    div.title = 'Click para ver evolución semanal';
+    div.onclick = (e) => {
+      // Si el click vino del botón ✏ de override, NO abrir el modal evolutivo
+      if(e.target.closest('.rk-edit-btn')) return;
+      abrirKpiEvolModal(kpi.k);
+    };
     const reglaShow = kpi._reglaShow || regla;
     div.innerHTML = `
       ${editBtn}
@@ -9114,6 +9148,299 @@ function renderRFrentes(d){
     cont.appendChild(el);
   });
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   MODAL EVOLUTIVO DE KPI · Click en cualquier tarjeta de Resumen
+   Muestra la evolución semanal del KPI con un gráfico claro y tabla
+   con valores y deltas.
+   ═══════════════════════════════════════════════════════════════════ */
+
+// Configuración por KPI: cómo formatear, color de línea, meta, label
+const KPI_EVOL_CONFIG = {
+  avance: {
+    label: 'Avance de Obra',
+    sublabel: 'Avance físico ponderado por sectores · histórico semanal',
+    color: '#E07B39',
+    fillColor: 'rgba(224,123,57,.10)',
+    fmt: (v) => v == null ? '—' : v.toFixed(2) + '%',
+    fmtDelta: (d) => (d>=0?'+':'') + d.toFixed(2) + ' pp',
+    metaTexto: '↑ Mayor cumplimiento del programa',
+    icon: '🏗️',
+    yMax: 100,
+  },
+  cpi: {
+    label: 'CPI Mano de Obra Acumulado',
+    sublabel: 'Índice de productividad de mano de obra · histórico semanal',
+    color: '#2D936C',
+    fillColor: 'rgba(45,147,108,.10)',
+    fmt: (v) => v == null ? '—' : v.toFixed(2),
+    fmtDelta: (d) => (d>=0?'+':'') + d.toFixed(2),
+    metaTexto: '≥ 1.00 · Por encima eficiente',
+    icon: '💰',
+  },
+  spiMeta: {
+    label: 'SPI Meta',
+    sublabel: 'Sectores ejecutados / programados acumulados · histórico semanal',
+    color: '#3A91C5',
+    fillColor: 'rgba(58,145,197,.12)',
+    fmt: (v) => v == null ? '—' : v.toFixed(2),
+    fmtDelta: (d) => (d>=0?'+':'') + d.toFixed(2),
+    metaTexto: '≥ 1.00 · A tiempo o adelantado',
+    icon: '📅',
+  },
+  spiContractual: {
+    label: 'SPI Contractual',
+    sublabel: 'Cumplimiento del cronograma contractual · histórico semanal',
+    color: '#0070B4',
+    fillColor: 'rgba(0,112,180,.12)',
+    fmt: (v) => v == null ? '—' : v.toFixed(2),
+    fmtDelta: (d) => (d>=0?'+':'') + d.toFixed(2),
+    metaTexto: '≥ 1.00 · A tiempo o adelantado',
+    icon: '📜',
+  },
+  moConsumida: {
+    label: 'MO Consumida',
+    sublabel: 'Mano de obra consumida acumulada · histórico semanal',
+    color: '#0070B4',
+    fillColor: 'rgba(0,112,180,.10)',
+    fmt: (v) => v == null ? '—' : 'S/ ' + v.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2}),
+    fmtDelta: (d) => (d>=0?'+':'-') + 'S/ ' + Math.abs(d).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2}),
+    metaTexto: '≤ 25% del Costo Directo',
+    icon: '💵',
+  },
+  personal: {
+    label: 'Personal en Obra',
+    sublabel: 'Dotación de personal en obra · histórico semanal',
+    color: '#E07B39',
+    fillColor: 'rgba(224,123,57,.10)',
+    fmt: (v) => v == null ? '—' : Math.round(v) + ' pax',
+    fmtDelta: (d) => (d>=0?'+':'') + Math.round(d) + ' pax',
+    metaTexto: '≤ 86 pax (dimensionado)',
+    icon: '👷',
+  },
+};
+
+let kpiEvolChartInstance = null;
+
+function abrirKpiEvolModal(kpiKey){
+  const config = KPI_EVOL_CONFIG[kpiKey];
+  if(!config) { console.warn('KPI no configurado:', kpiKey); return; }
+
+  // Construir el histórico ordenado cronológicamente
+  const chron = [...WEEKS_ORDER];
+  if(chron.length === 0) {
+    alert('No hay datos históricos disponibles.');
+    return;
+  }
+
+  // Helper para obtener el valor del KPI en una semana (con override)
+  const getKpiValor = (sem) => {
+    const w = DATA.weeks[sem];
+    if(!w) return null;
+    if(KPI_OVERRIDES[sem] && KPI_OVERRIDES[sem][kpiKey] != null){
+      return KPI_OVERRIDES[sem][kpiKey];
+    }
+    const pe = w.panelEjecutivo || {};
+    const kp = w.kpis || {};
+    switch(kpiKey){
+      case 'avance':         return pe.avance != null ? pe.avance : kp.avanceObra;
+      case 'cpi':            return pe.cpi != null ? pe.cpi : kp.cpi;
+      case 'spiMeta':        return pe.spiMeta != null ? pe.spiMeta : kp.spiMeta;
+      case 'spiContractual': {
+        const v = pe.spiContractual != null ? pe.spiContractual : kp.spiContractual;
+        return (typeof v === 'string' && v === '—') ? null : v;
+      }
+      case 'moConsumida':    return pe.moConsumida != null ? pe.moConsumida : kp.moConsumida;
+      case 'personal':       return pe.personal != null ? pe.personal : kp.personal;
+    }
+    return null;
+  };
+
+  // Construir series con todos los puntos
+  const labels = [];
+  const valores = [];
+  const paralizadas = []; // para marcar visualmente
+  chron.forEach(sem => {
+    labels.push(sem);
+    valores.push(getKpiValor(sem));
+    paralizadas.push(esSemanaParalizada(sem));
+  });
+
+  // ─── Resumen estadístico ───
+  const validos = valores.filter(v => v != null && !isNaN(v));
+  const valorActual = valores[valores.length - 1];
+  const valorMin = validos.length ? Math.min(...validos) : null;
+  const valorMax = validos.length ? Math.max(...validos) : null;
+  const idxMin = valorMin != null ? valores.indexOf(valorMin) : -1;
+  const idxMax = valorMax != null ? valores.indexOf(valorMax) : -1;
+
+  // Llenar header
+  document.getElementById('kpiEvolTitle').textContent =
+    `${config.icon} ${config.label} · Evolución`;
+  document.getElementById('kpiEvolSubtitle').textContent = config.sublabel;
+
+  // Llenar resumen
+  const summaryEl = document.getElementById('kpiEvolSummary');
+  const semActual = chron[chron.length - 1] || '—';
+  summaryEl.innerHTML = `
+    <div class="kpi-evol-stat">
+      <div class="stat-label">Actual</div>
+      <div class="stat-val">${config.fmt(valorActual)}</div>
+      <div class="stat-week">${semActual}</div>
+    </div>
+    <div class="kpi-evol-stat">
+      <div class="stat-label">Máximo histórico</div>
+      <div class="stat-val">${config.fmt(valorMax)}</div>
+      <div class="stat-week">${idxMax >= 0 ? labels[idxMax] : '—'}</div>
+    </div>
+    <div class="kpi-evol-stat">
+      <div class="stat-label">Mínimo histórico</div>
+      <div class="stat-val">${config.fmt(valorMin)}</div>
+      <div class="stat-week">${idxMin >= 0 ? labels[idxMin] : '—'}</div>
+    </div>`;
+
+  // Mostrar el modal antes de crear el chart (para que el canvas tenga dimensiones)
+  document.getElementById('kpiEvolModal').classList.add('show');
+
+  // Render del chart con un pequeño delay para que el canvas tenga dimensiones
+  setTimeout(() => {
+    if(kpiEvolChartInstance) { kpiEvolChartInstance.destroy(); kpiEvolChartInstance = null; }
+    const ctx = document.getElementById('kpiEvolChart');
+    if(!ctx) return;
+
+    // Color por punto: si la semana está paralizada, color gris
+    const pointColors = paralizadas.map(p => p ? '#A0A0A0' : config.color);
+    const pointRadius = paralizadas.map(p => p ? 5 : 6);
+
+    kpiEvolChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: config.label,
+          data: valores,
+          borderColor: config.color,
+          backgroundColor: config.fillColor,
+          tension: 0.3,
+          fill: true,
+          borderWidth: 3,
+          pointBackgroundColor: pointColors,
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: pointRadius,
+          pointHoverRadius: 9,
+          pointHoverBorderWidth: 3,
+          spanGaps: true,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode:'index', intersect:false },
+        plugins: {
+          legend: { display:false },
+          tooltip: {
+            backgroundColor: 'rgba(0,30,60,.95)',
+            titleFont: { size:13, weight:'700' },
+            bodyFont: { size:13 },
+            padding: 12,
+            cornerRadius: 8,
+            displayColors: false,
+            callbacks: {
+              title: (items) => {
+                const idx = items[0].dataIndex;
+                const sem = labels[idx];
+                return paralizadas[idx] ? `${sem} · ⏸ Paralizada` : sem;
+              },
+              label: (item) => `${config.label}: ${config.fmt(item.parsed.y)}`,
+            }
+          },
+          // Plugin custom para mostrar el valor encima de cada punto
+          datalabels: {
+            display: false, // se hace via tooltip on hover, evita saturación
+          }
+        },
+        scales: {
+          x: {
+            grid: { display:false },
+            ticks: { font:{ size:12, weight:'600' }, color:'#5A6B8A' }
+          },
+          y: {
+            beginAtZero: kpiKey !== 'cpi' && kpiKey !== 'spiMeta' && kpiKey !== 'spiContractual',
+            grid: { color:'#EEF5FA' },
+            ticks: {
+              font:{ size:11 },
+              color:'#5A6B8A',
+              callback: (v) => {
+                if(kpiKey === 'moConsumida') return 'S/ ' + (v/1000).toFixed(0)+'K';
+                if(kpiKey === 'avance') return v.toFixed(0) + '%';
+                if(kpiKey === 'personal') return Math.round(v);
+                return v.toFixed(2);
+              }
+            },
+            max: config.yMax,
+          }
+        },
+        animation: { duration: 600, easing: 'easeOutQuart' }
+      }
+    });
+  }, 80);
+
+  // ─── Tabla con todos los valores y deltas ───
+  const tbody = document.querySelector('#kpiEvolTable tbody');
+  const valorInicial = validos.length ? validos[0] : null;
+  // Tabla en orden DESCENDENTE (más reciente arriba) para escaneo rápido
+  const filas = [];
+  chron.forEach((sem, idx) => {
+    const v = valores[idx];
+    const vAnt = idx > 0 ? valores[idx-1] : null;
+    const dAnt = (v != null && vAnt != null) ? v - vAnt : null;
+    const dIni = (v != null && valorInicial != null) ? v - valorInicial : null;
+    const esActual = idx === chron.length - 1;
+    const esParalizada = paralizadas[idx];
+
+    filas.push({
+      sem, valor: v, dAnt, dIni, esActual, esParalizada
+    });
+  });
+  filas.reverse(); // más reciente primero
+
+  tbody.innerHTML = filas.map(f => {
+    const clsRow = f.esActual ? 'actual' : '';
+    const valTxt = config.fmt(f.valor);
+    const dAntTxt = f.dAnt != null
+      ? `<span class="td-delta ${f.dAnt>0.001?'up':(f.dAnt<-0.001?'down':'flat')}">${f.dAnt>0.001?'↑':(f.dAnt<-0.001?'↓':'–')} ${config.fmtDelta(f.dAnt)}</span>`
+      : '<span class="td-delta flat">—</span>';
+    const dIniTxt = f.dIni != null
+      ? `<span class="td-delta ${f.dIni>0.001?'up':(f.dIni<-0.001?'down':'flat')}">${f.dIni>0.001?'↑':(f.dIni<-0.001?'↓':'–')} ${config.fmtDelta(f.dIni)}</span>`
+      : '<span class="td-delta flat">—</span>';
+    const semLabel = f.esParalizada ? `${f.sem} <span style="color:#A0521E;font-size:10px;">⏸</span>` : f.sem;
+    return `<tr class="${clsRow}">
+      <td><b>${semLabel}</b>${f.esActual ? ' <span style="color:var(--orange);font-size:10px;">· ACTUAL</span>' : ''}</td>
+      <td class="td-num">${valTxt}</td>
+      <td class="td-delta">${dAntTxt}</td>
+      <td class="td-delta">${dIniTxt}</td>
+    </tr>`;
+  }).join('');
+}
+
+function closeKpiEvolModal(){
+  document.getElementById('kpiEvolModal').classList.remove('show');
+  if(kpiEvolChartInstance) {
+    kpiEvolChartInstance.destroy();
+    kpiEvolChartInstance = null;
+  }
+}
+
+// Cerrar el modal con tecla ESC
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape'){
+    const modal = document.getElementById('kpiEvolModal');
+    if(modal && modal.classList.contains('show')){
+      closeKpiEvolModal();
+    }
+  }
+});
 
 function renderRPulso(){
   const cid = 'rChartPulso';
@@ -22797,6 +23124,36 @@ function v2RenderAll(){
 
 })();
 </script>
+
+<!-- ═══════════════════════════════════════════
+     MODAL DETALLE KPI · Evolución semanal con gráfico
+     ═══════════════════════════════════════════ -->
+<div class="kpi-evol-modal" id="kpiEvolModal" onclick="if(event.target===this) closeKpiEvolModal()">
+  <div class="kpi-evol-card">
+    <button class="kpi-evol-close" onclick="closeKpiEvolModal()" aria-label="Cerrar" title="Cerrar (Esc)">✕</button>
+    <div class="kpi-evol-head">
+      <h3 id="kpiEvolTitle">📊 Evolución del KPI</h3>
+      <p id="kpiEvolSubtitle">Histórico semanal y tendencia</p>
+    </div>
+    <div class="kpi-evol-body">
+      <div class="kpi-evol-summary" id="kpiEvolSummary"></div>
+      <div class="kpi-evol-chart-wrap">
+        <canvas id="kpiEvolChart"></canvas>
+      </div>
+      <table class="kpi-evol-table" id="kpiEvolTable">
+        <thead>
+          <tr>
+            <th>Semana</th>
+            <th style="text-align:right;">Valor</th>
+            <th style="text-align:right;">Vs. anterior</th>
+            <th style="text-align:right;">Vs. inicio</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════
      MODAL EDICIÓN KPI · Override de Avance de Obra
