@@ -8760,6 +8760,35 @@ function destroyAllCharts(){
   Object.keys(CHART_INSTANCES).forEach(destroyChart);
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   COLORES POR SEMANA (con detección de semanas paralizadas)
+   Las semanas paralizadas se pintan en NARANJA para que visualmente
+   se entienda que NO hay evolución real de obra esa semana.
+   ═══════════════════════════════════════════════════════════════════ */
+
+const COLOR_PARALIZADA      = '#E07B39';      // Naranja sólido para barras
+const COLOR_PARALIZADA_SOFT = '#E07B3980';    // Naranja con alpha 50% para fills
+
+// Devuelve un array de colores: el color por defecto para semanas activas,
+// COLOR_PARALIZADA para las paralizadas. Si una de las labels no es código S##,
+// usa el color por defecto.
+function colorsByWeekLabels(labels, defaultColor){
+  if(!Array.isArray(labels)) return defaultColor;
+  return labels.map(lbl => {
+    const s = String(lbl || '');
+    // Solo cambiar color si es un código S## y está paralizada
+    if(/^S\d+$/i.test(s) && typeof esSemanaParalizada === 'function' && esSemanaParalizada(s)){
+      return COLOR_PARALIZADA;
+    }
+    return defaultColor;
+  });
+}
+
+// Variante para bordes (cuando se usa en barras, line, etc).
+function borderColorsByWeekLabels(labels, defaultColor){
+  return colorsByWeekLabels(labels, defaultColor);
+}
+
 Chart.defaults.font.family="'DM Sans',sans-serif";
 Chart.defaults.font.size=11;
 Chart.defaults.color='#5A7A96';
@@ -9457,9 +9486,15 @@ function renderRPulso(){
     data:{
       labels,
       datasets:[
-        {type:'bar', label:'Personal (pax)', data:pers, backgroundColor:COLORS.blueLt+'80', borderRadius:4, yAxisID:'y2', order:3},
-        {type:'line', label:'% Avance Contratación', data:contratacion, borderColor:COLORS.blue, backgroundColor:COLORS.blue+'20', tension:.3, pointRadius:5, pointBackgroundColor:COLORS.blue, borderWidth:3, yAxisID:'y1', order:1, fill:false},
-        {type:'line', label:'% MO Ejecutada', data:mo, borderColor:COLORS.green, backgroundColor:COLORS.green+'20', tension:.3, pointRadius:5, pointBackgroundColor:COLORS.green, borderWidth:3, yAxisID:'y1', order:2, fill:false}
+        {type:'bar', label:'Personal (pax)', data:pers,
+          backgroundColor: colorsByWeekLabels(labels, COLORS.blueLt+'80'),
+          borderRadius:4, yAxisID:'y2', order:3},
+        {type:'line', label:'% Avance Contratación', data:contratacion, borderColor:COLORS.blue, backgroundColor:COLORS.blue+'20', tension:.3, pointRadius:5,
+          pointBackgroundColor: colorsByWeekLabels(labels, COLORS.blue),
+          borderWidth:3, yAxisID:'y1', order:1, fill:false},
+        {type:'line', label:'% MO Ejecutada', data:mo, borderColor:COLORS.green, backgroundColor:COLORS.green+'20', tension:.3, pointRadius:5,
+          pointBackgroundColor: colorsByWeekLabels(labels, COLORS.green),
+          borderWidth:3, yAxisID:'y1', order:2, fill:false}
       ]
     },
     options:{responsive:true,maintainAspectRatio:false,
@@ -9712,7 +9747,9 @@ function renderREvoPersonal(){
     data:{
       labels,
       datasets:[
-        {type:'bar', label:'Personal en obra', data, backgroundColor:COLORS.blue, borderRadius:5, order:2},
+        {type:'bar', label:'Personal en obra', data,
+          backgroundColor: colorsByWeekLabels(labels, COLORS.blue),
+          borderRadius:5, order:2},
         {type:'line', label:`Meta (${CONSTANTES.metaDimensionamiento} pax)`, data:data.map(()=>CONSTANTES.metaDimensionamiento),
          borderColor:COLORS.orange, borderWidth:2.5, borderDash:[6,4], pointRadius:0, fill:false, order:1, z:10}
       ]
@@ -9736,8 +9773,12 @@ function renderREvoMO(){
     data:{
       labels,
       datasets:[
-        {type:'bar', label:'MO Acum. (S/)', data:acum, backgroundColor:COLORS.green, borderRadius:4, yAxisID:'y1', order:2},
-        {type:'line', label:'% sobre presup. MO', data:pct, borderColor:COLORS.blue, tension:.3, pointRadius:5, pointBackgroundColor:COLORS.blue, borderWidth:2.5, yAxisID:'y2', fill:false, order:1, z:10}
+        {type:'bar', label:'MO Acum. (S/)', data:acum,
+          backgroundColor: colorsByWeekLabels(labels, COLORS.green),
+          borderRadius:4, yAxisID:'y1', order:2},
+        {type:'line', label:'% sobre presup. MO', data:pct, borderColor:COLORS.blue, tension:.3, pointRadius:5,
+          pointBackgroundColor: colorsByWeekLabels(labels, COLORS.blue),
+          borderWidth:2.5, yAxisID:'y2', fill:false, order:1, z:10}
       ]
     },
     options:{responsive:true,maintainAspectRatio:false,
@@ -22998,6 +23039,11 @@ function v2RenderVelocidad(){
           label: 'pp/semana',
           data: veloc8,
           backgroundColor: veloc8.map((v,i) => {
+            // Si la semana está paralizada, NARANJA (prioridad sobre la lógica de velocidad)
+            const semLbl = labels8[i];
+            if(typeof esSemanaParalizada === 'function' && esSemanaParalizada(semLbl)){
+              return COLOR_PARALIZADA;
+            }
             if(v == null) return '#EDF2F4';
             if(promedio == null) return '#0070B4';
             return v >= promedio * CONFIG_V2.velocidad.umbralAceleracion ? '#2D936C' :
