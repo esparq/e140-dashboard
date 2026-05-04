@@ -8766,19 +8766,32 @@ function destroyAllCharts(){
    se entienda que NO hay evolución real de obra esa semana.
    ═══════════════════════════════════════════════════════════════════ */
 
-const COLOR_PARALIZADA      = '#E07B39';      // Naranja sólido para barras
-const COLOR_PARALIZADA_SOFT = '#E07B3980';    // Naranja con alpha 50% para fills
+const COLOR_PARALIZADA      = '#E07B39';      // Naranja sólido (sin alpha)
 
 // Devuelve un array de colores: el color por defecto para semanas activas,
-// COLOR_PARALIZADA para las paralizadas. Si una de las labels no es código S##,
-// usa el color por defecto.
+// COLOR_PARALIZADA con el MISMO alpha que el default para las paralizadas.
+// Si una de las labels no es código S##, usa el color por defecto.
+//
+// Ejemplos:
+//   default '#97C5E0'     → paralizada '#E07B39'      (sólido)
+//   default '#97C5E080'   → paralizada '#E07B3980'    (50% alpha)
+//   default '#0070B4'     → paralizada '#E07B39'      (sólido)
 function colorsByWeekLabels(labels, defaultColor){
   if(!Array.isArray(labels)) return defaultColor;
+
+  // Detectar si el defaultColor tiene alpha (formato #RRGGBBAA)
+  let alphaSuffix = '';
+  if(typeof defaultColor === 'string'){
+    // Hex con alpha: #RRGGBBAA (9 chars con #)
+    const m = defaultColor.match(/^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})$/);
+    if(m) alphaSuffix = m[1];
+  }
+  const colorParalizadaConAlpha = COLOR_PARALIZADA + alphaSuffix;
+
   return labels.map(lbl => {
     const s = String(lbl || '');
-    // Solo cambiar color si es un código S## y está paralizada
     if(/^S\d+$/i.test(s) && typeof esSemanaParalizada === 'function' && esSemanaParalizada(s)){
-      return COLOR_PARALIZADA;
+      return colorParalizadaConAlpha;
     }
     return defaultColor;
   });
