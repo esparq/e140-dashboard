@@ -18011,6 +18011,20 @@ async function cargarSemanasGestion(){
         </div>`;
     }
 
+    // Card adicional: crear próxima semana vacía (placeholder)
+    if(puedeMarcarParalizada()){
+      const proxima = calcularProximaSemana();
+      html += `
+        <div class="gest-sem-card" style="border:2px dashed #4A90E2;background:#F0F7FB;text-align:center;cursor:pointer;" onclick="abrirModalCrearSemana()">
+          <div style="font-size:14px;color:#0070B4;font-weight:600;padding:12px 0;">
+            🆕 + Crear próxima semana (${proxima.codigo})
+          </div>
+          <div style="font-size:11px;color:#054C7E;">
+            Crea ${proxima.codigo} vacía con KPIs en — · Corte: ${proxima.fechaCorteFmt}
+          </div>
+        </div>`;
+    }
+
     cont.innerHTML = html;
   } catch(err){
     console.error('[E140] Error cargando semanas:', err);
@@ -18230,6 +18244,188 @@ function getUltimaSemanaActivaAnterior(semana){
 // Permisos: solo adm puede marcar/desmarcar
 function puedeMarcarParalizada(){
   return currentSession && currentSession.usuario === 'adm';
+}
+
+// Calcula la próxima semana vacía después de la última semana en WEEKS_ORDER
+function calcularProximaSemana(){
+  // Buscar el número más alto en WEEKS_ORDER
+  let maxNum = 0;
+  WEEKS_ORDER.forEach(s => {
+    const n = parseInt(String(s).replace(/\D/g,''));
+    if(n > maxNum) maxNum = n;
+  });
+  // Si no hay semanas, empezar en S01
+  const proxNum = maxNum > 0 ? maxNum + 1 : 1;
+  const codigo = 'S' + (proxNum < 10 ? '0' + proxNum : proxNum);
+
+  // Calcular el rango de fechas (lunes-domingo) y fecha de corte (sábado)
+  const msPerDay = 24*60*60*1000;
+  const lunes = new Date(PROYECTO_INICIO.getTime() + (proxNum - 1) * 7 * msPerDay);
+  const sabado = new Date(lunes.getTime() + 5 * msPerDay);
+  const domingo = new Date(lunes.getTime() + 6 * msPerDay);
+
+  return {
+    codigo: codigo,
+    semNum: proxNum,
+    lunes: lunes,
+    sabado: sabado,
+    domingo: domingo,
+    lunesFmt: fmtFechaCorta(lunes),
+    sabadoFmt: fmtFechaCorta(sabado),
+    domingoFmt: fmtFechaCorta(domingo),
+    fechaCorteFmt: fmtFechaCorta(sabado),
+    fechaCorteIso: sabado.toISOString().split('T')[0],
+  };
+}
+
+// Abre el modal de confirmación para crear una semana nueva vacía
+function abrirModalCrearSemana(){
+  if(!puedeMarcarParalizada()){
+    alert('⛔ Solo el administrador puede crear semanas nuevas.');
+    return;
+  }
+
+  const prox = calcularProximaSemana();
+
+  let modal = document.getElementById('crearSemanaOverlay');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'crearSemanaOverlay';
+    modal.className = 'gest-confirm-overlay';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div class="gest-confirm-modal" style="max-width:480px;">
+      <div class="gest-confirm-head" style="background:linear-gradient(135deg,#0070B4 0%,#054C7E 100%);">
+        <h3>🆕 CREAR PRÓXIMA SEMANA</h3>
+        <p>La nueva semana se creará vacía como placeholder</p>
+      </div>
+      <div class="gest-confirm-body">
+        <p style="font-size:12.5px;color:var(--text-muted);margin:0 0 14px;">
+          Se creará la semana <b style="color:var(--twitter-blue);">${prox.codigo}</b> con todos sus KPIs en <b>—</b> (sin valores).
+          Aparecerá inmediatamente en el selector de semanas y como tarjeta en Gestión de semanas.
+          Después podrás cargar archivos para llenarla.
+        </p>
+
+        <div style="background:#F0F7FB;border:1px solid #BFD8E8;border-radius:6px;padding:12px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="font-size:32px;font-family:'Bebas Neue',sans-serif;color:var(--twitter-blue);letter-spacing:2px;line-height:1;">
+              ${prox.codigo}
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-weight:600;">
+                Rango de la semana
+              </div>
+              <div style="font-size:13px;color:var(--text);font-weight:600;">
+                📅 ${prox.lunesFmt} → ${prox.domingoFmt}
+              </div>
+              <div style="font-size:11.5px;color:#5A6B8A;margin-top:3px;">
+                Corte: ${prox.fechaCorteFmt} (sábado)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:#FFF8E1;border-left:3px solid #E5C792;border-radius:4px;padding:8px 12px;font-size:11.5px;color:#7A4A14;line-height:1.5;">
+          ⚠️ <b>Importante:</b> Esta es una semana <b>placeholder local</b> (no se guarda en Firestore).
+          Si recargas la página antes de cargar archivos, deberás volver a crearla.
+        </div>
+
+        <div id="crearSemanaResult"></div>
+      </div>
+      <div class="gest-confirm-foot" style="justify-content:flex-end;">
+        <button class="gest-confirm-btn gest-confirm-btn-cancel" onclick="cerrarModalCrearSemana()">Cancelar</button>
+        <button class="gest-confirm-btn gest-confirm-btn-delete" id="crearSemanaBtn" onclick="confirmarCrearSemana('${prox.codigo}','${prox.fechaCorteIso}')" style="background:#0070B4;border-color:#0070B4;">
+          🆕 Crear ${prox.codigo}
+        </button>
+      </div>
+    </div>`;
+  modal.classList.add('show');
+}
+
+function cerrarModalCrearSemana(){
+  const modal = document.getElementById('crearSemanaOverlay');
+  if(modal) modal.classList.remove('show');
+}
+
+// Crea la semana en DATA.weeks con KPIs vacíos y la inserta en WEEKS_ORDER
+function confirmarCrearSemana(codigo, fechaCorteIso){
+  if(!codigo) return;
+  const semU = codigo.toUpperCase();
+
+  if(DATA.weeks[semU]){
+    document.getElementById('crearSemanaResult').innerHTML =
+      `<div style="color:#A11;font-size:11px;margin-top:8px;">⚠ La semana ${semU} ya existe. Cancela y revísala en la lista.</div>`;
+    return;
+  }
+
+  const btn = document.getElementById('crearSemanaBtn');
+  if(btn){ btn.disabled = true; btn.textContent = 'Creando…'; }
+
+  // Estructura mínima vacía con todos los campos en null para que se muestre como '—'
+  DATA.weeks[semU] = {
+    corte: fechaCorteIso,
+    _vacia: true,
+    _placeholder: true,
+    kpis: {
+      avance: null,
+      cpi: null,
+      spiMeta: null,
+      spiContractual: null,
+      moConsumida: null,
+      personal: null,
+    },
+    panelEjecutivo: {
+      avance: null,
+      cpi: null,
+      spiMeta: null,
+      spiContractual: null,
+      moConsumida: null,
+      personal: null,
+    },
+    avanceFisico: { partidas: [], frentes: [] },
+    acero: {},
+    kardex: {},
+    arrendamiento: {},
+    adquisiciones: { items: [] },
+    adicionales: { items: [] },
+  };
+
+  // Mantener WEEKS_ORDER ordenado ascendente
+  if(!WEEKS_ORDER.includes(semU)){
+    WEEKS_ORDER.push(semU);
+    WEEKS_ORDER.sort((a, b) => {
+      const na = parseInt(String(a).replace(/\D/g,'')) || 0;
+      const nb = parseInt(String(b).replace(/\D/g,'')) || 0;
+      return na - nb;
+    });
+  }
+
+  // Hacer que la semana actual del dashboard se mueva a la nueva
+  DATA.currentWeek = semU;
+
+  // Refrescar UI
+  if(typeof populateWeekSelector === 'function') populateWeekSelector();
+  if(typeof renderCurrentWeek === 'function') renderCurrentWeek();
+  if(typeof cargarSemanasGestion === 'function') cargarSemanasGestion();
+
+  // Audit log
+  try {
+    if(typeof auditLog === 'function'){
+      auditLog({
+        modulo: 'data',
+        accion: 'crear',
+        entidad_id: semU,
+        entidad_nombre: `Semana placeholder ${semU}`,
+        detalle: `Creada vacía con corte ${fechaCorteIso}`,
+      });
+    }
+  } catch(e){ console.warn(e); }
+
+  cerrarModalCrearSemana();
+  if(typeof showBanner === 'function'){
+    showBanner('ok', `🆕 <b>${semU}</b> creada como placeholder. Carga sus archivos cuando estén listos.`, true);
+  }
 }
 
 // Abrir modal para marcar nueva semana o gestionar existente
