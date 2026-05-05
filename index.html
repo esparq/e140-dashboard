@@ -5526,6 +5526,51 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
             Fuente: <b>SIG.103-F01</b> · Programa elaborado mensualmente por el responsable SSOMA. Las asistencias se registran al final de cada charla.
           </div>
         </div>
+
+        <!-- ═══════════════════════════════════════════
+             SST · PROGRAMA DE INSPECCIONES (SIG.103-F02)
+             ═══════════════════════════════════════════ -->
+        <div class="capa-header" style="margin-top:24px;background:linear-gradient(135deg,#FCE9D6 0%,#F8D5B0 100%);border-color:#E07B39;">
+          <div class="capa-num" style="background:#E07B39;color:#fff;">🔍</div>
+          <div>
+            <div class="capa-title" style="color:#7A3F18;">PROGRAMA DE INSPECCIONES SST</div>
+          </div>
+          <div class="capa-sub" style="color:#7A3F18;">SIG.103-F02 · Inspecciones diarias programadas</div>
+        </div>
+
+        <div class="chart-card" style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <button id="ssomaInspMesPrev" onclick="ssomaInspNavegarMes(-1)" style="background:#fff;border:1.5px solid #E07B39;color:#E07B39;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:14px;">‹</button>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--text);letter-spacing:1px;min-width:160px;text-align:center;" id="ssomaInspMesLabel">— —</div>
+              <button id="ssomaInspMesNext" onclick="ssomaInspNavegarMes(1)" style="background:#fff;border:1.5px solid #E07B39;color:#E07B39;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:14px;">›</button>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button id="ssomaInspCargarBtn" class="admin-only" onclick="ssomaInspAbrirCargaExcel()" style="background:#E07B39;border:1.5px solid #E07B39;color:#fff;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:11px;">📤 Cargar Excel mes</button>
+            </div>
+          </div>
+
+          <!-- 1 KPI grande (solo cumplimiento) -->
+          <div style="display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:16px;" id="ssomaInspKpis">
+            <div class="kpi-card k-blue" id="ssomaInspKpiCumpl">
+              <div class="kpi-label">% Cumplimiento del Programa de Inspecciones</div>
+              <div class="kpi-value" id="ssomaInspKpiCumplVal">—</div>
+              <div class="kpi-sublabel" id="ssomaInspKpiCumplSub">Inspecciones realizadas / programadas</div>
+              <div class="kpi-meta-footer" style="margin-top:10px">
+                <span class="kpi-meta-target">▲ Meta: ≥ 90%</span>
+                <span class="kpi-meta-status" id="ssomaInspKpiCumplStatus">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabla de inspecciones del mes -->
+          <div id="ssomaInspTablaWrap"></div>
+
+          <!-- Footnote -->
+          <div style="margin-top:12px;font-size:10.5px;color:var(--text-muted);font-style:italic;line-height:1.5">
+            Fuente: <b>SIG.103-F02</b> · Programa elaborado mensualmente por el responsable SSOMA. Marca cada inspección como cumplida o no cumplida.
+          </div>
+        </div>
       </section>
 
       <!-- ═══════════════════════════════════════════
@@ -10127,6 +10172,9 @@ function renderSsomaSST(){
 
   // ─── Programa de Capacitación SST (SIG.103-F01) ───
   try { renderSsomaCapPrograma(); } catch(e){ console.warn('[ssoma-cap]', e); }
+
+  // ─── Programa de Inspecciones SST (SIG.103-F02) ───
+  try { renderSsomaInspPrograma(); } catch(e){ console.warn('[ssoma-insp]', e); }
 }
 
 function setKpiStatus(id, valor, meta, modo){
@@ -10899,6 +10947,613 @@ async function ssomaCapCargarProgramasFirestore(){
     console.warn('[E140] Error cargando programas SSOMA:', e);
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   PROGRAMA DE INSPECCIONES SST (SIG.103-F02)
+   Modelo simple: una columna marcable (¿Se cumplió?)
+   ═══════════════════════════════════════════════════════════════════ */
+
+const SSOMA_INSP_PROGRAMAS = {
+  '2026-04': [
+    { dia: 1, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia: 1, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia: 1, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia: 1, tema:'Equipos y herramientas manuales y eléctricas', inspector:'Jefes de grupo', area:'CAMPO OBRA' },
+    { dia: 4, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia: 4, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia: 4, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia: 4, tema:'Equipos y herramientas manuales y eléctricas', inspector:'Jefes de grupo', area:'CAMPO OBRA' },
+    { dia: 6, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia: 6, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia: 6, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia: 6, tema:'Equipos y herramientas manuales y eléctricas', inspector:'Jefes de grupo', area:'CAMPO OBRA' },
+    { dia: 7, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia: 7, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia: 7, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia: 7, tema:'Equipos y herramientas manuales y eléctricas', inspector:'Jefes de grupo', area:'CAMPO OBRA' },
+    { dia: 8, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia: 8, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia: 8, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia: 8, tema:'Equipos y herramientas manuales y eléctricas', inspector:'Jefes de grupo', area:'CAMPO OBRA' },
+    { dia: 9, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia: 9, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia: 9, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia: 9, tema:'Trabajos en caliente', inspector:'Jorge Odar', area:'CAMPO OBRA' },
+    { dia:10, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:10, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:10, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:10, tema:'Botiquín', inspector:'Alfredo Saavedra', area:'CAMPO OBRA' },
+    { dia:11, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:11, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:11, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:11, tema:'Extintores', inspector:'Luis Wong', area:'CAMPO OBRA' },
+    { dia:13, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:13, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:13, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:13, tema:'Inspeccion de permisos de trabajo, AST', inspector:'Jorge Odar', area:'CAMPO OBRA' },
+    { dia:14, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:14, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:14, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:14, tema:'Comedor y Vestuario', inspector:'Luis Avalo', area:'CAMPO OBRA' },
+    { dia:15, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:15, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:15, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:15, tema:'Inspección Ambiental', inspector:'Jorge Odar', area:'CAMPO OBRA' },
+    { dia:16, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:16, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:16, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:17, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:17, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:17, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:17, tema:'Inspección de Arnés de seguridad (Todas las partidas)', inspector:'Alfredo Saavedra', area:'CAMPO OBRA' },
+    { dia:18, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:18, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:18, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:18, tema:'Andamios', inspector:'Jorge Odar', area:'CAMPO OBRA' },
+    { dia:20, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:20, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:20, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:20, tema:'Equipos de Emergencia', inspector:'Abel Ferrando', area:'CAMPO OBRA' },
+    { dia:21, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:21, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:21, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:22, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:22, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:22, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:22, tema:'Extensiones eléctricas', inspector:'Abel Hinostroza', area:'CAMPO OBRA' },
+    { dia:23, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:23, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:23, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:23, tema:'Inspección de oficinas', inspector:'Grace Rodriguez', area:'STAFF' },
+    { dia:24, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:24, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:24, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:24, tema:'Inspección de baños y duchas', inspector:'José Rojas', area:'CAMPO OBRA' },
+    { dia:25, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:25, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:25, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:25, tema:'Inspeccion de kit antiderrame', inspector:'Luis Wong', area:'CAMPO OBRA' },
+    { dia:27, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:27, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:27, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:27, tema:'Inspección de orden y limpieza todas las areas', inspector:'Jorge Odar', area:'CAMPO OBRA' },
+    { dia:28, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:28, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:28, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:28, tema:'Inspección puntos de hidratación', inspector:'Domingo Lopez', area:'CAMPO OBRA' },
+    { dia:29, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:29, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:29, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:29, tema:'Inspección de Escaleras', inspector:'Luis Wong', area:'CAMPO OBRA' },
+    { dia:30, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:30, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:30, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:30, tema:'Inspección de Almacén', inspector:'Alfredo Saavedra', area:'ALMACEN' },
+    { dia:31, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
+    { dia:31, tema:'Inspección Elementos de izaje de carga', inspector:'Riggers', area:'CAMPO OBRA' },
+    { dia:31, tema:'Inspección de grúa Torre', inspector:'Operador', area:'TORRE GRÚA' },
+    { dia:31, tema:'Inspección de EPPs', inspector:'Ärea SSOMA', area:'CAMPO OBRA' },
+  ]
+};
+
+// Precarga abril 2026: todas cumplidas
+const SSOMA_INSP_ABRIL_PRECARGA = (() => {
+  const result = {};
+  (SSOMA_INSP_PROGRAMAS['2026-04'] || []).forEach((c, idx) => {
+    const fechaStr = `2026-04-${String(c.dia).padStart(2,'0')}`;
+    const key = `${fechaStr}_${idx}`;
+    result[key] = {
+      cumplio: true,
+      registrado_por: 'precarga',
+      fecha_registro: '2026-04-30T00:00:00.000Z'
+    };
+  });
+  return result;
+})();
+
+let ssomaInspMesActual = '2026-04';
+let ssomaInspRegistros = {}; // { 'YYYY-MM-DD_idx': { cumplio: true/false } }
+
+function ssomaInspInicializarMes(){
+  const hoy = new Date();
+  const mesActual = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
+  if(SSOMA_INSP_PROGRAMAS[mesActual]){
+    ssomaInspMesActual = mesActual;
+  } else {
+    const meses = Object.keys(SSOMA_INSP_PROGRAMAS).sort();
+    if(meses.length > 0) ssomaInspMesActual = meses[meses.length - 1];
+  }
+}
+
+function ssomaInspNavegarMes(delta){
+  const [y, m] = ssomaInspMesActual.split('-').map(Number);
+  const dt = new Date(y, m - 1 + delta, 1);
+  ssomaInspMesActual = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
+  renderSsomaInspPrograma();
+}
+
+function renderSsomaInspPrograma(){
+  const labelEl = document.getElementById('ssomaInspMesLabel');
+  const tablaEl = document.getElementById('ssomaInspTablaWrap');
+  if(!labelEl || !tablaEl) return;
+
+  if(!ssomaInspMesActual) ssomaInspInicializarMes();
+  const [y, m] = ssomaInspMesActual.split('-').map(Number);
+  const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+  labelEl.textContent = `${meses[m-1]} ${y}`;
+
+  const programa = SSOMA_INSP_PROGRAMAS[ssomaInspMesActual] || [];
+
+  if(programa.length === 0){
+    tablaEl.innerHTML = `
+      <div style="padding:30px;text-align:center;background:#FAFBFC;border:1px dashed var(--border-mid);border-radius:8px;color:var(--text-muted);">
+        <div style="font-size:28px;margin-bottom:8px;opacity:.5;">🔍</div>
+        <div style="font-weight:600;margin-bottom:4px;">Programa no cargado para ${meses[m-1]} ${y}</div>
+        <div style="font-size:11px;font-style:italic;margin-bottom:14px;">El responsable SSOMA aún no ha cargado el programa para este mes.</div>
+        <button class="admin-only" onclick="ssomaInspAbrirCargaExcel()" style="background:#E07B39;border:none;color:#fff;border-radius:6px;padding:9px 18px;font-weight:700;cursor:pointer;font-size:12px;">📤 Cargar programa Excel</button>
+      </div>`;
+    actualizarKpisInspNull();
+    return;
+  }
+
+  const hoy = new Date();
+  hoy.setHours(0,0,0,0);
+
+  let cumplidas = 0;
+  const programadasHastaHoy = [];
+
+  const filas = programa.map((c, idx) => {
+    const fechaStr = `${y}-${String(m).padStart(2,'0')}-${String(c.dia).padStart(2,'0')}`;
+    const key = `${fechaStr}_${idx}`;
+    let reg = ssomaInspRegistros[key] || null;
+
+    // Precarga abril 2026
+    if(!reg && ssomaInspMesActual === '2026-04' && SSOMA_INSP_ABRIL_PRECARGA[key]){
+      reg = SSOMA_INSP_ABRIL_PRECARGA[key];
+    }
+
+    const fechaInsp = new Date(y, m-1, c.dia);
+    fechaInsp.setHours(0,0,0,0);
+    const yaPaso = fechaInsp.getTime() <= hoy.getTime();
+
+    if(yaPaso) programadasHastaHoy.push(key);
+
+    let estadoCls, badge;
+    if(reg){
+      const cumplio = reg.cumplio === true;
+      if(cumplio) cumplidas++;
+      badge = cumplio
+        ? `<span class="cap-pill-yes">✓ SÍ</span>`
+        : `<span class="cap-pill-no">✗ NO</span>`;
+      estadoCls = cumplio ? 'cap-dictada' : 'cap-fallada';
+    } else if(yaPaso){
+      badge = `<span class="cap-pill-pendiente">— Pendiente</span>`;
+      estadoCls = 'cap-vencida';
+    } else {
+      badge = `<span class="cap-pill-future">📅 Futuro</span>`;
+      estadoCls = 'cap-pendiente';
+    }
+
+    const diaSemana = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][fechaInsp.getDay()];
+    const fechaLbl = `${String(c.dia).padStart(2,'0')}-${meses[m-1].slice(0,3).toLowerCase()}`;
+
+    const puedeRegistrar = currentSession && (currentSession.usuario === 'adm' || currentSession.usuario === 'oficina' || currentSession.usuario === 'residente');
+    const accionBtn = puedeRegistrar
+      ? (reg
+          ? `<button onclick="ssomaInspEditarReg('${key}', ${idx})" style="background:#fff;border:1px solid var(--twitter-blue);color:var(--twitter-blue);border-radius:5px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-weight:600;">✏ Editar</button>`
+          : (yaPaso
+              ? `<button onclick="ssomaInspEditarReg('${key}', ${idx})" style="background:#E07B39;border:1px solid #E07B39;color:#fff;border-radius:5px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-weight:600;">+ Marcar</button>`
+              : `<span style="font-size:10.5px;color:var(--text-muted);font-style:italic;">—</span>`))
+      : `<span style="font-size:10.5px;color:var(--text-muted);font-style:italic;">—</span>`;
+
+    return `
+      <tr class="cap-row ${estadoCls}">
+        <td class="td-center" style="font-family:'DM Mono',monospace;font-size:10.5px;font-weight:700;color:var(--text-muted);">${diaSemana} ${fechaLbl}</td>
+        <td style="font-size:11.5px;font-weight:600;">${c.tema}</td>
+        <td class="td-center" style="font-size:11px;color:var(--text-muted);">${c.inspector || '—'}</td>
+        <td class="td-center" style="font-size:10.5px;color:var(--text-muted);">${c.area || '—'}</td>
+        <td class="td-center">${badge}</td>
+        <td class="td-center">${accionBtn}</td>
+      </tr>`;
+  }).join('');
+
+  tablaEl.innerHTML = `
+    <div style="overflow:hidden;border:1px solid var(--border);border-radius:8px;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:linear-gradient(135deg,#E07B39 0%,#C7621E 100%);color:#fff;">
+            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:90px;">Día</th>
+            <th style="padding:10px 11px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Inspección</th>
+            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Inspector</th>
+            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:115px;">Área</th>
+            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:115px;" title="¿Se cumplió la inspección?">¿Se cumplió?</th>
+            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:110px;">Acción</th>
+          </tr>
+        </thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>`;
+
+  // KPI cumplimiento
+  const totalProgramadas = programa.length;
+  const totalHastaHoy = programadasHastaHoy.length;
+  const pctCumpl = totalHastaHoy > 0 ? (cumplidas / totalHastaHoy) * 100 : null;
+
+  const cumplVal = document.getElementById('ssomaInspKpiCumplVal');
+  const cumplSub = document.getElementById('ssomaInspKpiCumplSub');
+  const cumplStatus = document.getElementById('ssomaInspKpiCumplStatus');
+  if(cumplVal){
+    if(pctCumpl == null){
+      cumplVal.textContent = '—';
+      cumplSub.textContent = 'Sin inspecciones vencidas en el mes';
+      cumplStatus.className = 'kpi-meta-status kpi-meta-seguimiento';
+      cumplStatus.textContent = '— Aún sin data';
+    } else {
+      cumplVal.textContent = pctCumpl.toFixed(1) + '%';
+      cumplSub.textContent = `${cumplidas} cumplidas de ${totalHastaHoy} programadas (${totalProgramadas} total mes)`;
+      cumplStatus.className = 'kpi-meta-status';
+      if(pctCumpl >= 90){ cumplStatus.classList.add('kpi-meta-cumple'); cumplStatus.textContent = '✓ Cumple'; }
+      else if(pctCumpl >= 70){ cumplStatus.classList.add('kpi-meta-seguimiento'); cumplStatus.textContent = '⚠ En seguimiento'; }
+      else { cumplStatus.classList.add('kpi-meta-nocumple'); cumplStatus.textContent = '✗ No cumple'; }
+    }
+  }
+}
+
+function actualizarKpisInspNull(){
+  const v = document.getElementById('ssomaInspKpiCumplVal'); if(v) v.textContent = '—';
+  const s = document.getElementById('ssomaInspKpiCumplSub'); if(s) s.textContent = 'Programa no cargado';
+  const t = document.getElementById('ssomaInspKpiCumplStatus');
+  if(t){ t.className = 'kpi-meta-status kpi-meta-seguimiento'; t.textContent = '—'; }
+}
+
+// ─── Modal de marcado (solo "¿Se cumplió?") ───
+let ssomaInspModalEstado = null;
+
+function ssomaInspEditarReg(key, idx){
+  const programa = SSOMA_INSP_PROGRAMAS[ssomaInspMesActual] || [];
+  const insp = programa[idx];
+  if(!insp) return;
+  const actual = ssomaInspRegistros[key] || { cumplio: null };
+
+  let modal = document.getElementById('ssomaInspModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'ssomaInspModal';
+    modal.className = 'ssoma-cap-modal-backdrop';
+    modal.innerHTML = `
+      <div class="ssoma-cap-modal-card" onclick="event.stopPropagation()">
+        <button class="ssoma-cap-modal-close" onclick="ssomaInspCerrarModal()" title="Cerrar">×</button>
+        <div class="ssoma-cap-modal-icon">🔍</div>
+        <div class="ssoma-cap-modal-tema" id="ssomaInspModalTema">—</div>
+        <div class="ssoma-cap-modal-cap" id="ssomaInspModalInsp">—</div>
+        <div class="ssoma-cap-modal-fecha" id="ssomaInspModalFecha">—</div>
+
+        <div class="ssoma-cap-modal-grupo">
+          <div class="ssoma-cap-modal-pregunta">¿La inspección SE CUMPLIÓ?</div>
+          <div class="ssoma-cap-modal-botones">
+            <button class="ssoma-cap-modal-btn btn-yes" data-valor="true" onclick="ssomaInspModalSelect(true)">✓ SÍ</button>
+            <button class="ssoma-cap-modal-btn btn-no" data-valor="false" onclick="ssomaInspModalSelect(false)">✗ NO</button>
+          </div>
+        </div>
+
+        <div class="ssoma-cap-modal-acciones">
+          <button class="ssoma-cap-modal-btn-secondary" onclick="ssomaInspCerrarModal()">Cancelar</button>
+          <button class="ssoma-cap-modal-btn-primary" id="ssomaInspModalGuardar" onclick="ssomaInspGuardarModal()" disabled>Guardar</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => { if(e.target === modal) ssomaInspCerrarModal(); });
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape'){
+        const m = document.getElementById('ssomaInspModal');
+        if(m && m.classList.contains('is-open')) ssomaInspCerrarModal();
+      }
+    });
+  }
+
+  document.getElementById('ssomaInspModalTema').textContent = insp.tema;
+  document.getElementById('ssomaInspModalInsp').textContent = `Inspector: ${insp.inspector || '—'} · ${insp.area || '—'}`;
+
+  const [y, m] = ssomaInspMesActual.split('-').map(Number);
+  const fechaInsp = new Date(y, m-1, insp.dia);
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  document.getElementById('ssomaInspModalFecha').textContent = `${dias[fechaInsp.getDay()]} ${insp.dia} de ${meses[m-1]} ${y}`;
+
+  ssomaInspModalEstado = { key, cumplio: actual.cumplio, insp };
+
+  document.querySelectorAll('#ssomaInspModal .ssoma-cap-modal-btn').forEach(btn => {
+    btn.classList.remove('is-selected');
+    const valor = btn.dataset.valor === 'true';
+    if(actual.cumplio === valor) btn.classList.add('is-selected');
+  });
+
+  ssomaInspActualizarBotonGuardar();
+  modal.classList.add('is-open');
+}
+
+function ssomaInspModalSelect(valor){
+  if(!ssomaInspModalEstado) return;
+  ssomaInspModalEstado.cumplio = valor;
+  document.querySelectorAll('#ssomaInspModal .ssoma-cap-modal-btn').forEach(btn => {
+    const v = btn.dataset.valor === 'true';
+    btn.classList.toggle('is-selected', valor === v);
+  });
+  ssomaInspActualizarBotonGuardar();
+}
+
+function ssomaInspActualizarBotonGuardar(){
+  const btn = document.getElementById('ssomaInspModalGuardar');
+  if(!btn || !ssomaInspModalEstado) return;
+  btn.disabled = ssomaInspModalEstado.cumplio === null;
+}
+
+function ssomaInspCerrarModal(){
+  const modal = document.getElementById('ssomaInspModal');
+  if(modal) modal.classList.remove('is-open');
+  ssomaInspModalEstado = null;
+}
+
+function ssomaInspGuardarModal(){
+  if(!ssomaInspModalEstado) return;
+  const { key, cumplio } = ssomaInspModalEstado;
+  if(cumplio === null) return;
+
+  ssomaInspRegistros[key] = {
+    cumplio: !!cumplio,
+    fecha_registro: new Date().toISOString(),
+    registrado_por: (currentSession && currentSession.usuario) || '—'
+  };
+
+  ssomaInspGuardarFirestore(key);
+  ssomaInspCerrarModal();
+  renderSsomaInspPrograma();
+}
+
+// ─── Firestore ───
+async function ssomaInspGuardarFirestore(key){
+  if(!window.E140_DB) return;
+  try {
+    const { db, doc, setDoc, serverTimestamp } = window.E140_DB;
+    const data = ssomaInspRegistros[key];
+    if(!data) return;
+    await setDoc(doc(db, 'ssoma_inspecciones', key), {
+      key,
+      cumplio: !!data.cumplio,
+      registrado_por: data.registrado_por || '—',
+      fecha_registro: data.fecha_registro || new Date().toISOString(),
+      ts: serverTimestamp()
+    }, { merge: true });
+  } catch(e){
+    console.error('[E140] Error guardando inspección SSOMA:', e);
+  }
+}
+
+async function ssomaInspCargarRegistrosFirestore(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs } = window.E140_DB;
+    const snap = await getDocs(collection(db, 'ssoma_inspecciones'));
+    ssomaInspRegistros = {};
+    snap.forEach(s => {
+      const d = s.data();
+      ssomaInspRegistros[s.id] = {
+        cumplio: !!d.cumplio,
+        registrado_por: d.registrado_por || '—',
+        fecha_registro: d.fecha_registro || null
+      };
+    });
+    console.log(`[E140] Inspecciones SSOMA cargadas: ${Object.keys(ssomaInspRegistros).length}`);
+  } catch(e){
+    console.warn('[E140] Error cargando inspecciones SSOMA:', e);
+  }
+}
+
+async function ssomaInspGuardarProgramaFirestore(mesAno, inspecciones){
+  if(!window.E140_DB) return;
+  try {
+    const { db, doc, setDoc, serverTimestamp } = window.E140_DB;
+    await setDoc(doc(db, 'ssoma_insp_programas', mesAno), {
+      mes: mesAno,
+      inspecciones,
+      cargado_por: (currentSession && currentSession.usuario) || '—',
+      fecha_carga: new Date().toISOString(),
+      ts: serverTimestamp()
+    });
+  } catch(e){
+    console.error('[E140] Error guardando programa de inspecciones:', e);
+  }
+}
+
+async function ssomaInspCargarProgramasFirestore(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs } = window.E140_DB;
+    const snap = await getDocs(collection(db, 'ssoma_insp_programas'));
+    snap.forEach(s => {
+      const d = s.data();
+      if(d.mes && Array.isArray(d.inspecciones)){
+        SSOMA_INSP_PROGRAMAS[d.mes] = d.inspecciones;
+      }
+    });
+    console.log(`[E140] Programas Inspecciones SSOMA cargados: ${Object.keys(SSOMA_INSP_PROGRAMAS).length} meses`);
+  } catch(e){
+    console.warn('[E140] Error cargando programas de inspecciones:', e);
+  }
+}
+
+// ─── Carga de Excel mensual ───
+function ssomaInspAbrirCargaExcel(){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.xlsx,.xls';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    ssomaInspProcesarExcel(file);
+  };
+  input.click();
+}
+
+async function ssomaInspProcesarExcel(file){
+  try {
+    if(typeof XLSX === 'undefined'){
+      alert('⚠ La librería XLSX no está cargada. Recarga la página e intenta de nuevo.');
+      return;
+    }
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, { type:'array', cellDates:true });
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { header:1, raw:true, defval:null });
+
+    // Detectar mes/año
+    let mesAno = null;
+    for(let r = 0; r < Math.min(15, rows.length); r++){
+      const row = rows[r] || [];
+      for(let c = 0; c < row.length; c++){
+        const v = row[c];
+        if(v instanceof Date && !isNaN(v)){
+          mesAno = `${v.getFullYear()}-${String(v.getMonth()+1).padStart(2,'0')}`;
+          break;
+        }
+        if(v && typeof v === 'string'){
+          const m = v.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+          if(m){ mesAno = `${m[3]}-${String(m[2]).padStart(2,'0')}`; break; }
+        }
+      }
+      if(mesAno) break;
+    }
+
+    if(!mesAno){
+      const sheetName = wb.SheetNames[0];
+      const matchSheet = sheetName.match(/^([a-zA-ZáéíóúÁÉÍÓÚÑñ]{3,})-?(\d{2,4})$/);
+      if(matchSheet){
+        const mesTxt = matchSheet[1].toUpperCase();
+        const yearTxt = matchSheet[2];
+        const mesMap = {
+          'ENE':'01','FEB':'02','MAR':'03','ABR':'04','MAY':'05','JUN':'06',
+          'JUL':'07','AGO':'08','SEP':'09','SET':'09','OCT':'10','NOV':'11','DIC':'12',
+          'ENERO':'01','FEBRERO':'02','MARZO':'03','ABRIL':'04','MAYO':'05','JUNIO':'06',
+          'JULIO':'07','AGOSTO':'08','SEPTIEMBRE':'09','OCTUBRE':'10','NOVIEMBRE':'11','DICIEMBRE':'12'
+        };
+        const mes = mesMap[mesTxt] || mesMap[mesTxt.slice(0,3)];
+        if(mes){
+          let yearFull = yearTxt.length === 2 ? '20' + yearTxt : yearTxt;
+          mesAno = `${yearFull}-${mes}`;
+        }
+      }
+    }
+
+    // Detectar fila de días 1-31
+    let rowDiasIdx = -1;
+    let colDia1 = -1;
+    for(let r = 0; r < Math.min(20, rows.length); r++){
+      const row = rows[r] || [];
+      for(let c = 0; c < row.length; c++){
+        const v = row[c];
+        let n = null;
+        if(typeof v === 'number') n = v;
+        else if(typeof v === 'string' && /^\d+$/.test(v.trim())) n = parseInt(v, 10);
+        if(n === 1){
+          let valido = true;
+          for(let k = 1; k <= 7; k++){
+            const v2 = row[c + k];
+            let n2 = null;
+            if(typeof v2 === 'number') n2 = v2;
+            else if(typeof v2 === 'string' && /^\d+$/.test(v2.trim())) n2 = parseInt(v2, 10);
+            if(n2 !== k + 1){ valido = false; break; }
+          }
+          if(valido){ rowDiasIdx = r; colDia1 = c; break; }
+        }
+      }
+      if(rowDiasIdx !== -1) break;
+    }
+
+    if(rowDiasIdx === -1){
+      alert('⚠ No se pudo detectar la fila de días (1-31) en el Excel.\n\nFormato esperado: SIG.103-F02 con números 1, 2, ..., 31 secuenciales.');
+      return;
+    }
+
+    // Inicio inspecciones (fila después de "INSPECCIONES")
+    let rowInicio = rowDiasIdx + 1;
+    for(let r = rowDiasIdx; r < Math.min(rowDiasIdx + 5, rows.length); r++){
+      const row = rows[r] || [];
+      const txt = (row[1] || '').toString().toUpperCase();
+      if(txt.includes('INSPECCIONES')){ rowInicio = r + 1; break; }
+    }
+
+    const inspNuevas = [];
+    for(let r = rowInicio; r < rows.length; r++){
+      const row = rows[r] || [];
+      // En este formato: col 1 = número, col 2 = tema/inspección
+      const tema = (row[2] || '').toString().trim();
+      if(!tema) continue;
+      if(/STAFF\s+DE\s+PREVENCI[ÓO]N|INGENIERO\s+RESIDENTE|FIRMA/i.test(tema)) break;
+
+      // inspector = col 5; area = col 6
+      const insp = (row[5] || '').toString().trim();
+      const area = (row[6] || '').toString().trim();
+
+      for(let c = colDia1; c < colDia1 + 31 && c < row.length; c++){
+        const v = row[c];
+        if(v && typeof v === 'string' && v.trim().toLowerCase() === 'x'){
+          const dia = c - colDia1 + 1;
+          inspNuevas.push({ dia, tema, inspector: insp, area });
+        }
+      }
+    }
+
+    if(inspNuevas.length === 0){
+      alert('⚠ No se encontraron inspecciones marcadas con "x" en el archivo.');
+      return;
+    }
+    if(!mesAno){
+      mesAno = prompt('No se detectó el mes en el Excel. Ingresa mes y año en formato YYYY-MM (ej: 2026-05):');
+      if(!mesAno || !/^\d{4}-\d{2}$/.test(mesAno)){
+        alert('⚠ Formato inválido. Cancelado.');
+        return;
+      }
+    }
+
+    inspNuevas.sort((a,b) => a.dia - b.dia);
+
+    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const [yy, mm] = mesAno.split('-').map(Number);
+    const ok = window.confirm(`📋 Detectado:\n\n• Mes: ${meses[mm-1]} ${yy}\n• Total inspecciones: ${inspNuevas.length}\n\n¿Cargar este programa?`);
+    if(!ok) return;
+
+    SSOMA_INSP_PROGRAMAS[mesAno] = inspNuevas;
+    await ssomaInspGuardarProgramaFirestore(mesAno, inspNuevas);
+
+    ssomaInspMesActual = mesAno;
+    renderSsomaInspPrograma();
+    alert(`✅ Programa de inspecciones de ${meses[mm-1]} ${yy} cargado con ${inspNuevas.length} inspecciones.`);
+  } catch(e){
+    console.error('[E140] Error procesando Excel inspecciones:', e);
+    alert('⚠ Error al procesar el archivo Excel: ' + e.message);
+  }
+}
+
 
 function llenarFiltroMesSsoma(){
   const select = document.getElementById('ssomaFiltroMes');
@@ -12823,6 +13478,10 @@ async function loadSsomaReportesFromFirestore(){
       ssomaCapInicializarMes();
       await ssomaCapCargarProgramasFirestore();
       await ssomaCapCargarAsistFirestore();
+      // Programa de inspecciones SST
+      ssomaInspInicializarMes();
+      await ssomaInspCargarProgramasFirestore();
+      await ssomaInspCargarRegistrosFirestore();
     } catch(e){ console.warn('[E140] Error cargando programa SST:', e); }
 
     if(currentTab === 'ssoma-sst'){
