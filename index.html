@@ -10712,58 +10712,94 @@ async function ssomaCapProcesarExcel(file){
       return;
     }
     const buf = await file.arrayBuffer();
-    const wb = XLSX.read(buf, { type:'array' });
+    const wb = XLSX.read(buf, { type:'array', cellDates:true });
     const sheet = wb.Sheets[wb.SheetNames[0]];
-    // Convertir a array de arrays para parsear como el formato real
-    const rows = XLSX.utils.sheet_to_json(sheet, { header:1, raw:false, defval:null });
+    // Convertir a array de arrays. raw:true para preservar números reales
+    const rows = XLSX.utils.sheet_to_json(sheet, { header:1, raw:true, defval:null });
 
-    // Detectar el mes/año del Excel (busca la fecha en filas iniciales)
+    // ─── 1. Detectar mes/año ───
+    // Estrategia A: buscar celda Date (datetime) en filas iniciales (fila 7 col 7 en formato standard)
     let mesAno = null;
     for(let r = 0; r < Math.min(15, rows.length); r++){
       const row = rows[r] || [];
       for(let c = 0; c < row.length; c++){
         const v = row[c];
-        if(v && typeof v === 'string'){
-          // ej: "1/04/2026"
-          const m = v.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-          if(m){ mesAno = `${m[3]}-${String(m[2]).padStart(2,'0')}`; break; }
-        }
-        // Excel a veces guarda fechas como Date
         if(v instanceof Date && !isNaN(v)){
           mesAno = `${v.getFullYear()}-${String(v.getMonth()+1).padStart(2,'0')}`;
           break;
+        }
+        // Estrategia B: string con formato dd/mm/yyyy
+        if(v && typeof v === 'string'){
+          const m = v.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+          if(m){ mesAno = `${m[3]}-${String(m[2]).padStart(2,'0')}`; break; }
         }
       }
       if(mesAno) break;
     }
 
-    // Buscar la fila de "Días Calendarios" (encabezados de día) y la siguiente con números 1..31
+    // Estrategia C: usar nombre de hoja (ej: "ABR-26", "MAY-26")
+    if(!mesAno){
+      const sheetName = wb.SheetNames[0];
+      const matchSheet = sheetName.match(/^([a-zA-ZáéíóúÁÉÍÓÚÑñ]{3,})-?(\d{2,4})$/);
+      if(matchSheet){
+        const mesTxt = matchSheet[1].toUpperCase();
+        const yearTxt = matchSheet[2];
+        const mesMap = {
+          'ENE':'01','FEB':'02','MAR':'03','ABR':'04','MAY':'05','JUN':'06',
+          'JUL':'07','AGO':'08','SEP':'09','SET':'09','OCT':'10','NOV':'11','DIC':'12',
+          'ENERO':'01','FEBRERO':'02','MARZO':'03','ABRIL':'04','MAYO':'05','JUNIO':'06',
+          'JULIO':'07','AGOSTO':'08','SEPTIEMBRE':'09','OCTUBRE':'10','NOVIEMBRE':'11','DICIEMBRE':'12'
+        };
+        const mes = mesMap[mesTxt] || mesMap[mesTxt.slice(0,3)];
+        if(mes){
+          let yearFull = yearTxt.length === 2 ? '20' + yearTxt : yearTxt;
+          mesAno = `${yearFull}-${mes}`;
+        }
+      }
+    }
+
+    // ─── 2. Detectar fila de números 1-31 (header de días) ───
+    // Estrategia robusta: buscar fila que contenga al menos 25 valores entre 1 y 31, sin importar
+    // si son number o string
     let rowDiasIdx = -1;
-    for(let r = 0; r < rows.length; r++){
-      const row = rows[r] || [];
-      // Buscar fila que tenga muchos números secuenciales 1, 2, 3...
-      const nums = row.filter(v => typeof v === 'number' && v >= 1 && v <= 31);
-      if(nums.length >= 25){ rowDiasIdx = r; break; }
-    }
-    if(rowDiasIdx === -1){
-      alert('⚠ No se pudo detectar la fila de días en el Excel. Asegúrate de usar el formato SIG.103-F01.');
-      return;
-    }
-
-    // Encontrar columna donde empieza el día 1
-    const headerNums = rows[rowDiasIdx];
     let colDia1 = -1;
-    for(let c = 0; c < headerNums.length; c++){
-      if(headerNums[c] === 1){ colDia1 = c; break; }
+    for(let r = 0; r < Math.min(20, rows.length); r++){
+      const row = rows[r] || [];
+      // Recorrer celdas, buscar dónde aparece "1" y verificar que las siguientes sean 2, 3, 4...
+      for(let c = 0; c < row.length; c++){
+        const v = row[c];
+        let n = null;
+        if(typeof v === 'number') n = v;
+        else if(typeof v === 'string' && /^\d+$/.test(v.trim())) n = parseInt(v, 10);
+        if(n === 1){
+          // Verificar que las siguientes 7 celdas sean 2,3,4,5,6,7,8
+          let valido = true;
+          for(let k = 1; k <= 7; k++){
+            const v2 = row[c + k];
+            let n2 = null;
+            if(typeof v2 === 'number') n2 = v2;
+            else if(typeof v2 === 'string' && /^\d+$/.test(v2.trim())) n2 = parseInt(v2, 10);
+            if(n2 !== k + 1){ valido = false; break; }
+          }
+          if(valido){
+            rowDiasIdx = r;
+            colDia1 = c;
+            break;
+          }
+        }
+      }
+      if(rowDiasIdx !== -1) break;
     }
-    if(colDia1 === -1){
-      alert('⚠ No se encontró el día 1 en el header de fechas.');
+
+    if(rowDiasIdx === -1){
+      console.error('[E140] Estructura del Excel:', rows.slice(0, 13));
+      alert('⚠ No se pudo detectar la fila de días (1-31) en el Excel.\n\nEl formato esperado es SIG.103-F01:\n• Fila con números 1, 2, 3, ..., 31 secuenciales\n• Una columna con "Días Calendarios"\n\nRevisa la consola del navegador (F12) para ver la estructura detectada.');
       return;
     }
 
-    // Buscar la fila "TEMAS DE CAPACITACIÓN" → las charlas empiezan después
+    // ─── 3. Extraer las charlas (filas debajo de "TEMAS DE CAPACITACIÓN") ───
     let rowInicioTemas = rowDiasIdx + 1;
-    for(let r = rowDiasIdx + 1; r < rows.length; r++){
+    for(let r = rowDiasIdx; r < Math.min(rowDiasIdx + 5, rows.length); r++){
       const row = rows[r] || [];
       const txt = (row[1] || '').toString().toUpperCase();
       if(txt.includes('TEMAS DE CAPACITACIÓN') || txt.includes('TEMAS DE CAPACITACION')){
@@ -10772,30 +10808,35 @@ async function ssomaCapProcesarExcel(file){
       }
     }
 
-    // Extraer charlas: cada fila con tema y al menos una "x" en columnas de día
     const charlasNuevas = [];
     for(let r = rowInicioTemas; r < rows.length; r++){
       const row = rows[r] || [];
       const tema = (row[1] || '').toString().trim();
       if(!tema) continue;
-      // Buscar capacitador (columna 5 o 6 según formato)
+      // Si el tema dice "STAFF DE PREVENCIÓN..." o algo de footer, parar
+      if(/STAFF\s+DE\s+PREVENCI[ÓO]N|INGENIERO\s+RESIDENTE|FIRMA/i.test(tema)) break;
+
+      // Buscar capacitador (col 5 normalmente)
       let cap = '';
       for(let cc = 4; cc <= 6; cc++){
         const v = (row[cc] || '').toString().trim();
-        if(v && !v.match(/^\d+:\d+/)){ cap = v; break; }
+        if(v && !v.match(/^\d+:\d+/) && cc !== 6){ cap = v; break; }
       }
-      // Buscar días marcados con x/X
-      for(let c = colDia1; c < Math.min(colDia1 + 31, row.length); c++){
+      // Buscar días marcados con x/X (ignorar "FERIADO" u otros textos)
+      for(let c = colDia1; c < colDia1 + 31 && c < row.length; c++){
         const v = row[c];
-        if(v && typeof v === 'string' && v.trim().toLowerCase() === 'x'){
-          const dia = c - colDia1 + 1;
-          charlasNuevas.push({ dia, tema, capacitador: cap });
+        if(v && typeof v === 'string'){
+          const txt = v.trim().toLowerCase();
+          if(txt === 'x'){
+            const dia = c - colDia1 + 1;
+            charlasNuevas.push({ dia, tema, capacitador: cap });
+          }
         }
       }
     }
 
     if(charlasNuevas.length === 0){
-      alert('⚠ No se encontraron charlas marcadas con "x" en el archivo.');
+      alert('⚠ No se encontraron charlas marcadas con "x" en el archivo.\n\nVerifica que las casillas tengan exactamente "x" o "X".');
       return;
     }
     if(!mesAno){
@@ -10806,19 +10847,20 @@ async function ssomaCapProcesarExcel(file){
       }
     }
 
-    // Ordenar por día
     charlasNuevas.sort((a,b) => a.dia - b.dia);
 
-    const confirm = window.confirm(`Detectado: ${charlasNuevas.length} charlas para ${mesAno}.\n\n¿Cargar este programa?`);
-    if(!confirm) return;
+    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const [yy, mm] = mesAno.split('-').map(Number);
+    const confirmTxt = `📋 Detectado:\n\n• Mes: ${meses[mm-1]} ${yy}\n• Total charlas: ${charlasNuevas.length}\n\n¿Cargar este programa?`;
+    const ok = window.confirm(confirmTxt);
+    if(!ok) return;
 
-    // Persistir el programa en Firestore
     SSOMA_CAP_PROGRAMAS[mesAno] = charlasNuevas;
     await ssomaCapGuardarProgramaFirestore(mesAno, charlasNuevas);
 
     ssomaCapMesActual = mesAno;
     renderSsomaCapPrograma();
-    alert(`✅ Programa de ${mesAno} cargado con ${charlasNuevas.length} charlas.`);
+    alert(`✅ Programa de ${meses[mm-1]} ${yy} cargado con ${charlasNuevas.length} charlas.`);
   } catch(e){
     console.error('[E140] Error procesando Excel:', e);
     alert('⚠ Error al procesar el archivo Excel: ' + e.message);
