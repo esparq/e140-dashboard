@@ -20687,71 +20687,94 @@ function v2RenderEficiencia(){
 function v2RenderVelocidad(){
   const card = document.getElementById('velocidadCard');
   if(!card) return;
-  const cw = DATA.currentWeek;
-  const chron = [...WEEKS_ORDER].reverse();
-  const idx = chron.indexOf(cw);
 
-  const avanceActual = v2GetKpi(cw, 'avance');
-  const avancePrev = idx > 0 ? v2GetKpi(chron[idx-1], 'avance') : null;
-  const velSemana = (avanceActual != null && avancePrev != null) ? (avanceActual - avancePrev) : null;
+  // ─── Construir serie histórica de avance (orden ascendente: S30 → S37 → ...) ───
+  // Saltamos semanas sin data (vacías o placeholders).
+  const chron = [...(WEEKS_ORDER || [])]; // mantener ascendente
+  const serieValida = [];
+  chron.forEach(w => {
+    const av = v2GetKpi(w, 'avance');
+    if(av != null && !isNaN(av)){
+      serieValida.push({ week: w, avance: Number(av) });
+    }
+  });
 
-  // Promedio últimas N semanas
-  const N = CONFIG_V2.velocidad.semanasParaPromedio;
-  const semanasParaProm = chron.slice(Math.max(0, idx - N), idx);
-  const velocidadesPrevias = [];
-  for(let i = 1; i < semanasParaProm.length; i++){
-    const a1 = v2GetKpi(semanasParaProm[i], 'avance');
-    const a0 = v2GetKpi(semanasParaProm[i-1], 'avance');
-    if(a1 != null && a0 != null) velocidadesPrevias.push(a1 - a0);
+  // Velocidades semana a semana (a partir del 2do punto)
+  const velocidades = [];
+  for(let i = 1; i < serieValida.length; i++){
+    velocidades.push({
+      week: serieValida[i].week,
+      vel: serieValida[i].avance - serieValida[i-1].avance
+    });
   }
-  const promedio = velocidadesPrevias.length > 0 ? velocidadesPrevias.reduce((a,b)=>a+b,0) / velocidadesPrevias.length : null;
 
-  // Renderizar
+  // Velocidad de la semana actual (última con data)
+  const ultimaVel = velocidades.length > 0 ? velocidades[velocidades.length - 1] : null;
+  const velSemana = ultimaVel ? ultimaVel.vel : null;
+
+  // Promedio de las últimas N velocidades (excluyendo la actual)
+  const N = (CONFIG_V2 && CONFIG_V2.velocidad && CONFIG_V2.velocidad.semanasParaPromedio) || 4;
+  const velocidadesPrevias = velocidades.slice(-N - 1, -1).map(x => x.vel);
+  const promedio = velocidadesPrevias.length > 0
+    ? velocidadesPrevias.reduce((a,b)=>a+b,0) / velocidadesPrevias.length
+    : null;
+
+  // ─── Renderizar métricas superiores ───
   if(velSemana != null){
     document.getElementById('velActual').textContent = velSemana.toFixed(2) + ' pp';
-    document.getElementById('velActualSub').textContent = 'Incremento de % avance esta semana';
+    document.getElementById('velActualSub').textContent = `Sem ${ultimaVel.week} vs anterior · Δ % avance`;
   } else {
     document.getElementById('velActual').textContent = '—';
-    document.getElementById('velActualSub').textContent = 'Requiere semana anterior registrada';
+    document.getElementById('velActualSub').textContent = serieValida.length === 0
+      ? 'Aún no hay semanas con avance registrado'
+      : 'Requiere al menos 2 semanas con data';
   }
 
   if(promedio != null){
     document.getElementById('velPromedio').textContent = promedio.toFixed(2) + ' pp';
-    document.getElementById('velPromedioSub').textContent = `Promedio de ${velocidadesPrevias.length} semana(s)`;
+    document.getElementById('velPromedioSub').textContent = `Promedio de ${velocidadesPrevias.length} semana(s) anteriores`;
 
     // Tag de tendencia
     const tagEl = document.getElementById('velTag');
-    if(velSemana != null && promedio > 0){
-      const ratio = velSemana / promedio;
-      if(ratio >= CONFIG_V2.velocidad.umbralAceleracion){
-        tagEl.className = 'vel-tag t-up';
-        tagEl.textContent = '⚡ ACELERANDO';
-      } else if(ratio >= CONFIG_V2.velocidad.umbralDesaceleracion){
-        tagEl.className = 'vel-tag t-flat';
-        tagEl.textContent = '→ ESTABLE';
-      } else {
-        tagEl.className = 'vel-tag t-down';
-        tagEl.textContent = '⬇ DESACELERANDO';
+    if(velSemana != null){
+      if(promedio > 0){
+        const ratio = velSemana / promedio;
+        const umbralUp = (CONFIG_V2 && CONFIG_V2.velocidad && CONFIG_V2.velocidad.umbralAceleracion) || 1.1;
+        const umbralDn = (CONFIG_V2 && CONFIG_V2.velocidad && CONFIG_V2.velocidad.umbralDesaceleracion) || 0.9;
+        if(ratio >= umbralUp){
+          tagEl.className = 'vel-tag t-up';
+          tagEl.textContent = '⚡ ACELERANDO';
+        } else if(ratio >= umbralDn){
+          tagEl.className = 'vel-tag t-flat';
+          tagEl.textContent = '→ ESTABLE';
+        } else {
+          tagEl.className = 'vel-tag t-down';
+          tagEl.textContent = '⬇ DESACELERANDO';
+        }
+      } else if(promedio === 0 && velSemana > 0){
+        const tagEl2 = document.getElementById('velTag');
+        tagEl2.className = 'vel-tag t-up';
+        tagEl2.textContent = '⚡ ACELERANDO';
       }
     }
   } else {
     document.getElementById('velPromedio').textContent = '—';
-    document.getElementById('velPromedioSub').textContent = 'Necesita 4+ semanas de historial';
-    document.getElementById('velTag').textContent = '— BASE INICIAL';
-    document.getElementById('velTag').className = 'vel-tag t-flat';
+    document.getElementById('velPromedioSub').textContent = velocidades.length < 2
+      ? 'Necesita 2+ velocidades para promedio'
+      : 'Sin historial suficiente';
+    const tagEl3 = document.getElementById('velTag');
+    if(tagEl3){
+      tagEl3.textContent = '— BASE INICIAL';
+      tagEl3.className = 'vel-tag t-flat';
+    }
   }
 
-  // Chart de las últimas 8 semanas
+  // ─── Chart de las últimas 8 velocidades (orden ascendente: izquierda → derecha) ───
   const ctx = document.getElementById('chartVelocidad');
   if(ctx){
-    const last8 = chron.slice(-8);
-    const veloc8 = [];
-    for(let i = 1; i < last8.length; i++){
-      const a1 = v2GetKpi(last8[i], 'avance');
-      const a0 = v2GetKpi(last8[i-1], 'avance');
-      veloc8.push((a1 != null && a0 != null) ? (a1 - a0) : null);
-    }
-    const labels8 = last8.slice(1); // quitamos la primera (no tiene comparativo)
+    const last8 = velocidades.slice(-8); // ya está ascendente
+    const labels8 = last8.map(x => x.week);
+    const veloc8 = last8.map(x => x.vel);
 
     if(CHART_INSTANCES['chartVelocidad']) CHART_INSTANCES['chartVelocidad'].destroy();
     CHART_INSTANCES['chartVelocidad'] = new Chart(ctx, {
@@ -20761,11 +20784,15 @@ function v2RenderVelocidad(){
         datasets: [{
           label: 'pp/semana',
           data: veloc8,
-          backgroundColor: veloc8.map((v,i) => {
+          backgroundColor: veloc8.map((v) => {
             if(v == null) return '#EDF2F4';
-            if(promedio == null) return '#0070B4';
-            return v >= promedio * CONFIG_V2.velocidad.umbralAceleracion ? '#2D936C' :
-                   v >= promedio * CONFIG_V2.velocidad.umbralDesaceleracion ? '#509BC9' :
+            if(promedio == null || promedio === 0){
+              return v > 0 ? '#0070B4' : (v < 0 ? '#E07B39' : '#97C5E0');
+            }
+            const umbralUp = (CONFIG_V2 && CONFIG_V2.velocidad && CONFIG_V2.velocidad.umbralAceleracion) || 1.1;
+            const umbralDn = (CONFIG_V2 && CONFIG_V2.velocidad && CONFIG_V2.velocidad.umbralDesaceleracion) || 0.9;
+            return v >= promedio * umbralUp ? '#2D936C' :
+                   v >= promedio * umbralDn ? '#509BC9' :
                    '#E07B39';
           }),
           borderRadius: 4,
@@ -20773,10 +20800,13 @@ function v2RenderVelocidad(){
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (c) => `${c.parsed.y != null ? c.parsed.y.toFixed(2) : '—'} pp` } }
+        },
         scales: {
           x: { ticks: { font: { size: 10 } }, grid: { display: false } },
-          y: { ticks: { font: { size: 10 } }, beginAtZero: true },
+          y: { ticks: { font: { size: 10 }, callback: (v) => v.toFixed(1) }, beginAtZero: true },
         },
       }
     });
