@@ -804,6 +804,15 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .cap-estado-tag.cap-estado-cap-vencida{background:#FCE9D6;color:#7A3F18;border:1px solid #E07B39;}
 .cap-estado-tag.cap-estado-cap-pendiente{background:#E0EEF8;color:#054C7E;border:1px solid #97C5E0;}
 
+/* Pills sí/no/pendiente/futuro para columnas Cumplió y Asistió */
+.cap-pill-yes{display:inline-block;padding:4px 10px;border-radius:12px;font-size:10.5px;font-weight:700;letter-spacing:.04em;background:#2D936C;color:#fff;}
+.cap-pill-no{display:inline-block;padding:4px 10px;border-radius:12px;font-size:10.5px;font-weight:700;letter-spacing:.04em;background:#D64045;color:#fff;}
+.cap-pill-pendiente{display:inline-block;padding:4px 10px;border-radius:12px;font-size:10.5px;font-weight:700;letter-spacing:.04em;background:#FCE9D6;color:#7A3F18;border:1px solid #E07B39;}
+.cap-pill-future{display:inline-block;padding:4px 10px;border-radius:12px;font-size:10.5px;font-weight:600;letter-spacing:.04em;background:#F1F4F7;color:#5A6B8A;border:1px solid #D4DDE5;}
+/* Filas especiales */
+.cap-row.cap-parcial{background:#FFF9E5;}
+.cap-row.cap-fallada{background:#FBEAEA;}
+
 /* Leve incremento de altura máxima del KPI para acomodar el badge */
 .r-kpi{max-height:135px !important;}
 
@@ -5453,7 +5462,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
               <button id="ssomaCapMesNext" onclick="ssomaCapNavegarMes(1)" style="background:#fff;border:1.5px solid #E07B39;color:#E07B39;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:14px;">›</button>
             </div>
             <div style="display:flex;gap:8px;align-items:center;">
-              <button id="ssomaCapEditarBtn" class="admin-only" onclick="alert('🚧 Próximamente: edición del programa mensual.\\n\\nPor ahora, los programas se hardcodean en el código según el formato SIG.103-F01 que envía SSOMA.')" style="background:#fff;border:1.5px solid var(--text-muted);color:var(--text-muted);border-radius:6px;padding:6px 12px;font-weight:600;cursor:pointer;font-size:11px;">✏ Editar programa</button>
+              <button id="ssomaCapCargarBtn" class="admin-only" onclick="ssomaCapAbrirCargaExcel()" style="background:#E07B39;border:1.5px solid #E07B39;color:#fff;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:11px;">📤 Cargar Excel mes</button>
             </div>
           </div>
 
@@ -10174,33 +10183,54 @@ function actualizarBannerSidebarHito(){
    ═══════════════════════════════════════════════════════════════════ */
 
 // Programas mensuales hardcodeados. Llave: 'YYYY-MM'.
-// Cada charla: { dia, tema, capacitador, tiempo }
-// dia = día del mes (1-31)
+// Cada charla: { dia, tema, capacitador }
+// dia = día del mes (1-31). Si una charla se repite varios días, se ingresa una entrada por día.
 const SSOMA_CAP_PROGRAMAS = {
   '2026-04': [
-    { dia: 5,  tema:'Política del SIG ESPARQ',                        capacitador:'José Rojas',       tiempo:'7:30-7:40' },
-    { dia: 8,  tema:'Caídas a distinto nivel, medidas de prevención', capacitador:'Luis Avalo',       tiempo:'7:30-7:40' },
-    { dia: 9,  tema:'Qué causa la contaminación del aire',            capacitador:'Roy Ccoñas',       tiempo:'7:30-7:40' },
-    { dia: 10, tema:'Ergonomía en el sector construcción',            capacitador:'Jorge Odar',       tiempo:'7:30-7:40' },
-    { dia: 12, tema:'Charla motivacional y dinámicas',                capacitador:'Jorge Odar',       tiempo:'7:30-8:30' },
-    { dia: 13, tema:'Condiciones de utilización de equipos móviles',  capacitador:'Jorge Odar',       tiempo:'7:30-7:40' },
-    { dia: 14, tema:'IPERC trabajos en Fierrería',                    capacitador:'Ricardo Tellez',   tiempo:'7:30-7:40' },
-    { dia: 15, tema:'SUNAFIL',                                         capacitador:'Victor Oscco',     tiempo:'7:30-7:40' },
-    { dia: 16, tema:'5 consejos para evitar caída de objetos',        capacitador:'Eder Alvarado',    tiempo:'7:30-7:40' },
-    { dia: 17, tema:'Prevención de lesiones a la columna',            capacitador:'Lucero Falcón',    tiempo:'7:30-7:40' },
-    { dia: 18, tema:'Rutas de evacuación despejadas e iluminadas',    capacitador:'Jorge Odar',       tiempo:'7:30-8:30' },
-    { dia: 19, tema:'Cambiemos el pensamiento negativo',              capacitador:'Grace Rodríguez',  tiempo:'7:30-7:40' },
-    { dia: 20, tema:'Cuidado de la vista',                            capacitador:'Armando Carranza', tiempo:'7:30-7:40' },
-    { dia: 21, tema:'Funciones del rigger',                            capacitador:'Bravo Sosa',       tiempo:'7:30-7:40' },
-    { dia: 22, tema:'Identificación de peligros',                     capacitador:'Carlos Rodríguez', tiempo:'7:30-7:40' },
-    { dia: 23, tema:'Línea de fuego',                                  capacitador:'José Rojas',       tiempo:'7:30-7:40' },
-    { dia: 24, tema:'Qué hacer en caso de fuga de gas GLP',           capacitador:'Jorge Odar',       tiempo:'7:30-8:30' },
-    { dia: 26, tema:'Proyección de partículas',                       capacitador:'Luis Wong',        tiempo:'7:30-7:40' },
-    { dia: 27, tema:'Tableros eléctricos',                             capacitador:'Abel Hinostroza',  tiempo:'7:30-7:40' },
-    { dia: 28, tema:'Protección respiratoria',                        capacitador:'Alfredo Saavedra', tiempo:'7:30-7:40' },
-    { dia: 29, tema:'Orden y limpieza en procesos de encofrado',      capacitador:'Jorge Odar',       tiempo:'7:30-7:40' },
+    { dia: 1,  tema:'Política del SIG ESPARQ',                        capacitador:'José Rojas' },
+    { dia: 4,  tema:'Política del SIG ESPARQ',                        capacitador:'José Rojas' },
+    { dia: 6,  tema:'Política del SIG ESPARQ',                        capacitador:'José Rojas' },
+    { dia: 7,  tema:'Política del SIG ESPARQ',                        capacitador:'José Rojas' },
+    { dia: 8,  tema:'Caídas a distinto nivel, medidas de prevención', capacitador:'Luis Avalo' },
+    { dia: 9,  tema:'Qué causa la contaminación del aire',            capacitador:'Roy Ccoñas' },
+    { dia: 10, tema:'Ergonomía en el sector construcción',            capacitador:'Jorge Odar' },
+    { dia: 11, tema:'Charla motivacional y dinámicas',                capacitador:'Jorge Odar' },
+    { dia: 13, tema:'Condiciones de utilización de equipos móviles',  capacitador:'Jorge Odar' },
+    { dia: 14, tema:'IPERC trabajos en Fierrería',                    capacitador:'Ricardo Tellez' },
+    { dia: 15, tema:'SUNAFIL',                                         capacitador:'Victor Oscco' },
+    { dia: 16, tema:'5 consejos para evitar caída de objetos',        capacitador:'Eder Alvarado' },
+    { dia: 17, tema:'Prevención de lesiones a la columna',            capacitador:'Lucero Falcón' },
+    { dia: 18, tema:'Rutas de evacuación despejadas e iluminadas',    capacitador:'Jorge Odar' },
+    { dia: 20, tema:'Cambiemos el pensamiento negativo',              capacitador:'Grace Rodríguez' },
+    { dia: 21, tema:'Cuidado de la vista',                            capacitador:'Armando Carranza' },
+    { dia: 22, tema:'Funciones del rigger',                            capacitador:'Bravo Sosa' },
+    { dia: 23, tema:'Identificación de peligros',                     capacitador:'Carlos Rodríguez' },
+    { dia: 24, tema:'Línea de fuego',                                  capacitador:'José Rojas' },
+    { dia: 25, tema:'Qué hacer en caso de fuga de gas GLP',           capacitador:'Jorge Odar' },
+    { dia: 27, tema:'Proyección de partículas',                       capacitador:'Luis Wong' },
+    { dia: 28, tema:'Tableros eléctricos',                             capacitador:'Abel Hinostroza' },
+    { dia: 29, tema:'Protección respiratoria',                        capacitador:'Alfredo Saavedra' },
+    { dia: 30, tema:'Orden y limpieza en procesos de encofrado',      capacitador:'Jorge Odar' },
   ]
 };
+
+// Asistencias precargadas para abril 2026 (todo cumplido + todo asistido)
+// Modelo nuevo: { cumplio: true/false/null, asistio: true/false/null }
+const SSOMA_CAP_ABRIL_PRECARGA = (() => {
+  const result = {};
+  SSOMA_CAP_PROGRAMAS['2026-04'].forEach(c => {
+    const fechaStr = `2026-04-${String(c.dia).padStart(2,'0')}`;
+    // Si hay múltiples charlas el mismo día (no en abril), se podría diferenciar por idx
+    // En abril cada día tiene una sola charla, así que la fecha sirve como key
+    result[fechaStr] = {
+      cumplio: true,
+      asistio: true,
+      registrado_por: 'precarga',
+      fecha_registro: '2026-04-30T00:00:00.000Z'
+    };
+  });
+  return result;
+})();
 
 // Estado del módulo
 let ssomaCapMesActual = '2026-04'; // YYYY-MM. Se setea al cargar.
@@ -10246,54 +10276,73 @@ function renderSsomaCapPrograma(){
       <div style="padding:30px;text-align:center;background:#FAFBFC;border:1px dashed var(--border-mid);border-radius:8px;color:var(--text-muted);">
         <div style="font-size:28px;margin-bottom:8px;opacity:.5;">📋</div>
         <div style="font-weight:600;margin-bottom:4px;">Programa no cargado para ${meses[m-1]} ${y}</div>
-        <div style="font-size:11px;font-style:italic;">El responsable SSOMA aún no ha cargado el programa para este mes.</div>
+        <div style="font-size:11px;font-style:italic;margin-bottom:14px;">El responsable SSOMA aún no ha cargado el programa para este mes.</div>
+        <button class="admin-only" onclick="ssomaCapAbrirCargaExcel()" style="background:#E07B39;border:none;color:#fff;border-radius:6px;padding:9px 18px;font-weight:700;cursor:pointer;font-size:12px;">📤 Cargar programa Excel</button>
       </div>`;
     actualizarKpisCapNull();
     return;
   }
 
-  // Construir filas con asistencia (si existe)
+  // Construir filas con asistencia (si existe). Aplicar precarga abril si nunca se registró.
   const hoy = new Date();
   hoy.setHours(0,0,0,0);
 
-  let dictadas = 0, totalConvocados = 0, totalAsistentes = 0, charlasConAsist = 0;
+  let cumplidas = 0, charlasConRegistro = 0, asistidas = 0;
+  const programadasHastaHoy = [];
 
   const filas = programa.map((c, idx) => {
     const fechaStr = `${y}-${String(m).padStart(2,'0')}-${String(c.dia).padStart(2,'0')}`;
+    // Si hay varias charlas el mismo día, distinguimos por índice
+    const keyAsist = `${fechaStr}_${idx}`;
+    let asist = ssomaCapAsistencias[keyAsist] || ssomaCapAsistencias[fechaStr] || null;
+
+    // Precarga abril 2026 (solo si no hay registro previo en Firestore)
+    if(!asist && ssomaCapMesActual === '2026-04' && SSOMA_CAP_ABRIL_PRECARGA[fechaStr]){
+      asist = SSOMA_CAP_ABRIL_PRECARGA[fechaStr];
+    }
+
     const fechaCharla = new Date(y, m-1, c.dia);
     fechaCharla.setHours(0,0,0,0);
-    const asist = ssomaCapAsistencias[fechaStr] || null;
     const yaPaso = fechaCharla.getTime() <= hoy.getTime();
 
-    let estado, estadoCls, estadoIcon;
+    if(yaPaso) programadasHastaHoy.push(fechaStr);
+
+    let estadoCls, badgeCumplio, badgeAsistio;
     if(asist){
-      estado = `${asist.asistentes}/${asist.convocados}`;
-      estadoCls = 'cap-dictada';
-      estadoIcon = '✓';
-      dictadas++;
-      totalConvocados += asist.convocados;
-      totalAsistentes += asist.asistentes;
-      charlasConAsist++;
+      charlasConRegistro++;
+      const cumplio = asist.cumplio === true;
+      const asistio = asist.asistio === true;
+      if(cumplio) cumplidas++;
+      if(asistio) asistidas++;
+
+      badgeCumplio = cumplio
+        ? `<span class="cap-pill-yes">✓ SÍ</span>`
+        : `<span class="cap-pill-no">✗ NO</span>`;
+      badgeAsistio = asistio
+        ? `<span class="cap-pill-yes">✓ SÍ</span>`
+        : `<span class="cap-pill-no">✗ NO</span>`;
+
+      estadoCls = (cumplio && asistio) ? 'cap-dictada' : (cumplio || asistio ? 'cap-parcial' : 'cap-fallada');
     } else if(yaPaso){
-      estado = 'Sin asistencia';
+      badgeCumplio = `<span class="cap-pill-pendiente">— Pendiente</span>`;
+      badgeAsistio = `<span class="cap-pill-pendiente">— Pendiente</span>`;
       estadoCls = 'cap-vencida';
-      estadoIcon = '⚠';
     } else {
-      estado = 'Programada';
+      badgeCumplio = `<span class="cap-pill-future">📅 Futuro</span>`;
+      badgeAsistio = `<span class="cap-pill-future">📅 Futuro</span>`;
       estadoCls = 'cap-pendiente';
-      estadoIcon = '📅';
     }
 
     const diaSemana = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][fechaCharla.getDay()];
     const fechaLbl = `${String(c.dia).padStart(2,'0')}-${meses[m-1].slice(0,3).toLowerCase()}`;
 
-    // Botón de acción
+    // Botón de acción (solo registra si la charla ya pasó)
     const puedeRegistrar = currentSession && (currentSession.usuario === 'adm' || currentSession.usuario === 'oficina' || currentSession.usuario === 'residente');
     const accionBtn = puedeRegistrar
       ? (asist
-          ? `<button onclick="ssomaCapEditarAsist('${fechaStr}', ${idx})" style="background:#fff;border:1px solid var(--twitter-blue);color:var(--twitter-blue);border-radius:5px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-weight:600;">✏ Editar</button>`
+          ? `<button onclick="ssomaCapEditarAsist('${keyAsist}', ${idx})" style="background:#fff;border:1px solid var(--twitter-blue);color:var(--twitter-blue);border-radius:5px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-weight:600;">✏ Editar</button>`
           : (yaPaso
-              ? `<button onclick="ssomaCapEditarAsist('${fechaStr}', ${idx})" style="background:#E07B39;border:1px solid #E07B39;color:#fff;border-radius:5px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-weight:600;">+ Registrar</button>`
+              ? `<button onclick="ssomaCapEditarAsist('${keyAsist}', ${idx})" style="background:#E07B39;border:1px solid #E07B39;color:#fff;border-radius:5px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-weight:600;">+ Marcar</button>`
               : `<span style="font-size:10.5px;color:var(--text-muted);font-style:italic;">—</span>`))
       : `<span style="font-size:10.5px;color:var(--text-muted);font-style:italic;">—</span>`;
 
@@ -10302,8 +10351,8 @@ function renderSsomaCapPrograma(){
         <td class="td-center" style="font-family:'DM Mono',monospace;font-size:10.5px;font-weight:700;color:var(--text-muted);">${diaSemana} ${fechaLbl}</td>
         <td style="font-size:11.5px;font-weight:600;">${c.tema}</td>
         <td class="td-center" style="font-size:11px;color:var(--text-muted);">${c.capacitador}</td>
-        <td class="td-center" style="font-size:10.5px;color:var(--text-muted);font-family:'DM Mono',monospace;">${c.tiempo}</td>
-        <td class="td-center"><span class="cap-estado-tag cap-estado-${estadoCls}">${estadoIcon} ${estado}</span></td>
+        <td class="td-center">${badgeCumplio}</td>
+        <td class="td-center">${badgeAsistio}</td>
         <td class="td-center">${accionBtn}</td>
       </tr>`;
   }).join('');
@@ -10316,8 +10365,8 @@ function renderSsomaCapPrograma(){
             <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:90px;">Día</th>
             <th style="padding:10px 11px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Tema de Charla</th>
             <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Capacitador</th>
-            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:88px;">Horario</th>
-            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:130px;">Asistencia</th>
+            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:115px;" title="¿Se cumplió la charla?">¿Se cumplió?</th>
+            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:115px;" title="¿Asistió el staff?">¿Asistió Staff?</th>
             <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:110px;">Acción</th>
           </tr>
         </thead>
@@ -10325,18 +10374,14 @@ function renderSsomaCapPrograma(){
       </table>
     </div>`;
 
-  // ─── Calcular KPIs y actualizar tarjetas ───
+  // ─── Calcular KPIs ───
   const totalProgramadas = programa.length;
-  const programadasHastaHoy = programa.filter(c => {
-    const fc = new Date(y, m-1, c.dia);
-    fc.setHours(0,0,0,0);
-    return fc.getTime() <= hoy.getTime();
-  }).length;
+  const totalHastaHoy = programadasHastaHoy.length;
 
-  // % Cumplimiento: charlas dictadas / programadas hasta la fecha (no penaliza las futuras)
-  const pctCumpl = programadasHastaHoy > 0 ? (dictadas / programadasHastaHoy) * 100 : null;
-  // % Participación: promedio asistentes / convocados de las dictadas
-  const pctPart = totalConvocados > 0 ? (totalAsistentes / totalConvocados) * 100 : null;
+  // % Cumplimiento del programa: charlas dictadas (cumplio=true) / programadas hasta hoy
+  const pctCumpl = totalHastaHoy > 0 ? (cumplidas / totalHastaHoy) * 100 : null;
+  // % Participación staff: charlas con asistencia (asistio=true) / charlas con registro
+  const pctPart = charlasConRegistro > 0 ? (asistidas / charlasConRegistro) * 100 : null;
 
   // Tarjeta % Cumplimiento
   const cumplVal = document.getElementById('ssomaCapKpiCumplVal');
@@ -10350,7 +10395,7 @@ function renderSsomaCapPrograma(){
       cumplStatus.textContent = '— Aún sin data';
     } else {
       cumplVal.textContent = pctCumpl.toFixed(1) + '%';
-      cumplSub.textContent = `${dictadas} dictadas de ${programadasHastaHoy} programadas (${totalProgramadas} total mes)`;
+      cumplSub.textContent = `${cumplidas} dictadas de ${totalHastaHoy} programadas (${totalProgramadas} total mes)`;
       cumplStatus.className = 'kpi-meta-status';
       if(pctCumpl >= 90){ cumplStatus.classList.add('kpi-meta-cumple'); cumplStatus.textContent = '✓ Cumple'; }
       else if(pctCumpl >= 70){ cumplStatus.classList.add('kpi-meta-seguimiento'); cumplStatus.textContent = '⚠ En seguimiento'; }
@@ -10370,7 +10415,7 @@ function renderSsomaCapPrograma(){
       partStatus.textContent = '— Sin data';
     } else {
       partVal.textContent = pctPart.toFixed(1) + '%';
-      partSub.textContent = `${totalAsistentes} asistentes / ${totalConvocados} convocados (en ${charlasConAsist} charlas)`;
+      partSub.textContent = `${asistidas} con staff de ${charlasConRegistro} charlas registradas`;
       partStatus.className = 'kpi-meta-status';
       if(pctPart >= 85){ partStatus.classList.add('kpi-meta-cumple'); partStatus.textContent = '✓ Cumple'; }
       else if(pctPart >= 70){ partStatus.classList.add('kpi-meta-seguimiento'); partStatus.textContent = '⚠ En seguimiento'; }
@@ -10394,51 +10439,54 @@ function actualizarKpisCapNull(){
   });
 }
 
-// Modal de registro/edición de asistencia (versión simple con prompts)
-function ssomaCapEditarAsist(fechaStr, idx){
+// Modal de registro/edición con sí/no para 2 KPIs
+function ssomaCapEditarAsist(key, idx){
   const programa = SSOMA_CAP_PROGRAMAS[ssomaCapMesActual] || [];
   const charla = programa[idx];
   if(!charla) return;
-  const actual = ssomaCapAsistencias[fechaStr] || { convocados: '', asistentes: '' };
+  const actual = ssomaCapAsistencias[key] || { cumplio: null, asistio: null };
 
-  const convStr = prompt(`📚 ${charla.tema}\n${fechaStr}\n\nNúmero de personas CONVOCADAS:`, actual.convocados || '');
-  if(convStr === null) return; // cancelado
-  const conv = parseInt(convStr, 10);
-  if(isNaN(conv) || conv < 0){ alert('⚠ Ingresa un número válido de convocados.'); return; }
+  const cumplStr = prompt(`📚 ${charla.tema}\nCapacitador: ${charla.capacitador}\n\n¿La charla SE CUMPLIÓ? (escribe SI o NO)`,
+    actual.cumplio === true ? 'SI' : (actual.cumplio === false ? 'NO' : ''));
+  if(cumplStr === null) return; // cancelado
+  const cumplio = /^s[ií]$/i.test(cumplStr.trim());
+  const noCumplio = /^no$/i.test(cumplStr.trim());
+  if(!cumplio && !noCumplio){ alert('⚠ Responde "SI" o "NO".'); return; }
 
-  const asistStr = prompt(`Personas ASISTENTES (de los ${conv} convocados):`, actual.asistentes || '');
-  if(asistStr === null) return;
-  const asist = parseInt(asistStr, 10);
-  if(isNaN(asist) || asist < 0){ alert('⚠ Ingresa un número válido de asistentes.'); return; }
-  if(asist > conv){ alert('⚠ Los asistentes no pueden superar a los convocados.'); return; }
+  let asistStr = '';
+  if(cumplio){
+    asistStr = prompt(`¿ASISTIÓ el staff a la charla? (SI o NO)`,
+      actual.asistio === true ? 'SI' : (actual.asistio === false ? 'NO' : ''));
+    if(asistStr === null) return;
+  } else {
+    asistStr = 'NO'; // si no se cumplió, no hay asistencia
+  }
+  const asistio = /^s[ií]$/i.test(asistStr.trim());
 
-  ssomaCapAsistencias[fechaStr] = {
-    convocados: conv,
-    asistentes: asist,
+  ssomaCapAsistencias[key] = {
+    cumplio,
+    asistio: cumplio ? asistio : false,
     fecha_registro: new Date().toISOString(),
     registrado_por: (currentSession && currentSession.usuario) || '—'
   };
 
-  // Persistir en Firestore (colección 'ssoma_charlas')
-  ssomaCapGuardarAsistFirestore(fechaStr);
-
-  // Re-render
+  ssomaCapGuardarAsistFirestore(key);
   renderSsomaCapPrograma();
 }
 
-async function ssomaCapGuardarAsistFirestore(fechaStr){
+async function ssomaCapGuardarAsistFirestore(key){
   if(!window.E140_DB){
     console.warn('[E140] Firestore no disponible — asistencia no persistida');
     return;
   }
   try {
     const { db, doc, setDoc, serverTimestamp } = window.E140_DB;
-    const data = ssomaCapAsistencias[fechaStr];
+    const data = ssomaCapAsistencias[key];
     if(!data) return;
-    await setDoc(doc(db, 'ssoma_charlas', fechaStr), {
-      fecha: fechaStr,
-      convocados: data.convocados,
-      asistentes: data.asistentes,
+    await setDoc(doc(db, 'ssoma_charlas', key), {
+      key,
+      cumplio: !!data.cumplio,
+      asistio: !!data.asistio,
       registrado_por: data.registrado_por || '—',
       fecha_registro: data.fecha_registro || new Date().toISOString(),
       ts: serverTimestamp()
@@ -10457,16 +10505,196 @@ async function ssomaCapCargarAsistFirestore(){
     ssomaCapAsistencias = {};
     snap.forEach(s => {
       const d = s.data();
-      ssomaCapAsistencias[s.id] = {
-        convocados: Number(d.convocados) || 0,
-        asistentes: Number(d.asistentes) || 0,
-        registrado_por: d.registrado_por || '—',
-        fecha_registro: d.fecha_registro || null
-      };
+      // Soporte modelo nuevo (cumplio/asistio) y migración de modelo viejo (convocados/asistentes)
+      if(typeof d.cumplio !== 'undefined' || typeof d.asistio !== 'undefined'){
+        ssomaCapAsistencias[s.id] = {
+          cumplio: !!d.cumplio,
+          asistio: !!d.asistio,
+          registrado_por: d.registrado_por || '—',
+          fecha_registro: d.fecha_registro || null
+        };
+      } else if(typeof d.convocados !== 'undefined'){
+        // Migración: si tenía convocados>0, asumir cumplio=true; si asistentes>=convocados/2, asistio=true
+        const conv = Number(d.convocados) || 0;
+        const asist = Number(d.asistentes) || 0;
+        ssomaCapAsistencias[s.id] = {
+          cumplio: conv > 0,
+          asistio: conv > 0 && asist >= conv * 0.5,
+          registrado_por: d.registrado_por || '—',
+          fecha_registro: d.fecha_registro || null
+        };
+      }
     });
     console.log(`[E140] Asistencias SSOMA cargadas: ${Object.keys(ssomaCapAsistencias).length}`);
   } catch(e){
     console.warn('[E140] Error cargando asistencias SSOMA:', e);
+  }
+}
+
+/* ───── CARGA DE EXCEL MENSUAL (formato SIG.103-F01) ───── */
+function ssomaCapAbrirCargaExcel(){
+  // Crear un input file dinámico
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.xlsx,.xls';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    ssomaCapProcesarExcel(file);
+  };
+  input.click();
+}
+
+async function ssomaCapProcesarExcel(file){
+  try {
+    if(typeof XLSX === 'undefined'){
+      alert('⚠ La librería XLSX no está cargada. Recarga la página e intenta de nuevo.');
+      return;
+    }
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, { type:'array' });
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    // Convertir a array de arrays para parsear como el formato real
+    const rows = XLSX.utils.sheet_to_json(sheet, { header:1, raw:false, defval:null });
+
+    // Detectar el mes/año del Excel (busca la fecha en filas iniciales)
+    let mesAno = null;
+    for(let r = 0; r < Math.min(15, rows.length); r++){
+      const row = rows[r] || [];
+      for(let c = 0; c < row.length; c++){
+        const v = row[c];
+        if(v && typeof v === 'string'){
+          // ej: "1/04/2026"
+          const m = v.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+          if(m){ mesAno = `${m[3]}-${String(m[2]).padStart(2,'0')}`; break; }
+        }
+        // Excel a veces guarda fechas como Date
+        if(v instanceof Date && !isNaN(v)){
+          mesAno = `${v.getFullYear()}-${String(v.getMonth()+1).padStart(2,'0')}`;
+          break;
+        }
+      }
+      if(mesAno) break;
+    }
+
+    // Buscar la fila de "Días Calendarios" (encabezados de día) y la siguiente con números 1..31
+    let rowDiasIdx = -1;
+    for(let r = 0; r < rows.length; r++){
+      const row = rows[r] || [];
+      // Buscar fila que tenga muchos números secuenciales 1, 2, 3...
+      const nums = row.filter(v => typeof v === 'number' && v >= 1 && v <= 31);
+      if(nums.length >= 25){ rowDiasIdx = r; break; }
+    }
+    if(rowDiasIdx === -1){
+      alert('⚠ No se pudo detectar la fila de días en el Excel. Asegúrate de usar el formato SIG.103-F01.');
+      return;
+    }
+
+    // Encontrar columna donde empieza el día 1
+    const headerNums = rows[rowDiasIdx];
+    let colDia1 = -1;
+    for(let c = 0; c < headerNums.length; c++){
+      if(headerNums[c] === 1){ colDia1 = c; break; }
+    }
+    if(colDia1 === -1){
+      alert('⚠ No se encontró el día 1 en el header de fechas.');
+      return;
+    }
+
+    // Buscar la fila "TEMAS DE CAPACITACIÓN" → las charlas empiezan después
+    let rowInicioTemas = rowDiasIdx + 1;
+    for(let r = rowDiasIdx + 1; r < rows.length; r++){
+      const row = rows[r] || [];
+      const txt = (row[1] || '').toString().toUpperCase();
+      if(txt.includes('TEMAS DE CAPACITACIÓN') || txt.includes('TEMAS DE CAPACITACION')){
+        rowInicioTemas = r + 1;
+        break;
+      }
+    }
+
+    // Extraer charlas: cada fila con tema y al menos una "x" en columnas de día
+    const charlasNuevas = [];
+    for(let r = rowInicioTemas; r < rows.length; r++){
+      const row = rows[r] || [];
+      const tema = (row[1] || '').toString().trim();
+      if(!tema) continue;
+      // Buscar capacitador (columna 5 o 6 según formato)
+      let cap = '';
+      for(let cc = 4; cc <= 6; cc++){
+        const v = (row[cc] || '').toString().trim();
+        if(v && !v.match(/^\d+:\d+/)){ cap = v; break; }
+      }
+      // Buscar días marcados con x/X
+      for(let c = colDia1; c < Math.min(colDia1 + 31, row.length); c++){
+        const v = row[c];
+        if(v && typeof v === 'string' && v.trim().toLowerCase() === 'x'){
+          const dia = c - colDia1 + 1;
+          charlasNuevas.push({ dia, tema, capacitador: cap });
+        }
+      }
+    }
+
+    if(charlasNuevas.length === 0){
+      alert('⚠ No se encontraron charlas marcadas con "x" en el archivo.');
+      return;
+    }
+    if(!mesAno){
+      mesAno = prompt('No se detectó el mes en el Excel. Ingresa mes y año en formato YYYY-MM (ej: 2026-05):');
+      if(!mesAno || !/^\d{4}-\d{2}$/.test(mesAno)){
+        alert('⚠ Formato inválido. Cancelado.');
+        return;
+      }
+    }
+
+    // Ordenar por día
+    charlasNuevas.sort((a,b) => a.dia - b.dia);
+
+    const confirm = window.confirm(`Detectado: ${charlasNuevas.length} charlas para ${mesAno}.\n\n¿Cargar este programa?`);
+    if(!confirm) return;
+
+    // Persistir el programa en Firestore
+    SSOMA_CAP_PROGRAMAS[mesAno] = charlasNuevas;
+    await ssomaCapGuardarProgramaFirestore(mesAno, charlasNuevas);
+
+    ssomaCapMesActual = mesAno;
+    renderSsomaCapPrograma();
+    alert(`✅ Programa de ${mesAno} cargado con ${charlasNuevas.length} charlas.`);
+  } catch(e){
+    console.error('[E140] Error procesando Excel:', e);
+    alert('⚠ Error al procesar el archivo Excel: ' + e.message);
+  }
+}
+
+async function ssomaCapGuardarProgramaFirestore(mesAno, charlas){
+  if(!window.E140_DB) return;
+  try {
+    const { db, doc, setDoc, serverTimestamp } = window.E140_DB;
+    await setDoc(doc(db, 'ssoma_programas', mesAno), {
+      mes: mesAno,
+      charlas,
+      cargado_por: (currentSession && currentSession.usuario) || '—',
+      fecha_carga: new Date().toISOString(),
+      ts: serverTimestamp()
+    });
+  } catch(e){
+    console.error('[E140] Error guardando programa:', e);
+  }
+}
+
+async function ssomaCapCargarProgramasFirestore(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs } = window.E140_DB;
+    const snap = await getDocs(collection(db, 'ssoma_programas'));
+    snap.forEach(s => {
+      const d = s.data();
+      if(d.mes && Array.isArray(d.charlas)){
+        SSOMA_CAP_PROGRAMAS[d.mes] = d.charlas;
+      }
+    });
+    console.log(`[E140] Programas SSOMA cargados: ${Object.keys(SSOMA_CAP_PROGRAMAS).length} meses`);
+  } catch(e){
+    console.warn('[E140] Error cargando programas SSOMA:', e);
   }
 }
 
@@ -12388,9 +12616,10 @@ async function loadSsomaReportesFromFirestore(){
     snapshot.forEach(s => ssomaReportesData.push({ id: s.id, ...s.data() }));
     console.log(`[E140] Reportes SSOMA cargados: ${ssomaReportesData.length}`);
 
-    // Cargar también las asistencias del programa de capacitación SST
+    // Cargar también las asistencias y programas del programa de capacitación SST
     try {
       ssomaCapInicializarMes();
+      await ssomaCapCargarProgramasFirestore();
       await ssomaCapCargarAsistFirestore();
     } catch(e){ console.warn('[E140] Error cargando programa SST:', e); }
 
