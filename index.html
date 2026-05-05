@@ -399,6 +399,33 @@ body.report-allowed .sb-item.report-only{display:flex !important;}
 .app.sidebar-collapsed .sb-ssoma-banner{padding:8px;justify-content:center;margin:8px 4px;}
 .app.sidebar-collapsed .sb-ssoma-content{display:none;}
 
+/* ═════════ Banner: Próximo Hito Meta ═════════ */
+.sb-hito-banner{margin:0 12px 14px;padding:10px 12px;background:linear-gradient(135deg,#E0EEF8 0%,#C9DCEE 100%);border:1px solid #0070B4;border-left:3px solid #054C7E;border-radius:6px;cursor:pointer;transition:all .15s;}
+.sb-hito-banner:hover{transform:translateX(2px);box-shadow:0 2px 6px rgba(0,112,180,.2);}
+.sb-hito-banner.warn{background:linear-gradient(135deg,#FFF4D6 0%,#FFE9B0 100%);border-color:#D6A847;border-left-color:#A0521E;}
+.sb-hito-banner.alerta{background:linear-gradient(135deg,#FBEAEA 0%,#F4D0D2 100%);border-color:#D64045;border-left-color:#8A2A2D;}
+.sb-hito-head{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.sb-hito-icon{font-size:13px;}
+.sb-hito-title{font-size:9.5px;color:#054C7E;text-transform:uppercase;letter-spacing:.05em;font-weight:700;}
+.sb-hito-banner.warn .sb-hito-title{color:#A0521E;}
+.sb-hito-banner.alerta .sb-hito-title{color:#8A2A2D;}
+.sb-hito-desc{font-size:11px;color:#054C7E;font-weight:600;line-height:1.25;margin-bottom:6px;}
+.sb-hito-banner.warn .sb-hito-desc{color:#7A5800;}
+.sb-hito-banner.alerta .sb-hito-desc{color:#8A2A2D;}
+.sb-hito-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+.sb-hito-fecha{font-family:'DM Mono',monospace;font-size:11px;color:#054C7E;font-weight:700;}
+.sb-hito-banner.warn .sb-hito-fecha{color:#7A5800;}
+.sb-hito-banner.alerta .sb-hito-fecha{color:#8A2A2D;}
+.sb-hito-dias{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#0070B4;letter-spacing:.5px;line-height:1;}
+.sb-hito-banner.warn .sb-hito-dias{color:#A0521E;}
+.sb-hito-banner.alerta .sb-hito-dias{color:#D64045;}
+/* Sidebar colapsado: solo ícono */
+.app.sidebar-collapsed .sb-hito-banner{padding:8px;margin:0 4px 14px;text-align:center;}
+.app.sidebar-collapsed .sb-hito-head{justify-content:center;margin:0;}
+.app.sidebar-collapsed .sb-hito-title,
+.app.sidebar-collapsed .sb-hito-desc,
+.app.sidebar-collapsed .sb-hito-row{display:none;}
+
 /* ═════════ ÁREAS DESPLEGABLES (Operaciones, Arquitectura, etc.) ═════════ */
 .sb-area{
   display:flex;
@@ -4082,6 +4109,19 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
       </div>
     </div>
 
+    <!-- Banner: Próximo Hito Meta -->
+    <div class="sb-hito-banner" id="sbHitoBanner" onclick="setTab('crono')" title="Click para ver todos los hitos">
+      <div class="sb-hito-head">
+        <span class="sb-hito-icon">🎯</span>
+        <span class="sb-hito-title">PRÓXIMO HITO META</span>
+      </div>
+      <div class="sb-hito-desc" id="sbHitoDesc">—</div>
+      <div class="sb-hito-row">
+        <div class="sb-hito-fecha" id="sbHitoFecha">—</div>
+        <div class="sb-hito-dias" id="sbHitoDias">—</div>
+      </div>
+    </div>
+
     <div class="sb-group-label">Vista ejecutiva</div>
     <div class="sb-nav" style="padding-bottom:0">
       <button class="sb-item sb-resumen active" data-tab="resumen" data-tooltip="Resumen">
@@ -6289,28 +6329,21 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
         </div>
 
         <!-- ═══════════ NUEVO · Tarjeta 26: Proyección de fin de obra ═══════════ -->
-        <div class="charts-row c1-2" style="margin-top:14px">
+        <div class="charts-row c1-1" style="margin-top:14px">
           <div class="chart-card" id="cronoProyeccionCard">
             <div class="chart-title"><span class="num">26</span> Proyección de fin de obra</div>
             <div class="chart-subtitle">Forecast por SPI promedio · Última 4 semanas</div>
             <div id="cronoProyeccion" style="margin-top:14px"></div>
           </div>
+        </div>
 
-          <!-- ═══════════ NUEVO · Tarjeta 27: Hitos del proyecto (placeholder) ═══════════ -->
+        <!-- ═══════════ NUEVO · Tarjeta 27: Hitos del proyecto (tabla completa) ═══════════ -->
+        <div class="charts-row c1-1" style="margin-top:14px">
           <div class="chart-card">
             <div class="chart-title"><span class="num">27</span> Hitos del proyecto</div>
-            <div class="chart-subtitle">Próximos hitos con countdown de días</div>
-            <div class="placeholder-card" style="margin-top:12px">
-              <div class="placeholder-icon">🎯</div>
-              <div class="placeholder-title">HITOS POR CARGAR</div>
-              <div class="placeholder-badge">En construcción</div>
-              <div class="placeholder-desc">
-                Cuadro de hitos con fechas planificadas, estado (completado / retrasado / pendiente) y countdown de días en atraso o por iniciar.
-              </div>
-              <div class="placeholder-data-need">
-                <b>Falta data:</b> lista de hitos con fechas en el archivo <code>05 · Cronograma</code> (sección "Hitos") o registro manual.
-              </div>
-            </div>
+            <div class="chart-subtitle">Comparativo Hito Meta (interno) vs Hito Contractual · Estatus actualizado</div>
+            <div id="cronoHitosResumen" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px;margin-bottom:10px"></div>
+            <div id="cronoHitosTabla" style="margin-top:6px"></div>
           </div>
         </div>
       </section>
@@ -6725,6 +6758,67 @@ const CONSTANTES = {
   fechaFinEst: "24/11/2026",
   metaDimensionamiento: 86    // Personal objetivo gerencia
 };
+
+// ─── HITOS DEL PROYECTO E140 ───
+// Hito Meta: fecha objetivo interna (más exigente)
+// Hito Contractual: fecha contractual con el cliente
+// estatus: 'cumplido' | 'proceso'
+// fechas en formato YYYY-MM-DD para comparaciones limpias
+const HITOS_PROYECTO = [
+  { desc:'INICIO DE CIMENTACIÓN',          metaFecha:'2025-11-21', contractualFecha:'2025-12-17', estatus:'cumplido' },
+  { desc:'TÉRMINO DE CIMENTACIÓN',         metaFecha:'2025-12-18', contractualFecha:'2026-01-09', estatus:'cumplido' },
+  { desc:'INICIO ESTRUCTURA SÓTANO',       metaFecha:'2026-01-09', contractualFecha:'2026-01-29', estatus:'cumplido' },
+  { desc:'TÉRMINO ESTRUCTURA SÓTANO',      metaFecha:'2026-04-20', contractualFecha:'2026-04-28', estatus:'proceso'  },
+  { desc:'INICIO ESTRUCTURA EDIFICIO',     metaFecha:'2026-04-13', contractualFecha:'2026-04-23', estatus:'cumplido' },
+  { desc:'TÉRMINO ESTRUCTURA EDIFICIO',    metaFecha:'2026-07-07', contractualFecha:'2026-08-31', estatus:'proceso'  },
+  { desc:'INICIO ACABADOS HÚMEDOS Y SECOS',metaFecha:'2026-05-07', contractualFecha:'2026-05-22', estatus:'proceso'  },
+  { desc:'FIN DE ACABADOS DE PISOS',       metaFecha:'2026-08-12', contractualFecha:'2026-10-13', estatus:'proceso'  },
+  { desc:'INICIO COLOCACIÓN DE VENTANAS',  metaFecha:'2026-06-08', contractualFecha:'2026-07-01', estatus:'proceso'  },
+  { desc:'TÉRMINO ACABADOS HÚMEDOS Y SECOS',metaFecha:'2026-09-09', contractualFecha:'2026-11-13', estatus:'proceso'  },
+  { desc:'ENTREGA DE DEPARTAMENTOS Y DE OBRA', metaFecha:'2026-10-26', contractualFecha:'2026-12-31', estatus:'proceso', destacado:true }
+];
+
+// Helper: parsear YYYY-MM-DD como Date local
+function hitoParseFecha(s){
+  if(!s) return null;
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+// Helper: formato dd-mmm-aa (ej: 21-Nov-25)
+function hitoFmtFecha(s){
+  if(!s) return '—';
+  const dt = hitoParseFecha(s);
+  if(!dt) return '—';
+  const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Set','Oct','Nov','Dic'];
+  const dd = String(dt.getDate()).padStart(2,'0');
+  const mm = meses[dt.getMonth()];
+  const yy = String(dt.getFullYear()).slice(-2);
+  return `${dd}-${mm}-${yy}`;
+}
+
+// Helper: días desde hoy hasta una fecha (negativo si pasó)
+function hitoDiasFaltantes(s){
+  if(!s) return null;
+  const dt = hitoParseFecha(s);
+  if(!dt) return null;
+  const hoy = new Date();
+  hoy.setHours(0,0,0,0);
+  const msDia = 1000*60*60*24;
+  return Math.round((dt.getTime() - hoy.getTime()) / msDia);
+}
+
+// Encuentra el próximo hito META (estatus 'proceso' con fecha futura más cercana)
+function hitoProximoMeta(){
+  const enProceso = HITOS_PROYECTO.filter(h => h.estatus === 'proceso' && h.metaFecha);
+  // Ordenar por fecha meta ascendente y tomar el primero con dias >= 0; si todos pasaron, el primero
+  const conDias = enProceso.map(h => ({...h, dias: hitoDiasFaltantes(h.metaFecha)}));
+  const futuros = conDias.filter(h => h.dias >= 0).sort((a,b) => a.dias - b.dias);
+  if(futuros.length > 0) return futuros[0];
+  // Si no hay futuros, devolver el más reciente que pasó (el menos negativo)
+  const pasados = conDias.filter(h => h.dias < 0).sort((a,b) => b.dias - a.dias);
+  return pasados[0] || null;
+}
 
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -8538,6 +8632,9 @@ function renderCurrentWeek(){
   document.getElementById('hdrSem').textContent = 'SEM '+d.semNum;
   document.getElementById('hdrCorte').textContent = 'Corte: '+d.corte;
 
+  // Banner sidebar: próximo hito meta (siempre actualizar, no depende de tab)
+  try { actualizarBannerSidebarHito(); } catch(e){ /* no crítico */ }
+
   // Render según pestaña
   switch(currentTab){
     case 'resumen':       renderResumen(); break;
@@ -9956,6 +10053,44 @@ function actualizarBannerSidebarSsoma(diasSinAcc, totalAccTP){
     if(icon) icon.textContent = '🟢';
   }
   num.textContent = diasSinAcc;
+}
+
+// ─── Banner sidebar: Próximo Hito Meta ───
+function actualizarBannerSidebarHito(){
+  const banner = document.getElementById('sbHitoBanner');
+  const desc = document.getElementById('sbHitoDesc');
+  const fecha = document.getElementById('sbHitoFecha');
+  const dias = document.getElementById('sbHitoDias');
+  if(!banner || !desc || !fecha || !dias) return;
+
+  if(typeof hitoProximoMeta !== 'function') return;
+  const proximo = hitoProximoMeta();
+
+  banner.classList.remove('alerta','warn');
+  if(!proximo){
+    desc.textContent = 'Sin hitos pendientes';
+    fecha.textContent = '—';
+    dias.textContent = '—';
+    return;
+  }
+
+  desc.textContent = proximo.desc;
+  fecha.textContent = hitoFmtFecha(proximo.metaFecha);
+
+  if(proximo.dias < 0){
+    // Hito vencido
+    banner.classList.add('alerta');
+    dias.textContent = `−${Math.abs(proximo.dias)}d`;
+    fecha.title = `Vencido hace ${Math.abs(proximo.dias)} días`;
+  } else if(proximo.dias <= 14){
+    // Hito en menos de 2 semanas
+    banner.classList.add('warn');
+    dias.textContent = `${proximo.dias}d`;
+    fecha.title = `Quedan ${proximo.dias} días`;
+  } else {
+    dias.textContent = `${proximo.dias}d`;
+    fecha.title = `Quedan ${proximo.dias} días`;
+  }
 }
 
 function llenarFiltroMesSsoma(){
@@ -15627,6 +15762,97 @@ function renderCrono(){
         Cálculo: días restantes ÷ SPI promedio últimas 4 semanas. SPI &lt; 1 implica más días, SPI &gt; 1 implica menos días.
       </div>`;
   }
+
+  // ═════════════════════════════════════════════════════════
+  // 27 · Hitos del proyecto (tabla + resumen superior)
+  // ═════════════════════════════════════════════════════════
+  renderHitosTabla();
+}
+
+// ─────────────────────────────────────────────────────────────
+// Render de la tabla de hitos · usa HITOS_PROYECTO global
+// ─────────────────────────────────────────────────────────────
+function renderHitosTabla(){
+  const tablaEl = document.getElementById('cronoHitosTabla');
+  const resumenEl = document.getElementById('cronoHitosResumen');
+  if(!tablaEl) return;
+
+  // ─── Resumen superior: contadores + próximo hito ───
+  const totalHitos = HITOS_PROYECTO.length;
+  const cumplidos = HITOS_PROYECTO.filter(h => h.estatus === 'cumplido').length;
+  const enProceso = HITOS_PROYECTO.filter(h => h.estatus === 'proceso').length;
+  const proximo = hitoProximoMeta();
+
+  if(resumenEl){
+    const proxTxt = proximo ? `${hitoFmtFecha(proximo.metaFecha)} · ${proximo.dias >= 0 ? `${proximo.dias}d restantes` : `${Math.abs(proximo.dias)}d vencido`}` : '—';
+    const proxCls = proximo && proximo.dias >= 0 ? 'v-blue' : 'v-bad';
+    resumenEl.innerHTML = `
+      <div class="mini"><div class="mini-lbl">Total hitos</div><div class="mini-val">${totalHitos}</div></div>
+      <div class="mini"><div class="mini-lbl">Cumplidos</div><div class="mini-val v-ok">${cumplidos}</div></div>
+      <div class="mini"><div class="mini-lbl">En proceso</div><div class="mini-val v-warn">${enProceso}</div></div>
+      <div class="mini"><div class="mini-lbl">Próximo Hito Meta</div><div class="mini-val ${proxCls}" style="font-size:11px;line-height:1.2">${proxTxt}</div></div>
+    `;
+  }
+
+  // ─── Tabla con todos los hitos ───
+  const filas = HITOS_PROYECTO.map(h => {
+    const diasMeta = hitoDiasFaltantes(h.metaFecha);
+    const diasContr = hitoDiasFaltantes(h.contractualFecha);
+    const cumplido = h.estatus === 'cumplido';
+    const filaBg = cumplido ? '#E7F4EE' : '#FFF9E5';
+    const tagBg  = cumplido ? '#2D936C' : '#E07B39';
+    const tagTxt = cumplido ? 'CUMPLIDO' : 'EN PROCESO';
+    const negrita = h.destacado ? 'font-weight:700' : '';
+
+    // Sub-info bajo cada fecha: días faltantes / vencidos (solo si no está cumplido)
+    let subMeta = '';
+    let subContr = '';
+    if(!cumplido){
+      if(diasMeta != null){
+        if(diasMeta >= 0)      subMeta = `<div style="font-size:9.5px;color:#0070B4;font-weight:600;margin-top:2px">en ${diasMeta}d</div>`;
+        else                   subMeta = `<div style="font-size:9.5px;color:#D64045;font-weight:600;margin-top:2px">vencido ${Math.abs(diasMeta)}d</div>`;
+      }
+      if(diasContr != null){
+        if(diasContr >= 0)     subContr = `<div style="font-size:9.5px;color:#0070B4;font-weight:600;margin-top:2px">en ${diasContr}d</div>`;
+        else                   subContr = `<div style="font-size:9.5px;color:#D64045;font-weight:600;margin-top:2px">vencido ${Math.abs(diasContr)}d</div>`;
+      }
+    }
+
+    return `
+      <tr style="background:${filaBg};">
+        <td style="padding:9px 10px;font-size:11.5px;${negrita}">${h.desc}</td>
+        <td class="td-center" style="padding:9px 10px;font-size:11.5px;${negrita}">
+          ${hitoFmtFecha(h.metaFecha)}
+          ${subMeta}
+        </td>
+        <td class="td-center" style="padding:9px 10px;font-size:11.5px;${negrita}">
+          ${hitoFmtFecha(h.contractualFecha)}
+          ${subContr}
+        </td>
+        <td class="td-center" style="padding:9px 10px;">
+          <span style="display:inline-block;background:${tagBg};color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;letter-spacing:.05em">${tagTxt}</span>
+        </td>
+      </tr>`;
+  }).join('');
+
+  tablaEl.innerHTML = `
+    <div style="overflow:hidden;border:1px solid var(--border);border-radius:8px">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:linear-gradient(135deg,#3A91C5 0%,#0070B4 100%);color:#fff;">
+            <th style="padding:11px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Descripción</th>
+            <th style="padding:11px 12px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Hito Meta<br><span style="font-size:9px;font-weight:500;opacity:.85">(interno)</span></th>
+            <th style="padding:11px 12px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Hito Contractual<br><span style="font-size:9px;font-weight:500;opacity:.85">(cliente)</span></th>
+            <th style="padding:11px 12px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Estatus</th>
+          </tr>
+        </thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>
+    <div style="margin-top:8px;font-size:10.5px;color:var(--text-muted);font-style:italic;line-height:1.5">
+      Plazo Meta: <b>471 días</b> · Inicio: <b>11/08/2025</b> · Fin estimado: <b>25/11/2026</b>. Hito Meta = fecha objetivo interna (más exigente). Hito Contractual = fecha contractual con el cliente.
+    </div>
+  `;
 }
 
 
