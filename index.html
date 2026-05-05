@@ -788,7 +788,6 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .r-area-card.ar-orange{border-top-color:var(--orange);}
 .r-area-card.ar-red{border-top-color:var(--red);}
 .r-area-card.ar-grey{border-top-color:var(--blue-bell);}
-.r-area-card.ar-blue{border-top-color:var(--twitter-blue);}
 .r-area-head{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
 .r-area-icon{font-size:16px;line-height:1;}
 .r-area-name{font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.05em;}
@@ -797,13 +796,11 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .r-area-card.ar-orange .r-area-pct{color:var(--orange);}
 .r-area-card.ar-red .r-area-pct{color:var(--red);}
 .r-area-card.ar-grey .r-area-pct{color:var(--blue-bell-dk);}
-.r-area-card.ar-blue .r-area-pct{color:var(--twitter-blue);}
 .r-area-status{display:inline-block;font-size:9.5px;font-weight:700;padding:3px 7px;border-radius:4px;letter-spacing:.04em;text-transform:uppercase;margin-top:4px;}
 .r-area-card.ar-green .r-area-status{background:#E7F4EE;color:#1A6B4A;}
 .r-area-card.ar-orange .r-area-status{background:#FFF1E5;color:#A0521E;}
 .r-area-card.ar-red .r-area-status{background:#FBEAEA;color:#8A2A2D;}
 .r-area-card.ar-grey .r-area-status{background:#EEF1F8;color:#5A6B8A;}
-.r-area-card.ar-blue .r-area-status{background:#E6F0F8;color:#054C7E;}
 .r-area-note{font-size:10px;color:var(--text-muted);margin-top:7px;line-height:1.35;font-style:italic;}
 
 @media(max-width:1199px){
@@ -8884,19 +8881,38 @@ function renderRAreas(){
   const d = wk();
 
   // ──────────────────────────────────────────
-  // OPERACIONES — promedio Avance + SPI + CPI
+  // OPERACIONES — promedio Avance + SPI Meta + SPI Contractual + CPI
   // ──────────────────────────────────────────
   let opePct = null;
-  let opeNota = 'Promedio de Avance, SPI y CPI';
+  let opeNota = 'Promedio de Avance, SPI Meta, SPI Contractual y CPI';
   try {
     if(d && d.kpis){
       const k = d.kpis;
       const factores = [];
-      if(k.avance != null) factores.push(Math.min(100, k.avance));
-      if(k.spiContractual != null) factores.push(Math.min(100, k.spiContractual * 100));
-      if(k.cpi != null) factores.push(Math.min(100, k.cpi * 100));
+      const detalles = [];
+      if(k.avance != null){
+        const v = Math.min(100, k.avance);
+        factores.push(v);
+        detalles.push(`Av:${v.toFixed(1)}%`);
+      }
+      if(k.spiMeta != null){
+        const v = Math.min(100, k.spiMeta * 100);
+        factores.push(v);
+        detalles.push(`SPIm:${v.toFixed(1)}%`);
+      }
+      if(k.spiContractual != null){
+        const v = Math.min(100, k.spiContractual * 100);
+        factores.push(v);
+        detalles.push(`SPIc:${v.toFixed(1)}%`);
+      }
+      if(k.cpi != null){
+        const v = Math.min(100, k.cpi * 100);
+        factores.push(v);
+        detalles.push(`CPI:${v.toFixed(1)}%`);
+      }
       if(factores.length > 0){
         opePct = factores.reduce((a,b)=>a+b, 0) / factores.length;
+        opeNota = detalles.join(' · ');
       }
     }
   } catch(e){ opePct = null; }
@@ -9010,18 +9026,18 @@ function renderRAreas(){
   ];
 
   // ──────────────────────────────────────────
-  // Clasificación con nuevo estado AZUL "EN SEGUIMIENTO"
+  // Clasificación con estado AMARILLO "EN SEGUIMIENTO" cuando 0%
   // ──────────────────────────────────────────
   // Lógica:
-  //   - null         → gris   "⏳ Pendiente Sem 38" (no hay data en absoluto)
-  //   - 0%           → azul   "🔵 EN SEGUIMIENTO"   (data cargada pero aún no hay avance)
-  //   - 100%         → verde  "✓ CUMPLE"            (cumplimiento total)
-  //   - >= 90%       → verde  "✓ Cumple"
+  //   - null         → gris    "⏳ Pendiente Sem 38" (no hay data en absoluto)
+  //   - 0%           → amarillo "⚠ EN SEGUIMIENTO"   (data cargada pero aún no hay avance)
+  //   - 100%         → verde   "✓ CUMPLE"            (cumplimiento total)
+  //   - >= 90%       → verde   "✓ Cumple"
   //   - >= 75% < 90% → naranja "⚠ En seguimiento"
-  //   - < 75% > 0    → rojo   "✗ No cumple"
+  //   - < 75% > 0    → rojo    "✗ No cumple"
   const clasificar = (pct) => {
     if(pct == null)             return { color:'ar-grey',   label:'⏳ Pendiente Sem 38' };
-    if(pct === 0)               return { color:'ar-blue',   label:'🔵 EN SEGUIMIENTO' };
+    if(pct === 0)               return { color:'ar-orange', label:'⚠ EN SEGUIMIENTO' };
     if(pct >= 99.99)            return { color:'ar-green',  label:'✓ CUMPLE' };
     if(pct >= 90)               return { color:'ar-green',  label:'✓ Cumple' };
     if(pct >= 75)               return { color:'ar-orange', label:'⚠ En seguimiento' };
