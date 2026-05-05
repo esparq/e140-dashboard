@@ -914,6 +914,20 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .agenda-popup-btn-primary{background:#0070B4;border:none;color:#fff;border-radius:8px;padding:9px 22px;font-weight:700;cursor:pointer;font-size:12px;transition:all .15s;font-family:inherit;letter-spacing:.03em;}
 .agenda-popup-btn-primary:hover{background:#054C7E;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,112,180,.3);}
 
+/* ─── Header del item con botón Editar ─── */
+.agenda-popup-item-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.agenda-popup-edit-btn{background:#fff;border:1.5px solid #0070B4;color:#0070B4;padding:5px 11px;border-radius:6px;font-family:inherit;font-size:10.5px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.04em;white-space:nowrap;flex-shrink:0;}
+.agenda-popup-edit-btn:hover{background:#0070B4;color:#fff;transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,112,180,.3);}
+.agenda-popup-edit-locked{display:inline-block;padding:5px 11px;background:#F1F4F7;color:#5A6B8A;border-radius:6px;font-size:10.5px;font-weight:700;cursor:not-allowed;font-style:italic;border:1.5px solid #D4DDE5;flex-shrink:0;}
+
+/* ─── Form de edición de contenido ─── */
+.agenda-edit-row{margin-bottom:14px;}
+.agenda-edit-row:last-child{margin-bottom:0;}
+.agenda-edit-label{display:block;font-size:11px;font-weight:700;color:#054C7E;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.agenda-edit-input,.agenda-edit-textarea{width:100%;padding:10px 14px;border:1.5px solid #D4DDE5;border-radius:8px;font-family:inherit;font-size:13px;color:#1F2937;background:#FAFBFC;transition:all .15s;line-height:1.4;box-sizing:border-box;}
+.agenda-edit-input:focus,.agenda-edit-textarea:focus{outline:none;border-color:#0070B4;background:#fff;box-shadow:0 0 0 3px rgba(0,112,180,.12);}
+.agenda-edit-textarea{resize:vertical;min-height:50px;font-family:inherit;}
+
 /* Mobile responsive */
 @media (max-width: 700px){
   .agenda-cell{min-height:70px;padding:5px 6px;}
@@ -10820,10 +10834,34 @@ function agendaPopupItemHtml(c, tipo){
       </div>
     </div>` : '';
 
+  // ─── Botón EDITAR (permisos: adm siempre, staff solo si nunca editó esta entrada) ───
+  // El "edit lock" se chequea en el campo `editado_por_staff` del registro ediciones
+  const usuario = (currentSession && currentSession.usuario) || '';
+  const esAdm = usuario === 'adm';
+  const esStaff = usuario === 'staff';
+  // Buscar si esta entrada ya fue editada por staff antes
+  const edicionPrev = (typeof agendaEdiciones !== 'undefined' && agendaEdiciones[k]) ? agendaEdiciones[k] : null;
+  const yaEditadoPorStaff = edicionPrev && edicionPrev.editado_por_staff === true;
+
+  let editBtnHtml = '';
+  if(esAdm){
+    editBtnHtml = `<button class="agenda-popup-edit-btn" onclick="agendaAbrirEdicionContenido('${k}','${tipo}',${c.idx})" title="Editar tema y expositor">✎ Editar</button>`;
+  } else if(esStaff && !yaEditadoPorStaff){
+    editBtnHtml = `<button class="agenda-popup-edit-btn" onclick="agendaAbrirEdicionContenido('${k}','${tipo}',${c.idx})" title="Editar tema y expositor (solo 1 vez)">✎ Editar</button>`;
+  } else if(esStaff && yaEditadoPorStaff){
+    editBtnHtml = `<span class="agenda-popup-edit-locked" title="Ya editaste esta entrada antes. Solo adm puede modificarla nuevamente.">🔒 Editado</span>`;
+  }
+  // Otros roles → sin botón
+
   return `
     <div class="agenda-popup-item" data-key="${k}">
-      <div class="agenda-popup-item-tema">${c.tema}</div>
-      <div class="agenda-popup-item-sub">${subInfo}</div>
+      <div class="agenda-popup-item-header">
+        <div style="flex:1;min-width:0;">
+          <div class="agenda-popup-item-tema">${c.tema}</div>
+          <div class="agenda-popup-item-sub">${subInfo}</div>
+        </div>
+        ${editBtnHtml}
+      </div>
       <div class="agenda-popup-pregunta-row">
         <div class="agenda-popup-pregunta">¿Se cumplió?</div>
         <div class="agenda-popup-botones">
@@ -10854,6 +10892,236 @@ function popupSelect(key, campo, valor){
       b.classList.toggle('is-selected', b.dataset.valor === 'false');
     });
   }
+}
+
+// ─── EDICIÓN DE CONTENIDO (tema + expositor) ───
+// Permisos: adm = todas las veces · staff = una vez · otros = no editan
+// Se persiste en colección Firestore "ssoma_ediciones" con flag editado_por_staff
+
+let agendaEdiciones = {}; // { 'ch_5' o 'in_3': { tema, expositor, area?, editado_por, editado_por_staff, ts } }
+let agendaEditEstado = null; // estado del modal de edición
+
+async function cargarEdicionesFirestore(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs } = window.E140_DB;
+    const snap = await getDocs(collection(db, 'ssoma_ediciones'));
+    agendaEdiciones = {};
+    snap.forEach(s => {
+      const d = s.data();
+      // Doc id = `${mesAno}_${tipo}_${idx}` ej: "2026-04_ch_5"
+      // Pero usamos como key el sufijo `${tipo}_${idx}` cuando estamos en ese mes
+      agendaEdiciones[s.id] = {
+        tema: d.tema || '',
+        expositor: d.expositor || '',
+        area: d.area || '',
+        editado_por: d.editado_por || '—',
+        editado_por_staff: !!d.editado_por_staff,
+        editado_por_adm: !!d.editado_por_adm,
+        ts: d.ts || null
+      };
+    });
+    console.log(`[E140] Ediciones SSOMA cargadas: ${Object.keys(agendaEdiciones).length}`);
+  } catch(e){ console.warn('[E140] Error cargando ediciones SSOMA:', e); }
+}
+
+// Aplicar ediciones a los programas (overrides en memoria)
+function aplicarEdicionesAProgramas(){
+  Object.keys(agendaEdiciones).forEach(docId => {
+    // docId formato: "2026-04_ch_5" o "2026-04_in_3"
+    const m = docId.match(/^(\d{4}-\d{2})_(ch|in)_(\d+)$/);
+    if(!m) return;
+    const [, mesAno, tipo, idxStr] = m;
+    const idx = parseInt(idxStr, 10);
+    const ed = agendaEdiciones[docId];
+
+    if(tipo === 'ch' && SSOMA_CAP_PROGRAMAS[mesAno] && SSOMA_CAP_PROGRAMAS[mesAno][idx]){
+      if(ed.tema) SSOMA_CAP_PROGRAMAS[mesAno][idx].tema = ed.tema;
+      if(ed.expositor) SSOMA_CAP_PROGRAMAS[mesAno][idx].capacitador = ed.expositor;
+    } else if(tipo === 'in' && SSOMA_INSP_PROGRAMAS[mesAno] && SSOMA_INSP_PROGRAMAS[mesAno][idx]){
+      if(ed.tema) SSOMA_INSP_PROGRAMAS[mesAno][idx].tema = ed.tema;
+      if(ed.expositor) SSOMA_INSP_PROGRAMAS[mesAno][idx].inspector = ed.expositor;
+      if(ed.area) SSOMA_INSP_PROGRAMAS[mesAno][idx].area = ed.area;
+    }
+  });
+}
+
+// Helper: obtener key Firestore de una entrada del mes actual
+function agendaEditKey(tipo, idx){
+  return `${agendaMesActual}_${tipo}_${idx}`;
+}
+
+function agendaAbrirEdicionContenido(localKey, tipo, idx){
+  const usuario = (currentSession && currentSession.usuario) || '';
+  const esAdm = usuario === 'adm';
+  const esStaff = usuario === 'staff';
+  if(!esAdm && !esStaff){
+    alert('⛔ Solo los usuarios adm y staff pueden editar el contenido del programa.');
+    return;
+  }
+
+  // Verificar lock para staff
+  const docId = agendaEditKey(tipo, idx);
+  const ed = agendaEdiciones[docId];
+  if(esStaff && ed && ed.editado_por_staff){
+    alert('⛔ Tu usuario (staff) ya editó esta entrada antes.\n\nSolo el usuario adm puede modificarla nuevamente.');
+    return;
+  }
+
+  // Obtener data actual
+  const programa = tipo === 'ch'
+    ? (SSOMA_CAP_PROGRAMAS[agendaMesActual] || [])
+    : (SSOMA_INSP_PROGRAMAS[agendaMesActual] || []);
+  const item = programa[idx];
+  if(!item) return;
+
+  const expositorActual = tipo === 'ch' ? (item.capacitador || '') : (item.inspector || '');
+  const areaActual = tipo === 'in' ? (item.area || '') : '';
+
+  agendaEditEstado = { localKey, tipo, idx, docId, esStaff };
+
+  // Construir modal si no existe
+  let modal = document.getElementById('agendaEditModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'agendaEditModal';
+    modal.className = 'agenda-popup-backdrop';
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => { if(e.target === modal) cerrarEdicionContenido(); });
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape'){
+        const m = document.getElementById('agendaEditModal');
+        if(m && m.classList.contains('is-open')) cerrarEdicionContenido();
+      }
+    });
+  }
+
+  const tipoLbl = tipo === 'ch' ? 'Charla' : 'Inspección';
+  const expositorLbl = tipo === 'ch' ? 'Capacitador' : 'Inspector';
+  const areaInput = tipo === 'in' ? `
+    <div class="agenda-edit-row">
+      <label class="agenda-edit-label">Área</label>
+      <input type="text" id="agendaEditArea" class="agenda-edit-input" value="${areaActual.replace(/"/g,'&quot;')}" placeholder="Ej: CAMPO OBRA, ALMACÉN, OFICINAS, TORRE GRÚA…" />
+    </div>` : '';
+
+  // Aviso para staff
+  const avisoStaff = esStaff ? `
+    <div style="background:#FFF4D6;border:1px solid #D6A847;border-radius:6px;padding:8px 12px;margin-top:10px;font-size:11px;color:#7A5800;line-height:1.4;">
+      ⚠ <b>Importante:</b> Tu usuario es <code>staff</code>, solo puedes editar esta entrada <b>UNA vez</b>. Después solo el usuario <code>adm</code> podrá modificarla.
+    </div>` : '';
+
+  modal.innerHTML = `
+    <div class="agenda-popup-card" onclick="event.stopPropagation()" style="max-width:520px;">
+      <button class="agenda-popup-close" onclick="cerrarEdicionContenido()" title="Cerrar">×</button>
+      <div class="agenda-popup-header">
+        <div class="agenda-popup-fecha-num">✎</div>
+        <div>
+          <div class="agenda-popup-fecha-mes">EDITAR ${tipoLbl.toUpperCase()}</div>
+          <div class="agenda-popup-fecha-diasem">Día ${item.dia} · ${agendaMesActual}</div>
+        </div>
+      </div>
+      <div class="agenda-popup-body">
+        <div class="agenda-edit-row">
+          <label class="agenda-edit-label">Tema</label>
+          <textarea id="agendaEditTema" class="agenda-edit-textarea" rows="2" placeholder="Tema de la ${tipoLbl.toLowerCase()}">${item.tema.replace(/</g,'&lt;')}</textarea>
+        </div>
+        <div class="agenda-edit-row">
+          <label class="agenda-edit-label">${expositorLbl}</label>
+          <input type="text" id="agendaEditExpositor" class="agenda-edit-input" value="${expositorActual.replace(/"/g,'&quot;')}" placeholder="Nombre completo" />
+        </div>
+        ${areaInput}
+        ${avisoStaff}
+      </div>
+      <div class="agenda-popup-acciones">
+        <button class="agenda-popup-btn-secondary" onclick="cerrarEdicionContenido()">Cancelar</button>
+        <button class="agenda-popup-btn-primary" onclick="guardarEdicionContenido()">✓ Guardar cambios</button>
+      </div>
+    </div>`;
+  modal.classList.add('is-open');
+  setTimeout(() => { const t = document.getElementById('agendaEditTema'); if(t) t.focus(); }, 50);
+}
+
+function cerrarEdicionContenido(){
+  const modal = document.getElementById('agendaEditModal');
+  if(modal) modal.classList.remove('is-open');
+  agendaEditEstado = null;
+}
+
+async function guardarEdicionContenido(){
+  if(!agendaEditEstado) return;
+  const { localKey, tipo, idx, docId, esStaff } = agendaEditEstado;
+
+  const tema = (document.getElementById('agendaEditTema').value || '').trim();
+  const expositor = (document.getElementById('agendaEditExpositor').value || '').trim();
+  const areaEl = document.getElementById('agendaEditArea');
+  const area = areaEl ? (areaEl.value || '').trim() : '';
+
+  if(!tema){ alert('⚠ El tema no puede estar vacío.'); return; }
+  if(!expositor){ alert('⚠ El expositor no puede estar vacío.'); return; }
+
+  const usuario = (currentSession && currentSession.usuario) || '—';
+  const ts = new Date().toISOString();
+  const edExistente = agendaEdiciones[docId] || {};
+
+  const edicion = {
+    tema,
+    expositor,
+    area: tipo === 'in' ? area : '',
+    editado_por: usuario,
+    editado_por_staff: !!edExistente.editado_por_staff || esStaff,
+    editado_por_adm: !!edExistente.editado_por_adm || (usuario === 'adm'),
+    ts
+  };
+
+  // Aplicar en memoria
+  agendaEdiciones[docId] = edicion;
+  if(tipo === 'ch' && SSOMA_CAP_PROGRAMAS[agendaMesActual] && SSOMA_CAP_PROGRAMAS[agendaMesActual][idx]){
+    SSOMA_CAP_PROGRAMAS[agendaMesActual][idx].tema = tema;
+    SSOMA_CAP_PROGRAMAS[agendaMesActual][idx].capacitador = expositor;
+  } else if(tipo === 'in' && SSOMA_INSP_PROGRAMAS[agendaMesActual] && SSOMA_INSP_PROGRAMAS[agendaMesActual][idx]){
+    SSOMA_INSP_PROGRAMAS[agendaMesActual][idx].tema = tema;
+    SSOMA_INSP_PROGRAMAS[agendaMesActual][idx].inspector = expositor;
+    if(area) SSOMA_INSP_PROGRAMAS[agendaMesActual][idx].area = area;
+  }
+
+  // Persistir Firestore
+  if(window.E140_DB){
+    try {
+      const { db, doc, setDoc, serverTimestamp } = window.E140_DB;
+      await setDoc(doc(db, 'ssoma_ediciones', docId), {
+        ...edicion,
+        ts_servidor: serverTimestamp()
+      }, { merge: true });
+    } catch(e){
+      console.error('[E140] Error guardando edición:', e);
+      alert('⚠ Error al guardar en servidor: ' + e.message);
+      return;
+    }
+  }
+
+  // Audit log
+  try {
+    if(typeof auditLog === 'function'){
+      auditLog({
+        modulo: 'ssoma-agenda',
+        accion: 'editar_contenido',
+        entidad_id: docId,
+        entidad_nombre: tema,
+        detalle: `${tipo === 'ch' ? 'Charla' : 'Inspección'} editada: ${tema}`,
+        cambios: { despues: { tema, expositor, area } }
+      });
+    }
+  } catch(e){}
+
+  cerrarEdicionContenido();
+  // Re-abrir el popup del día para mostrar cambios
+  const dia = parseInt(agendaPopupEstado ? agendaPopupEstado.dia : 0, 10);
+  if(dia > 0){
+    const fechaStr = `${agendaMesActual}-${String(dia).padStart(2,'0')}`;
+    cerrarPopupDia();
+    setTimeout(() => abrirPopupDia(fechaStr, dia), 50);
+  }
+  renderAgendaSsoma();
 }
 
 function cerrarPopupDia(){
@@ -11104,37 +11372,54 @@ async function agendaProcesarExcel(file){
     let rowInicio = rowDiasIdx + 1;
     for(let r = rowDiasIdx; r < Math.min(rowDiasIdx + 5, rows.length); r++){
       const row = rows[r] || [];
-      const txt = (row[1] || '').toString().toUpperCase();
+      const txt0 = (row[0] || '').toString().toUpperCase();
+      const txt1 = (row[1] || '').toString().toUpperCase();
+      const txt = txt0 + ' ' + txt1;
       if(txt.includes('TEMAS DE CAPACITACIÓN') || txt.includes('TEMAS DE CAPACITACION') || txt.includes('INSPECCIONES')){
         rowInicio = r + 1; break;
       }
     }
 
-    // Extraer
+    // Extraer registros: detectar columnas dinámicamente recorriendo desde col 0 a colDia1-1
+    // En XLSX.js, las celdas merged a veces dejan vacío el primer slot del merge
+    // El tema es típicamente la celda más larga; capacitador/inspector cortos;
+    // area también corta. La detección por contenido es más confiable que indices fijos.
     const items = [];
     for(let r = rowInicio; r < rows.length; r++){
       const row = rows[r] || [];
-      // Para charlas el tema está en col 1; para inspecciones en col 2
-      const tema = (tipoExcel === 'charlas' ? (row[1] || '').toString() : (row[2] || '').toString()).trim();
-      if(!tema) continue;
-      if(/STAFF\s+DE\s+PREVENCI[ÓO]N|INGENIERO\s+RESIDENTE|FIRMA/i.test(tema)) break;
 
-      let extra1 = '', extra2 = '';
-      if(tipoExcel === 'charlas'){
-        // capacitador en col 4-6
-        for(let cc = 4; cc <= 6; cc++){
-          const v = (row[cc] || '').toString().trim();
-          if(v && !v.match(/^\d+:\d+/) && cc !== 6){ extra1 = v; break; }
+      // Recolectar TODAS las celdas no vacías antes de colDia1 (área de metadata)
+      const meta = [];
+      for(let c = 0; c < colDia1; c++){
+        const v = (row[c] || '').toString().trim();
+        if(v && !/^\d+(\.\d+)?$/.test(v) && !/^\d+:\d+/.test(v)){
+          // Ignorar números puros (numeración de fila) y horarios "7:30-7:40"
+          meta.push({ col: c, valor: v });
         }
-      } else {
-        extra1 = (row[5] || '').toString().trim(); // inspector
-        extra2 = (row[6] || '').toString().trim(); // area
       }
 
+      if(meta.length === 0) continue;
+
+      // El TEMA es la celda más larga (suele ser una frase descriptiva)
+      meta.sort((a,b) => b.valor.length - a.valor.length);
+      const tema = meta[0].valor;
+
+      // Filtros de fin
+      if(/STAFF\s+DE\s+PREVENCI[ÓO]N|INGENIERO\s+RESIDENTE|FIRMA|TEMAS\s+DE\s+CAPACITACI|^INSPECCIONES$/i.test(tema)) break;
+      if(tema.length < 5) continue; // descartar filas con texto trivial
+
+      // El resto de meta (que no sea el tema) son capacitador/inspector/area
+      const otros = meta.filter(m => m.valor !== tema).map(m => m.valor);
+      let extra1 = otros[0] || ''; // capacitador o inspector
+      let extra2 = otros[1] || ''; // area (solo en inspecciones)
+
+      // Buscar días marcados
+      let diasEncontrados = 0;
       for(let c = colDia1; c < colDia1 + 31 && c < row.length; c++){
         const v = row[c];
         if(v && typeof v === 'string' && v.trim().toLowerCase() === 'x'){
           const dia = c - colDia1 + 1;
+          diasEncontrados++;
           if(tipoExcel === 'charlas') items.push({ dia, tema, capacitador: extra1 });
           else items.push({ dia, tema, inspector: extra1, area: extra2 });
         }
@@ -13104,6 +13389,9 @@ async function loadSsomaReportesFromFirestore(){
       await ssomaCapCargarAsistFirestore();
       await ssomaInspCargarProgramasFirestore();
       await ssomaInspCargarRegistrosFirestore();
+      // Cargar ediciones de contenido (tema/expositor) y aplicarlas a los programas
+      await cargarEdicionesFirestore();
+      aplicarEdicionesAProgramas();
     } catch(e){ console.warn('[E140] Error cargando agenda SST:', e); }
 
     if(currentTab === 'ssoma-sst'){
