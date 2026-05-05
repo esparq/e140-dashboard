@@ -813,6 +813,118 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .cap-row.cap-parcial{background:#FFF9E5;}
 .cap-row.cap-fallada{background:#FBEAEA;}
 
+/* ═══════════════════════════════════════════════════════
+   AGENDA SSOMA · Calendario + Popup
+   ═══════════════════════════════════════════════════════ */
+/* Header navegación */
+.agenda-nav-btn{background:#fff;border:1.5px solid #0070B4;color:#0070B4;border-radius:8px;width:34px;height:34px;font-weight:700;cursor:pointer;font-size:18px;line-height:1;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;}
+.agenda-nav-btn:hover{background:#0070B4;color:#fff;transform:scale(1.05);}
+.agenda-mes-label{font-family:'Bebas Neue',sans-serif;font-size:24px;color:#054C7E;letter-spacing:1.5px;min-width:180px;text-align:center;font-weight:700;}
+/* Toggle filtro */
+.agenda-toggle-grupo{display:inline-flex;background:#F1F4F7;border-radius:8px;padding:3px;border:1px solid #D4DDE5;}
+.agenda-toggle-btn{background:transparent;border:none;color:#5A6B8A;padding:6px 12px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;border-radius:6px;transition:all .15s;letter-spacing:.02em;}
+.agenda-toggle-btn:hover{color:#054C7E;}
+.agenda-toggle-btn.is-active{background:#fff;color:#054C7E;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.agenda-excel-btn{background:#E07B39;border:1.5px solid #E07B39;color:#fff;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:11.5px;transition:all .15s;font-family:inherit;}
+.agenda-excel-btn:hover{background:#C7621E;border-color:#C7621E;transform:translateY(-1px);box-shadow:0 3px 8px rgba(224,123,57,.3);}
+
+/* KPIs grid */
+.agenda-kpis-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+@media (max-width:900px){ .agenda-kpis-grid{grid-template-columns:1fr;} }
+.agenda-kpi-card{padding:14px 16px;}
+
+/* Calendario */
+.agenda-cal-wrap{margin-top:8px;}
+.agenda-cal{background:#FAFBFC;border:1px solid #E5EAF0;border-radius:12px;overflow:hidden;}
+.agenda-cal-headers{display:grid;grid-template-columns:repeat(7,1fr);background:linear-gradient(135deg,#054C7E 0%,#0070B4 100%);color:#fff;}
+.agenda-cal-headers > div{padding:10px 6px;text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.08em;}
+.agenda-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#E5EAF0;}
+
+/* Celdas */
+.agenda-cell{background:#fff;min-height:88px;padding:8px 10px;cursor:pointer;transition:all .15s;position:relative;display:flex;flex-direction:column;border-bottom:3px solid transparent;}
+.agenda-cell:hover{background:#F4F8FC;transform:scale(1.01);z-index:5;box-shadow:0 4px 14px rgba(0,112,180,.15);}
+.agenda-cell-empty{background:#F4F4F4;cursor:default;opacity:.4;}
+.agenda-cell-empty:hover{transform:none;background:#F4F4F4;box-shadow:none;}
+.agenda-cell-num{font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:#1F2937;margin-bottom:6px;}
+.agenda-cell-badges{display:flex;flex-direction:column;gap:3px;flex:1;}
+.agenda-cell-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;font-size:9.5px;font-weight:700;letter-spacing:.02em;width:fit-content;}
+.agenda-cell-badge.bdg-charla{background:#FCE9D6;color:#7A3F18;}
+.agenda-cell-badge.bdg-insp{background:#E0EEF8;color:#054C7E;}
+.agenda-cell-estado{position:absolute;top:6px;right:8px;font-size:14px;font-weight:700;}
+
+/* Estados de celda */
+.agenda-cell-completo{border-bottom-color:#2D936C;background:linear-gradient(180deg,#fff 0%,#F2FAF6 100%);}
+.agenda-cell-completo .agenda-cell-estado{color:#1A6B4A;}
+.agenda-cell-parcial{border-bottom-color:#E07B39;background:linear-gradient(180deg,#fff 0%,#FFF9E5 100%);}
+.agenda-cell-parcial .agenda-cell-estado{color:#A0521E;}
+.agenda-cell-pendiente{border-bottom-color:#E07B39;background:linear-gradient(180deg,#fff 0%,#FCE9D6 100%);}
+.agenda-cell-pendiente .agenda-cell-estado{color:#A0521E;}
+.agenda-cell-futuro{border-bottom-color:#3A91C5;}
+.agenda-cell-futuro .agenda-cell-estado{color:#054C7E;}
+.agenda-cell-sin-actividad{background:#FAFBFC;border-bottom-color:#D4DDE5;cursor:default;opacity:.55;}
+.agenda-cell-sin-actividad:hover{transform:none;box-shadow:none;background:#FAFBFC;}
+
+/* HOY destacado */
+.agenda-cell.is-hoy{box-shadow:inset 0 0 0 3px #FFB400;z-index:3;}
+.agenda-cell.is-hoy .agenda-cell-num{color:#054C7E;font-size:15px;}
+
+/* Empty state */
+.agenda-empty{padding:40px 20px;text-align:center;background:#FAFBFC;border:2px dashed #D4DDE5;border-radius:12px;}
+
+/* Leyenda */
+.agenda-leyenda{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;padding:10px 14px;background:#FAFBFC;border-radius:8px;border:1px solid #E5EAF0;}
+.agenda-ley-item{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;color:#5A6B8A;font-weight:600;}
+.agenda-ley-dot{display:inline-block;width:11px;height:11px;border-radius:50%;}
+
+/* ─── POPUP del día ─── */
+.agenda-popup-backdrop{position:fixed;inset:0;background:rgba(15,30,55,0.6);display:none;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(4px);padding:20px;overflow-y:auto;}
+.agenda-popup-backdrop.is-open{display:flex;animation:agendaPopFade .2s ease;}
+@keyframes agendaPopFade{from{opacity:0;}to{opacity:1;}}
+.agenda-popup-card{background:#fff;border-radius:16px;max-width:620px;width:100%;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.3);position:relative;animation:agendaPopSlide .25s cubic-bezier(.18,.89,.32,1.28);overflow:hidden;}
+@keyframes agendaPopSlide{from{transform:translateY(30px) scale(.95);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
+.agenda-popup-close{position:absolute;top:12px;right:14px;background:#fff;border:none;width:32px;height:32px;border-radius:50%;font-size:20px;color:#5A6B8A;cursor:pointer;font-weight:600;line-height:1;transition:all .15s;z-index:2;box-shadow:0 2px 6px rgba(0,0,0,.08);}
+.agenda-popup-close:hover{background:#D64045;color:#fff;}
+.agenda-popup-header{background:linear-gradient(135deg,#054C7E 0%,#0070B4 100%);color:#fff;padding:18px 24px;display:flex;align-items:center;gap:18px;}
+.agenda-popup-fecha-num{font-family:'Bebas Neue',sans-serif;font-size:54px;line-height:1;letter-spacing:1px;font-weight:700;}
+.agenda-popup-fecha-mes{font-size:16px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
+.agenda-popup-fecha-diasem{font-size:12px;opacity:.85;font-style:italic;margin-top:2px;}
+.agenda-popup-body{padding:20px 24px;overflow-y:auto;flex:1;}
+.agenda-popup-seccion{margin-bottom:18px;}
+.agenda-popup-seccion:last-child{margin-bottom:0;}
+.agenda-popup-seccion-titulo{font-size:13px;font-weight:700;color:#054C7E;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.agenda-popup-count{background:#0070B4;color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;letter-spacing:.04em;}
+.agenda-popup-item{background:#FAFBFC;border:1px solid #E5EAF0;border-radius:10px;padding:14px 16px;margin-bottom:10px;transition:all .15s;}
+.agenda-popup-item:hover{border-color:#0070B4;}
+.agenda-popup-item-tema{font-size:13.5px;font-weight:700;color:#1F2937;line-height:1.3;margin-bottom:3px;}
+.agenda-popup-item-sub{font-size:11px;color:#5A6B8A;font-weight:600;margin-bottom:10px;font-style:italic;}
+.agenda-popup-pregunta-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;flex-wrap:wrap;}
+.agenda-popup-pregunta-row:last-child{margin-bottom:0;}
+.agenda-popup-pregunta{font-size:11.5px;font-weight:700;color:#054C7E;text-transform:uppercase;letter-spacing:.04em;}
+.agenda-popup-botones{display:flex;gap:6px;}
+.agenda-popup-btn-yn{padding:6px 14px;border:2px solid;border-radius:6px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:all .12s;letter-spacing:.04em;background:#fff;}
+.agenda-popup-btn-yn.btn-yes{border-color:#2D936C;color:#2D936C;}
+.agenda-popup-btn-yn.btn-yes:hover{background:#E7F4EE;}
+.agenda-popup-btn-yn.btn-yes.is-selected{background:#2D936C;color:#fff;box-shadow:0 2px 6px rgba(45,147,108,.3);}
+.agenda-popup-btn-yn.btn-no{border-color:#D64045;color:#D64045;}
+.agenda-popup-btn-yn.btn-no:hover{background:#FBEAEA;}
+.agenda-popup-btn-yn.btn-no.is-selected{background:#D64045;color:#fff;box-shadow:0 2px 6px rgba(214,64,69,.3);}
+.agenda-popup-acciones{padding:14px 24px;background:#FAFBFC;border-top:1px solid #E5EAF0;display:flex;justify-content:flex-end;gap:10px;}
+.agenda-popup-btn-secondary{background:#fff;border:1.5px solid #C5CFD9;color:#5A6B8A;border-radius:8px;padding:9px 18px;font-weight:600;cursor:pointer;font-size:12px;transition:all .15s;font-family:inherit;}
+.agenda-popup-btn-secondary:hover{background:#F1F4F7;}
+.agenda-popup-btn-primary{background:#0070B4;border:none;color:#fff;border-radius:8px;padding:9px 22px;font-weight:700;cursor:pointer;font-size:12px;transition:all .15s;font-family:inherit;letter-spacing:.03em;}
+.agenda-popup-btn-primary:hover{background:#054C7E;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,112,180,.3);}
+
+/* Mobile responsive */
+@media (max-width: 700px){
+  .agenda-cell{min-height:70px;padding:5px 6px;}
+  .agenda-cell-num{font-size:12px;margin-bottom:4px;}
+  .agenda-cell-badge{font-size:8.5px;padding:1px 5px;}
+  .agenda-popup-card{max-height:95vh;border-radius:12px;}
+  .agenda-popup-header{padding:14px 18px;}
+  .agenda-popup-fecha-num{font-size:42px;}
+  .agenda-popup-body{padding:14px 18px;}
+}
+
 /* ─── Modal Popup Capacitación SST ─── */
 .ssoma-cap-modal-backdrop{position:fixed;inset:0;background:rgba(15,30,55,0.55);display:none;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(3px);padding:20px;}
 .ssoma-cap-modal-backdrop.is-open{display:flex;animation:capModalFadeIn .18s ease;}
@@ -5472,103 +5584,82 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
           </div>
         </div>
 
+
         <!-- ═══════════════════════════════════════════
-             SST · PROGRAMA DE CAPACITACIÓN (SIG.103-F01)
+             SST · AGENDA SSOMA UNIFICADA (Charlas + Inspecciones)
+             SIG.103-F01 + SIG.103-F02 en un calendario interactivo
              ═══════════════════════════════════════════ -->
-        <div class="capa-header" style="margin-top:24px;background:linear-gradient(135deg,#FCE9D6 0%,#F8D5B0 100%);border-color:#E07B39;">
-          <div class="capa-num" style="background:#E07B39;color:#fff;">📚</div>
+        <div class="capa-header" style="margin-top:24px;background:linear-gradient(135deg,#E0EEF8 0%,#C9DCEE 100%);border-color:#0070B4;">
+          <div class="capa-num" style="background:#0070B4;color:#fff;">🛡️</div>
           <div>
-            <div class="capa-title" style="color:#7A3F18;">PROGRAMA DE CAPACITACIÓN SST</div>
+            <div class="capa-title" style="color:#054C7E;">AGENDA SSOMA</div>
           </div>
-          <div class="capa-sub" style="color:#7A3F18;">SIG.103-F01 · Charlas SST 7:30-7:40 AM</div>
+          <div class="capa-sub" style="color:#054C7E;">Charlas · Inspecciones · Vista calendario diario</div>
         </div>
 
-        <!-- Selector de mes + KPIs -->
-        <div class="chart-card" style="margin-bottom:14px;">
+        <div class="chart-card" id="agendaSsomaCard" style="margin-bottom:14px;">
+          <!-- Header: navegación de mes + botón Excel -->
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);">
             <div style="display:flex;align-items:center;gap:10px;">
-              <button id="ssomaCapMesPrev" onclick="ssomaCapNavegarMes(-1)" style="background:#fff;border:1.5px solid #E07B39;color:#E07B39;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:14px;">‹</button>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--text);letter-spacing:1px;min-width:160px;text-align:center;" id="ssomaCapMesLabel">— —</div>
-              <button id="ssomaCapMesNext" onclick="ssomaCapNavegarMes(1)" style="background:#fff;border:1.5px solid #E07B39;color:#E07B39;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:14px;">›</button>
+              <button onclick="agendaNavegarMes(-1)" class="agenda-nav-btn" title="Mes anterior">‹</button>
+              <div class="agenda-mes-label" id="agendaMesLabel">— —</div>
+              <button onclick="agendaNavegarMes(1)" class="agenda-nav-btn" title="Mes siguiente">›</button>
             </div>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <button id="ssomaCapCargarBtn" class="admin-only" onclick="ssomaCapAbrirCargaExcel()" style="background:#E07B39;border:1.5px solid #E07B39;color:#fff;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:11px;">📤 Cargar Excel mes</button>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <div class="agenda-toggle-grupo" role="group">
+                <button class="agenda-toggle-btn is-active" data-tipo="todos" onclick="agendaCambiarFiltro('todos')">Todo</button>
+                <button class="agenda-toggle-btn" data-tipo="charlas" onclick="agendaCambiarFiltro('charlas')">📚 Charlas</button>
+                <button class="agenda-toggle-btn" data-tipo="inspecciones" onclick="agendaCambiarFiltro('inspecciones')">🔍 Inspecciones</button>
+              </div>
+              <button class="admin-only agenda-excel-btn" onclick="agendaAbrirCargaExcel()" title="Cargar programa mensual desde Excel SIG.103-F01 (Charlas) o SIG.103-F02 (Inspecciones)">📤 Cargar Excel</button>
             </div>
           </div>
 
-          <!-- 2 KPIs grandes -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;" id="ssomaCapKpis">
-            <div class="kpi-card k-blue" id="ssomaCapKpiCumpl">
-              <div class="kpi-label">% Cumplimiento del Programa</div>
-              <div class="kpi-value" id="ssomaCapKpiCumplVal">—</div>
-              <div class="kpi-sublabel" id="ssomaCapKpiCumplSub">Charlas dictadas / programadas</div>
-              <div class="kpi-meta-footer" style="margin-top:10px">
+          <!-- KPIs duales -->
+          <div class="agenda-kpis-grid">
+            <div class="agenda-kpi-card kpi-card k-blue">
+              <div class="kpi-label">📚 % Cumplimiento Charlas</div>
+              <div class="kpi-value" id="agendaKpiCharlasVal">—</div>
+              <div class="kpi-sublabel" id="agendaKpiCharlasSub">Sin data</div>
+              <div class="kpi-meta-footer" style="margin-top:8px">
                 <span class="kpi-meta-target">▲ Meta: ≥ 90%</span>
-                <span class="kpi-meta-status" id="ssomaCapKpiCumplStatus">—</span>
+                <span class="kpi-meta-status" id="agendaKpiCharlasStatus">—</span>
               </div>
             </div>
-            <div class="kpi-card k-orange" id="ssomaCapKpiPart">
-              <div class="kpi-label">% Participación del Staff</div>
-              <div class="kpi-value" id="ssomaCapKpiPartVal">—</div>
-              <div class="kpi-sublabel" id="ssomaCapKpiPartSub">Asistentes promedio / convocados</div>
-              <div class="kpi-meta-footer" style="margin-top:10px">
+            <div class="agenda-kpi-card kpi-card k-orange">
+              <div class="kpi-label">📚 % Participación Staff</div>
+              <div class="kpi-value" id="agendaKpiStaffVal">—</div>
+              <div class="kpi-sublabel" id="agendaKpiStaffSub">Sin data</div>
+              <div class="kpi-meta-footer" style="margin-top:8px">
                 <span class="kpi-meta-target">▲ Meta: ≥ 85%</span>
-                <span class="kpi-meta-status" id="ssomaCapKpiPartStatus">—</span>
+                <span class="kpi-meta-status" id="agendaKpiStaffStatus">—</span>
               </div>
             </div>
-          </div>
-
-          <!-- Tabla de charlas del mes -->
-          <div id="ssomaCapTablaWrap"></div>
-
-          <!-- Footnote -->
-          <div style="margin-top:12px;font-size:10.5px;color:var(--text-muted);font-style:italic;line-height:1.5">
-            Fuente: <b>SIG.103-F01</b> · Programa elaborado mensualmente por el responsable SSOMA. Las asistencias se registran al final de cada charla.
-          </div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════
-             SST · PROGRAMA DE INSPECCIONES (SIG.103-F02)
-             ═══════════════════════════════════════════ -->
-        <div class="capa-header" style="margin-top:24px;background:linear-gradient(135deg,#FCE9D6 0%,#F8D5B0 100%);border-color:#E07B39;">
-          <div class="capa-num" style="background:#E07B39;color:#fff;">🔍</div>
-          <div>
-            <div class="capa-title" style="color:#7A3F18;">PROGRAMA DE INSPECCIONES SST</div>
-          </div>
-          <div class="capa-sub" style="color:#7A3F18;">SIG.103-F02 · Inspecciones diarias programadas</div>
-        </div>
-
-        <div class="chart-card" style="margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <button id="ssomaInspMesPrev" onclick="ssomaInspNavegarMes(-1)" style="background:#fff;border:1.5px solid #E07B39;color:#E07B39;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:14px;">‹</button>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--text);letter-spacing:1px;min-width:160px;text-align:center;" id="ssomaInspMesLabel">— —</div>
-              <button id="ssomaInspMesNext" onclick="ssomaInspNavegarMes(1)" style="background:#fff;border:1.5px solid #E07B39;color:#E07B39;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:14px;">›</button>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <button id="ssomaInspCargarBtn" class="admin-only" onclick="ssomaInspAbrirCargaExcel()" style="background:#E07B39;border:1.5px solid #E07B39;color:#fff;border-radius:6px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:11px;">📤 Cargar Excel mes</button>
-            </div>
-          </div>
-
-          <!-- 1 KPI grande (solo cumplimiento) -->
-          <div style="display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:16px;" id="ssomaInspKpis">
-            <div class="kpi-card k-blue" id="ssomaInspKpiCumpl">
-              <div class="kpi-label">% Cumplimiento del Programa de Inspecciones</div>
-              <div class="kpi-value" id="ssomaInspKpiCumplVal">—</div>
-              <div class="kpi-sublabel" id="ssomaInspKpiCumplSub">Inspecciones realizadas / programadas</div>
-              <div class="kpi-meta-footer" style="margin-top:10px">
+            <div class="agenda-kpi-card kpi-card k-blue">
+              <div class="kpi-label">🔍 % Cumplimiento Inspecciones</div>
+              <div class="kpi-value" id="agendaKpiInspVal">—</div>
+              <div class="kpi-sublabel" id="agendaKpiInspSub">Sin data</div>
+              <div class="kpi-meta-footer" style="margin-top:8px">
                 <span class="kpi-meta-target">▲ Meta: ≥ 90%</span>
-                <span class="kpi-meta-status" id="ssomaInspKpiCumplStatus">—</span>
+                <span class="kpi-meta-status" id="agendaKpiInspStatus">—</span>
               </div>
             </div>
           </div>
 
-          <!-- Tabla de inspecciones del mes -->
-          <div id="ssomaInspTablaWrap"></div>
+          <!-- Calendario -->
+          <div id="agendaCalendarioWrap" class="agenda-cal-wrap"></div>
 
-          <!-- Footnote -->
-          <div style="margin-top:12px;font-size:10.5px;color:var(--text-muted);font-style:italic;line-height:1.5">
-            Fuente: <b>SIG.103-F02</b> · Programa elaborado mensualmente por el responsable SSOMA. Marca cada inspección como cumplida o no cumplida.
+          <!-- Leyenda -->
+          <div class="agenda-leyenda">
+            <span class="agenda-ley-item"><span class="agenda-ley-dot" style="background:#2D936C"></span> Día completo</span>
+            <span class="agenda-ley-item"><span class="agenda-ley-dot" style="background:#E07B39"></span> Pendiente vencido</span>
+            <span class="agenda-ley-item"><span class="agenda-ley-dot" style="background:#3A91C5"></span> Programado futuro</span>
+            <span class="agenda-ley-item"><span class="agenda-ley-dot" style="background:#9CA3AF"></span> Sin actividad</span>
+            <span class="agenda-ley-item"><span class="agenda-ley-dot" style="background:#054C7E;border:2px solid #FFB400"></span> Hoy</span>
+          </div>
+
+          <div style="margin-top:10px;font-size:10.5px;color:var(--text-muted);font-style:italic;line-height:1.5">
+            Click en cualquier día para ver charlas e inspecciones programadas. Cargar Excel SIG.103-F01 (Charlas) o SIG.103-F02 (Inspecciones) detecta el formato automáticamente.
           </div>
         </div>
       </section>
@@ -10170,11 +10261,8 @@ function renderSsomaSST(){
   // ─── Tabla histórica ───
   renderSsomaSstHistorial();
 
-  // ─── Programa de Capacitación SST (SIG.103-F01) ───
-  try { renderSsomaCapPrograma(); } catch(e){ console.warn('[ssoma-cap]', e); }
-
-  // ─── Programa de Inspecciones SST (SIG.103-F02) ───
-  try { renderSsomaInspPrograma(); } catch(e){ console.warn('[ssoma-insp]', e); }
+  // ─── Agenda SSOMA Unificada (Charlas + Inspecciones) ───
+  try { renderAgendaSsoma(); } catch(e){ console.warn('[ssoma-agenda]', e); }
 }
 
 function setKpiStatus(id, valor, meta, modo){
@@ -10254,15 +10342,14 @@ function actualizarBannerSidebarHito(){
   }
 }
 
+
 /* ═══════════════════════════════════════════════════════════════════
-   PROGRAMA DE CAPACITACIÓN SST (SIG.103-F01)
-   Programa mensual de charlas SST 7:30-7:40 AM
-   Modelo híbrido: programa hardcoded + asistencias en Firestore
+   AGENDA SSOMA UNIFICADA · Calendario Diario (Charlas + Inspecciones)
+   SIG.103-F01 (Charlas) + SIG.103-F02 (Inspecciones)
+   Vista calendario con popup por día para marcar todo junto.
    ═══════════════════════════════════════════════════════════════════ */
 
-// Programas mensuales hardcodeados. Llave: 'YYYY-MM'.
-// Cada charla: { dia, tema, capacitador }
-// dia = día del mes (1-31). Si una charla se repite varios días, se ingresa una entrada por día.
+// Programas mensuales hardcodeados de CHARLAS
 const SSOMA_CAP_PROGRAMAS = {
   '2026-04': [
     { dia: 1,  tema:'Política del SIG ESPARQ',                        capacitador:'José Rojas' },
@@ -10292,667 +10379,17 @@ const SSOMA_CAP_PROGRAMAS = {
   ]
 };
 
-// Asistencias precargadas para abril 2026 (todo cumplido + todo asistido)
-// Modelo nuevo: { cumplio: true/false/null, asistio: true/false/null }
+// Precarga abril 2026: todo cumplido
 const SSOMA_CAP_ABRIL_PRECARGA = (() => {
   const result = {};
-  SSOMA_CAP_PROGRAMAS['2026-04'].forEach(c => {
+  (SSOMA_CAP_PROGRAMAS['2026-04'] || []).forEach((c, idx) => {
     const fechaStr = `2026-04-${String(c.dia).padStart(2,'0')}`;
-    // Si hay múltiples charlas el mismo día (no en abril), se podría diferenciar por idx
-    // En abril cada día tiene una sola charla, así que la fecha sirve como key
-    result[fechaStr] = {
-      cumplio: true,
-      asistio: true,
-      registrado_por: 'precarga',
-      fecha_registro: '2026-04-30T00:00:00.000Z'
-    };
+    result[`${fechaStr}_${idx}`] = { cumplio: true, asistio: true, registrado_por:'precarga', fecha_registro:'2026-04-30T00:00:00.000Z' };
   });
   return result;
 })();
 
-// Estado del módulo
-let ssomaCapMesActual = '2026-04'; // YYYY-MM. Se setea al cargar.
-let ssomaCapAsistencias = {}; // { 'YYYY-MM-DD': { convocados, asistentes, fecha_registro, registrado_por } }
-
-// Inicializar mes actual al mes en curso si hay programa, sino el más reciente disponible.
-function ssomaCapInicializarMes(){
-  const hoy = new Date();
-  const mesActual = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
-  if(SSOMA_CAP_PROGRAMAS[mesActual]){
-    ssomaCapMesActual = mesActual;
-  } else {
-    // Tomar el último mes con programa
-    const meses = Object.keys(SSOMA_CAP_PROGRAMAS).sort();
-    if(meses.length > 0) ssomaCapMesActual = meses[meses.length - 1];
-  }
-}
-
-// Navegar entre meses con flechas
-function ssomaCapNavegarMes(delta){
-  const [y, m] = ssomaCapMesActual.split('-').map(Number);
-  const dt = new Date(y, m - 1 + delta, 1);
-  ssomaCapMesActual = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
-  renderSsomaCapPrograma();
-}
-
-// Render principal del módulo
-function renderSsomaCapPrograma(){
-  const labelEl = document.getElementById('ssomaCapMesLabel');
-  const tablaEl = document.getElementById('ssomaCapTablaWrap');
-  if(!labelEl || !tablaEl) return;
-
-  if(!ssomaCapMesActual) ssomaCapInicializarMes();
-  const [y, m] = ssomaCapMesActual.split('-').map(Number);
-  const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
-  labelEl.textContent = `${meses[m-1]} ${y}`;
-
-  const programa = SSOMA_CAP_PROGRAMAS[ssomaCapMesActual] || [];
-
-  // Sin programa cargado
-  if(programa.length === 0){
-    tablaEl.innerHTML = `
-      <div style="padding:30px;text-align:center;background:#FAFBFC;border:1px dashed var(--border-mid);border-radius:8px;color:var(--text-muted);">
-        <div style="font-size:28px;margin-bottom:8px;opacity:.5;">📋</div>
-        <div style="font-weight:600;margin-bottom:4px;">Programa no cargado para ${meses[m-1]} ${y}</div>
-        <div style="font-size:11px;font-style:italic;margin-bottom:14px;">El responsable SSOMA aún no ha cargado el programa para este mes.</div>
-        <button class="admin-only" onclick="ssomaCapAbrirCargaExcel()" style="background:#E07B39;border:none;color:#fff;border-radius:6px;padding:9px 18px;font-weight:700;cursor:pointer;font-size:12px;">📤 Cargar programa Excel</button>
-      </div>`;
-    actualizarKpisCapNull();
-    return;
-  }
-
-  // Construir filas con asistencia (si existe). Aplicar precarga abril si nunca se registró.
-  const hoy = new Date();
-  hoy.setHours(0,0,0,0);
-
-  let cumplidas = 0, charlasConRegistro = 0, asistidas = 0;
-  const programadasHastaHoy = [];
-
-  const filas = programa.map((c, idx) => {
-    const fechaStr = `${y}-${String(m).padStart(2,'0')}-${String(c.dia).padStart(2,'0')}`;
-    // Si hay varias charlas el mismo día, distinguimos por índice
-    const keyAsist = `${fechaStr}_${idx}`;
-    let asist = ssomaCapAsistencias[keyAsist] || ssomaCapAsistencias[fechaStr] || null;
-
-    // Precarga abril 2026 (solo si no hay registro previo en Firestore)
-    if(!asist && ssomaCapMesActual === '2026-04' && SSOMA_CAP_ABRIL_PRECARGA[fechaStr]){
-      asist = SSOMA_CAP_ABRIL_PRECARGA[fechaStr];
-    }
-
-    const fechaCharla = new Date(y, m-1, c.dia);
-    fechaCharla.setHours(0,0,0,0);
-    const yaPaso = fechaCharla.getTime() <= hoy.getTime();
-
-    if(yaPaso) programadasHastaHoy.push(fechaStr);
-
-    let estadoCls, badgeCumplio, badgeAsistio;
-    if(asist){
-      charlasConRegistro++;
-      const cumplio = asist.cumplio === true;
-      const asistio = asist.asistio === true;
-      if(cumplio) cumplidas++;
-      if(asistio) asistidas++;
-
-      badgeCumplio = cumplio
-        ? `<span class="cap-pill-yes">✓ SÍ</span>`
-        : `<span class="cap-pill-no">✗ NO</span>`;
-      badgeAsistio = asistio
-        ? `<span class="cap-pill-yes">✓ SÍ</span>`
-        : `<span class="cap-pill-no">✗ NO</span>`;
-
-      estadoCls = (cumplio && asistio) ? 'cap-dictada' : (cumplio || asistio ? 'cap-parcial' : 'cap-fallada');
-    } else if(yaPaso){
-      badgeCumplio = `<span class="cap-pill-pendiente">— Pendiente</span>`;
-      badgeAsistio = `<span class="cap-pill-pendiente">— Pendiente</span>`;
-      estadoCls = 'cap-vencida';
-    } else {
-      badgeCumplio = `<span class="cap-pill-future">📅 Futuro</span>`;
-      badgeAsistio = `<span class="cap-pill-future">📅 Futuro</span>`;
-      estadoCls = 'cap-pendiente';
-    }
-
-    const diaSemana = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][fechaCharla.getDay()];
-    const fechaLbl = `${String(c.dia).padStart(2,'0')}-${meses[m-1].slice(0,3).toLowerCase()}`;
-
-    // Botón de acción (solo registra si la charla ya pasó)
-    const puedeRegistrar = currentSession && (currentSession.usuario === 'adm' || currentSession.usuario === 'oficina' || currentSession.usuario === 'residente');
-    const accionBtn = puedeRegistrar
-      ? (asist
-          ? `<button onclick="ssomaCapEditarAsist('${keyAsist}', ${idx})" style="background:#fff;border:1px solid var(--twitter-blue);color:var(--twitter-blue);border-radius:5px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-weight:600;">✏ Editar</button>`
-          : (yaPaso
-              ? `<button onclick="ssomaCapEditarAsist('${keyAsist}', ${idx})" style="background:#E07B39;border:1px solid #E07B39;color:#fff;border-radius:5px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-weight:600;">+ Marcar</button>`
-              : `<span style="font-size:10.5px;color:var(--text-muted);font-style:italic;">—</span>`))
-      : `<span style="font-size:10.5px;color:var(--text-muted);font-style:italic;">—</span>`;
-
-    return `
-      <tr class="cap-row ${estadoCls}">
-        <td class="td-center" style="font-family:'DM Mono',monospace;font-size:10.5px;font-weight:700;color:var(--text-muted);">${diaSemana} ${fechaLbl}</td>
-        <td style="font-size:11.5px;font-weight:600;">${c.tema}</td>
-        <td class="td-center" style="font-size:11px;color:var(--text-muted);">${c.capacitador}</td>
-        <td class="td-center">${badgeCumplio}</td>
-        <td class="td-center">${badgeAsistio}</td>
-        <td class="td-center">${accionBtn}</td>
-      </tr>`;
-  }).join('');
-
-  tablaEl.innerHTML = `
-    <div style="overflow:hidden;border:1px solid var(--border);border-radius:8px;">
-      <table style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr style="background:linear-gradient(135deg,#E07B39 0%,#C7621E 100%);color:#fff;">
-            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:90px;">Día</th>
-            <th style="padding:10px 11px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Tema de Charla</th>
-            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Capacitador</th>
-            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:115px;" title="¿Se cumplió la charla?">¿Se cumplió?</th>
-            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:115px;" title="¿Asistió el staff?">¿Asistió Staff?</th>
-            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:110px;">Acción</th>
-          </tr>
-        </thead>
-        <tbody>${filas}</tbody>
-      </table>
-    </div>`;
-
-  // ─── Calcular KPIs ───
-  const totalProgramadas = programa.length;
-  const totalHastaHoy = programadasHastaHoy.length;
-
-  // % Cumplimiento del programa: charlas dictadas (cumplio=true) / programadas hasta hoy
-  const pctCumpl = totalHastaHoy > 0 ? (cumplidas / totalHastaHoy) * 100 : null;
-  // % Participación staff: charlas con asistencia (asistio=true) / charlas con registro
-  const pctPart = charlasConRegistro > 0 ? (asistidas / charlasConRegistro) * 100 : null;
-
-  // Tarjeta % Cumplimiento
-  const cumplVal = document.getElementById('ssomaCapKpiCumplVal');
-  const cumplSub = document.getElementById('ssomaCapKpiCumplSub');
-  const cumplStatus = document.getElementById('ssomaCapKpiCumplStatus');
-  if(cumplVal){
-    if(pctCumpl == null){
-      cumplVal.textContent = '—';
-      cumplSub.textContent = 'Sin charlas vencidas en el mes';
-      cumplStatus.className = 'kpi-meta-status kpi-meta-seguimiento';
-      cumplStatus.textContent = '— Aún sin data';
-    } else {
-      cumplVal.textContent = pctCumpl.toFixed(1) + '%';
-      cumplSub.textContent = `${cumplidas} dictadas de ${totalHastaHoy} programadas (${totalProgramadas} total mes)`;
-      cumplStatus.className = 'kpi-meta-status';
-      if(pctCumpl >= 90){ cumplStatus.classList.add('kpi-meta-cumple'); cumplStatus.textContent = '✓ Cumple'; }
-      else if(pctCumpl >= 70){ cumplStatus.classList.add('kpi-meta-seguimiento'); cumplStatus.textContent = '⚠ En seguimiento'; }
-      else { cumplStatus.classList.add('kpi-meta-nocumple'); cumplStatus.textContent = '✗ No cumple'; }
-    }
-  }
-
-  // Tarjeta % Participación
-  const partVal = document.getElementById('ssomaCapKpiPartVal');
-  const partSub = document.getElementById('ssomaCapKpiPartSub');
-  const partStatus = document.getElementById('ssomaCapKpiPartStatus');
-  if(partVal){
-    if(pctPart == null){
-      partVal.textContent = '—';
-      partSub.textContent = 'Sin asistencias registradas aún';
-      partStatus.className = 'kpi-meta-status kpi-meta-seguimiento';
-      partStatus.textContent = '— Sin data';
-    } else {
-      partVal.textContent = pctPart.toFixed(1) + '%';
-      partSub.textContent = `${asistidas} con staff de ${charlasConRegistro} charlas registradas`;
-      partStatus.className = 'kpi-meta-status';
-      if(pctPart >= 85){ partStatus.classList.add('kpi-meta-cumple'); partStatus.textContent = '✓ Cumple'; }
-      else if(pctPart >= 70){ partStatus.classList.add('kpi-meta-seguimiento'); partStatus.textContent = '⚠ En seguimiento'; }
-      else { partStatus.classList.add('kpi-meta-nocumple'); partStatus.textContent = '✗ No cumple'; }
-    }
-  }
-}
-
-// Helper para limpiar KPIs cuando no hay programa
-function actualizarKpisCapNull(){
-  const ids = ['ssomaCapKpiCumplVal','ssomaCapKpiPartVal'];
-  ids.forEach(id => { const el = document.getElementById(id); if(el) el.textContent = '—'; });
-  const subs = [
-    ['ssomaCapKpiCumplSub','Programa no cargado'],
-    ['ssomaCapKpiPartSub','Sin programa para evaluar']
-  ];
-  subs.forEach(([id, txt]) => { const el = document.getElementById(id); if(el) el.textContent = txt; });
-  ['ssomaCapKpiCumplStatus','ssomaCapKpiPartStatus'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el){ el.className = 'kpi-meta-status kpi-meta-seguimiento'; el.textContent = '—'; }
-  });
-}
-
-// Modal popup limpio con botones SI/NO
-function ssomaCapEditarAsist(key, idx){
-  const programa = SSOMA_CAP_PROGRAMAS[ssomaCapMesActual] || [];
-  const charla = programa[idx];
-  if(!charla) return;
-  const actual = ssomaCapAsistencias[key] || { cumplio: null, asistio: null };
-
-  // Construir el modal si no existe
-  let modal = document.getElementById('ssomaCapModal');
-  if(!modal){
-    modal = document.createElement('div');
-    modal.id = 'ssomaCapModal';
-    modal.className = 'ssoma-cap-modal-backdrop';
-    modal.innerHTML = `
-      <div class="ssoma-cap-modal-card" onclick="event.stopPropagation()">
-        <button class="ssoma-cap-modal-close" onclick="ssomaCapCerrarModal()" title="Cerrar">×</button>
-        <div class="ssoma-cap-modal-icon">📚</div>
-        <div class="ssoma-cap-modal-tema" id="ssomaCapModalTema">—</div>
-        <div class="ssoma-cap-modal-cap" id="ssomaCapModalCap">—</div>
-        <div class="ssoma-cap-modal-fecha" id="ssomaCapModalFecha">—</div>
-
-        <div class="ssoma-cap-modal-grupo">
-          <div class="ssoma-cap-modal-pregunta">¿La charla SE CUMPLIÓ?</div>
-          <div class="ssoma-cap-modal-botones">
-            <button class="ssoma-cap-modal-btn btn-yes" data-grupo="cumplio" data-valor="true" onclick="ssomaCapModalSelect('cumplio', true)">✓ SÍ</button>
-            <button class="ssoma-cap-modal-btn btn-no" data-grupo="cumplio" data-valor="false" onclick="ssomaCapModalSelect('cumplio', false)">✗ NO</button>
-          </div>
-        </div>
-
-        <div class="ssoma-cap-modal-grupo" id="ssomaCapModalGrupoAsistio">
-          <div class="ssoma-cap-modal-pregunta">¿ASISTIÓ el staff a la charla?</div>
-          <div class="ssoma-cap-modal-botones">
-            <button class="ssoma-cap-modal-btn btn-yes" data-grupo="asistio" data-valor="true" onclick="ssomaCapModalSelect('asistio', true)">✓ SÍ</button>
-            <button class="ssoma-cap-modal-btn btn-no" data-grupo="asistio" data-valor="false" onclick="ssomaCapModalSelect('asistio', false)">✗ NO</button>
-          </div>
-        </div>
-
-        <div class="ssoma-cap-modal-acciones">
-          <button class="ssoma-cap-modal-btn-secondary" onclick="ssomaCapCerrarModal()">Cancelar</button>
-          <button class="ssoma-cap-modal-btn-primary" id="ssomaCapModalGuardar" onclick="ssomaCapGuardarModal()" disabled>Guardar</button>
-        </div>
-      </div>`;
-    document.body.appendChild(modal);
-    // Cerrar con click en backdrop
-    modal.addEventListener('click', (e) => {
-      if(e.target === modal) ssomaCapCerrarModal();
-    });
-    // Cerrar con ESC
-    document.addEventListener('keydown', (e) => {
-      if(e.key === 'Escape'){
-        const m = document.getElementById('ssomaCapModal');
-        if(m && m.classList.contains('is-open')) ssomaCapCerrarModal();
-      }
-    });
-  }
-
-  // Llenar contenido
-  document.getElementById('ssomaCapModalTema').textContent = charla.tema;
-  document.getElementById('ssomaCapModalCap').textContent = `Capacitador: ${charla.capacitador}`;
-
-  const [y, m] = ssomaCapMesActual.split('-').map(Number);
-  const fechaCharla = new Date(y, m-1, charla.dia);
-  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  document.getElementById('ssomaCapModalFecha').textContent = `${dias[fechaCharla.getDay()]} ${charla.dia} de ${meses[m-1]} ${y}`;
-
-  // Estado del modal
-  ssomaCapModalEstado = {
-    key,
-    cumplio: actual.cumplio,
-    asistio: actual.asistio,
-    charla
-  };
-
-  // Marcar botones según el estado actual
-  document.querySelectorAll('#ssomaCapModal .ssoma-cap-modal-btn').forEach(btn => {
-    btn.classList.remove('is-selected');
-    const grupo = btn.dataset.grupo;
-    const valor = btn.dataset.valor === 'true';
-    if(actual[grupo] === valor) btn.classList.add('is-selected');
-  });
-
-  // Mostrar/ocultar grupo Asistió según cumplio
-  const grupoAsist = document.getElementById('ssomaCapModalGrupoAsistio');
-  if(actual.cumplio === false){
-    grupoAsist.classList.add('disabled');
-    ssomaCapModalEstado.asistio = false;
-  } else {
-    grupoAsist.classList.remove('disabled');
-  }
-
-  ssomaCapActualizarBotonGuardar();
-  modal.classList.add('is-open');
-}
-
-let ssomaCapModalEstado = null;
-
-function ssomaCapModalSelect(grupo, valor){
-  if(!ssomaCapModalEstado) return;
-  // Si el grupo asistio está deshabilitado, no permitir cambios
-  if(grupo === 'asistio'){
-    const grupoAsist = document.getElementById('ssomaCapModalGrupoAsistio');
-    if(grupoAsist && grupoAsist.classList.contains('disabled')) return;
-  }
-  ssomaCapModalEstado[grupo] = valor;
-
-  // Si se elige NO en cumplio, automáticamente NO en asistio + deshabilitar grupo
-  const grupoAsist = document.getElementById('ssomaCapModalGrupoAsistio');
-  if(grupo === 'cumplio'){
-    if(valor === false){
-      ssomaCapModalEstado.asistio = false;
-      grupoAsist.classList.add('disabled');
-    } else {
-      grupoAsist.classList.remove('disabled');
-    }
-  }
-
-  // Actualizar UI: marcar el botón seleccionado en cada grupo
-  document.querySelectorAll('#ssomaCapModal .ssoma-cap-modal-btn').forEach(btn => {
-    const g = btn.dataset.grupo;
-    const v = btn.dataset.valor === 'true';
-    if(ssomaCapModalEstado[g] === v){
-      btn.classList.add('is-selected');
-    } else {
-      btn.classList.remove('is-selected');
-    }
-  });
-
-  ssomaCapActualizarBotonGuardar();
-}
-
-function ssomaCapActualizarBotonGuardar(){
-  const btn = document.getElementById('ssomaCapModalGuardar');
-  if(!btn || !ssomaCapModalEstado) return;
-  const c = ssomaCapModalEstado.cumplio;
-  const a = ssomaCapModalEstado.asistio;
-  let valido = false;
-  if(c === false) valido = true;
-  else if(c === true && (a === true || a === false)) valido = true;
-  btn.disabled = !valido;
-}
-
-function ssomaCapCerrarModal(){
-  const modal = document.getElementById('ssomaCapModal');
-  if(modal) modal.classList.remove('is-open');
-  ssomaCapModalEstado = null;
-}
-
-function ssomaCapGuardarModal(){
-  if(!ssomaCapModalEstado) return;
-  const { key, cumplio, asistio } = ssomaCapModalEstado;
-  if(cumplio === null) return;
-
-  ssomaCapAsistencias[key] = {
-    cumplio: !!cumplio,
-    asistio: cumplio ? !!asistio : false,
-    fecha_registro: new Date().toISOString(),
-    registrado_por: (currentSession && currentSession.usuario) || '—'
-  };
-
-  ssomaCapGuardarAsistFirestore(key);
-  ssomaCapCerrarModal();
-  renderSsomaCapPrograma();
-}
-
-async function ssomaCapGuardarAsistFirestore(key){
-  if(!window.E140_DB){
-    console.warn('[E140] Firestore no disponible — asistencia no persistida');
-    return;
-  }
-  try {
-    const { db, doc, setDoc, serverTimestamp } = window.E140_DB;
-    const data = ssomaCapAsistencias[key];
-    if(!data) return;
-    await setDoc(doc(db, 'ssoma_charlas', key), {
-      key,
-      cumplio: !!data.cumplio,
-      asistio: !!data.asistio,
-      registrado_por: data.registrado_por || '—',
-      fecha_registro: data.fecha_registro || new Date().toISOString(),
-      ts: serverTimestamp()
-    }, { merge: true });
-  } catch(e){
-    console.error('[E140] Error guardando asistencia SSOMA:', e);
-  }
-}
-
-// Cargar asistencias desde Firestore al iniciar
-async function ssomaCapCargarAsistFirestore(){
-  if(!window.E140_DB) return;
-  try {
-    const { db, collection, getDocs } = window.E140_DB;
-    const snap = await getDocs(collection(db, 'ssoma_charlas'));
-    ssomaCapAsistencias = {};
-    snap.forEach(s => {
-      const d = s.data();
-      // Soporte modelo nuevo (cumplio/asistio) y migración de modelo viejo (convocados/asistentes)
-      if(typeof d.cumplio !== 'undefined' || typeof d.asistio !== 'undefined'){
-        ssomaCapAsistencias[s.id] = {
-          cumplio: !!d.cumplio,
-          asistio: !!d.asistio,
-          registrado_por: d.registrado_por || '—',
-          fecha_registro: d.fecha_registro || null
-        };
-      } else if(typeof d.convocados !== 'undefined'){
-        // Migración: si tenía convocados>0, asumir cumplio=true; si asistentes>=convocados/2, asistio=true
-        const conv = Number(d.convocados) || 0;
-        const asist = Number(d.asistentes) || 0;
-        ssomaCapAsistencias[s.id] = {
-          cumplio: conv > 0,
-          asistio: conv > 0 && asist >= conv * 0.5,
-          registrado_por: d.registrado_por || '—',
-          fecha_registro: d.fecha_registro || null
-        };
-      }
-    });
-    console.log(`[E140] Asistencias SSOMA cargadas: ${Object.keys(ssomaCapAsistencias).length}`);
-  } catch(e){
-    console.warn('[E140] Error cargando asistencias SSOMA:', e);
-  }
-}
-
-/* ───── CARGA DE EXCEL MENSUAL (formato SIG.103-F01) ───── */
-function ssomaCapAbrirCargaExcel(){
-  // Crear un input file dinámico
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.xlsx,.xls';
-  input.onchange = (e) => {
-    const file = e.target.files[0];
-    if(!file) return;
-    ssomaCapProcesarExcel(file);
-  };
-  input.click();
-}
-
-async function ssomaCapProcesarExcel(file){
-  try {
-    if(typeof XLSX === 'undefined'){
-      alert('⚠ La librería XLSX no está cargada. Recarga la página e intenta de nuevo.');
-      return;
-    }
-    const buf = await file.arrayBuffer();
-    const wb = XLSX.read(buf, { type:'array', cellDates:true });
-    const sheet = wb.Sheets[wb.SheetNames[0]];
-    // Convertir a array de arrays. raw:true para preservar números reales
-    const rows = XLSX.utils.sheet_to_json(sheet, { header:1, raw:true, defval:null });
-
-    // ─── 1. Detectar mes/año ───
-    // Estrategia A: buscar celda Date (datetime) en filas iniciales (fila 7 col 7 en formato standard)
-    let mesAno = null;
-    for(let r = 0; r < Math.min(15, rows.length); r++){
-      const row = rows[r] || [];
-      for(let c = 0; c < row.length; c++){
-        const v = row[c];
-        if(v instanceof Date && !isNaN(v)){
-          mesAno = `${v.getFullYear()}-${String(v.getMonth()+1).padStart(2,'0')}`;
-          break;
-        }
-        // Estrategia B: string con formato dd/mm/yyyy
-        if(v && typeof v === 'string'){
-          const m = v.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-          if(m){ mesAno = `${m[3]}-${String(m[2]).padStart(2,'0')}`; break; }
-        }
-      }
-      if(mesAno) break;
-    }
-
-    // Estrategia C: usar nombre de hoja (ej: "ABR-26", "MAY-26")
-    if(!mesAno){
-      const sheetName = wb.SheetNames[0];
-      const matchSheet = sheetName.match(/^([a-zA-ZáéíóúÁÉÍÓÚÑñ]{3,})-?(\d{2,4})$/);
-      if(matchSheet){
-        const mesTxt = matchSheet[1].toUpperCase();
-        const yearTxt = matchSheet[2];
-        const mesMap = {
-          'ENE':'01','FEB':'02','MAR':'03','ABR':'04','MAY':'05','JUN':'06',
-          'JUL':'07','AGO':'08','SEP':'09','SET':'09','OCT':'10','NOV':'11','DIC':'12',
-          'ENERO':'01','FEBRERO':'02','MARZO':'03','ABRIL':'04','MAYO':'05','JUNIO':'06',
-          'JULIO':'07','AGOSTO':'08','SEPTIEMBRE':'09','OCTUBRE':'10','NOVIEMBRE':'11','DICIEMBRE':'12'
-        };
-        const mes = mesMap[mesTxt] || mesMap[mesTxt.slice(0,3)];
-        if(mes){
-          let yearFull = yearTxt.length === 2 ? '20' + yearTxt : yearTxt;
-          mesAno = `${yearFull}-${mes}`;
-        }
-      }
-    }
-
-    // ─── 2. Detectar fila de números 1-31 (header de días) ───
-    // Estrategia robusta: buscar fila que contenga al menos 25 valores entre 1 y 31, sin importar
-    // si son number o string
-    let rowDiasIdx = -1;
-    let colDia1 = -1;
-    for(let r = 0; r < Math.min(20, rows.length); r++){
-      const row = rows[r] || [];
-      // Recorrer celdas, buscar dónde aparece "1" y verificar que las siguientes sean 2, 3, 4...
-      for(let c = 0; c < row.length; c++){
-        const v = row[c];
-        let n = null;
-        if(typeof v === 'number') n = v;
-        else if(typeof v === 'string' && /^\d+$/.test(v.trim())) n = parseInt(v, 10);
-        if(n === 1){
-          // Verificar que las siguientes 7 celdas sean 2,3,4,5,6,7,8
-          let valido = true;
-          for(let k = 1; k <= 7; k++){
-            const v2 = row[c + k];
-            let n2 = null;
-            if(typeof v2 === 'number') n2 = v2;
-            else if(typeof v2 === 'string' && /^\d+$/.test(v2.trim())) n2 = parseInt(v2, 10);
-            if(n2 !== k + 1){ valido = false; break; }
-          }
-          if(valido){
-            rowDiasIdx = r;
-            colDia1 = c;
-            break;
-          }
-        }
-      }
-      if(rowDiasIdx !== -1) break;
-    }
-
-    if(rowDiasIdx === -1){
-      console.error('[E140] Estructura del Excel:', rows.slice(0, 13));
-      alert('⚠ No se pudo detectar la fila de días (1-31) en el Excel.\n\nEl formato esperado es SIG.103-F01:\n• Fila con números 1, 2, 3, ..., 31 secuenciales\n• Una columna con "Días Calendarios"\n\nRevisa la consola del navegador (F12) para ver la estructura detectada.');
-      return;
-    }
-
-    // ─── 3. Extraer las charlas (filas debajo de "TEMAS DE CAPACITACIÓN") ───
-    let rowInicioTemas = rowDiasIdx + 1;
-    for(let r = rowDiasIdx; r < Math.min(rowDiasIdx + 5, rows.length); r++){
-      const row = rows[r] || [];
-      const txt = (row[1] || '').toString().toUpperCase();
-      if(txt.includes('TEMAS DE CAPACITACIÓN') || txt.includes('TEMAS DE CAPACITACION')){
-        rowInicioTemas = r + 1;
-        break;
-      }
-    }
-
-    const charlasNuevas = [];
-    for(let r = rowInicioTemas; r < rows.length; r++){
-      const row = rows[r] || [];
-      const tema = (row[1] || '').toString().trim();
-      if(!tema) continue;
-      // Si el tema dice "STAFF DE PREVENCIÓN..." o algo de footer, parar
-      if(/STAFF\s+DE\s+PREVENCI[ÓO]N|INGENIERO\s+RESIDENTE|FIRMA/i.test(tema)) break;
-
-      // Buscar capacitador (col 5 normalmente)
-      let cap = '';
-      for(let cc = 4; cc <= 6; cc++){
-        const v = (row[cc] || '').toString().trim();
-        if(v && !v.match(/^\d+:\d+/) && cc !== 6){ cap = v; break; }
-      }
-      // Buscar días marcados con x/X (ignorar "FERIADO" u otros textos)
-      for(let c = colDia1; c < colDia1 + 31 && c < row.length; c++){
-        const v = row[c];
-        if(v && typeof v === 'string'){
-          const txt = v.trim().toLowerCase();
-          if(txt === 'x'){
-            const dia = c - colDia1 + 1;
-            charlasNuevas.push({ dia, tema, capacitador: cap });
-          }
-        }
-      }
-    }
-
-    if(charlasNuevas.length === 0){
-      alert('⚠ No se encontraron charlas marcadas con "x" en el archivo.\n\nVerifica que las casillas tengan exactamente "x" o "X".');
-      return;
-    }
-    if(!mesAno){
-      mesAno = prompt('No se detectó el mes en el Excel. Ingresa mes y año en formato YYYY-MM (ej: 2026-05):');
-      if(!mesAno || !/^\d{4}-\d{2}$/.test(mesAno)){
-        alert('⚠ Formato inválido. Cancelado.');
-        return;
-      }
-    }
-
-    charlasNuevas.sort((a,b) => a.dia - b.dia);
-
-    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-    const [yy, mm] = mesAno.split('-').map(Number);
-    const confirmTxt = `📋 Detectado:\n\n• Mes: ${meses[mm-1]} ${yy}\n• Total charlas: ${charlasNuevas.length}\n\n¿Cargar este programa?`;
-    const ok = window.confirm(confirmTxt);
-    if(!ok) return;
-
-    SSOMA_CAP_PROGRAMAS[mesAno] = charlasNuevas;
-    await ssomaCapGuardarProgramaFirestore(mesAno, charlasNuevas);
-
-    ssomaCapMesActual = mesAno;
-    renderSsomaCapPrograma();
-    alert(`✅ Programa de ${meses[mm-1]} ${yy} cargado con ${charlasNuevas.length} charlas.`);
-  } catch(e){
-    console.error('[E140] Error procesando Excel:', e);
-    alert('⚠ Error al procesar el archivo Excel: ' + e.message);
-  }
-}
-
-async function ssomaCapGuardarProgramaFirestore(mesAno, charlas){
-  if(!window.E140_DB) return;
-  try {
-    const { db, doc, setDoc, serverTimestamp } = window.E140_DB;
-    await setDoc(doc(db, 'ssoma_programas', mesAno), {
-      mes: mesAno,
-      charlas,
-      cargado_por: (currentSession && currentSession.usuario) || '—',
-      fecha_carga: new Date().toISOString(),
-      ts: serverTimestamp()
-    });
-  } catch(e){
-    console.error('[E140] Error guardando programa:', e);
-  }
-}
-
-async function ssomaCapCargarProgramasFirestore(){
-  if(!window.E140_DB) return;
-  try {
-    const { db, collection, getDocs } = window.E140_DB;
-    const snap = await getDocs(collection(db, 'ssoma_programas'));
-    snap.forEach(s => {
-      const d = s.data();
-      if(d.mes && Array.isArray(d.charlas)){
-        SSOMA_CAP_PROGRAMAS[d.mes] = d.charlas;
-      }
-    });
-    console.log(`[E140] Programas SSOMA cargados: ${Object.keys(SSOMA_CAP_PROGRAMAS).length} meses`);
-  } catch(e){
-    console.warn('[E140] Error cargando programas SSOMA:', e);
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   PROGRAMA DE INSPECCIONES SST (SIG.103-F02)
-   Modelo simple: una columna marcable (¿Se cumplió?)
-   ═══════════════════════════════════════════════════════════════════ */
-
+// ── Programas de INSPECCIONES ──
 const SSOMA_INSP_PROGRAMAS = {
   '2026-04': [
     { dia: 1, tema:'Inspección Tableros eléctricos', inspector:'Operario IIEE', area:'CAMPO OBRA' },
@@ -11056,281 +10493,449 @@ const SSOMA_INSP_PROGRAMAS = {
   ]
 };
 
-// Precarga abril 2026: todas cumplidas
+// Precarga abril 2026 inspecciones
 const SSOMA_INSP_ABRIL_PRECARGA = (() => {
   const result = {};
   (SSOMA_INSP_PROGRAMAS['2026-04'] || []).forEach((c, idx) => {
     const fechaStr = `2026-04-${String(c.dia).padStart(2,'0')}`;
-    const key = `${fechaStr}_${idx}`;
-    result[key] = {
-      cumplio: true,
-      registrado_por: 'precarga',
-      fecha_registro: '2026-04-30T00:00:00.000Z'
-    };
+    result[`${fechaStr}_${idx}`] = { cumplio: true, registrado_por:'precarga', fecha_registro:'2026-04-30T00:00:00.000Z' };
   });
   return result;
 })();
 
-let ssomaInspMesActual = '2026-04';
-let ssomaInspRegistros = {}; // { 'YYYY-MM-DD_idx': { cumplio: true/false } }
+// Estado del módulo Agenda
+let agendaMesActual = '2026-04';
+let agendaFiltroTipo = 'todos'; // 'todos' | 'charlas' | 'inspecciones'
+let ssomaCapAsistencias = {}; // { 'YYYY-MM-DD_idx': { cumplio, asistio } }
+let ssomaInspRegistros = {};   // { 'YYYY-MM-DD_idx': { cumplio } }
 
-function ssomaInspInicializarMes(){
+// ─── Inicialización ───
+function agendaInicializarMes(){
   const hoy = new Date();
   const mesActual = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
-  if(SSOMA_INSP_PROGRAMAS[mesActual]){
-    ssomaInspMesActual = mesActual;
+  if(SSOMA_CAP_PROGRAMAS[mesActual] || SSOMA_INSP_PROGRAMAS[mesActual]){
+    agendaMesActual = mesActual;
   } else {
-    const meses = Object.keys(SSOMA_INSP_PROGRAMAS).sort();
-    if(meses.length > 0) ssomaInspMesActual = meses[meses.length - 1];
+    const meses = [...new Set([...Object.keys(SSOMA_CAP_PROGRAMAS), ...Object.keys(SSOMA_INSP_PROGRAMAS)])].sort();
+    if(meses.length > 0) agendaMesActual = meses[meses.length - 1];
   }
 }
 
-function ssomaInspNavegarMes(delta){
-  const [y, m] = ssomaInspMesActual.split('-').map(Number);
+function agendaNavegarMes(delta){
+  const [y, m] = agendaMesActual.split('-').map(Number);
   const dt = new Date(y, m - 1 + delta, 1);
-  ssomaInspMesActual = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
-  renderSsomaInspPrograma();
+  agendaMesActual = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
+  renderAgendaSsoma();
 }
 
-function renderSsomaInspPrograma(){
-  const labelEl = document.getElementById('ssomaInspMesLabel');
-  const tablaEl = document.getElementById('ssomaInspTablaWrap');
-  if(!labelEl || !tablaEl) return;
+function agendaCambiarFiltro(tipo){
+  agendaFiltroTipo = tipo;
+  document.querySelectorAll('.agenda-toggle-btn').forEach(b => b.classList.toggle('is-active', b.dataset.tipo === tipo));
+  renderAgendaSsoma();
+}
 
-  if(!ssomaInspMesActual) ssomaInspInicializarMes();
-  const [y, m] = ssomaInspMesActual.split('-').map(Number);
+// ─── Helper: obtener charlas e inspecciones de un día ───
+function agendaActividadesDelDia(mesAno, dia){
+  const programaCap = SSOMA_CAP_PROGRAMAS[mesAno] || [];
+  const programaInsp = SSOMA_INSP_PROGRAMAS[mesAno] || [];
+  const fechaStr = `${mesAno}-${String(dia).padStart(2,'0')}`;
+
+  const charlas = [];
+  programaCap.forEach((c, idx) => {
+    if(c.dia === dia){
+      const key = `${fechaStr}_${idx}`;
+      let reg = ssomaCapAsistencias[key] || (mesAno === '2026-04' ? SSOMA_CAP_ABRIL_PRECARGA[key] : null);
+      charlas.push({ ...c, idx, key, registro: reg });
+    }
+  });
+
+  const inspecciones = [];
+  programaInsp.forEach((c, idx) => {
+    if(c.dia === dia){
+      const key = `${fechaStr}_${idx}`;
+      let reg = ssomaInspRegistros[key] || (mesAno === '2026-04' ? SSOMA_INSP_ABRIL_PRECARGA[key] : null);
+      inspecciones.push({ ...c, idx, key, registro: reg });
+    }
+  });
+
+  return { charlas, inspecciones };
+}
+
+// ─── RENDER PRINCIPAL ───
+function renderAgendaSsoma(){
+  if(!agendaMesActual) agendaInicializarMes();
+  const labelEl = document.getElementById('agendaMesLabel');
+  const wrap = document.getElementById('agendaCalendarioWrap');
+  if(!labelEl || !wrap) return;
+
+  const [y, m] = agendaMesActual.split('-').map(Number);
   const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
   labelEl.textContent = `${meses[m-1]} ${y}`;
 
-  const programa = SSOMA_INSP_PROGRAMAS[ssomaInspMesActual] || [];
+  const programaCap = SSOMA_CAP_PROGRAMAS[agendaMesActual] || [];
+  const programaInsp = SSOMA_INSP_PROGRAMAS[agendaMesActual] || [];
+  const sinPrograma = programaCap.length === 0 && programaInsp.length === 0;
 
-  if(programa.length === 0){
-    tablaEl.innerHTML = `
-      <div style="padding:30px;text-align:center;background:#FAFBFC;border:1px dashed var(--border-mid);border-radius:8px;color:var(--text-muted);">
-        <div style="font-size:28px;margin-bottom:8px;opacity:.5;">🔍</div>
-        <div style="font-weight:600;margin-bottom:4px;">Programa no cargado para ${meses[m-1]} ${y}</div>
-        <div style="font-size:11px;font-style:italic;margin-bottom:14px;">El responsable SSOMA aún no ha cargado el programa para este mes.</div>
-        <button class="admin-only" onclick="ssomaInspAbrirCargaExcel()" style="background:#E07B39;border:none;color:#fff;border-radius:6px;padding:9px 18px;font-weight:700;cursor:pointer;font-size:12px;">📤 Cargar programa Excel</button>
+  if(sinPrograma){
+    wrap.innerHTML = `
+      <div class="agenda-empty">
+        <div style="font-size:36px;opacity:.5;margin-bottom:6px">📋</div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:4px">Sin programas para ${meses[m-1]} ${y}</div>
+        <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:14px">Carga el Excel SIG.103-F01 (Charlas) o SIG.103-F02 (Inspecciones) para ver el calendario.</div>
+        <button class="admin-only agenda-excel-btn" onclick="agendaAbrirCargaExcel()">📤 Cargar programa Excel</button>
       </div>`;
-    actualizarKpisInspNull();
+    actualizarKpisAgendaNull();
     return;
   }
 
+  // Calcular días del mes y primer día de la semana (lunes=0)
+  const primerDiaMes = new Date(y, m-1, 1);
+  const diasEnMes = new Date(y, m, 0).getDate();
+  // JS: 0=domingo, 1=lunes... Convertimos a 0=lunes, 6=domingo
+  let primerDiaSemana = primerDiaMes.getDay() - 1;
+  if(primerDiaSemana < 0) primerDiaSemana = 6;
+
   const hoy = new Date();
   hoy.setHours(0,0,0,0);
+  const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
 
-  let cumplidas = 0;
-  const programadasHastaHoy = [];
+  // Generar celdas
+  let celdasHtml = '';
+  // Celdas vacías al inicio
+  for(let i = 0; i < primerDiaSemana; i++){
+    celdasHtml += `<div class="agenda-cell agenda-cell-empty"></div>`;
+  }
 
-  const filas = programa.map((c, idx) => {
-    const fechaStr = `${y}-${String(m).padStart(2,'0')}-${String(c.dia).padStart(2,'0')}`;
-    const key = `${fechaStr}_${idx}`;
-    let reg = ssomaInspRegistros[key] || null;
+  // KPIs acumuladores
+  let kCharlasCumpl = 0, kCharlasTotal = 0, kCharlasHasta = 0;
+  let kStaffSi = 0, kStaffTotal = 0;
+  let kInspCumpl = 0, kInspTotal = 0, kInspHasta = 0;
 
-    // Precarga abril 2026
-    if(!reg && ssomaInspMesActual === '2026-04' && SSOMA_INSP_ABRIL_PRECARGA[key]){
-      reg = SSOMA_INSP_ABRIL_PRECARGA[key];
-    }
+  for(let dia = 1; dia <= diasEnMes; dia++){
+    const fechaCelda = new Date(y, m-1, dia);
+    fechaCelda.setHours(0,0,0,0);
+    const fechaStr = `${y}-${String(m).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+    const esHoy = (fechaStr === hoyStr);
+    const yaPaso = fechaCelda.getTime() <= hoy.getTime();
 
-    const fechaInsp = new Date(y, m-1, c.dia);
-    fechaInsp.setHours(0,0,0,0);
-    const yaPaso = fechaInsp.getTime() <= hoy.getTime();
+    const act = agendaActividadesDelDia(agendaMesActual, dia);
+    const charlasDia = (agendaFiltroTipo === 'inspecciones') ? [] : act.charlas;
+    const inspDia = (agendaFiltroTipo === 'charlas') ? [] : act.inspecciones;
+    const totalActividades = charlasDia.length + inspDia.length;
 
-    if(yaPaso) programadasHastaHoy.push(key);
+    // Acumular para KPIs (no se ve afectado por filtro visual; siempre todo)
+    act.charlas.forEach(c => {
+      kCharlasTotal++;
+      if(yaPaso) kCharlasHasta++;
+      if(c.registro){
+        if(c.registro.cumplio) kCharlasCumpl++;
+        kStaffTotal++;
+        if(c.registro.asistio) kStaffSi++;
+      }
+    });
+    act.inspecciones.forEach(c => {
+      kInspTotal++;
+      if(yaPaso) kInspHasta++;
+      if(c.registro && c.registro.cumplio) kInspCumpl++;
+    });
 
-    let estadoCls, badge;
-    if(reg){
-      const cumplio = reg.cumplio === true;
-      if(cumplio) cumplidas++;
-      badge = cumplio
-        ? `<span class="cap-pill-yes">✓ SÍ</span>`
-        : `<span class="cap-pill-no">✗ NO</span>`;
-      estadoCls = cumplio ? 'cap-dictada' : 'cap-fallada';
-    } else if(yaPaso){
-      badge = `<span class="cap-pill-pendiente">— Pendiente</span>`;
-      estadoCls = 'cap-vencida';
+    // Determinar estado de la celda
+    let cellState = 'empty';
+    let badgeIconCharlas = '';
+    let badgeIconInsp = '';
+    let estadoIcon = '';
+
+    if(totalActividades === 0){
+      cellState = 'sin-actividad';
     } else {
-      badge = `<span class="cap-pill-future">📅 Futuro</span>`;
-      estadoCls = 'cap-pendiente';
+      // Marcadas / pendientes / futuras
+      let charlasMarcadas = charlasDia.filter(x => x.registro).length;
+      let inspMarcadas = inspDia.filter(x => x.registro).length;
+      let totalMarcadas = charlasMarcadas + inspMarcadas;
+
+      if(totalMarcadas === totalActividades){
+        // Todo marcado: ¿todo cumplió?
+        const todoOk = charlasDia.every(x => x.registro && x.registro.cumplio) && inspDia.every(x => x.registro && x.registro.cumplio);
+        cellState = todoOk ? 'completo' : 'parcial';
+        estadoIcon = todoOk ? '✓' : '⚠';
+      } else if(yaPaso){
+        cellState = 'pendiente';
+        estadoIcon = '⚠';
+      } else {
+        cellState = 'futuro';
+        estadoIcon = '📅';
+      }
+
+      if(charlasDia.length > 0) badgeIconCharlas = `<span class="agenda-cell-badge bdg-charla" title="${charlasDia.length} charla(s)">📚 ${charlasDia.length}</span>`;
+      if(inspDia.length > 0)    badgeIconInsp    = `<span class="agenda-cell-badge bdg-insp" title="${inspDia.length} inspección(es)">🔍 ${inspDia.length}</span>`;
     }
 
-    const diaSemana = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][fechaInsp.getDay()];
-    const fechaLbl = `${String(c.dia).padStart(2,'0')}-${meses[m-1].slice(0,3).toLowerCase()}`;
+    const hoyCls = esHoy ? ' is-hoy' : '';
+    const clickable = totalActividades > 0;
+    const onclick = clickable ? `onclick="abrirPopupDia('${fechaStr}', ${dia})"` : '';
+    const cursor = clickable ? '' : 'style="cursor:default"';
 
-    const puedeRegistrar = currentSession && (currentSession.usuario === 'adm' || currentSession.usuario === 'oficina' || currentSession.usuario === 'residente');
-    const accionBtn = puedeRegistrar
-      ? (reg
-          ? `<button onclick="ssomaInspEditarReg('${key}', ${idx})" style="background:#fff;border:1px solid var(--twitter-blue);color:var(--twitter-blue);border-radius:5px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-weight:600;">✏ Editar</button>`
-          : (yaPaso
-              ? `<button onclick="ssomaInspEditarReg('${key}', ${idx})" style="background:#E07B39;border:1px solid #E07B39;color:#fff;border-radius:5px;padding:4px 9px;font-size:10.5px;cursor:pointer;font-weight:600;">+ Marcar</button>`
-              : `<span style="font-size:10.5px;color:var(--text-muted);font-style:italic;">—</span>`))
-      : `<span style="font-size:10.5px;color:var(--text-muted);font-style:italic;">—</span>`;
+    celdasHtml += `
+      <div class="agenda-cell agenda-cell-${cellState}${hoyCls}" ${onclick} ${cursor}>
+        <div class="agenda-cell-num">${dia}</div>
+        <div class="agenda-cell-badges">
+          ${badgeIconCharlas}
+          ${badgeIconInsp}
+        </div>
+        ${estadoIcon ? `<div class="agenda-cell-estado">${estadoIcon}</div>` : ''}
+      </div>`;
+  }
 
-    return `
-      <tr class="cap-row ${estadoCls}">
-        <td class="td-center" style="font-family:'DM Mono',monospace;font-size:10.5px;font-weight:700;color:var(--text-muted);">${diaSemana} ${fechaLbl}</td>
-        <td style="font-size:11.5px;font-weight:600;">${c.tema}</td>
-        <td class="td-center" style="font-size:11px;color:var(--text-muted);">${c.inspector || '—'}</td>
-        <td class="td-center" style="font-size:10.5px;color:var(--text-muted);">${c.area || '—'}</td>
-        <td class="td-center">${badge}</td>
-        <td class="td-center">${accionBtn}</td>
-      </tr>`;
-  }).join('');
-
-  tablaEl.innerHTML = `
-    <div style="overflow:hidden;border:1px solid var(--border);border-radius:8px;">
-      <table style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr style="background:linear-gradient(135deg,#E07B39 0%,#C7621E 100%);color:#fff;">
-            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:90px;">Día</th>
-            <th style="padding:10px 11px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Inspección</th>
-            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Inspector</th>
-            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:115px;">Área</th>
-            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:115px;" title="¿Se cumplió la inspección?">¿Se cumplió?</th>
-            <th style="padding:10px 11px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:110px;">Acción</th>
-          </tr>
-        </thead>
-        <tbody>${filas}</tbody>
-      </table>
+  wrap.innerHTML = `
+    <div class="agenda-cal">
+      <div class="agenda-cal-headers">
+        <div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div><div>DOM</div>
+      </div>
+      <div class="agenda-cal-grid">${celdasHtml}</div>
     </div>`;
 
-  // KPI cumplimiento
-  const totalProgramadas = programa.length;
-  const totalHastaHoy = programadasHastaHoy.length;
-  const pctCumpl = totalHastaHoy > 0 ? (cumplidas / totalHastaHoy) * 100 : null;
+  // ─── Actualizar KPIs ───
+  const pctCh = kCharlasHasta > 0 ? (kCharlasCumpl / kCharlasHasta) * 100 : null;
+  const pctSt = kStaffTotal > 0 ? (kStaffSi / kStaffTotal) * 100 : null;
+  const pctIn = kInspHasta > 0 ? (kInspCumpl / kInspHasta) * 100 : null;
 
-  const cumplVal = document.getElementById('ssomaInspKpiCumplVal');
-  const cumplSub = document.getElementById('ssomaInspKpiCumplSub');
-  const cumplStatus = document.getElementById('ssomaInspKpiCumplStatus');
-  if(cumplVal){
-    if(pctCumpl == null){
-      cumplVal.textContent = '—';
-      cumplSub.textContent = 'Sin inspecciones vencidas en el mes';
-      cumplStatus.className = 'kpi-meta-status kpi-meta-seguimiento';
-      cumplStatus.textContent = '— Aún sin data';
-    } else {
-      cumplVal.textContent = pctCumpl.toFixed(1) + '%';
-      cumplSub.textContent = `${cumplidas} cumplidas de ${totalHastaHoy} programadas (${totalProgramadas} total mes)`;
-      cumplStatus.className = 'kpi-meta-status';
-      if(pctCumpl >= 90){ cumplStatus.classList.add('kpi-meta-cumple'); cumplStatus.textContent = '✓ Cumple'; }
-      else if(pctCumpl >= 70){ cumplStatus.classList.add('kpi-meta-seguimiento'); cumplStatus.textContent = '⚠ En seguimiento'; }
-      else { cumplStatus.classList.add('kpi-meta-nocumple'); cumplStatus.textContent = '✗ No cumple'; }
-    }
+  setearKpiAgenda('agendaKpiCharlas', pctCh, `${kCharlasCumpl}/${kCharlasHasta} cumplidas (${kCharlasTotal} mes)`, 90);
+  setearKpiAgenda('agendaKpiStaff',   pctSt, `${kStaffSi}/${kStaffTotal} con staff registradas`, 85);
+  setearKpiAgenda('agendaKpiInsp',    pctIn, `${kInspCumpl}/${kInspHasta} cumplidas (${kInspTotal} mes)`, 90);
+}
+
+function setearKpiAgenda(prefix, pct, sub, meta){
+  const v = document.getElementById(prefix+'Val');
+  const s = document.getElementById(prefix+'Sub');
+  const t = document.getElementById(prefix+'Status');
+  if(!v || !s || !t) return;
+  if(pct == null){
+    v.textContent = '—';
+    s.textContent = 'Sin data';
+    t.className = 'kpi-meta-status kpi-meta-seguimiento';
+    t.textContent = '—';
+  } else {
+    v.textContent = pct.toFixed(1) + '%';
+    s.textContent = sub;
+    t.className = 'kpi-meta-status';
+    if(pct >= meta){ t.classList.add('kpi-meta-cumple'); t.textContent = '✓ Cumple'; }
+    else if(pct >= meta-15){ t.classList.add('kpi-meta-seguimiento'); t.textContent = '⚠ En seguimiento'; }
+    else { t.classList.add('kpi-meta-nocumple'); t.textContent = '✗ No cumple'; }
   }
 }
 
-function actualizarKpisInspNull(){
-  const v = document.getElementById('ssomaInspKpiCumplVal'); if(v) v.textContent = '—';
-  const s = document.getElementById('ssomaInspKpiCumplSub'); if(s) s.textContent = 'Programa no cargado';
-  const t = document.getElementById('ssomaInspKpiCumplStatus');
-  if(t){ t.className = 'kpi-meta-status kpi-meta-seguimiento'; t.textContent = '—'; }
+function actualizarKpisAgendaNull(){
+  ['agendaKpiCharlas','agendaKpiStaff','agendaKpiInsp'].forEach(prefix => setearKpiAgenda(prefix, null, 'Sin programa', 90));
 }
 
-// ─── Modal de marcado (solo "¿Se cumplió?") ───
-let ssomaInspModalEstado = null;
+// ─── POPUP DEL DÍA ───
+let agendaPopupEstado = null; // { mesAno, dia, cambios: { 'tipo_idx': {cumplio,asistio} } }
 
-function ssomaInspEditarReg(key, idx){
-  const programa = SSOMA_INSP_PROGRAMAS[ssomaInspMesActual] || [];
-  const insp = programa[idx];
-  if(!insp) return;
-  const actual = ssomaInspRegistros[key] || { cumplio: null };
+function abrirPopupDia(fechaStr, dia){
+  const act = agendaActividadesDelDia(agendaMesActual, dia);
+  if(act.charlas.length === 0 && act.inspecciones.length === 0) return;
 
-  let modal = document.getElementById('ssomaInspModal');
+  const [y, m] = agendaMesActual.split('-').map(Number);
+  const fechaDia = new Date(y, m-1, dia);
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+  // Construir modal
+  let modal = document.getElementById('agendaPopup');
   if(!modal){
     modal = document.createElement('div');
-    modal.id = 'ssomaInspModal';
-    modal.className = 'ssoma-cap-modal-backdrop';
-    modal.innerHTML = `
-      <div class="ssoma-cap-modal-card" onclick="event.stopPropagation()">
-        <button class="ssoma-cap-modal-close" onclick="ssomaInspCerrarModal()" title="Cerrar">×</button>
-        <div class="ssoma-cap-modal-icon">🔍</div>
-        <div class="ssoma-cap-modal-tema" id="ssomaInspModalTema">—</div>
-        <div class="ssoma-cap-modal-cap" id="ssomaInspModalInsp">—</div>
-        <div class="ssoma-cap-modal-fecha" id="ssomaInspModalFecha">—</div>
-
-        <div class="ssoma-cap-modal-grupo">
-          <div class="ssoma-cap-modal-pregunta">¿La inspección SE CUMPLIÓ?</div>
-          <div class="ssoma-cap-modal-botones">
-            <button class="ssoma-cap-modal-btn btn-yes" data-valor="true" onclick="ssomaInspModalSelect(true)">✓ SÍ</button>
-            <button class="ssoma-cap-modal-btn btn-no" data-valor="false" onclick="ssomaInspModalSelect(false)">✗ NO</button>
-          </div>
-        </div>
-
-        <div class="ssoma-cap-modal-acciones">
-          <button class="ssoma-cap-modal-btn-secondary" onclick="ssomaInspCerrarModal()">Cancelar</button>
-          <button class="ssoma-cap-modal-btn-primary" id="ssomaInspModalGuardar" onclick="ssomaInspGuardarModal()" disabled>Guardar</button>
-        </div>
-      </div>`;
+    modal.id = 'agendaPopup';
+    modal.className = 'agenda-popup-backdrop';
     document.body.appendChild(modal);
-    modal.addEventListener('click', (e) => { if(e.target === modal) ssomaInspCerrarModal(); });
+    modal.addEventListener('click', (e) => { if(e.target === modal) cerrarPopupDia(); });
     document.addEventListener('keydown', (e) => {
       if(e.key === 'Escape'){
-        const m = document.getElementById('ssomaInspModal');
-        if(m && m.classList.contains('is-open')) ssomaInspCerrarModal();
+        const m = document.getElementById('agendaPopup');
+        if(m && m.classList.contains('is-open')) cerrarPopupDia();
       }
     });
   }
 
-  document.getElementById('ssomaInspModalTema').textContent = insp.tema;
-  document.getElementById('ssomaInspModalInsp').textContent = `Inspector: ${insp.inspector || '—'} · ${insp.area || '—'}`;
-
-  const [y, m] = ssomaInspMesActual.split('-').map(Number);
-  const fechaInsp = new Date(y, m-1, insp.dia);
-  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  document.getElementById('ssomaInspModalFecha').textContent = `${dias[fechaInsp.getDay()]} ${insp.dia} de ${meses[m-1]} ${y}`;
-
-  ssomaInspModalEstado = { key, cumplio: actual.cumplio, insp };
-
-  document.querySelectorAll('#ssomaInspModal .ssoma-cap-modal-btn').forEach(btn => {
-    btn.classList.remove('is-selected');
-    const valor = btn.dataset.valor === 'true';
-    if(actual.cumplio === valor) btn.classList.add('is-selected');
+  // Estado inicial: copiar valores actuales
+  agendaPopupEstado = { mesAno: agendaMesActual, dia, cambios: {} };
+  act.charlas.forEach(c => {
+    if(c.registro) agendaPopupEstado.cambios['ch_'+c.idx] = { cumplio: c.registro.cumplio, asistio: c.registro.asistio };
+  });
+  act.inspecciones.forEach(c => {
+    if(c.registro) agendaPopupEstado.cambios['in_'+c.idx] = { cumplio: c.registro.cumplio };
   });
 
-  ssomaInspActualizarBotonGuardar();
+  // Generar items
+  const charlasHtml = act.charlas.length === 0 ? '' : `
+    <div class="agenda-popup-seccion">
+      <div class="agenda-popup-seccion-titulo">📚 Charlas SST <span class="agenda-popup-count">${act.charlas.length}</span></div>
+      ${act.charlas.map(c => agendaPopupItemHtml(c, 'ch')).join('')}
+    </div>`;
+  const inspHtml = act.inspecciones.length === 0 ? '' : `
+    <div class="agenda-popup-seccion">
+      <div class="agenda-popup-seccion-titulo">🔍 Inspecciones SST <span class="agenda-popup-count">${act.inspecciones.length}</span></div>
+      ${act.inspecciones.map(c => agendaPopupItemHtml(c, 'in')).join('')}
+    </div>`;
+
+  modal.innerHTML = `
+    <div class="agenda-popup-card" onclick="event.stopPropagation()">
+      <button class="agenda-popup-close" onclick="cerrarPopupDia()" title="Cerrar">×</button>
+      <div class="agenda-popup-header">
+        <div class="agenda-popup-fecha-num">${dia}</div>
+        <div>
+          <div class="agenda-popup-fecha-mes">${meses[m-1]} ${y}</div>
+          <div class="agenda-popup-fecha-diasem">${dias[fechaDia.getDay()]}</div>
+        </div>
+      </div>
+      <div class="agenda-popup-body">
+        ${charlasHtml}
+        ${inspHtml}
+      </div>
+      <div class="agenda-popup-acciones">
+        <button class="agenda-popup-btn-secondary" onclick="cerrarPopupDia()">Cancelar</button>
+        <button class="agenda-popup-btn-primary" onclick="guardarPopupDia()">✓ Guardar todo</button>
+      </div>
+    </div>`;
+
   modal.classList.add('is-open');
 }
 
-function ssomaInspModalSelect(valor){
-  if(!ssomaInspModalEstado) return;
-  ssomaInspModalEstado.cumplio = valor;
-  document.querySelectorAll('#ssomaInspModal .ssoma-cap-modal-btn').forEach(btn => {
-    const v = btn.dataset.valor === 'true';
-    btn.classList.toggle('is-selected', valor === v);
+function agendaPopupItemHtml(c, tipo){
+  const reg = c.registro || {};
+  const k = `${tipo}_${c.idx}`;
+  const cumplioYes = reg.cumplio === true ? 'is-selected' : '';
+  const cumplioNo  = reg.cumplio === false ? 'is-selected' : '';
+
+  // Sub-info: capacitador o inspector+area
+  const subInfo = tipo === 'ch'
+    ? c.capacitador
+    : `${c.inspector || '—'}${c.area ? ' · ' + c.area : ''}`;
+
+  const asistioRow = tipo === 'ch' ? `
+    <div class="agenda-popup-pregunta-row">
+      <div class="agenda-popup-pregunta">¿Asistió Staff?</div>
+      <div class="agenda-popup-botones">
+        <button class="agenda-popup-btn-yn btn-yes ${reg.asistio === true ? 'is-selected' : ''}" data-key="${k}" data-campo="asistio" data-valor="true" onclick="popupSelect('${k}','asistio',true)">✓ SÍ</button>
+        <button class="agenda-popup-btn-yn btn-no ${reg.asistio === false ? 'is-selected' : ''}" data-key="${k}" data-campo="asistio" data-valor="false" onclick="popupSelect('${k}','asistio',false)">✗ NO</button>
+      </div>
+    </div>` : '';
+
+  return `
+    <div class="agenda-popup-item" data-key="${k}">
+      <div class="agenda-popup-item-tema">${c.tema}</div>
+      <div class="agenda-popup-item-sub">${subInfo}</div>
+      <div class="agenda-popup-pregunta-row">
+        <div class="agenda-popup-pregunta">¿Se cumplió?</div>
+        <div class="agenda-popup-botones">
+          <button class="agenda-popup-btn-yn btn-yes ${cumplioYes}" data-key="${k}" data-campo="cumplio" data-valor="true" onclick="popupSelect('${k}','cumplio',true)">✓ SÍ</button>
+          <button class="agenda-popup-btn-yn btn-no ${cumplioNo}" data-key="${k}" data-campo="cumplio" data-valor="false" onclick="popupSelect('${k}','cumplio',false)">✗ NO</button>
+        </div>
+      </div>
+      ${asistioRow}
+    </div>`;
+}
+
+function popupSelect(key, campo, valor){
+  if(!agendaPopupEstado) return;
+  if(!agendaPopupEstado.cambios[key]) agendaPopupEstado.cambios[key] = {};
+  agendaPopupEstado.cambios[key][campo] = valor;
+
+  // Actualizar UI: marcar el botón seleccionado
+  const item = document.querySelector(`.agenda-popup-item[data-key="${key}"]`);
+  if(!item) return;
+  item.querySelectorAll(`.agenda-popup-btn-yn[data-campo="${campo}"]`).forEach(b => {
+    b.classList.toggle('is-selected', b.dataset.valor === String(valor));
   });
-  ssomaInspActualizarBotonGuardar();
+
+  // Si se elige NO en cumplio (de charla), forzar asistió=NO
+  if(key.startsWith('ch_') && campo === 'cumplio' && valor === false){
+    agendaPopupEstado.cambios[key]['asistio'] = false;
+    item.querySelectorAll('.agenda-popup-btn-yn[data-campo="asistio"]').forEach(b => {
+      b.classList.toggle('is-selected', b.dataset.valor === 'false');
+    });
+  }
 }
 
-function ssomaInspActualizarBotonGuardar(){
-  const btn = document.getElementById('ssomaInspModalGuardar');
-  if(!btn || !ssomaInspModalEstado) return;
-  btn.disabled = ssomaInspModalEstado.cumplio === null;
-}
-
-function ssomaInspCerrarModal(){
-  const modal = document.getElementById('ssomaInspModal');
+function cerrarPopupDia(){
+  const modal = document.getElementById('agendaPopup');
   if(modal) modal.classList.remove('is-open');
-  ssomaInspModalEstado = null;
+  agendaPopupEstado = null;
 }
 
-function ssomaInspGuardarModal(){
-  if(!ssomaInspModalEstado) return;
-  const { key, cumplio } = ssomaInspModalEstado;
-  if(cumplio === null) return;
+async function guardarPopupDia(){
+  if(!agendaPopupEstado) return;
+  const { mesAno, dia, cambios } = agendaPopupEstado;
+  const fechaStr = `${mesAno}-${String(dia).padStart(2,'0')}`;
+  const usuario = (currentSession && currentSession.usuario) || '—';
+  const ts = new Date().toISOString();
 
-  ssomaInspRegistros[key] = {
-    cumplio: !!cumplio,
-    fecha_registro: new Date().toISOString(),
-    registrado_por: (currentSession && currentSession.usuario) || '—'
-  };
+  // Persistir cada cambio
+  const promesas = [];
+  Object.keys(cambios).forEach(k => {
+    const [tipo, idxStr] = k.split('_');
+    const idx = parseInt(idxStr, 10);
+    const c = cambios[k];
+    if(c.cumplio === undefined) return; // no se respondió, skip
 
-  ssomaInspGuardarFirestore(key);
-  ssomaInspCerrarModal();
-  renderSsomaInspPrograma();
+    const fullKey = `${fechaStr}_${idx}`;
+    if(tipo === 'ch'){
+      ssomaCapAsistencias[fullKey] = {
+        cumplio: !!c.cumplio,
+        asistio: c.cumplio ? !!c.asistio : false,
+        fecha_registro: ts,
+        registrado_por: usuario
+      };
+      promesas.push(ssomaCapGuardarAsistFirestore(fullKey));
+    } else if(tipo === 'in'){
+      ssomaInspRegistros[fullKey] = {
+        cumplio: !!c.cumplio,
+        fecha_registro: ts,
+        registrado_por: usuario
+      };
+      promesas.push(ssomaInspGuardarFirestore(fullKey));
+    }
+  });
+
+  // Esperar a que terminen (no bloquear UI)
+  Promise.allSettled(promesas).then(() => {
+    // Confirmación silenciosa, sólo actualizar UI
+  });
+
+  cerrarPopupDia();
+  renderAgendaSsoma();
 }
 
-// ─── Firestore ───
+// ─── PERSISTENCIA EN FIRESTORE (charlas + inspecciones) ───
+async function ssomaCapGuardarAsistFirestore(key){
+  if(!window.E140_DB) return;
+  try {
+    const { db, doc, setDoc, serverTimestamp } = window.E140_DB;
+    const data = ssomaCapAsistencias[key];
+    if(!data) return;
+    await setDoc(doc(db, 'ssoma_charlas', key), {
+      key, cumplio: !!data.cumplio, asistio: !!data.asistio,
+      registrado_por: data.registrado_por || '—',
+      fecha_registro: data.fecha_registro || new Date().toISOString(),
+      ts: serverTimestamp()
+    }, { merge: true });
+  } catch(e){ console.error('[E140] Error guardando charla:', e); }
+}
+
+async function ssomaCapCargarAsistFirestore(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs } = window.E140_DB;
+    const snap = await getDocs(collection(db, 'ssoma_charlas'));
+    ssomaCapAsistencias = {};
+    snap.forEach(s => {
+      const d = s.data();
+      if(typeof d.cumplio !== 'undefined' || typeof d.asistio !== 'undefined'){
+        ssomaCapAsistencias[s.id] = { cumplio: !!d.cumplio, asistio: !!d.asistio, registrado_por: d.registrado_por || '—', fecha_registro: d.fecha_registro || null };
+      }
+    });
+  } catch(e){ console.warn('[E140] Error cargando charlas:', e); }
+}
+
 async function ssomaInspGuardarFirestore(key){
   if(!window.E140_DB) return;
   try {
@@ -11338,15 +10943,12 @@ async function ssomaInspGuardarFirestore(key){
     const data = ssomaInspRegistros[key];
     if(!data) return;
     await setDoc(doc(db, 'ssoma_inspecciones', key), {
-      key,
-      cumplio: !!data.cumplio,
+      key, cumplio: !!data.cumplio,
       registrado_por: data.registrado_por || '—',
       fecha_registro: data.fecha_registro || new Date().toISOString(),
       ts: serverTimestamp()
     }, { merge: true });
-  } catch(e){
-    console.error('[E140] Error guardando inspección SSOMA:', e);
-  }
+  } catch(e){ console.error('[E140] Error guardando inspección:', e); }
 }
 
 async function ssomaInspCargarRegistrosFirestore(){
@@ -11357,16 +10959,32 @@ async function ssomaInspCargarRegistrosFirestore(){
     ssomaInspRegistros = {};
     snap.forEach(s => {
       const d = s.data();
-      ssomaInspRegistros[s.id] = {
-        cumplio: !!d.cumplio,
-        registrado_por: d.registrado_por || '—',
-        fecha_registro: d.fecha_registro || null
-      };
+      ssomaInspRegistros[s.id] = { cumplio: !!d.cumplio, registrado_por: d.registrado_por || '—', fecha_registro: d.fecha_registro || null };
     });
-    console.log(`[E140] Inspecciones SSOMA cargadas: ${Object.keys(ssomaInspRegistros).length}`);
-  } catch(e){
-    console.warn('[E140] Error cargando inspecciones SSOMA:', e);
-  }
+  } catch(e){ console.warn('[E140] Error cargando inspecciones:', e); }
+}
+
+async function ssomaCapGuardarProgramaFirestore(mesAno, charlas){
+  if(!window.E140_DB) return;
+  try {
+    const { db, doc, setDoc, serverTimestamp } = window.E140_DB;
+    await setDoc(doc(db, 'ssoma_programas', mesAno), {
+      mes: mesAno, charlas, cargado_por: (currentSession && currentSession.usuario) || '—',
+      fecha_carga: new Date().toISOString(), ts: serverTimestamp()
+    });
+  } catch(e){ console.error('[E140] Error guardando programa charlas:', e); }
+}
+
+async function ssomaCapCargarProgramasFirestore(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs } = window.E140_DB;
+    const snap = await getDocs(collection(db, 'ssoma_programas'));
+    snap.forEach(s => {
+      const d = s.data();
+      if(d.mes && Array.isArray(d.charlas)) SSOMA_CAP_PROGRAMAS[d.mes] = d.charlas;
+    });
+  } catch(e){ console.warn(e); }
 }
 
 async function ssomaInspGuardarProgramaFirestore(mesAno, inspecciones){
@@ -11374,15 +10992,10 @@ async function ssomaInspGuardarProgramaFirestore(mesAno, inspecciones){
   try {
     const { db, doc, setDoc, serverTimestamp } = window.E140_DB;
     await setDoc(doc(db, 'ssoma_insp_programas', mesAno), {
-      mes: mesAno,
-      inspecciones,
-      cargado_por: (currentSession && currentSession.usuario) || '—',
-      fecha_carga: new Date().toISOString(),
-      ts: serverTimestamp()
+      mes: mesAno, inspecciones, cargado_por: (currentSession && currentSession.usuario) || '—',
+      fecha_carga: new Date().toISOString(), ts: serverTimestamp()
     });
-  } catch(e){
-    console.error('[E140] Error guardando programa de inspecciones:', e);
-  }
+  } catch(e){ console.error('[E140] Error guardando programa inspecciones:', e); }
 }
 
 async function ssomaInspCargarProgramasFirestore(){
@@ -11392,39 +11005,48 @@ async function ssomaInspCargarProgramasFirestore(){
     const snap = await getDocs(collection(db, 'ssoma_insp_programas'));
     snap.forEach(s => {
       const d = s.data();
-      if(d.mes && Array.isArray(d.inspecciones)){
-        SSOMA_INSP_PROGRAMAS[d.mes] = d.inspecciones;
-      }
+      if(d.mes && Array.isArray(d.inspecciones)) SSOMA_INSP_PROGRAMAS[d.mes] = d.inspecciones;
     });
-    console.log(`[E140] Programas Inspecciones SSOMA cargados: ${Object.keys(SSOMA_INSP_PROGRAMAS).length} meses`);
-  } catch(e){
-    console.warn('[E140] Error cargando programas de inspecciones:', e);
-  }
+  } catch(e){ console.warn(e); }
 }
 
-// ─── Carga de Excel mensual ───
-function ssomaInspAbrirCargaExcel(){
+// ─── CARGA EXCEL UNIFICADA (detecta SIG.103-F01 vs SIG.103-F02) ───
+function agendaAbrirCargaExcel(){
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.xlsx,.xls';
   input.onchange = (e) => {
     const file = e.target.files[0];
     if(!file) return;
-    ssomaInspProcesarExcel(file);
+    agendaProcesarExcel(file);
   };
   input.click();
 }
 
-async function ssomaInspProcesarExcel(file){
+async function agendaProcesarExcel(file){
   try {
-    if(typeof XLSX === 'undefined'){
-      alert('⚠ La librería XLSX no está cargada. Recarga la página e intenta de nuevo.');
-      return;
-    }
+    if(typeof XLSX === 'undefined'){ alert('⚠ La librería XLSX no está cargada.'); return; }
     const buf = await file.arrayBuffer();
     const wb = XLSX.read(buf, { type:'array', cellDates:true });
     const sheet = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet, { header:1, raw:true, defval:null });
+
+    // Detectar tipo (F01 = Charlas, F02 = Inspecciones)
+    let tipoExcel = null;
+    for(let r = 0; r < Math.min(10, rows.length); r++){
+      const row = rows[r] || [];
+      for(let c = 0; c < row.length; c++){
+        const v = (row[c] || '').toString();
+        if(v.includes('SIG.103-F01')) tipoExcel = 'charlas';
+        else if(v.includes('SIG.103-F02')) tipoExcel = 'inspecciones';
+        else if(v.toUpperCase().includes('PROGRAMA DE CAPACITACI')) tipoExcel = tipoExcel || 'charlas';
+        else if(v.toUpperCase().includes('PROGRAMA DE INSPECCION')) tipoExcel = tipoExcel || 'inspecciones';
+      }
+    }
+    if(!tipoExcel){
+      const eleccion = window.confirm('No se pudo detectar el tipo automáticamente.\n\n¿Es un programa de CHARLAS (SIG.103-F01)?\n\n• Aceptar = CHARLAS\n• Cancelar = INSPECCIONES');
+      tipoExcel = eleccion ? 'charlas' : 'inspecciones';
+    }
 
     // Detectar mes/año
     let mesAno = null;
@@ -11432,10 +11054,7 @@ async function ssomaInspProcesarExcel(file){
       const row = rows[r] || [];
       for(let c = 0; c < row.length; c++){
         const v = row[c];
-        if(v instanceof Date && !isNaN(v)){
-          mesAno = `${v.getFullYear()}-${String(v.getMonth()+1).padStart(2,'0')}`;
-          break;
-        }
+        if(v instanceof Date && !isNaN(v)){ mesAno = `${v.getFullYear()}-${String(v.getMonth()+1).padStart(2,'0')}`; break; }
         if(v && typeof v === 'string'){
           const m = v.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
           if(m){ mesAno = `${m[3]}-${String(m[2]).padStart(2,'0')}`; break; }
@@ -11443,30 +11062,20 @@ async function ssomaInspProcesarExcel(file){
       }
       if(mesAno) break;
     }
-
     if(!mesAno){
       const sheetName = wb.SheetNames[0];
       const matchSheet = sheetName.match(/^([a-zA-ZáéíóúÁÉÍÓÚÑñ]{3,})-?(\d{2,4})$/);
       if(matchSheet){
         const mesTxt = matchSheet[1].toUpperCase();
         const yearTxt = matchSheet[2];
-        const mesMap = {
-          'ENE':'01','FEB':'02','MAR':'03','ABR':'04','MAY':'05','JUN':'06',
-          'JUL':'07','AGO':'08','SEP':'09','SET':'09','OCT':'10','NOV':'11','DIC':'12',
-          'ENERO':'01','FEBRERO':'02','MARZO':'03','ABRIL':'04','MAYO':'05','JUNIO':'06',
-          'JULIO':'07','AGOSTO':'08','SEPTIEMBRE':'09','OCTUBRE':'10','NOVIEMBRE':'11','DICIEMBRE':'12'
-        };
+        const mesMap = {'ENE':'01','FEB':'02','MAR':'03','ABR':'04','MAY':'05','JUN':'06','JUL':'07','AGO':'08','SEP':'09','SET':'09','OCT':'10','NOV':'11','DIC':'12','ENERO':'01','FEBRERO':'02','MARZO':'03','ABRIL':'04','MAYO':'05','JUNIO':'06','JULIO':'07','AGOSTO':'08','SEPTIEMBRE':'09','OCTUBRE':'10','NOVIEMBRE':'11','DICIEMBRE':'12'};
         const mes = mesMap[mesTxt] || mesMap[mesTxt.slice(0,3)];
-        if(mes){
-          let yearFull = yearTxt.length === 2 ? '20' + yearTxt : yearTxt;
-          mesAno = `${yearFull}-${mes}`;
-        }
+        if(mes){ mesAno = `${yearTxt.length === 2 ? '20' + yearTxt : yearTxt}-${mes}`; }
       }
     }
 
     // Detectar fila de días 1-31
-    let rowDiasIdx = -1;
-    let colDia1 = -1;
+    let rowDiasIdx = -1, colDia1 = -1;
     for(let r = 0; r < Math.min(20, rows.length); r++){
       const row = rows[r] || [];
       for(let c = 0; c < row.length; c++){
@@ -11489,70 +11098,85 @@ async function ssomaInspProcesarExcel(file){
       if(rowDiasIdx !== -1) break;
     }
 
-    if(rowDiasIdx === -1){
-      alert('⚠ No se pudo detectar la fila de días (1-31) en el Excel.\n\nFormato esperado: SIG.103-F02 con números 1, 2, ..., 31 secuenciales.');
-      return;
-    }
+    if(rowDiasIdx === -1){ alert('⚠ No se pudo detectar la fila de días (1-31) en el Excel.'); return; }
 
-    // Inicio inspecciones (fila después de "INSPECCIONES")
+    // Inicio
     let rowInicio = rowDiasIdx + 1;
     for(let r = rowDiasIdx; r < Math.min(rowDiasIdx + 5, rows.length); r++){
       const row = rows[r] || [];
       const txt = (row[1] || '').toString().toUpperCase();
-      if(txt.includes('INSPECCIONES')){ rowInicio = r + 1; break; }
+      if(txt.includes('TEMAS DE CAPACITACIÓN') || txt.includes('TEMAS DE CAPACITACION') || txt.includes('INSPECCIONES')){
+        rowInicio = r + 1; break;
+      }
     }
 
-    const inspNuevas = [];
+    // Extraer
+    const items = [];
     for(let r = rowInicio; r < rows.length; r++){
       const row = rows[r] || [];
-      // En este formato: col 1 = número, col 2 = tema/inspección
-      const tema = (row[2] || '').toString().trim();
+      // Para charlas el tema está en col 1; para inspecciones en col 2
+      const tema = (tipoExcel === 'charlas' ? (row[1] || '').toString() : (row[2] || '').toString()).trim();
       if(!tema) continue;
       if(/STAFF\s+DE\s+PREVENCI[ÓO]N|INGENIERO\s+RESIDENTE|FIRMA/i.test(tema)) break;
 
-      // inspector = col 5; area = col 6
-      const insp = (row[5] || '').toString().trim();
-      const area = (row[6] || '').toString().trim();
+      let extra1 = '', extra2 = '';
+      if(tipoExcel === 'charlas'){
+        // capacitador en col 4-6
+        for(let cc = 4; cc <= 6; cc++){
+          const v = (row[cc] || '').toString().trim();
+          if(v && !v.match(/^\d+:\d+/) && cc !== 6){ extra1 = v; break; }
+        }
+      } else {
+        extra1 = (row[5] || '').toString().trim(); // inspector
+        extra2 = (row[6] || '').toString().trim(); // area
+      }
 
       for(let c = colDia1; c < colDia1 + 31 && c < row.length; c++){
         const v = row[c];
         if(v && typeof v === 'string' && v.trim().toLowerCase() === 'x'){
           const dia = c - colDia1 + 1;
-          inspNuevas.push({ dia, tema, inspector: insp, area });
+          if(tipoExcel === 'charlas') items.push({ dia, tema, capacitador: extra1 });
+          else items.push({ dia, tema, inspector: extra1, area: extra2 });
         }
       }
     }
 
-    if(inspNuevas.length === 0){
-      alert('⚠ No se encontraron inspecciones marcadas con "x" en el archivo.');
-      return;
-    }
+    if(items.length === 0){ alert('⚠ No se encontraron registros marcados con "x".'); return; }
     if(!mesAno){
-      mesAno = prompt('No se detectó el mes en el Excel. Ingresa mes y año en formato YYYY-MM (ej: 2026-05):');
-      if(!mesAno || !/^\d{4}-\d{2}$/.test(mesAno)){
-        alert('⚠ Formato inválido. Cancelado.');
-        return;
-      }
+      mesAno = prompt('Ingresa el mes y año (YYYY-MM, ej: 2026-05):');
+      if(!mesAno || !/^\d{4}-\d{2}$/.test(mesAno)){ alert('⚠ Formato inválido.'); return; }
     }
 
-    inspNuevas.sort((a,b) => a.dia - b.dia);
+    items.sort((a,b) => a.dia - b.dia);
 
     const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     const [yy, mm] = mesAno.split('-').map(Number);
-    const ok = window.confirm(`📋 Detectado:\n\n• Mes: ${meses[mm-1]} ${yy}\n• Total inspecciones: ${inspNuevas.length}\n\n¿Cargar este programa?`);
+    const tipoLbl = tipoExcel === 'charlas' ? 'Charlas' : 'Inspecciones';
+    const ok = window.confirm(`📋 Detectado:\n\n• Tipo: ${tipoLbl}\n• Mes: ${meses[mm-1]} ${yy}\n• Total registros: ${items.length}\n\n¿Cargar este programa?`);
     if(!ok) return;
 
-    SSOMA_INSP_PROGRAMAS[mesAno] = inspNuevas;
-    await ssomaInspGuardarProgramaFirestore(mesAno, inspNuevas);
+    if(tipoExcel === 'charlas'){
+      SSOMA_CAP_PROGRAMAS[mesAno] = items;
+      await ssomaCapGuardarProgramaFirestore(mesAno, items);
+    } else {
+      SSOMA_INSP_PROGRAMAS[mesAno] = items;
+      await ssomaInspGuardarProgramaFirestore(mesAno, items);
+    }
 
-    ssomaInspMesActual = mesAno;
-    renderSsomaInspPrograma();
-    alert(`✅ Programa de inspecciones de ${meses[mm-1]} ${yy} cargado con ${inspNuevas.length} inspecciones.`);
+    agendaMesActual = mesAno;
+    renderAgendaSsoma();
+    alert(`✅ Programa de ${tipoLbl} de ${meses[mm-1]} ${yy} cargado con ${items.length} registros.`);
   } catch(e){
-    console.error('[E140] Error procesando Excel inspecciones:', e);
-    alert('⚠ Error al procesar el archivo Excel: ' + e.message);
+    console.error('[E140] Error procesando Excel:', e);
+    alert('⚠ Error al procesar el archivo: ' + e.message);
   }
 }
+
+// Aliases retrocompatibles: mantienen compat con código que aún llamara a estas funciones
+function renderSsomaCapPrograma(){ renderAgendaSsoma(); }
+function renderSsomaInspPrograma(){ /* incluido en renderAgendaSsoma */ }
+function ssomaCapInicializarMes(){ agendaInicializarMes(); }
+function ssomaInspInicializarMes(){ /* incluido en agendaInicializarMes */ }
 
 
 function llenarFiltroMesSsoma(){
@@ -13473,16 +13097,14 @@ async function loadSsomaReportesFromFirestore(){
     snapshot.forEach(s => ssomaReportesData.push({ id: s.id, ...s.data() }));
     console.log(`[E140] Reportes SSOMA cargados: ${ssomaReportesData.length}`);
 
-    // Cargar también las asistencias y programas del programa de capacitación SST
+    // Cargar agenda SSOMA unificada (charlas + inspecciones)
     try {
-      ssomaCapInicializarMes();
+      agendaInicializarMes();
       await ssomaCapCargarProgramasFirestore();
       await ssomaCapCargarAsistFirestore();
-      // Programa de inspecciones SST
-      ssomaInspInicializarMes();
       await ssomaInspCargarProgramasFirestore();
       await ssomaInspCargarRegistrosFirestore();
-    } catch(e){ console.warn('[E140] Error cargando programa SST:', e); }
+    } catch(e){ console.warn('[E140] Error cargando agenda SST:', e); }
 
     if(currentTab === 'ssoma-sst'){
       try { renderSsomaSST(); } catch(e){}
