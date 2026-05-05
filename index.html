@@ -813,6 +813,36 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .cap-row.cap-parcial{background:#FFF9E5;}
 .cap-row.cap-fallada{background:#FBEAEA;}
 
+/* ─── Modal Popup Capacitación SST ─── */
+.ssoma-cap-modal-backdrop{position:fixed;inset:0;background:rgba(15,30,55,0.55);display:none;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(3px);padding:20px;}
+.ssoma-cap-modal-backdrop.is-open{display:flex;animation:capModalFadeIn .18s ease;}
+@keyframes capModalFadeIn{from{opacity:0;}to{opacity:1;}}
+.ssoma-cap-modal-card{background:#fff;border-radius:14px;padding:26px 28px 22px;max-width:480px;width:100%;box-shadow:0 25px 70px rgba(0,0,0,.25);position:relative;animation:capModalSlide .22s cubic-bezier(.18,.89,.32,1.28);}
+@keyframes capModalSlide{from{transform:translateY(20px) scale(.96);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
+.ssoma-cap-modal-close{position:absolute;top:10px;right:12px;background:#F1F4F7;border:none;width:30px;height:30px;border-radius:50%;font-size:18px;color:#5A6B8A;cursor:pointer;font-weight:600;line-height:1;transition:all .15s;}
+.ssoma-cap-modal-close:hover{background:#D64045;color:#fff;}
+.ssoma-cap-modal-icon{font-size:32px;text-align:center;margin-bottom:6px;}
+.ssoma-cap-modal-tema{font-size:17px;font-weight:700;color:#1F2937;text-align:center;line-height:1.3;margin-bottom:6px;padding:0 20px;}
+.ssoma-cap-modal-cap{font-size:12px;color:#5A6B8A;text-align:center;font-weight:600;margin-bottom:3px;}
+.ssoma-cap-modal-fecha{font-size:11.5px;color:#7A8FA8;text-align:center;font-style:italic;margin-bottom:18px;font-family:'DM Mono',monospace;letter-spacing:.02em;}
+.ssoma-cap-modal-grupo{margin-bottom:14px;padding:14px 16px;background:#FAFBFC;border-radius:10px;border:1px solid #E5EAF0;transition:opacity .2s;}
+.ssoma-cap-modal-grupo.disabled{opacity:.45;pointer-events:none;}
+.ssoma-cap-modal-pregunta{font-size:12px;font-weight:700;color:#1F2937;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;text-align:center;}
+.ssoma-cap-modal-botones{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ssoma-cap-modal-btn{padding:11px 18px;border:2px solid;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .12s;letter-spacing:.04em;background:#fff;}
+.ssoma-cap-modal-btn.btn-yes{border-color:#2D936C;color:#2D936C;}
+.ssoma-cap-modal-btn.btn-yes:hover{background:#E7F4EE;}
+.ssoma-cap-modal-btn.btn-yes.is-selected{background:#2D936C;color:#fff;border-color:#2D936C;box-shadow:0 3px 10px rgba(45,147,108,.35);}
+.ssoma-cap-modal-btn.btn-no{border-color:#D64045;color:#D64045;}
+.ssoma-cap-modal-btn.btn-no:hover{background:#FBEAEA;}
+.ssoma-cap-modal-btn.btn-no.is-selected{background:#D64045;color:#fff;border-color:#D64045;box-shadow:0 3px 10px rgba(214,64,69,.35);}
+.ssoma-cap-modal-acciones{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;padding-top:14px;border-top:1px solid #E5EAF0;}
+.ssoma-cap-modal-btn-secondary{background:#fff;border:1.5px solid #C5CFD9;color:#5A6B8A;border-radius:7px;padding:9px 18px;font-weight:600;cursor:pointer;font-size:12px;transition:all .15s;font-family:inherit;}
+.ssoma-cap-modal-btn-secondary:hover{background:#F1F4F7;}
+.ssoma-cap-modal-btn-primary{background:#0070B4;border:1.5px solid #0070B4;color:#fff;border-radius:7px;padding:9px 22px;font-weight:700;cursor:pointer;font-size:12px;transition:all .15s;font-family:inherit;letter-spacing:.03em;}
+.ssoma-cap-modal-btn-primary:hover:not(:disabled){background:#054C7E;border-color:#054C7E;}
+.ssoma-cap-modal-btn-primary:disabled{background:#C5CFD9;border-color:#C5CFD9;cursor:not-allowed;opacity:.6;}
+
 /* Leve incremento de altura máxima del KPI para acomodar el badge */
 .r-kpi{max-height:135px !important;}
 
@@ -10439,38 +10469,168 @@ function actualizarKpisCapNull(){
   });
 }
 
-// Modal de registro/edición con sí/no para 2 KPIs
+// Modal popup limpio con botones SI/NO
 function ssomaCapEditarAsist(key, idx){
   const programa = SSOMA_CAP_PROGRAMAS[ssomaCapMesActual] || [];
   const charla = programa[idx];
   if(!charla) return;
   const actual = ssomaCapAsistencias[key] || { cumplio: null, asistio: null };
 
-  const cumplStr = prompt(`📚 ${charla.tema}\nCapacitador: ${charla.capacitador}\n\n¿La charla SE CUMPLIÓ? (escribe SI o NO)`,
-    actual.cumplio === true ? 'SI' : (actual.cumplio === false ? 'NO' : ''));
-  if(cumplStr === null) return; // cancelado
-  const cumplio = /^s[ií]$/i.test(cumplStr.trim());
-  const noCumplio = /^no$/i.test(cumplStr.trim());
-  if(!cumplio && !noCumplio){ alert('⚠ Responde "SI" o "NO".'); return; }
+  // Construir el modal si no existe
+  let modal = document.getElementById('ssomaCapModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'ssomaCapModal';
+    modal.className = 'ssoma-cap-modal-backdrop';
+    modal.innerHTML = `
+      <div class="ssoma-cap-modal-card" onclick="event.stopPropagation()">
+        <button class="ssoma-cap-modal-close" onclick="ssomaCapCerrarModal()" title="Cerrar">×</button>
+        <div class="ssoma-cap-modal-icon">📚</div>
+        <div class="ssoma-cap-modal-tema" id="ssomaCapModalTema">—</div>
+        <div class="ssoma-cap-modal-cap" id="ssomaCapModalCap">—</div>
+        <div class="ssoma-cap-modal-fecha" id="ssomaCapModalFecha">—</div>
 
-  let asistStr = '';
-  if(cumplio){
-    asistStr = prompt(`¿ASISTIÓ el staff a la charla? (SI o NO)`,
-      actual.asistio === true ? 'SI' : (actual.asistio === false ? 'NO' : ''));
-    if(asistStr === null) return;
-  } else {
-    asistStr = 'NO'; // si no se cumplió, no hay asistencia
+        <div class="ssoma-cap-modal-grupo">
+          <div class="ssoma-cap-modal-pregunta">¿La charla SE CUMPLIÓ?</div>
+          <div class="ssoma-cap-modal-botones">
+            <button class="ssoma-cap-modal-btn btn-yes" data-grupo="cumplio" data-valor="true" onclick="ssomaCapModalSelect('cumplio', true)">✓ SÍ</button>
+            <button class="ssoma-cap-modal-btn btn-no" data-grupo="cumplio" data-valor="false" onclick="ssomaCapModalSelect('cumplio', false)">✗ NO</button>
+          </div>
+        </div>
+
+        <div class="ssoma-cap-modal-grupo" id="ssomaCapModalGrupoAsistio">
+          <div class="ssoma-cap-modal-pregunta">¿ASISTIÓ el staff a la charla?</div>
+          <div class="ssoma-cap-modal-botones">
+            <button class="ssoma-cap-modal-btn btn-yes" data-grupo="asistio" data-valor="true" onclick="ssomaCapModalSelect('asistio', true)">✓ SÍ</button>
+            <button class="ssoma-cap-modal-btn btn-no" data-grupo="asistio" data-valor="false" onclick="ssomaCapModalSelect('asistio', false)">✗ NO</button>
+          </div>
+        </div>
+
+        <div class="ssoma-cap-modal-acciones">
+          <button class="ssoma-cap-modal-btn-secondary" onclick="ssomaCapCerrarModal()">Cancelar</button>
+          <button class="ssoma-cap-modal-btn-primary" id="ssomaCapModalGuardar" onclick="ssomaCapGuardarModal()" disabled>Guardar</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    // Cerrar con click en backdrop
+    modal.addEventListener('click', (e) => {
+      if(e.target === modal) ssomaCapCerrarModal();
+    });
+    // Cerrar con ESC
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape'){
+        const m = document.getElementById('ssomaCapModal');
+        if(m && m.classList.contains('is-open')) ssomaCapCerrarModal();
+      }
+    });
   }
-  const asistio = /^s[ií]$/i.test(asistStr.trim());
+
+  // Llenar contenido
+  document.getElementById('ssomaCapModalTema').textContent = charla.tema;
+  document.getElementById('ssomaCapModalCap').textContent = `Capacitador: ${charla.capacitador}`;
+
+  const [y, m] = ssomaCapMesActual.split('-').map(Number);
+  const fechaCharla = new Date(y, m-1, charla.dia);
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  document.getElementById('ssomaCapModalFecha').textContent = `${dias[fechaCharla.getDay()]} ${charla.dia} de ${meses[m-1]} ${y}`;
+
+  // Estado del modal
+  ssomaCapModalEstado = {
+    key,
+    cumplio: actual.cumplio,
+    asistio: actual.asistio,
+    charla
+  };
+
+  // Marcar botones según el estado actual
+  document.querySelectorAll('#ssomaCapModal .ssoma-cap-modal-btn').forEach(btn => {
+    btn.classList.remove('is-selected');
+    const grupo = btn.dataset.grupo;
+    const valor = btn.dataset.valor === 'true';
+    if(actual[grupo] === valor) btn.classList.add('is-selected');
+  });
+
+  // Mostrar/ocultar grupo Asistió según cumplio
+  const grupoAsist = document.getElementById('ssomaCapModalGrupoAsistio');
+  if(actual.cumplio === false){
+    grupoAsist.classList.add('disabled');
+    ssomaCapModalEstado.asistio = false;
+  } else {
+    grupoAsist.classList.remove('disabled');
+  }
+
+  ssomaCapActualizarBotonGuardar();
+  modal.classList.add('is-open');
+}
+
+let ssomaCapModalEstado = null;
+
+function ssomaCapModalSelect(grupo, valor){
+  if(!ssomaCapModalEstado) return;
+  // Si el grupo asistio está deshabilitado, no permitir cambios
+  if(grupo === 'asistio'){
+    const grupoAsist = document.getElementById('ssomaCapModalGrupoAsistio');
+    if(grupoAsist && grupoAsist.classList.contains('disabled')) return;
+  }
+  ssomaCapModalEstado[grupo] = valor;
+
+  // Si se elige NO en cumplio, automáticamente NO en asistio + deshabilitar grupo
+  const grupoAsist = document.getElementById('ssomaCapModalGrupoAsistio');
+  if(grupo === 'cumplio'){
+    if(valor === false){
+      ssomaCapModalEstado.asistio = false;
+      grupoAsist.classList.add('disabled');
+    } else {
+      grupoAsist.classList.remove('disabled');
+    }
+  }
+
+  // Actualizar UI: marcar el botón seleccionado en cada grupo
+  document.querySelectorAll('#ssomaCapModal .ssoma-cap-modal-btn').forEach(btn => {
+    const g = btn.dataset.grupo;
+    const v = btn.dataset.valor === 'true';
+    if(ssomaCapModalEstado[g] === v){
+      btn.classList.add('is-selected');
+    } else {
+      btn.classList.remove('is-selected');
+    }
+  });
+
+  ssomaCapActualizarBotonGuardar();
+}
+
+function ssomaCapActualizarBotonGuardar(){
+  const btn = document.getElementById('ssomaCapModalGuardar');
+  if(!btn || !ssomaCapModalEstado) return;
+  const c = ssomaCapModalEstado.cumplio;
+  const a = ssomaCapModalEstado.asistio;
+  let valido = false;
+  if(c === false) valido = true;
+  else if(c === true && (a === true || a === false)) valido = true;
+  btn.disabled = !valido;
+}
+
+function ssomaCapCerrarModal(){
+  const modal = document.getElementById('ssomaCapModal');
+  if(modal) modal.classList.remove('is-open');
+  ssomaCapModalEstado = null;
+}
+
+function ssomaCapGuardarModal(){
+  if(!ssomaCapModalEstado) return;
+  const { key, cumplio, asistio } = ssomaCapModalEstado;
+  if(cumplio === null) return;
 
   ssomaCapAsistencias[key] = {
-    cumplio,
-    asistio: cumplio ? asistio : false,
+    cumplio: !!cumplio,
+    asistio: cumplio ? !!asistio : false,
     fecha_registro: new Date().toISOString(),
     registrado_por: (currentSession && currentSession.usuario) || '—'
   };
 
   ssomaCapGuardarAsistFirestore(key);
+  ssomaCapCerrarModal();
   renderSsomaCapPrograma();
 }
 
