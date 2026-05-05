@@ -9029,24 +9029,97 @@ function renderRAreas(){
   } catch(e){ logPct = null; }
 
   // ──────────────────────────────────────────
-  // CALIDAD — promedio histórico cumplimiento_pct de inspeccionesSIG
-  // Si no hay inspecciones registradas pero hay otra data (NCs, capacitaciones), 
-  // se considera 100% por defecto (no hay incumplimientos detectados).
+  // CALIDAD — promedio binario de 3 KPIs (peso igual 33.33% cada uno)
+  // 1. Gestión SIG (promedio del proyecto)              ≥ 85%
+  // 2. Control de No Conformidades (NC totales)         ≤ 5
+  // 3. Control de Capacitaciones (media asist + aprob)  ≥ 85%
+  // 4. Status Dossier — informativo, sin peso (no se incluye)
+  // Cada KPI cumple → 33.33%, no cumple → 0%. Total: 0 a 100%.
+  // Si un KPI no tiene data → no penaliza (se omite del promedio)
   // ──────────────────────────────────────────
   let calPct = null;
-  let calNota = 'Sin inspecciones SIG registradas';
+  let calNota = '';
   try {
+    const cumplimientos = [];
+    const detalles = [];
+
+    // 1. GESTIÓN SIG · promedio cumplimiento_pct ≥ 85%
     if(typeof inspeccionesSIG !== 'undefined' && Array.isArray(inspeccionesSIG) && inspeccionesSIG.length > 0){
       const sum = inspeccionesSIG.reduce((s, x) => s + (Number(x.cumplimiento_pct) || 0), 0);
-      calPct = sum / inspeccionesSIG.length;
-      calNota = `Promedio ${inspeccionesSIG.length} inspección${inspeccionesSIG.length>1?'es':''} SIG`;
+      const promSIG = sum / inspeccionesSIG.length;
+      const ok = promSIG >= 85;
+      cumplimientos.push(ok ? 1 : 0);
+      detalles.push(`SIG:${promSIG.toFixed(1)}%${ok?'✓':'✗'}`);
     } else {
-      // Sin inspecciones registradas → considerar 100% por defecto
-      // (la ausencia de hallazgos no debe penalizar)
-      calPct = 100;
-      calNota = 'Sin no-conformidades registradas';
+      // Sin inspecciones registradas → ausencia de hallazgos = cumple por defecto
+      cumplimientos.push(1);
+      detalles.push('SIG:—✓');
     }
-  } catch(e){ calPct = null; }
+
+    // 2. NCs totales ≤ 5  
+    // Lectura: si hay var global con NCs cuéntalas; si no, asumir 0 (no hay registros = no incumplimientos)
+    let ncTotal = 0;
+    try {
+      if(typeof ncsData !== 'undefined' && Array.isArray(ncsData)) ncTotal = ncsData.length;
+      else if(typeof ncList !== 'undefined' && Array.isArray(ncList)) ncTotal = ncList.length;
+      else if(typeof noConformidades !== 'undefined' && Array.isArray(noConformidades)) ncTotal = noConformidades.length;
+    } catch(_){ ncTotal = 0; }
+    const okNC = ncTotal <= 5;
+    cumplimientos.push(okNC ? 1 : 0);
+    detalles.push(`NC:${ncTotal}/5${okNC?'✓':'✗'}`);
+
+    // 3. CAPACITACIONES · media de % asistencia y % aprobación ≥ 85%
+    try {
+      const todasCaps = (typeof obtenerCapacitacionesCombinadas === 'function')
+        ? obtenerCapacitacionesCombinadas()
+        : (typeof capacitacionesData !== 'undefined' ? capacitacionesData : []);
+      if(Array.isArray(todasCaps) && todasCaps.length > 0){
+        // Promedio histórico de TODAS las capacitaciones del proyecto
+        let sumAsist = 0, sumAprob = 0, conPersonal = 0;
+        todasCaps.forEach(cap => {
+          if(Array.isArray(cap.personal) && cap.personal.length > 0){
+            const tot = cap.personal.length;
+            const capacitados = cap.personal.filter(p => p.estado === 'aprobado' || p.estado === 'desaprobado').length;
+            const aprobados = cap.personal.filter(p => p.estado === 'aprobado').length;
+            const pctAsist = tot > 0 ? (capacitados / tot) * 100 : 0;
+            const pctAprob = capacitados > 0 ? (aprobados / capacitados) * 100 : 0;
+            sumAsist += pctAsist;
+            sumAprob += pctAprob;
+            conPersonal++;
+          }
+        });
+        if(conPersonal > 0){
+          const promAsist = sumAsist / conPersonal;
+          const promAprob = sumAprob / conPersonal;
+          const media = (promAsist + promAprob) / 2;
+          const ok = media >= 85;
+          cumplimientos.push(ok ? 1 : 0);
+          detalles.push(`Cap:${media.toFixed(1)}%${ok?'✓':'✗'}`);
+        } else {
+          // Sin personal asociado → cumple por defecto (no hay incumplimiento)
+          cumplimientos.push(1);
+          detalles.push('Cap:—✓');
+        }
+      } else {
+        // Sin capacitaciones registradas → cumple por defecto
+        cumplimientos.push(1);
+        detalles.push('Cap:—✓');
+      }
+    } catch(e){
+      cumplimientos.push(1);
+      detalles.push('Cap:—✓');
+    }
+
+    // 4. DOSSIER — informativo, sin peso (se anota pero no entra al promedio)
+    detalles.push('Dossier:en proceso');
+
+    if(cumplimientos.length > 0){
+      calPct = (cumplimientos.reduce((a,b)=>a+b, 0) / cumplimientos.length) * 100;
+      calNota = detalles.join(' · ');
+    } else {
+      calNota = 'Sin KPIs disponibles';
+    }
+  } catch(e){ calPct = null; calNota = 'Error en cálculo'; }
 
   // ──────────────────────────────────────────
   // Definición de áreas
