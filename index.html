@@ -2102,6 +2102,20 @@ body.role-admin .ssoma-actions{display:flex !important;}
 .sig-select.is-curso{background-color:#FFE9D6;border-color:#E07B39;color:#7A3F18;}
 .sig-select.is-poriniciar{background-color:#E0EEF8;border-color:#0070B4;color:#054C7E;}
 .sig-select.is-poriniciar-auto{background-color:#D1E7F5;border-color:#0070B4;color:#054C7E;font-style:italic;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%23054C7E' d='M0 0l5 6 5-6z'/></svg>");}
+
+/* ─── PILLS Segmentados (reemplaza los selects) ─── */
+.sig-pill-group{display:flex;flex-direction:column;gap:5px;align-items:stretch;width:100%;max-width:175px;}
+.sig-pill{font-family:inherit;font-size:11px;font-weight:700;padding:7px 10px;border-radius:7px;border:1.5px solid var(--border-mid);background:#FAFBFC;color:#5A6B8A;cursor:pointer;transition:all .15s;text-align:left;letter-spacing:.01em;line-height:1.2;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;outline:none;}
+.sig-pill:hover:not([disabled]){border-color:#7B2D8E;background-color:#FAF6FC;color:#5B2470;}
+.sig-pill:focus{box-shadow:0 0 0 3px rgba(123,45,142,.15);}
+.sig-pill[disabled]{cursor:not-allowed;opacity:.55;}
+/* Estados ACTIVOS — fondo intenso, texto blanco, sombra suave */
+.sig-pill.sig-pill-green.is-active{background:#2D936C;border-color:#2D936C;color:#fff;box-shadow:0 2px 6px rgba(45,147,108,.3);}
+.sig-pill.sig-pill-yellow.is-active{background:#A0521E;border-color:#A0521E;color:#fff;box-shadow:0 2px 6px rgba(160,82,30,.3);}
+.sig-pill.sig-pill-blue.is-active{background:#E07B39;border-color:#E07B39;color:#fff;box-shadow:0 2px 6px rgba(224,123,57,.3);}
+.sig-pill.sig-pill-lblue.is-active{background:#0070B4;border-color:#0070B4;color:#fff;box-shadow:0 2px 6px rgba(0,112,180,.3);}
+/* Hint sutil cuando hay un pill activo: el otro queda más tenue */
+.sig-pill-group:has(.is-active) .sig-pill:not(.is-active){opacity:.75;}
 /* Indicador "auto" debajo del select */
 .sig-auto-hint{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#0070B4;display:inline-flex;align-items:center;gap:3px;line-height:1;}
 .sig-auto-hint.warn{color:#A0521E;}
@@ -11978,7 +11992,8 @@ const ARQ_SIG_ALERTAS_PREVIEW = 4;        // cuántas alertas mostrar plegado vs
 let arqSigAlertsExpanded = false;
 
 // ─── Estado del módulo ───
-let arqSigData = {};                     // { codigo: { estado, comentarios, ultima_edicion, editado_por } }
+let arqSigData = {};                     // { codigo: { estado_rev, estado_obra, comentarios, ultima_edicion, editado_por }
+                                          // (campo legacy 'estado' se mapea a estado_rev/estado_obra al cargar)
 let arqSigMapping = {};                  // { codigo: { partida, fecha_inicio } }
 let arqSigFiltrosActivos = { rev:new Set(), obra:new Set(), otros:new Set() };
 let arqSigBusqueda = '';
@@ -12000,7 +12015,27 @@ function arqSigDataDe(codigo){
 }
 
 function arqSigEstadoDe(codigo){
-  return arqSigDataDe(codigo).estado || null;
+  // LEGACY: devuelve el estado_rev si está, si no el estado_obra. Compat con código viejo.
+  const d = arqSigDataDe(codigo);
+  return d.estado_rev || d.estado_obra || d.estado || null;
+}
+
+// Estado de revisión guardado (sin auto-cálculos)
+function arqSigEstadoRevDe(codigo){
+  const d = arqSigDataDe(codigo);
+  if(d.estado_rev) return d.estado_rev;
+  // Compat con docs viejos que tienen 'estado' (uno solo)
+  if(d.estado === 'revisado' || d.estado === 'pendiente-rev') return d.estado;
+  return null;
+}
+
+// Estado en obra guardado (sin auto-cálculos)
+function arqSigEstadoObraDe(codigo){
+  const d = arqSigDataDe(codigo);
+  if(d.estado_obra) return d.estado_obra;
+  // Compat con docs viejos
+  if(d.estado === 'curso' || d.estado === 'poriniciar') return d.estado;
+  return null;
 }
 
 function arqSigComentarioDe(codigo){
@@ -12128,7 +12163,7 @@ function arqSigFormatFechaCorta(fechaStr){
 // Sub-estado columna 2 (manual): 'curso' | 'poriniciar' | null
 // Sub-estado auto: 'poriniciar-auto' (cuando faltan 0–14 días y no hay otro estado manual)
 function arqSigEstadoObraEfectivo(codigo){
-  const est = arqSigEstadoDe(codigo);
+  const est = arqSigEstadoObraDe(codigo);
   if(est === 'curso' || est === 'poriniciar') return { valor: est, esAuto: false };
   // Auto-marcado: usar la fecha PREDICHA si hay frente padre con SPI, sino la del cronograma
   const pred = arqSigCalcFechaPredicha(codigo);
@@ -12142,9 +12177,7 @@ function arqSigEstadoObraEfectivo(codigo){
 
 // Estado de revisión (col 1): independiente
 function arqSigEstadoRevisionEfectivo(codigo){
-  const est = arqSigEstadoDe(codigo);
-  if(est === 'revisado' || est === 'pendiente-rev') return est;
-  return null;
+  return arqSigEstadoRevDe(codigo);
 }
 
 // ──────────────────────────────────────────
@@ -12334,33 +12367,35 @@ function arqSigRenderTabla(){
 
     const disabledAttr = puedeEditar ? '' : 'disabled';
 
-    // ─── DROPDOWN COL 1: Estado de revisión ───
-    const selRevClass = `sig-select ${estRev === 'revisado' ? 'is-revisado' : (estRev === 'pendiente-rev' ? 'is-pendiente-rev' : '')}`;
+    // ─── PILLS COL 1: Estado de revisión ───
+    // Botones segmentados independientes. Click en un pill activo lo desmarca.
+    const pillRev = (val, label, color) => {
+      const active = estRev === val;
+      return `<button type="button" class="sig-pill sig-pill-rev sig-pill-${color}${active ? ' is-active' : ''}" ${disabledAttr} ${puedeEditar ? `onclick="arqSigTogglePillRev('${it.codigo}','${val}')"` : ''} title="${puedeEditar ? 'Click para marcar/desmarcar' : 'Solo adm/oficina pueden editar'}">${label}</button>`;
+    };
     const selRev = `
-      <select class="${selRevClass}" ${disabledAttr} onchange="arqSigOnChangeEstadoRev('${it.codigo}', this.value)" data-codigo="${it.codigo}" title="${puedeEditar ? 'Selecciona estado de revisión' : 'Solo adm/oficina pueden editar'}">
-        <option value="">— Sin marcar —</option>
-        <option value="revisado" ${estRev === 'revisado' ? 'selected' : ''}>✅ Revisado / N.A.</option>
-        <option value="pendiente-rev" ${estRev === 'pendiente-rev' ? 'selected' : ''}>⏸ Pendiente</option>
-      </select>`;
+      <div class="sig-pill-group" data-codigo="${it.codigo}" data-grupo="rev">
+        ${pillRev('revisado', '✅ Revisado', 'green')}
+        ${pillRev('pendiente-rev', '⏸ Pendiente', 'yellow')}
+      </div>`;
 
-    // ─── DROPDOWN COL 2: Estado en obra ───
-    let selObraClass = 'sig-select';
-    if(estObra.valor === 'curso') selObraClass += ' is-curso';
-    else if(estObra.valor === 'poriniciar') selObraClass += ' is-poriniciar';
-    else if(estObra.valor === 'poriniciar-auto') selObraClass += ' is-poriniciar-auto';
-
-    // El select muestra el valor real seleccionado (o vacío si es auto)
-    const selObraValor = (estObra.valor === 'curso' || estObra.valor === 'poriniciar') ? estObra.valor : '';
-
-    let textPorIniciar = '📅 Por iniciar / Planificado';
-    if(estObra.esAuto) textPorIniciar = `📅 Por iniciar (en ${estObra.dias}d) · auto`;
-
+    // ─── PILLS COL 2: Estado en obra ───
+    // El valor "poriniciar-auto" no es marcable; aparece como un badge informativo
+    const estObraGuardado = arqSigEstadoObraDe(it.codigo); // valor real guardado (no auto)
+    const pillObra = (val, label, color) => {
+      const active = estObraGuardado === val;
+      return `<button type="button" class="sig-pill sig-pill-obra sig-pill-${color}${active ? ' is-active' : ''}" ${disabledAttr} ${puedeEditar ? `onclick="arqSigTogglePillObra('${it.codigo}','${val}')"` : ''} title="${puedeEditar ? 'Click para marcar/desmarcar' : 'Solo adm/oficina pueden editar'}">${label}</button>`;
+    };
+    let textPorIniciar = '📅 Por iniciar';
+    if(estObra.esAuto && !estObraGuardado){
+      // Si es auto y no hay valor guardado, mostrar info pero los pills siguen sin estar activos
+      textPorIniciar = `📅 Por iniciar (en ${estObra.dias}d)`;
+    }
     const selObra = `
-      <select class="${selObraClass}" ${disabledAttr} onchange="arqSigOnChangeEstadoObra('${it.codigo}', this.value)" data-codigo="${it.codigo}" title="${puedeEditar ? 'Selecciona estado en obra' : 'Solo adm/oficina pueden editar'}">
-        <option value="">${estObra.esAuto ? textPorIniciar : '— Sin marcar —'}</option>
-        <option value="curso" ${selObraValor === 'curso' ? 'selected' : ''}>🔵 En curso</option>
-        <option value="poriniciar" ${selObraValor === 'poriniciar' ? 'selected' : ''}>📅 Por iniciar / Planificado</option>
-      </select>`;
+      <div class="sig-pill-group" data-codigo="${it.codigo}" data-grupo="obra">
+        ${pillObra('curso', '🔵 En curso', 'blue')}
+        ${pillObra('poriniciar', textPorIniciar, 'lblue')}
+      </div>`;
 
     // ─── Hint debajo del select de obra (predictivo) ───
     // Muestra: fecha cronograma · fecha predicha (si aplica) · delta · frente padre
@@ -12474,20 +12509,124 @@ function arqSigRenderTabla(){
 // ──────────────────────────────────────────
 // Acciones del usuario
 // ──────────────────────────────────────────
+// ──────────────────────────────────────────
+// HANDLERS PILLS · Estados independientes (revisión y obra son independientes entre sí)
+// ──────────────────────────────────────────
+function arqSigTogglePillRev(codigo, valor){
+  if(!arqSigPuedeEditar()){
+    alert('⛔ Solo los usuarios adm y oficina pueden modificar el estado de los instructivos.');
+    return;
+  }
+  // Toggle: si ya estaba seleccionado el mismo valor → desmarcar (null), si no → activar
+  const actual = arqSigEstadoRevDe(codigo);
+  const nuevo = (actual === valor) ? null : valor;
+  arqSigSetEstadoRev(codigo, nuevo);
+}
+
+function arqSigTogglePillObra(codigo, valor){
+  if(!arqSigPuedeEditar()){
+    alert('⛔ Solo los usuarios adm y oficina pueden modificar el estado de los instructivos.');
+    return;
+  }
+  const actual = arqSigEstadoObraDe(codigo);
+  const nuevo = (actual === valor) ? null : valor;
+  arqSigSetEstadoObra(codigo, nuevo);
+}
+
+// ──────────────────────────────────────────
+// SETTERS independientes (mantienen el otro estado intacto)
+// ──────────────────────────────────────────
+function arqSigSetEstadoRev(codigo, nuevoEstado){
+  if(!arqSigData[codigo]) arqSigData[codigo] = {};
+  const estadoAnterior = arqSigData[codigo].estado_rev || null;
+  arqSigData[codigo].estado_rev = nuevoEstado;
+  // Limpiar campo legacy 'estado' si quedó algo viejo
+  if(arqSigData[codigo].estado && (arqSigData[codigo].estado === 'revisado' || arqSigData[codigo].estado === 'pendiente-rev')){
+    delete arqSigData[codigo].estado;
+  }
+  arqSigData[codigo].ultima_edicion = new Date().toISOString();
+  arqSigData[codigo].editado_por = (currentSession && currentSession.usuario) || '—';
+  arqSigGuardarFirestore(codigo);
+  renderArqProcesos();
+
+  // Notificación + audit log (igual lógica que antes pero específica de rev)
+  arqSigNotifyAndAudit(codigo, nuevoEstado, estadoAnterior, 'rev');
+}
+
+function arqSigSetEstadoObra(codigo, nuevoEstado){
+  if(!arqSigData[codigo]) arqSigData[codigo] = {};
+  const estadoAnterior = arqSigData[codigo].estado_obra || null;
+  arqSigData[codigo].estado_obra = nuevoEstado;
+  // Limpiar campo legacy 'estado' si quedó algo viejo de obra
+  if(arqSigData[codigo].estado && (arqSigData[codigo].estado === 'curso' || arqSigData[codigo].estado === 'poriniciar')){
+    delete arqSigData[codigo].estado;
+  }
+  arqSigData[codigo].ultima_edicion = new Date().toISOString();
+  arqSigData[codigo].editado_por = (currentSession && currentSession.usuario) || '—';
+  arqSigGuardarFirestore(codigo);
+  renderArqProcesos();
+
+  arqSigNotifyAndAudit(codigo, nuevoEstado, estadoAnterior, 'obra');
+}
+
+// Helper común para notify + audit log
+function arqSigNotifyAndAudit(codigo, nuevoEstado, estadoAnterior, tipo){
+  const labels = {
+    'revisado': '✅ Revisado / N.A.',
+    'pendiente-rev': '⏸ Pendiente',
+    'curso': '🔵 En curso',
+    'poriniciar': '📅 Por iniciar / Planificado',
+  };
+  // 🔔 Notificación
+  try {
+    if(typeof notify === 'function' && nuevoEstado && nuevoEstado !== estadoAnterior){
+      const it = ARQ_SIG_CATALOGO.find(x => x.codigo === codigo);
+      if(it){
+        const userName = (currentSession && currentSession.nombre) || 'Usuario';
+        const estadoLbl = labels[nuevoEstado] || nuevoEstado;
+        const hoyStr = new Date().toISOString().slice(0,10);
+        notify({
+          tipo: 'arq',
+          titulo: `📐 ${codigo} marcado como ${estadoLbl}`,
+          descripcion: `<b>${userName}</b> actualizó el instructivo "${it.partida}" (${tipo === 'rev' ? 'revisión' : 'obra'}).`,
+          prioridad: 'baja',
+          enlace: { tab:'arq-procesos', codigo: codigo },
+          dedupKey: `sig_${tipo}_${codigo}_${nuevoEstado}_${currentSession.usuario}_${hoyStr}`,
+        });
+      }
+    }
+  } catch(e){ console.warn(e); }
+
+  // 📋 Audit log
+  try {
+    if(typeof auditLog === 'function' && nuevoEstado !== estadoAnterior){
+      const it = ARQ_SIG_CATALOGO.find(x => x.codigo === codigo);
+      if(it){
+        const lblNuevo = nuevoEstado ? (labels[nuevoEstado].replace(/^[^\s]+\s/, '') || nuevoEstado) : '— Sin marcar —';
+        const lblAnterior = estadoAnterior ? (labels[estadoAnterior].replace(/^[^\s]+\s/, '') || estadoAnterior) : '—';
+        const campo = tipo === 'rev' ? 'estado_rev' : 'estado_obra';
+        auditLog({
+          modulo: 'arq-procesos',
+          accion: 'marcar',
+          entidad_id: codigo,
+          entidad_nombre: `${codigo} · ${it.partida}`,
+          detalle: `${tipo === 'rev' ? 'Revisión' : 'Obra'}: ${lblNuevo}${estadoAnterior ? ` (antes: ${lblAnterior})` : ''}`,
+          cambios: { antes: { [campo]: estadoAnterior || null }, despues: { [campo]: nuevoEstado } },
+        });
+      }
+    }
+  } catch(e){ console.warn(e); }
+}
+
+// ──────────────────────────────────────────
+// LEGACY: handlers antiguos (mantener por compat con código que aún los llame)
+// ──────────────────────────────────────────
 function arqSigOnChangeEstadoRev(codigo, valor){
   if(!arqSigPuedeEditar()){
     alert('⛔ Solo los usuarios adm y oficina pueden modificar el estado de los instructivos.');
     return;
   }
-  // Combinar con el estado en obra existente. El estado guardado puede ser un string compuesto.
-  // Pero para simplicidad, mantenemos UN solo campo "estado" que puede ser:
-  //   'revisado' | 'pendiente-rev' | 'curso' | 'poriniciar' | null
-  // Si el usuario cambia la columna 1 a 'revisado' o 'pendiente-rev', sobrescribe cualquier estado
-  // en obra que estuviera. Esto es aceptable porque "Revisado" implica que ya cumplió.
-  // Lo importante: las dos columnas tienen valores semánticamente excluyentes (un instructivo
-  // no puede estar simultáneamente "Revisado" y "En curso" — si está en curso, todavía no está revisado).
-  const nuevoEstado = valor || null;
-  arqSigSetEstado(codigo, nuevoEstado);
+  arqSigSetEstadoRev(codigo, valor || null);
 }
 
 function arqSigOnChangeEstadoObra(codigo, valor){
@@ -12495,78 +12634,16 @@ function arqSigOnChangeEstadoObra(codigo, valor){
     alert('⛔ Solo los usuarios adm y oficina pueden modificar el estado de los instructivos.');
     return;
   }
-  const nuevoEstado = valor || null;
-  // Si el usuario quita el estado en obra y el estado actual era de revisión, NO lo borramos.
-  // Solo actualizamos si el cambio aplica a la columna de obra.
-  const estActual = arqSigEstadoDe(codigo);
-  if(nuevoEstado === null){
-    // Quitar manual de obra: solo limpiar si el actual era de obra
-    if(estActual === 'curso' || estActual === 'poriniciar'){
-      arqSigSetEstado(codigo, null);
-    }
-    // si era 'revisado'/'pendiente-rev', dejar igual
-    return;
-  }
-  // Aplicar el nuevo estado de obra (sobrescribe estado de revisión si lo hubiera)
-  arqSigSetEstado(codigo, nuevoEstado);
+  arqSigSetEstadoObra(codigo, valor || null);
 }
 
 function arqSigSetEstado(codigo, nuevoEstado){
-  if(!arqSigData[codigo]) arqSigData[codigo] = {};
-  const estadoAnterior = arqSigData[codigo].estado;
-  arqSigData[codigo].estado = nuevoEstado;
-  arqSigData[codigo].ultima_edicion = new Date().toISOString();
-  arqSigData[codigo].editado_por = (currentSession && currentSession.usuario) || '—';
-  arqSigGuardarFirestore(codigo);
-  renderArqProcesos();
-
-  // 🔔 Notificar cambio de estado (deduplicado por código+día+usuario)
-  try {
-    if(typeof notify === 'function' && nuevoEstado && nuevoEstado !== estadoAnterior){
-      const it = ARQ_SIG_CATALOGO.find(x => x.codigo === codigo);
-      if(it){
-        const userName = (currentSession && currentSession.nombre) || 'Usuario';
-        const estadoLbl = ({
-          'revisado': '✅ Revisado / N.A.',
-          'pendiente-rev': '⏸ Pendiente',
-          'curso': '🔵 En curso',
-          'poriniciar': '📅 Por iniciar / Planificado',
-        })[nuevoEstado] || nuevoEstado;
-        const hoyStr = new Date().toISOString().slice(0,10);
-        notify({
-          tipo: 'arq',
-          titulo: `📐 ${codigo} marcado como ${estadoLbl}`,
-          descripcion: `<b>${userName}</b> actualizó el instructivo "${it.partida}".`,
-          prioridad: 'baja',
-          enlace: { tab:'arq-procesos', codigo: codigo },
-          dedupKey: `sig_estado_${codigo}_${nuevoEstado}_${currentSession.usuario}_${hoyStr}`,
-        });
-      }
-    }
-  } catch(e){ console.warn(e); }
-
-  // 📋 Audit log: marcado de instructivo SIG
-  try {
-    if(typeof auditLog === 'function' && nuevoEstado && nuevoEstado !== estadoAnterior){
-      const it = ARQ_SIG_CATALOGO.find(x => x.codigo === codigo);
-      if(it){
-        const estadoLblAud = ({
-          'revisado': 'Revisado / N.A.',
-          'pendiente-rev': 'Pendiente',
-          'curso': 'En curso',
-          'poriniciar': 'Por iniciar / Planificado',
-        })[nuevoEstado] || nuevoEstado;
-        auditLog({
-          modulo: 'arq-procesos',
-          accion: 'marcar',
-          entidad_id: codigo,
-          entidad_nombre: `${codigo} · ${it.partida}`,
-          detalle: `Estado: ${estadoLblAud}${estadoAnterior ? ` (antes: ${estadoAnterior})` : ''}`,
-          cambios: { antes: { estado: estadoAnterior || null }, despues: { estado: nuevoEstado } },
-        });
-      }
-    }
-  } catch(e){ console.warn(e); }
+  // LEGACY: redirige al setter correcto según el tipo de estado
+  if(nuevoEstado === 'revisado' || nuevoEstado === 'pendiente-rev' || nuevoEstado === null){
+    arqSigSetEstadoRev(codigo, nuevoEstado);
+  } else if(nuevoEstado === 'curso' || nuevoEstado === 'poriniciar'){
+    arqSigSetEstadoObra(codigo, nuevoEstado);
+  }
 }
 
 function arqSigOnComentarioInput(textarea){
@@ -12757,7 +12834,10 @@ async function arqSigGuardarFirestore(codigo){
     return;
   }
   const data = arqSigData[codigo];
-  if(!data || (!data.estado && (!data.comentarios || data.comentarios.trim() === ''))){
+  // Si no hay ningún estado ni comentarios → eliminar el doc de Firestore
+  const sinDatos = !data || (!data.estado_rev && !data.estado_obra && !data.estado &&
+                              (!data.comentarios || data.comentarios.trim() === ''));
+  if(sinDatos){
     try {
       const { db, doc, deleteDoc } = window.E140_DB;
       await deleteDoc(doc(db, 'arq_procesos_sig', codigo));
@@ -12773,7 +12853,11 @@ async function arqSigGuardarFirestore(codigo){
     const { db, doc, setDoc, serverTimestamp } = window.E140_DB;
     const payload = {
       codigo,
-      estado: data.estado || null,
+      // Nuevos campos separados
+      estado_rev:  data.estado_rev  || null,
+      estado_obra: data.estado_obra || null,
+      // Campo legacy: mantener para compat con visualizadores antiguos. Se setea con prioridad rev > obra.
+      estado: data.estado_rev || data.estado_obra || null,
       comentarios: data.comentarios || '',
       editado_por: data.editado_por || '—',
       ultima_edicion: data.ultima_edicion || new Date().toISOString(),
@@ -13065,8 +13149,16 @@ async function loadArqProcesosSigFromFirestore(){
     arqSigData = {};
     snapEst.forEach(s => {
       const d = s.data();
+      // Migración: si solo viene 'estado' (formato viejo), mapear al campo correcto
+      let estadoRev  = d.estado_rev  || null;
+      let estadoObra = d.estado_obra || null;
+      if(!estadoRev && !estadoObra && d.estado){
+        if(d.estado === 'revisado' || d.estado === 'pendiente-rev') estadoRev = d.estado;
+        else if(d.estado === 'curso' || d.estado === 'poriniciar') estadoObra = d.estado;
+      }
       arqSigData[s.id] = {
-        estado: d.estado || null,
+        estado_rev:  estadoRev,
+        estado_obra: estadoObra,
         comentarios: d.comentarios || '',
         editado_por: d.editado_por || '—',
         ultima_edicion: d.ultima_edicion || null
