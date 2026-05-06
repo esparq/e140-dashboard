@@ -814,6 +814,21 @@ tr.row-total td{background:#EEF5FA !important;font-weight:700;}
 .cap-row.cap-fallada{background:#FBEAEA;}
 
 /* ═══════════════════════════════════════════════════════
+   OVERLAY DE SEMANA PARALIZADA
+   ═══════════════════════════════════════════════════════ */
+.paraliz-overlay{position:fixed;top:80px;left:0;right:0;bottom:0;background:rgba(245,247,250,0.97);display:none;align-items:flex-start;justify-content:center;z-index:50;padding:60px 20px 20px;overflow-y:auto;backdrop-filter:blur(2px);}
+.paraliz-card{background:#fff;border:2px solid #C5CFD9;border-radius:16px;max-width:560px;width:100%;padding:40px 36px;text-align:center;box-shadow:0 20px 60px rgba(15,30,55,.15);animation:paralizSlide .3s ease;}
+@keyframes paralizSlide{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.paraliz-icon{font-size:64px;margin-bottom:12px;opacity:.5;line-height:1;}
+.paraliz-titulo{font-family:'Bebas Neue',sans-serif;font-size:32px;color:#5A6B8A;letter-spacing:2px;margin-bottom:6px;}
+.paraliz-corte{font-family:'DM Mono',monospace;font-size:13px;color:#7A8FA8;margin-bottom:20px;font-weight:600;}
+.paraliz-msg{font-size:14px;color:#1F2937;font-weight:600;background:#FFF4D6;border:1px solid #D6A847;border-radius:8px;padding:14px 18px;margin-bottom:14px;line-height:1.4;}
+.paraliz-sub{font-size:12px;color:#5A6B8A;line-height:1.55;margin-bottom:16px;font-style:italic;}
+.paraliz-tip{font-size:11.5px;color:#054C7E;background:#E0EEF8;border-radius:6px;padding:10px 14px;font-weight:600;}
+/* Cuando body tiene class is-paralizada, atenuar header sin ocultarlo */
+body.is-paralizada .top-bar{filter:saturate(0.6) brightness(0.96);}
+
+/* ═══════════════════════════════════════════════════════
    AGENDA SSOMA · Calendario + Popup
    ═══════════════════════════════════════════════════════ */
 /* Header navegación */
@@ -7309,12 +7324,27 @@ function buildDataFromSheets(raw){
     w.personal.dotacion = toNum(r.dotacion_actual);
     const metaGer = toNum(r.meta_dimension_ger);
     const metaCampo = toNum(r.meta_dimension_campo);
-    if(metaGer!==null && metaCampo!==null){
+    // Prioridad: si vienen los 4 valores separados, los usa
+    const subGer  = toNum(r.meta_ger_sub);
+    const supGer  = toNum(r.meta_ger_sup);
+    const subCampo = toNum(r.meta_campo_sub);
+    const supCampo = toNum(r.meta_campo_sup);
+    const dot = w.personal.dotacion ?? 0;
+
+    if(subGer !== null && supGer !== null && subCampo !== null && supCampo !== null){
+      const tGer = subGer + supGer;
+      const tCampo = subCampo + supCampo;
       w.personal.dimensionamiento = [
-        {n:"Subestructura", ger:40, campo:40},
-        {n:"Superestructura", ger:metaGer, campo:metaCampo},
-        {n:"Total meta", ger:40+metaGer, campo:40+metaCampo, total:true},
-        {n:"Actual (obra)", actual: w.personal.dotacion ?? 0, warn:(w.personal.dotacion ?? 0)-(40+metaCampo)}
+        {n:"Subestructura",   ger: subGer, campo: subCampo},
+        {n:"Superestructura", ger: supGer, campo: supCampo},
+        {n:"Total meta",      ger: tGer,   campo: tCampo, total:true},
+        {n:"Actual (obra)",   actual: dot, warn: dot - tCampo}
+      ];
+    } else if(metaGer !== null && metaCampo !== null){
+      // Legacy: solo totales (sin desglose)
+      w.personal.dimensionamiento = [
+        {n:"Total meta",      ger: metaGer, campo: metaCampo, total:true},
+        {n:"Actual (obra)",   actual: dot, warn: dot - metaCampo}
       ];
     }
     // HH Préstamo total (acumulado semanal)
@@ -7677,6 +7707,54 @@ async function loadFromJSONs(){
     return na - nb;
   });
 
+  // ─── DETECCIÓN DE GAPS (semanas paralizadas) ───
+  // Si entre la primera y la última semana publicada (con JSON real) hay huecos,
+  // los marcamos como paralizados. Esto preserva la cronología cuando la obra estuvo detenida.
+  // IMPORTANTE: usamos solo las semanas con JSON real (found), NO las del DEMO.
+  const semanasReales = [...new Set(found.map(f => f.sem))]
+    .map(s => parseInt(s.replace(/\D/g,''), 10))
+    .filter(n => !isNaN(n))
+    .sort((a,b) => a - b);
+
+  if(semanasReales.length > 1){
+    const minSem = semanasReales[0];
+    const maxSem = semanasReales[semanasReales.length - 1];
+    const numsExist = new Set(semanasReales);
+    for(let n = minSem + 1; n < maxSem; n++){
+      if(!numsExist.has(n)){
+        const key = 'S' + String(n).padStart(2, '0');
+        // Crear placeholder paralizado SIEMPRE (sobreescribe demo si lo hubiese)
+        const lunesProy = new Date(2025, 7, 11); // 11/08/2025 = S01 lunes
+        const lunesSem = new Date(lunesProy.getTime() + (n - 1) * 7 * 86400000);
+        const sabadoSem = new Date(lunesSem.getTime() + 5 * 86400000);
+        const corteFmt = `${String(sabadoSem.getDate()).padStart(2,'0')}/${String(sabadoSem.getMonth()+1).padStart(2,'0')}/${sabadoSem.getFullYear()}`;
+        weeks[key] = {
+          corte: corteFmt,
+          semNum: n,
+          estado: 'paralizada',
+          _paralizada: true,
+          _motivoParaliz: 'Obra paralizada · sin actividad registrada',
+          notas: '',
+          diasTranscurridos: (n - 1) * 7,
+          resumenEjecutivo: [],
+          kpis: {contratacionPct:null, moPct:null, utilRentPct:null, personal:null, adicionales:null, rentMOPct:null},
+          avanceFisico: {partidas:[], frentes:[]},
+          personal: {evolucion:{labels:[],data:[]}, hhPrestamo:{TI:0,HMT:0,BL:0,GPLF:0,VT:0,TOTAL:0,serie:{labels:[],TI:[],HMT:[],BL:[],GPLF:[],VT:[]}}, dimensionamiento:[], encofradoCuadrilla:{labels:[],meta:[],aprobada:[],actual:[]}, dotacion:null},
+          mo: {acumulado:null, porcAcumulado:null, saldo:null, mensual:{labels:[],data:[],pct:[]}, stats:{ahorroMeta:null,rentProyPct:null,semActual:"",promUltimas:""}, cuadrillas:[]},
+          adquisiciones: {subheader:"", porEspecialidad:{labels:[],contratado:[],margenPct:[]}, etapas:{labels:[],data:[]}, tipo:{}, responsables:[], rentabilidad:[]},
+          encofrado: {ingresos:{labels:[],data:[]}, composicion:[], nota:""},
+          adicionales: {subheader:"", porEspecialidad:{labels:[],data:[]}, top:[]},
+          cronograma: {minis:[]},
+          fotos: [],
+          alertas: []
+        };
+        if(!order.includes(key)) order.push(key);
+      }
+    }
+    // Re-ordenar después de agregar paralizadas
+    order.sort((a,b) => parseInt(a.replace(/\D/g,''), 10) - parseInt(b.replace(/\D/g,''), 10));
+  }
+
   // Semana actual = la más reciente con JSON propio (no demo).
   // Usa la semana más alta entre todos los JSONs encontrados (legacy o por área).
   const realSems = [...new Set(found.map(f => f.sem))].sort((a,b) => {
@@ -7755,12 +7833,42 @@ function mergeJsonIntoWeek(week, json){
   if(h){
     if(!week.kpis) week.kpis = {};
     if(h.personal_obra != null)    week.kpis.personal = Math.round(h.personal_obra);
-    // Meta de personal (gerencia) - dimensionamiento aprobado
+    // Meta de personal (gerencia) - dimensionamiento aprobado total
     if(h.meta_dimension_ger != null) week.kpis.metaPersonalGer = Math.round(h.meta_dimension_ger);
+    if(h.meta_dimension_campo != null) week.kpis.metaPersonalCampo = Math.round(h.meta_dimension_campo);
 
     // Personal dotación
     if(week.personal){
       if(h.personal_obra != null) week.personal.dotacion = Math.round(h.personal_obra);
+
+      // ─── RECONSTRUIR TABLA DE DIMENSIONAMIENTO ───
+      // Prioridad 1: 4 valores separados (formato nuevo SEM38+)
+      // Prioridad 2: solo totales (formato anterior, asume sub=40 hardcoded)
+      const subGer  = toNum(h.meta_ger_sub);
+      const supGer  = toNum(h.meta_ger_sup);
+      const subCampo = toNum(h.meta_campo_sub);
+      const supCampo = toNum(h.meta_campo_sup);
+      const totalGer = toNum(h.meta_dimension_ger);
+      const totalCampo = toNum(h.meta_dimension_campo);
+      const dotacion = week.personal.dotacion ?? 0;
+
+      if(subGer !== null && supGer !== null && subCampo !== null && supCampo !== null){
+        // Modo NUEVO: 4 valores separados
+        const tGer = subGer + supGer;
+        const tCampo = subCampo + supCampo;
+        week.personal.dimensionamiento = [
+          {n:"Subestructura",   ger: subGer, campo: subCampo},
+          {n:"Superestructura", ger: supGer, campo: supCampo},
+          {n:"Total meta",      ger: tGer,   campo: tCampo, total:true},
+          {n:"Actual (obra)",   actual: dotacion, warn: dotacion - tCampo}
+        ];
+      } else if(totalGer !== null && totalCampo !== null){
+        // Modo LEGACY: solo totales — repartimos como 1 fila "total" sin desglose
+        week.personal.dimensionamiento = [
+          {n:"Total meta",     ger: totalGer, campo: totalCampo, total:true},
+          {n:"Actual (obra)",  actual: dotacion, warn: dotacion - totalCampo}
+        ];
+      }
     }
   }
 
@@ -8796,9 +8904,12 @@ function populateWeekSelector(){
     if(!d) return;
     const opt = document.createElement('option');
     opt.value = w;
-    const marker = d._incompleta ? ' (incompleta)' : '';
+    let marker = '';
+    if(d._paralizada) marker = ' · ⏸ PARALIZADA';
+    else if(d._incompleta) marker = ' · (incompleta)';
     opt.textContent = `${w} · ${d.corte}${marker}`;
-    if(d._incompleta) opt.style.color = '#8A7A55';
+    if(d._paralizada) opt.style.color = '#8A7A7A';
+    else if(d._incompleta) opt.style.color = '#8A7A55';
     sel.appendChild(opt);
   });
   sel.value = DATA.currentWeek;
@@ -8890,10 +9001,24 @@ function renderCurrentWeek(){
 
   // Header superior (semana + corte)
   document.getElementById('hdrSem').textContent = 'SEM '+d.semNum;
-  document.getElementById('hdrCorte').textContent = 'Corte: '+d.corte;
+  let corteTxt = 'Corte: '+d.corte;
+  if(d._paralizada) corteTxt = '⏸ PARALIZADA · ' + d.corte;
+  document.getElementById('hdrCorte').textContent = corteTxt;
+
+  // Aplicar/quitar clase visual cuando la semana está paralizada
+  document.body.classList.toggle('is-paralizada', !!d._paralizada);
+
+  // Ocultar overlay si la semana es normal
+  if(!d._paralizada) hideParalizadaOverlay();
 
   // Banner sidebar: próximo hito meta (siempre actualizar, no depende de tab)
   try { actualizarBannerSidebarHito(); } catch(e){ /* no crítico */ }
+
+  // Si la semana es paralizada, mostrar banner especial en lugar del contenido normal
+  if(d._paralizada){
+    renderParalizadaOverlay(d);
+    return;
+  }
 
   // Render según pestaña
   switch(currentTab){
@@ -8922,6 +9047,35 @@ function renderCurrentWeek(){
     case 'pendientes':    cargarPendientes(false); break;
     case 'reporte':       initReporteGerencial(); break;
   }
+}
+
+// ─── Overlay para semanas paralizadas ───
+function renderParalizadaOverlay(d){
+  // Buscar el contenedor principal (.main o body) e inyectar un banner
+  let overlay = document.getElementById('paralizadaOverlay');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'paralizadaOverlay';
+    overlay.className = 'paraliz-overlay';
+    document.body.appendChild(overlay);
+  }
+  const motivo = d._motivoParaliz || 'Obra paralizada · sin actividad registrada';
+  overlay.innerHTML = `
+    <div class="paraliz-card">
+      <div class="paraliz-icon">⏸</div>
+      <div class="paraliz-titulo">SEMANA ${d.semNum} · PARALIZADA</div>
+      <div class="paraliz-corte">Corte: ${d.corte}</div>
+      <div class="paraliz-msg">${motivo}</div>
+      <div class="paraliz-sub">No hay datos publicados para esta semana. Se preserva el lugar en la cronología por trazabilidad histórica.</div>
+      <div class="paraliz-tip">💡 Selecciona otra semana en el dropdown del header para ver datos.</div>
+    </div>`;
+  overlay.style.display = 'flex';
+}
+
+// Ocultar overlay cuando se cambia a una semana con data
+function hideParalizadaOverlay(){
+  const o = document.getElementById('paralizadaOverlay');
+  if(o) o.style.display = 'none';
 }
 
 
