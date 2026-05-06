@@ -17872,19 +17872,19 @@ const AREAS_CARGADOR = ['operaciones', 'logistica', 'arquitectura', 'ssoma', 'ca
 // numérico al inicio del nombre del archivo (ej. "01_..." → histograma).
 const ARCHIVOS_POR_AREA = {
   operaciones: [
-    {prefijo:'01',    key:'histograma',    label:'Histograma'},
-    {prefijo:'02_01', key:'casco_sot',     label:'Casco SOT'},
-    {prefijo:'02_02', key:'casco_sup',     label:'Casco SUP'},
-    {prefijo:'02_03', key:'albanileria',   label:'Albañilería'},
-    {prefijo:'03',    key:'adquisiciones', label:'Adquisiciones'},
-    {prefijo:'05',    key:'cronograma',    label:'Cronograma'},
-    {prefijo:'06',    key:'mo',            label:'MO'},
-    {prefijo:'10',    key:'adicionales',   label:'Adicionales'},
+    {prefijo:'01',    key:'histograma',    label:'Histograma',    hoja:'_DASHBOARD_DATA'},
+    {prefijo:'02_01', key:'casco_sot',     label:'Casco SOT',     hoja:'_DASHBOARD_DATA'},
+    {prefijo:'02_02', key:'casco_sup',     label:'Casco SUP',     hoja:'_DASHBOARD_DATA'},
+    {prefijo:'02_03', key:'albanileria',   label:'Albañilería',   hoja:'_DASHBOARD_DATA'},
+    {prefijo:'03',    key:'adquisiciones', label:'Adquisiciones', hoja:'_DASHBOARD_DATA'},
+    {prefijo:'05',    key:'cronograma',    label:'Cronograma',    hoja:'_DASHBOARD_DATA'},
+    {prefijo:'06',    key:'mo',            label:'MO',            hoja:'_DASHBOARD_DATA'},
+    {prefijo:'10',    key:'adicionales',   label:'Adicionales',   hoja:'_DASHBOARD_DATA'},
   ],
   logistica: [
-    {prefijo:'07',    key:'acero',         label:'Acero'},
-    {prefijo:'08',    key:'arrendamiento', label:'Arrendamiento'},
-    {prefijo:'09',    key:'kardex',        label:'Kardex / Encofrado'},
+    {prefijo:'07',    key:'acero',         label:'Acero',                 hoja:'_DASHBOARD_DATA'},
+    {prefijo:'08',    key:'arrendamiento', label:'Arrendamiento',         hoja:'_DASHBOARD_DATA'},
+    {prefijo:'09',    key:'kardex',        label:'Kardex / Encofrado',    hoja:'_DASHBOARD_DATA'},
   ],
   arquitectura: [
     // Sin prefijos definidos aún — se aceptan todos y se etiquetan genéricamente
@@ -20987,7 +20987,7 @@ function identificarArchivoPorArea(file, area){
     prefijo: '?',
     key: 'unknown_' + area + '_' + Date.now() + '_' + Math.random().toString(36).substring(7),
     label: 'Genérico — ' + area,
-    hoja: ''
+    hoja: '_DASHBOARD_DATA'
   };
 }
 
