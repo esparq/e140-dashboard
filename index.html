@@ -21129,13 +21129,28 @@ function identificarArchivoPorArea(file, area){
   const name = file.name.toLowerCase();
   // Buscar prefijo en los archivos esperados de la propia área primero
   const expArea = ARCHIVOS_POR_AREA[area] || [];
-  for(const a of expArea){
+  const matchPrefijo = (a) => {
     const pref = a.prefijo.toLowerCase();
-    if(name.startsWith(pref + '_') || name.startsWith(pref + '.') || name.startsWith(pref + '__')){
+    return name.startsWith(pref + '_') || name.startsWith(pref + '.') || name.startsWith(pref + '__');
+  };
+  for(const a of expArea){
+    if(matchPrefijo(a)){
       return a;
     }
   }
-  // Si no calza con un prefijo del área, igual lo aceptamos como genérico
+  // Fallback: si no calza en el área activa, buscar el prefijo en TODAS las áreas
+  // (permite soltar el set completo en cualquier pestaña; el archivo se reconoce por su
+  //  prefijo aunque pertenezca a otra área —p.ej. 07/08/09 de logística cargados en
+  //  operaciones—. El procesamiento usa info.key, no el área, así que es seguro).
+  for(const ar of AREAS_CARGADOR){
+    if(ar === area) continue;
+    for(const a of (ARCHIVOS_POR_AREA[ar] || [])){
+      if(matchPrefijo(a)){
+        return a;
+      }
+    }
+  }
+  // Si no calza con ningún prefijo conocido, lo aceptamos como genérico
   // (útil para Arquitectura, SSOMA y Calidad que aún no tienen prefijos definidos)
   return {
     prefijo: '?',
