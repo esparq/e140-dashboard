@@ -4506,6 +4506,9 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
         <button class="hdr-btn hdr-btn-primary" id="cargarSemBtn" onclick="openCargaModal()" title="Cargar y publicar data por área">
           <span class="ico">📂</span> Cargar Data
         </button>
+        <button class="hdr-btn" id="eliminarSemBtn" onclick="abrirEliminarSemana()" title="Eliminar todos los datos de una semana de Firestore" style="display:none;">
+          <span class="ico">🗑️</span> Eliminar Semana
+        </button>
         <div class="th-date">
           <div class="dl">Semana</div>
           <div class="dv" id="hdrSem">SEM 36</div>
@@ -17760,6 +17763,12 @@ function applySessionToUI(){
   const cargarBtn = document.getElementById('cargarSemBtn');
   if(cargarBtn) cargarBtn.classList.add('admin-only');
 
+  // El botón "Eliminar Semana" es una acción destructiva: SOLO rol 'adm'.
+  const elimBtn = document.getElementById('eliminarSemBtn');
+  if(elimBtn){
+    elimBtn.style.display = (currentSession && currentSession.usuario === 'adm') ? '' : 'none';
+  }
+
   // Inicializar el centro de notificaciones para esta sesión
   if(typeof notifInit === 'function') notifInit();
 }
@@ -19123,6 +19132,112 @@ async function loadDatosFromFirestore(){
     console.warn('[E140] No se pudieron cargar datos desde Firestore:', err.message || err);
     return [];
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ELIMINAR SEMANA — Borra todos los documentos {semana}_{area} de la
+   colección 'datos' en Firestore. Acción destructiva, SOLO rol 'adm'.
+   ═══════════════════════════════════════════════════════════════════ */
+
+// Lista las áreas que tienen data cargada para una semana dada (lee Firestore).
+async function listarAreasDeSemana(semana){
+  if(!window.E140_DB) return [];
+  const { db, collection, getDocs } = window.E140_DB;
+  const snapshot = await getDocs(collection(db, 'datos'));
+  const areas = [];
+  snapshot.forEach(docSnap => {
+    const d = docSnap.data();
+    if(d && d.semana && String(d.semana).toUpperCase() === String(semana).toUpperCase()){
+      areas.push({ docId: docSnap.id, area: d.area, corte: d.corte_fecha || '—' });
+    }
+  });
+  return areas;
+}
+
+// Flujo de UI: pregunta qué semana, muestra qué se va a borrar y confirma.
+async function abrirEliminarSemana(){
+  // Permiso: solo adm
+  if(!currentSession || currentSession.usuario !== 'adm'){
+    alert('⛔ Solo el administrador puede eliminar semanas.');
+    return;
+  }
+  if(!window.E140_DB){
+    alert('⚠ Firestore no está disponible. Verifica tu conexión e intenta de nuevo.');
+    return;
+  }
+
+  // Construir lista de semanas existentes a partir de WEEKS_ORDER (excluye paralizadas)
+  const semanasDisponibles = (WEEKS_ORDER || []).filter(w => {
+    const wd = DATA.weeks[w];
+    return wd && !wd._paralizada;
+  });
+  const hint = semanasDisponibles.length ? `\nSemanas con data: ${semanasDisponibles.join(', ')}` : '';
+
+  const sem = prompt(`Escribe el código de la semana a ELIMINAR (ej. S41).${hint}`);
+  if(!sem) return;
+  const semana = sem.trim().toUpperCase();
+  if(!/^S\d{1,2}$/.test(semana)){
+    alert('Formato inválido. Usa el código de semana, por ejemplo: S41');
+    return;
+  }
+
+  // Mostrar qué se va a borrar
+  let areas;
+  try {
+    areas = await listarAreasDeSemana(semana);
+  } catch(e){
+    alert('No se pudo consultar Firestore: ' + (e.message || e));
+    return;
+  }
+  if(!areas.length){
+    alert(`No se encontró data de la semana ${semana} en Firestore. Nada que eliminar.`);
+    return;
+  }
+
+  const detalle = areas.map(a => `   • ${a.docId}  (área: ${a.area} · corte: ${a.corte})`).join('\n');
+  const confirm1 = confirm(
+    `⚠️ Vas a ELIMINAR la semana ${semana}.\n\n` +
+    `Se borrarán ${areas.length} documento(s) de Firestore:\n${detalle}\n\n` +
+    `Esta acción NO se puede deshacer. ¿Continuar?`
+  );
+  if(!confirm1) return;
+
+  // Doble confirmación escribiendo el código
+  const confirm2 = prompt(`Para confirmar el borrado definitivo de ${semana}, escribe de nuevo el código de la semana:`);
+  if(!confirm2 || confirm2.trim().toUpperCase() !== semana){
+    alert('Confirmación no coincide. Operación cancelada. No se borró nada.');
+    return;
+  }
+
+  // Ejecutar borrado
+  try {
+    await eliminarSemanaCompleta(semana, areas);
+    alert(`✓ Semana ${semana} eliminada (${areas.length} documento(s)).\n\nEl dashboard se recargará para reflejar el cambio.`);
+    location.reload();
+  } catch(e){
+    alert('Error al eliminar: ' + (e.message || e) + '\n\nEs posible que algunos documentos no se hayan borrado. Revisa Firestore.');
+  }
+}
+
+// Borra los documentos indicados de la colección 'datos'.
+async function eliminarSemanaCompleta(semana, areas){
+  const { db, doc, deleteDoc } = window.E140_DB;
+  for(const a of areas){
+    await deleteDoc(doc(db, 'datos', a.docId));
+    console.log(`[E140] Eliminado: datos/${a.docId}`);
+  }
+  // Audit log si está disponible
+  try {
+    if(typeof auditLog === 'function'){
+      auditLog({
+        modulo: 'datos',
+        accion: 'eliminar_semana',
+        entidad_id: semana,
+        entidad_nombre: `Semana ${semana}`,
+        detalle: `Eliminados ${areas.length} doc.: ${areas.map(a=>a.docId).join(', ')}`,
+      });
+    }
+  } catch(e){ console.warn(e); }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
