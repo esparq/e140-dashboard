@@ -8975,8 +8975,8 @@ function fmtSMon(v){
 // Compara con semana anterior (si existe en WEEKS_ORDER)
 function getPrevWeek(w){
   const i = WEEKS_ORDER.indexOf(w);
-  // WEEKS_ORDER está ordenado de reciente a antiguo → prev = índice+1
-  if(i>=0 && i+1<WEEKS_ORDER.length) return WEEKS_ORDER[i+1];
+  // WEEKS_ORDER está ordenado ASCENDENTE (S30 → S40) → prev = índice-1
+  if(i>0) return WEEKS_ORDER[i-1];
   return null;
 }
 function getDelta(actual, prev, esPct){
