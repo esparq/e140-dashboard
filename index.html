@@ -5644,9 +5644,6 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
             <button class="ssoma-btn-quick ssoma-btn-charla" onclick="openCharlaModal()" title="Registrar charla diaria de 5 min">
               <span>📢</span> Charla Diaria
             </button>
-            <button class="ssoma-btn-quick ssoma-btn-insp" onclick="openInspeccionSstModal()" title="Registrar inspección SST">
-              <span>📋</span> Inspección
-            </button>
             <button class="ssoma-btn-quick ssoma-btn-incidente" onclick="openIncidenteModal()" title="Reportar incidente o accidente">
               <span>🚨</span> Incidente
             </button>
@@ -5735,62 +5732,10 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
           </div>
         </div>
 
-        <!-- Filtros -->
-        <div class="aud-card" style="margin-bottom:14px;">
-          <div class="aud-card-header">
-            <span class="aud-card-icon">🔎</span>
-            <span class="aud-card-title">Filtros del histórico SSOMA</span>
-          </div>
-          <div class="aud-filters" style="grid-template-columns:160px 160px 1fr;">
-            <div class="aud-filter-group">
-              <label>Tipo de reporte</label>
-              <select id="ssomaFiltroTipo" onchange="renderSsomaSstHistorial()">
-                <option value="">Todos</option>
-                <option value="charla">📢 Charla diaria</option>
-                <option value="inspeccion">📋 Inspección</option>
-                <option value="incidente">🚨 Incidente</option>
-              </select>
-            </div>
-            <div class="aud-filter-group">
-              <label>Mes</label>
-              <select id="ssomaFiltroMes" onchange="renderSsomaSstHistorial()">
-                <option value="">Todos</option>
-              </select>
-            </div>
-            <div class="aud-filter-group">
-              <label>Buscar</label>
-              <input type="text" id="ssomaFiltroBuscar" placeholder="Tema, área, responsable, descripción…" oninput="renderSsomaSstHistorial()">
-            </div>
-          </div>
-        </div>
-
-        <!-- Histórico de eventos SSOMA -->
-        <div class="aud-card">
-          <div class="aud-card-header">
-            <span class="aud-card-icon">📋</span>
-            <span class="aud-card-title">Histórico de Reportes SSOMA</span>
-            <span class="aud-card-badge" id="ssomaSstFoot">—</span>
-          </div>
-          <div class="aud-table-wrap">
-            <table class="aud-table">
-              <thead>
-                <tr>
-                  <th class="td-center">Tipo</th>
-                  <th class="td-center">Fecha</th>
-                  <th>Tema / Descripción</th>
-                  <th>Responsable</th>
-                  <th class="td-center">Detalle</th>
-                  <th class="td-center">Adjunto</th>
-                  <th class="td-center audit-only">Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="ssomaSstTabla">
-                <tr><td colspan="7" class="aud-empty">⏳ Cargando reportes…</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
+        <!-- ELIMINADO TEMPORALMENTE (a pedido, mayo 2026): sección "Filtros del histórico
+             SSOMA" + tabla "Histórico de Reportes SSOMA". No se usa por el momento.
+             Para restaurar: reponer los bloques .aud-card de filtros (ssomaFiltroTipo/
+             ssomaFiltroMes/ssomaFiltroBuscar) y la tabla #ssomaSstTabla con su thead. -->
 
         <!-- ═══════════════════════════════════════════
              SST · AGENDA SSOMA UNIFICADA (Charlas + Inspecciones)
