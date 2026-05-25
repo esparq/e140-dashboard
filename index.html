@@ -5725,6 +5725,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
                 <button class="agenda-toggle-btn" data-tipo="inspecciones" onclick="agendaCambiarFiltro('inspecciones')">🔍 Inspecciones</button>
               </div>
               <button class="admin-only agenda-excel-btn" onclick="agendaAbrirCargaExcel()" title="Cargar programa mensual desde Excel SIG.103-F01 (Charlas) o SIG.103-F02 (Inspecciones)">📤 Cargar Excel</button>
+              <button class="admin-only agenda-excel-btn" onclick="agendaMarcarCumplidoHastaHoy()" title="Marca como cumplidas (SÍ/SÍ) todas las actividades pendientes hasta hoy, en todos los meses. No toca las que ya marcaste." style="background:#1E7E4F;color:#fff;border-color:#1E7E4F;">✓ Marcar cumplido hasta hoy</button>
             </div>
           </div>
 
@@ -11044,6 +11045,101 @@ function agendaActividadesDelDia(mesAno, dia){
   });
 
   return { charlas, inspecciones };
+}
+
+// ─── Marcar como cumplidas (SÍ/SÍ) todas las actividades PENDIENTES hasta hoy ───
+// Recorre TODOS los meses con programa. Para cada actividad con fecha <= hoy que NO
+// tenga registro previo, la marca cumplido=true y cumplio_responsable=true y la guarda
+// en Firestore. NO toca las que ya tienen registro (respeta lo marcado manualmente).
+async function agendaMarcarCumplidoHastaHoy(){
+  const usuario = (currentSession && currentSession.usuario) || '';
+  if(usuario !== 'adm' && usuario !== 'staff'){
+    alert('⛔ Solo adm o staff pueden usar esta función.');
+    return;
+  }
+  if(!window.E140_DB){
+    alert('⚠ Firestore no disponible. Intenta de nuevo en unos segundos.');
+    return;
+  }
+
+  const hoy = new Date();
+  hoy.setHours(23,59,59,999); // incluir todo el día de hoy
+
+  // Recolectar pendientes (charlas + inspecciones) con fecha <= hoy y sin registro
+  const pendientes = []; // { tipo:'ch'|'in', fullKey, mesAno, idx }
+  const meses = [...new Set([
+    ...Object.keys(SSOMA_CAP_PROGRAMAS),
+    ...Object.keys(SSOMA_INSP_PROGRAMAS)
+  ])];
+
+  meses.forEach(mesAno => {
+    const [y, m] = mesAno.split('-').map(Number);
+    (SSOMA_CAP_PROGRAMAS[mesAno] || []).forEach((c, idx) => {
+      if(!c || !c.dia) return;
+      const fecha = new Date(y, m-1, c.dia);
+      if(fecha > hoy) return; // futura → no tocar
+      const fullKey = `${mesAno}-${String(c.dia).padStart(2,'0')}_${idx}`;
+      const yaTiene = ssomaCapAsistencias[fullKey] && ssomaCapAsistencias[fullKey].cumplio !== undefined;
+      if(!yaTiene) pendientes.push({ tipo:'ch', fullKey, mesAno, idx });
+    });
+    (SSOMA_INSP_PROGRAMAS[mesAno] || []).forEach((c, idx) => {
+      if(!c || !c.dia) return;
+      const fecha = new Date(y, m-1, c.dia);
+      if(fecha > hoy) return;
+      const fullKey = `${mesAno}-${String(c.dia).padStart(2,'0')}_${idx}`;
+      const yaTiene = ssomaInspRegistros[fullKey] && ssomaInspRegistros[fullKey].cumplio !== undefined;
+      if(!yaTiene) pendientes.push({ tipo:'in', fullKey, mesAno, idx });
+    });
+  });
+
+  if(pendientes.length === 0){
+    alert('✓ No hay actividades pendientes hasta hoy. Todo lo anterior ya está marcado.');
+    return;
+  }
+
+  const nCh = pendientes.filter(p => p.tipo === 'ch').length;
+  const nIn = pendientes.filter(p => p.tipo === 'in').length;
+  if(!confirm(
+    `Se marcarán como CUMPLIDAS (Sí / Sí) ${pendientes.length} actividad(es) pendientes hasta hoy:\n` +
+    `   • ${nCh} charla(s)\n   • ${nIn} inspección(es)\n\n` +
+    `No se modificarán las que ya marcaste antes. ¿Continuar?`
+  )) return;
+
+  const ts = new Date().toISOString();
+  const promesas = [];
+  pendientes.forEach(p => {
+    if(p.tipo === 'ch'){
+      ssomaCapAsistencias[p.fullKey] = {
+        cumplio: true, asistio: true, cumplio_responsable: true,
+        fecha_registro: ts, registrado_por: usuario
+      };
+      promesas.push(ssomaCapGuardarAsistFirestore(p.fullKey));
+    } else {
+      ssomaInspRegistros[p.fullKey] = {
+        cumplio: true, cumplio_responsable: true,
+        fecha_registro: ts, registrado_por: usuario
+      };
+      promesas.push(ssomaInspGuardarFirestore(p.fullKey));
+    }
+  });
+
+  try {
+    await Promise.allSettled(promesas);
+    // Audit log
+    try {
+      if(typeof auditLog === 'function'){
+        auditLog({
+          modulo:'ssoma', accion:'crear', entidad_id:'marcar_cumplido_hasta_hoy',
+          entidad_nombre:`Marcado masivo hasta ${ts.slice(0,10)}`,
+          detalle:`${pendientes.length} actividad(es) marcadas cumplidas (${nCh} charlas, ${nIn} inspecciones).`,
+        });
+      }
+    } catch(e){ console.warn(e); }
+    if(typeof renderAgendaSsoma === 'function') renderAgendaSsoma();
+    alert(`✓ Listo. Se marcaron ${pendientes.length} actividad(es) como cumplidas hasta hoy.`);
+  } catch(e){
+    alert('⚠ Error al guardar: ' + (e.message || e) + '\nAlgunas pueden no haberse guardado. Revisa Firestore.');
+  }
 }
 
 // ─── RENDER PRINCIPAL ───
