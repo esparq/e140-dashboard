@@ -3187,6 +3187,41 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
 </div>
 
 <!-- ═══════════════════════════════════════════
+     MODAL CARGA GESTIÓN AMBIENTAL (mensual)
+     ═══════════════════════════════════════════ -->
+<div class="kpi-edit-overlay" id="ambienteFormModal">
+  <div class="kpi-edit-modal" style="max-width:460px;">
+    <div class="kpi-edit-head">
+      <h3>✏️ Datos de Gestión Ambiental</h3>
+      <div class="sub">Indicadores mensuales · ISO 14001</div>
+    </div>
+    <div class="kpi-edit-body">
+      <input type="hidden" id="ambForm_mes">
+      <label class="kpi-edit-label">Requisitos ambientales (cumplidos / totales)</label>
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <input type="number" id="ambForm_reqCumpl" class="kpi-edit-input" style="font-size:16px;" placeholder="Cumplidos" min="0">
+        <input type="number" id="ambForm_reqTotal" class="kpi-edit-input" style="font-size:16px;" placeholder="Totales" min="0">
+      </div>
+      <label class="kpi-edit-label"># Incidentes ambientales</label>
+      <input type="number" id="ambForm_incidentes" class="kpi-edit-input" style="font-size:16px;margin-bottom:14px;" placeholder="0" min="0">
+      <label class="kpi-edit-label">% Gestión de residuos (EO-RS)</label>
+      <input type="number" id="ambForm_resPct" class="kpi-edit-input" style="font-size:16px;margin-bottom:14px;" placeholder="Ej: 96.5" step="0.01" min="0" max="100">
+      <label class="kpi-edit-label">Residuos gestionados (m³)</label>
+      <input type="number" id="ambForm_resVol" class="kpi-edit-input" style="font-size:16px;margin-bottom:14px;" placeholder="Ej: 12.50" step="0.01" min="0">
+      <label class="kpi-edit-label">Cobertura SSOMA (texto)</label>
+      <input type="text" id="ambForm_cobertura" class="kpi-edit-input" style="font-size:14px;text-align:left;" placeholder="Indicador contextual del período">
+      <div class="kpi-edit-actions" style="margin-top:18px;">
+        <span style="font-size:11px;color:var(--text-muted);">Deja en blanco lo que no aplique</span>
+        <div style="display:flex;gap:8px;">
+          <button class="kpi-edit-btn-cancel" onclick="ambienteCerrarFormulario()">Cancelar</button>
+          <button class="kpi-edit-btn-save" id="ambFormBtnSave" onclick="ambienteGuardarFormulario()">💾 Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
      MODAL EDITAR KPI (Avance de Obra) — override manual
      ═══════════════════════════════════════════ -->
 <div class="kpi-edit-overlay" id="kpiEditModal">
@@ -5792,9 +5827,14 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
           </div>
         </div>
 
-        <div class="ssoma-alcance" style="background:#FFF8E1;border-left-color:#F57C00;">
-          <span class="ssoma-alcance-icon" style="color:#F57C00;">⏳</span>
-          <span><b>Información pendiente:</b> los indicadores ambientales del proyecto E140 ESPARQ 140 quedan en <b>estado pendiente hasta la Semana 38</b>, fecha en la cual se cargará la información oficial actualizada por el responsable SSOMA.</span>
+        <!-- Selector de mes + carga (carga: solo adm/staff) -->
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <button onclick="ambienteNavegarMes(-1)" class="agenda-nav-btn" title="Mes anterior">‹</button>
+            <div class="agenda-mes-label" id="ambienteMesLabel">— —</div>
+            <button onclick="ambienteNavegarMes(1)" class="agenda-nav-btn" title="Mes siguiente">›</button>
+          </div>
+          <button class="admin-only agenda-excel-btn" onclick="ambienteAbrirFormulario()" title="Cargar o editar los indicadores ambientales del mes mostrado" style="background:#1E7E4F;color:#fff;border-color:#1E7E4F;">✏️ Cargar datos del mes</button>
         </div>
 
         <!-- Panel KPIs Ambiental -->
@@ -12159,30 +12199,178 @@ function renderSsomaSstHistorial(){
    ═══════════════════════════════════════════════════════════════════ */
 
 function renderSsomaAmbiental(){
-  // ⚠ DATA PENDIENTE — Todos los indicadores Ambientales quedan en estado pendiente
-  // hasta la SEMANA 38. No se muestran cifras hasta que se reciba la información
-  // oficial actualizada del responsable SSOMA.
+  ambienteRender();
+}
 
-  // Valores en placeholder
-  document.getElementById('ssomaAmbReq').textContent = '—';
-  document.getElementById('ssomaAmbReqDetalle').textContent = 'Pendiente · se actualiza en Semana 38';
-  document.getElementById('ssomaAmbInc').textContent = '—';
-  document.getElementById('ssomaAmbRes').textContent = '—';
-  document.getElementById('ssomaAmbResDetalle').textContent = 'Pendiente · se actualiza en Semana 38';
-  document.getElementById('ssomaAmbResVol').textContent = '—';
-  document.getElementById('ssomaAmbCob').textContent = '—';
+/* ═══════════════════════════════════════════════════════════════════
+   GESTIÓN AMBIENTAL — Datos mensuales (Firestore: 'ssoma_ambiental')
+   Cada doc: id = 'YYYY-MM', campos: req_cumpl, req_total, incidentes,
+   res_pct, res_vol_m3, cobertura. Selector de mes ‹ › abre en el último.
+   ═══════════════════════════════════════════════════════════════════ */
 
-  // Estados: todos en "pendiente"
-  const setPendiente = (id) => {
+let AMBIENTE_DATA = {};       // { '2026-03': {...}, '2026-04': {...} }
+let ambienteMesActual = null; // 'YYYY-MM'
+
+const AMBIENTE_MESES_TXT = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+
+async function ambienteCargarFirestore(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs } = window.E140_DB;
+    const snap = await getDocs(collection(db, 'ssoma_ambiental'));
+    AMBIENTE_DATA = {};
+    snap.forEach(s => { AMBIENTE_DATA[s.id] = s.data(); });
+    const n = Object.keys(AMBIENTE_DATA).length;
+    if(n > 0) console.log(`[E140] ${n} mes(es) de Gestión Ambiental cargados`);
+  } catch(e){ console.warn('[E140] Error cargando ambiental:', e.message || e); }
+}
+
+// Inicializa el mes a mostrar: el más reciente con data, sin pasar del mes actual
+function ambienteInicializarMes(){
+  const hoy = new Date();
+  const mesHoy = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
+  const meses = Object.keys(AMBIENTE_DATA).sort();
+  if(meses.length === 0){ ambienteMesActual = mesHoy; return; }
+  const noFuturos = meses.filter(m => m <= mesHoy);
+  ambienteMesActual = noFuturos.length > 0 ? noFuturos[noFuturos.length-1] : meses[0];
+}
+
+function ambienteNavegarMes(delta){
+  if(!ambienteMesActual) ambienteInicializarMes();
+  const [y,m] = ambienteMesActual.split('-').map(Number);
+  const dt = new Date(y, m-1+delta, 1);
+  ambienteMesActual = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
+  ambienteRender();
+}
+
+function ambienteRender(){
+  if(!ambienteMesActual) ambienteInicializarMes();
+  const [y,m] = ambienteMesActual.split('-').map(Number);
+
+  // Etiqueta del mes en el header (si existe el elemento)
+  const lbl = document.getElementById('ambienteMesLabel');
+  if(lbl) lbl.textContent = `${AMBIENTE_MESES_TXT[m-1]} ${y}`;
+
+  const d = AMBIENTE_DATA[ambienteMesActual] || null;
+
+  const elReq = document.getElementById('ssomaAmbReq');
+  const elReqDet = document.getElementById('ssomaAmbReqDetalle');
+  const elInc = document.getElementById('ssomaAmbInc');
+  const elRes = document.getElementById('ssomaAmbRes');
+  const elResDet = document.getElementById('ssomaAmbResDetalle');
+  const elResVol = document.getElementById('ssomaAmbResVol');
+  const elCob = document.getElementById('ssomaAmbCob');
+
+  const setStatus = (id, estado, texto) => {
     const el = document.getElementById(id);
     if(!el) return;
     el.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
-    el.classList.add('kpi-meta-seguimiento');
-    el.textContent = '⏳ Pendiente Sem 38';
+    el.classList.add('kpi-meta-'+estado);
+    el.textContent = texto;
   };
-  setPendiente('ssomaAmbReqStatus');
-  setPendiente('ssomaAmbIncStatus');
-  setPendiente('ssomaAmbResStatus');
+
+  if(!d){
+    // Sin data para este mes → pendiente
+    const txtPend = `Pendiente · se carga al cierre de ${AMBIENTE_MESES_TXT[m-1].toLowerCase()}`;
+    if(elReq) elReq.textContent = '—';
+    if(elReqDet) elReqDet.textContent = txtPend;
+    if(elInc) elInc.textContent = '—';
+    if(elRes) elRes.textContent = '—';
+    if(elResDet) elResDet.textContent = txtPend;
+    if(elResVol) elResVol.textContent = '—';
+    if(elCob) elCob.textContent = '—';
+    setStatus('ssomaAmbReqStatus','seguimiento','⏳ Pendiente');
+    setStatus('ssomaAmbIncStatus','seguimiento','⏳ Pendiente');
+    setStatus('ssomaAmbResStatus','seguimiento','⏳ Pendiente');
+    return;
+  }
+
+  // Hay data → poblar
+  const reqPct = (d.req_total && d.req_total > 0) ? (d.req_cumpl / d.req_total * 100) : (d.req_pct != null ? d.req_pct : null);
+  if(elReq) elReq.textContent = reqPct != null ? reqPct.toFixed(2)+'%' : '—';
+  if(elReqDet) elReqDet.textContent = (d.req_cumpl != null && d.req_total != null) ? `${d.req_cumpl} / ${d.req_total} requisitos` : 'Requisitos cumplidos / totales';
+  if(elInc) elInc.textContent = (d.incidentes != null) ? String(d.incidentes) : '—';
+  if(elRes) elRes.textContent = (d.res_pct != null) ? Number(d.res_pct).toFixed(2)+'%' : '—';
+  if(elResDet) elResDet.textContent = 'Residuos dispuestos con EO-RS';
+  if(elResVol) elResVol.textContent = (d.res_vol_m3 != null) ? Number(d.res_vol_m3).toFixed(2)+' m³' : '—';
+  if(elCob) elCob.textContent = d.cobertura || '—';
+
+  // Estados según meta
+  setStatus('ssomaAmbReqStatus', (reqPct != null && reqPct >= 100) ? 'cumple' : 'seguimiento', (reqPct != null && reqPct >= 100) ? '✓ Cumple' : '⚠ En seguimiento');
+  setStatus('ssomaAmbIncStatus', (d.incidentes === 0) ? 'cumple' : 'nocumple', (d.incidentes === 0) ? '✓ Cumple' : '✗ '+d.incidentes+' incidente(s)');
+  setStatus('ssomaAmbResStatus', (d.res_pct != null && d.res_pct >= 95) ? 'cumple' : 'seguimiento', (d.res_pct != null && d.res_pct >= 95) ? '✓ Cumple' : '⚠ En seguimiento');
+}
+
+// ─── Formulario de carga (solo adm/staff) ───
+function ambienteAbrirFormulario(){
+  const usuario = (currentSession && currentSession.usuario) || '';
+  if(usuario !== 'adm' && usuario !== 'staff'){
+    alert('⛔ Solo adm o staff pueden cargar la data ambiental.');
+    return;
+  }
+  if(!ambienteMesActual) ambienteInicializarMes();
+  const d = AMBIENTE_DATA[ambienteMesActual] || {};
+  document.getElementById('ambForm_mes').value = ambienteMesActual;
+  document.getElementById('ambForm_reqCumpl').value = d.req_cumpl != null ? d.req_cumpl : '';
+  document.getElementById('ambForm_reqTotal').value = d.req_total != null ? d.req_total : '';
+  document.getElementById('ambForm_incidentes').value = d.incidentes != null ? d.incidentes : '';
+  document.getElementById('ambForm_resPct').value = d.res_pct != null ? d.res_pct : '';
+  document.getElementById('ambForm_resVol').value = d.res_vol_m3 != null ? d.res_vol_m3 : '';
+  document.getElementById('ambForm_cobertura').value = d.cobertura || '';
+  document.getElementById('ambienteFormModal').classList.add('show');
+}
+
+function ambienteCerrarFormulario(){
+  document.getElementById('ambienteFormModal').classList.remove('show');
+}
+
+async function ambienteGuardarFormulario(){
+  const usuario = (currentSession && currentSession.usuario) || '';
+  if(usuario !== 'adm' && usuario !== 'staff'){ alert('⛔ Sin permisos.'); return; }
+
+  const mes = document.getElementById('ambForm_mes').value;
+  if(!/^\d{4}-\d{2}$/.test(mes)){ alert('Mes inválido (formato YYYY-MM).'); return; }
+
+  const numOrNull = (id) => {
+    const v = document.getElementById(id).value.trim();
+    if(v === '') return null;
+    const n = parseFloat(v);
+    return isNaN(n) ? null : n;
+  };
+  const registro = {
+    mes: mes,
+    req_cumpl:  numOrNull('ambForm_reqCumpl'),
+    req_total:  numOrNull('ambForm_reqTotal'),
+    incidentes: numOrNull('ambForm_incidentes'),
+    res_pct:    numOrNull('ambForm_resPct'),
+    res_vol_m3: numOrNull('ambForm_resVol'),
+    cobertura:  document.getElementById('ambForm_cobertura').value.trim(),
+    cargado_por: usuario,
+    fecha_carga: new Date().toISOString(),
+  };
+
+  if(!window.E140_DB){ alert('⚠ Firestore no disponible.'); return; }
+  const btn = document.getElementById('ambFormBtnSave');
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  try {
+    const { db, doc, setDoc } = window.E140_DB;
+    await setDoc(doc(db, 'ssoma_ambiental', mes), registro, { merge: true });
+    AMBIENTE_DATA[mes] = registro;
+    ambienteMesActual = mes;
+    try {
+      if(typeof auditLog === 'function'){
+        auditLog({ modulo:'ssoma', accion:'crear', entidad_id:'ambiental_'+mes,
+          entidad_nombre:`Gestión Ambiental ${mes}`, detalle:`Indicadores ambientales de ${mes} cargados/actualizados.` });
+      }
+    } catch(e){ console.warn(e); }
+    ambienteCerrarFormulario();
+    ambienteRender();
+    if(typeof showBanner === 'function') showBanner('ok', `✓ Datos ambientales de ${mes} guardados.`, true);
+  } catch(e){
+    alert('⚠ Error al guardar: ' + (e.message || e));
+  } finally {
+    btn.textContent = '💾 Guardar'; btn.disabled = false;
+  }
 }
 
 
@@ -13975,6 +14163,9 @@ async function loadSsomaReportesFromFirestore(){
       // ...y RECIÉN AHORA inicializar el mes, para que abra en el último mes con data
       // (si se llama antes, los programas están vacíos y cae al default '2026-04')
       agendaInicializarMes();
+      // Cargar indicadores mensuales de Gestión Ambiental (ISO 14001)
+      await ambienteCargarFirestore();
+      ambienteInicializarMes();
     } catch(e){ console.warn('[E140] Error cargando agenda SST:', e); }
 
     if(currentTab === 'ssoma-sst'){
