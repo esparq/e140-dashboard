@@ -1633,6 +1633,9 @@ body.is-paralizada .top-bar{filter:saturate(0.6) brightness(0.96);}
 
 /* Ocultar elementos solo para admins cuando es viewer */
 body.role-viewer .admin-only{display:none !important;}
+/* Usuarios técnicos por área: ven los botones de edición de SU área aunque sean viewer */
+body.can-edit-ssoma .ssoma-edit-btn{display:inline-flex !important;}
+body.can-edit-arq .arq-edit-btn{display:inline-flex !important;}
 
 @media(max-width:540px){
   .login-card{padding:28px 24px 22px;}
@@ -5759,8 +5762,8 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
                 <button class="agenda-toggle-btn" data-tipo="charlas" onclick="agendaCambiarFiltro('charlas')">📚 Charlas</button>
                 <button class="agenda-toggle-btn" data-tipo="inspecciones" onclick="agendaCambiarFiltro('inspecciones')">🔍 Inspecciones</button>
               </div>
-              <button class="admin-only agenda-excel-btn" onclick="agendaAbrirCargaExcel()" title="Cargar programa mensual desde Excel SIG.103-F01 (Charlas) o SIG.103-F02 (Inspecciones)">📤 Cargar Excel</button>
-              <button class="admin-only agenda-excel-btn" onclick="agendaMarcarCumplidoHastaHoy()" title="Marca como cumplidas (SÍ/SÍ) todas las actividades pendientes hasta hoy, en todos los meses. No toca las que ya marcaste." style="background:#1E7E4F;color:#fff;border-color:#1E7E4F;">✓ Marcar cumplido hasta hoy</button>
+              <button class="admin-only ssoma-edit-btn agenda-excel-btn" onclick="agendaAbrirCargaExcel()" title="Cargar programa mensual desde Excel SIG.103-F01 (Charlas) o SIG.103-F02 (Inspecciones)">📤 Cargar Excel</button>
+              <button class="admin-only ssoma-edit-btn agenda-excel-btn" onclick="agendaMarcarCumplidoHastaHoy()" title="Marca como cumplidas (SÍ/SÍ) todas las actividades pendientes hasta hoy, en todos los meses. No toca las que ya marcaste." style="background:#1E7E4F;color:#fff;border-color:#1E7E4F;">✓ Marcar cumplido hasta hoy</button>
             </div>
           </div>
 
@@ -5834,7 +5837,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
             <div class="agenda-mes-label" id="ambienteMesLabel">— —</div>
             <button onclick="ambienteNavegarMes(1)" class="agenda-nav-btn" title="Mes siguiente">›</button>
           </div>
-          <button class="admin-only agenda-excel-btn" onclick="ambienteAbrirFormulario()" title="Cargar o editar los indicadores ambientales del mes mostrado" style="background:#1E7E4F;color:#fff;border-color:#1E7E4F;">✏️ Cargar datos del mes</button>
+          <button class="admin-only ssoma-edit-btn agenda-excel-btn" onclick="ambienteAbrirFormulario()" title="Cargar o editar los indicadores ambientales del mes mostrado" style="background:#1E7E4F;color:#fff;border-color:#1E7E4F;">✏️ Cargar datos del mes</button>
         </div>
 
         <!-- Panel KPIs Ambiental -->
@@ -5896,7 +5899,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
           <span>Arquitectura · Procesos Homologados SIG</span>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <span class="kpi-meta-status" id="arqSigProgress" style="background:#F0E5F4;color:#5B2470;padding:5px 12px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.04em;">— de 31</span>
-            <button class="sig-mapping-btn admin-only" onclick="arqSigToggleMappingPanel()" id="arqSigMappingBtn">
+            <button class="sig-mapping-btn admin-only arq-edit-btn" onclick="arqSigToggleMappingPanel()" id="arqSigMappingBtn">
               <span>⚙</span> Configurar mapeo SIG ↔ Cronograma
             </button>
           </div>
@@ -11097,8 +11100,8 @@ function agendaActividadesDelDia(mesAno, dia){
 // en Firestore. NO toca las que ya tienen registro (respeta lo marcado manualmente).
 async function agendaMarcarCumplidoHastaHoy(){
   const usuario = (currentSession && currentSession.usuario) || '';
-  if(usuario !== 'adm' && usuario !== 'staff'){
-    alert('⛔ Solo adm o staff pueden usar esta función.');
+  if(!puedeEditarSsoma()){
+    alert('⛔ Solo adm, staff o el responsable SSOMA pueden usar esta función.');
     return;
   }
   if(!window.E140_DB){
@@ -11207,7 +11210,7 @@ function renderAgendaSsoma(){
         <div style="font-size:36px;opacity:.5;margin-bottom:6px">📋</div>
         <div style="font-weight:700;font-size:14px;margin-bottom:4px">Sin programas para ${meses[m-1]} ${y}</div>
         <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:14px">Carga el Excel SIG.103-F01 (Charlas) o SIG.103-F02 (Inspecciones) para ver el calendario.</div>
-        <button class="admin-only agenda-excel-btn" onclick="agendaAbrirCargaExcel()">📤 Cargar programa Excel</button>
+        <button class="admin-only ssoma-edit-btn agenda-excel-btn" onclick="agendaAbrirCargaExcel()">📤 Cargar programa Excel</button>
       </div>`;
     actualizarKpisAgendaNull();
     return;
@@ -11451,7 +11454,7 @@ function agendaPopupItemHtml(c, tipo){
   // El "edit lock" se chequea en el campo `editado_por_staff` del registro ediciones
   const usuario = (currentSession && currentSession.usuario) || '';
   const esAdm = usuario === 'adm';
-  const esStaff = usuario === 'staff';
+  const esStaff = usuario === 'staff' || usuario === 'ssoma';
   // Buscar si esta entrada ya fue editada por staff antes
   const edicionPrev = (typeof agendaEdiciones !== 'undefined' && agendaEdiciones[k]) ? agendaEdiciones[k] : null;
   const yaEditadoPorStaff = edicionPrev && edicionPrev.editado_por_staff === true;
@@ -11574,9 +11577,9 @@ function agendaEditKey(tipo, idx){
 function agendaAbrirEdicionContenido(localKey, tipo, idx){
   const usuario = (currentSession && currentSession.usuario) || '';
   const esAdm = usuario === 'adm';
-  const esStaff = usuario === 'staff';
+  const esStaff = usuario === 'staff' || usuario === 'ssoma';
   if(!esAdm && !esStaff){
-    alert('⛔ Solo los usuarios adm y staff pueden editar el contenido del programa.');
+    alert('⛔ Solo los usuarios adm, staff y el responsable SSOMA pueden editar el contenido del programa.');
     return;
   }
 
@@ -12305,11 +12308,11 @@ function ambienteRender(){
   setStatus('ssomaAmbResStatus', (d.res_pct != null && d.res_pct >= 95) ? 'cumple' : 'seguimiento', (d.res_pct != null && d.res_pct >= 95) ? '✓ Cumple' : '⚠ En seguimiento');
 }
 
-// ─── Formulario de carga (solo adm/staff) ───
+// ─── Formulario de carga (adm/staff/ssoma) ───
 function ambienteAbrirFormulario(){
   const usuario = (currentSession && currentSession.usuario) || '';
-  if(usuario !== 'adm' && usuario !== 'staff'){
-    alert('⛔ Solo adm o staff pueden cargar la data ambiental.');
+  if(!puedeEditarSsoma()){
+    alert('⛔ Solo adm, staff o el responsable SSOMA pueden cargar la data ambiental.');
     return;
   }
   if(!ambienteMesActual) ambienteInicializarMes();
@@ -12330,7 +12333,7 @@ function ambienteCerrarFormulario(){
 
 async function ambienteGuardarFormulario(){
   const usuario = (currentSession && currentSession.usuario) || '';
-  if(usuario !== 'adm' && usuario !== 'staff'){ alert('⛔ Sin permisos.'); return; }
+  if(!puedeEditarSsoma()){ alert('⛔ Sin permisos.'); return; }
 
   const mes = document.getElementById('ambForm_mes').value;
   if(!/^\d{4}-\d{2}$/.test(mes)){ alert('Mes inválido (formato YYYY-MM).'); return; }
@@ -14304,7 +14307,7 @@ let arqSigMappingPanelOpen = false;
 // Helpers
 // ──────────────────────────────────────────
 function arqSigPuedeEditar(){
-  return currentSession && (currentSession.usuario === 'adm' || currentSession.usuario === 'oficina');
+  return currentSession && (currentSession.usuario === 'adm' || currentSession.usuario === 'oficina' || currentSession.usuario === 'arquitectura');
 }
 
 function arqSigDataDe(codigo){
@@ -15028,7 +15031,7 @@ function arqSigActualizarBotonLimpiar(){
 // ──────────────────────────────────────────
 function arqSigToggleMappingPanel(){
   if(!arqSigPuedeEditar()){
-    alert('⛔ Solo los usuarios adm y oficina pueden configurar el mapeo SIG ↔ Cronograma.');
+    alert('⛔ Solo los usuarios adm, oficina y el responsable de Arquitectura pueden configurar el mapeo SIG ↔ Cronograma.');
     return;
   }
   const panel = document.getElementById('arqSigMappingPanel');
@@ -18310,10 +18313,36 @@ const USERS = [
   { usuario: 'oficina',   hash: hashSimple('esparq2026'), rol: 'admin',  nombre: 'Oficina Central' },
   { usuario: 'staff',     hash: hashSimple('e140obra'),   rol: 'viewer', nombre: 'Staff de Obra'   },
   { usuario: 'gerencia',  hash: hashSimple('esparq2026'), rol: 'viewer', nombre: 'Gerencia ESPARQ' },
+  { usuario: 'arquitectura', hash: hashSimple('e140arqui'), rol: 'viewer', nombre: 'Responsable Arquitectura' },
+  { usuario: 'ssoma',        hash: hashSimple('e140ssoma'), rol: 'viewer', nombre: 'Responsable SSOMA' },
 ];
 
 const SESSION_KEY = 'e140_session_v1';
 let currentSession = null; // { usuario, rol, nombre, ts }
+
+/* ─── PERMISOS POR ÁREA ───────────────────────────────────────────────
+   Usuarios técnicos por área (editan SOLO su pestaña; viewer en el resto):
+     - 'arquitectura' → puede editar Arquitectura (procesos SIG, mapeo)
+     - 'ssoma'        → puede editar SSOMA (charlas, inspecciones, ambiental)
+   Estos usuarios NO cargan data semanal (eso es de adm/oficina/residente).
+   ──────────────────────────────────────────────────────────────────── */
+function usuarioActual(){ return (currentSession && currentSession.usuario) || ''; }
+
+// ¿Puede editar lo modificable de la pestaña ARQUITECTURA?
+function puedeEditarArquitectura(){
+  const u = usuarioActual();
+  return u === 'adm' || u === 'oficina' || u === 'arquitectura';
+}
+// ¿Puede editar lo modificable de la pestaña SSOMA?
+function puedeEditarSsoma(){
+  const u = usuarioActual();
+  return u === 'adm' || u === 'staff' || u === 'ssoma';
+}
+// ¿Se comporta como "staff" para permisos generales? (los nuevos heredan el nivel staff)
+function tienePermisoStaff(){
+  const u = usuarioActual();
+  return u === 'adm' || u === 'staff' || u === 'arquitectura' || u === 'ssoma';
+}
 
 function getStoredSession(){
   try {
@@ -18438,8 +18467,16 @@ function hideLoginScreen(){
 function applySessionToUI(){
   if(!currentSession) return;
   // Aplicar clase de rol al body para que las reglas CSS oculten/muestren
-  document.body.classList.remove('role-admin', 'role-viewer', 'audit-allowed', 'report-allowed', 'can-edit-kpi');
+  document.body.classList.remove('role-admin', 'role-viewer', 'audit-allowed', 'report-allowed', 'can-edit-kpi', 'can-edit-ssoma', 'can-edit-arq');
   document.body.classList.add('role-' + currentSession.rol);
+
+  // Permisos por área (usuarios técnicos): muestran los botones de edición de su área
+  if(typeof puedeEditarSsoma === 'function' && puedeEditarSsoma()){
+    document.body.classList.add('can-edit-ssoma');
+  }
+  if(typeof puedeEditarArquitectura === 'function' && puedeEditarArquitectura()){
+    document.body.classList.add('can-edit-arq');
+  }
 
   // Solo 'adm' y 'residente' pueden editar manualmente el Avance de Obra (botón ✏)
   if(currentSession.usuario === 'adm' || currentSession.usuario === 'residente'){
