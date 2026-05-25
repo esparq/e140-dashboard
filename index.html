@@ -965,6 +965,30 @@ body.is-paralizada .top-bar{filter:saturate(0.6) brightness(0.96);}
 .agenda-popup-item-tema{font-size:13.5px;font-weight:700;color:#1F2937;line-height:1.3;margin-bottom:3px;}
 .agenda-popup-item-sub{font-size:11px;color:#5A6B8A;font-weight:600;margin-bottom:10px;font-style:italic;}
 .agenda-popup-pregunta-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;flex-wrap:wrap;}
+/* Lista de asistentes del staff (charlas SST) */
+.staff-list-wrap{background:#F4F8FB;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:4px;}
+.staff-list-title{font-size:11px;font-weight:700;color:var(--esparq-d,#005A91);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;}
+.staff-list-hint{font-weight:500;text-transform:none;color:var(--text-muted);letter-spacing:0;}
+.staff-list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 12px;}
+.staff-check{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text);cursor:pointer;padding:3px 0;}
+.staff-check input{cursor:pointer;width:15px;height:15px;flex-shrink:0;accent-color:var(--twitter-blue,#0070B4);}
+.staff-check span{line-height:1.2;}
+/* Ranking de participación del staff */
+.staff-ranking-card{margin-top:16px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.staff-ranking-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;font-size:13px;font-weight:700;color:var(--esparq-d,#005A91);}
+.staff-ranking-select{font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;color:var(--text);background:#fff;cursor:pointer;font-family:inherit;}
+.staff-ranking-empty{font-size:12px;color:var(--text-muted);font-style:italic;padding:8px 0;}
+.staff-rank-sub{font-size:10.5px;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em;font-weight:600;}
+.staff-rank-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #F0F4F7;}
+.staff-rank-row:last-child{border-bottom:none;}
+.staff-rank-row.is-zero{opacity:.5;}
+.staff-rank-pos{width:26px;text-align:center;font-size:13px;font-weight:700;color:var(--text-muted);flex-shrink:0;}
+.staff-rank-info{width:160px;flex-shrink:0;min-width:0;}
+.staff-rank-nombre{font-size:12.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.staff-rank-cargo{font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.staff-rank-bar-wrap{flex:1;height:10px;background:#EEF3F7;border-radius:5px;overflow:hidden;min-width:40px;}
+.staff-rank-bar{height:100%;background:linear-gradient(90deg,#3A91C5,#0070B4);border-radius:5px;transition:width .3s;}
+.staff-rank-n{width:30px;text-align:right;font-size:14px;font-weight:800;color:var(--twitter-blue,#0070B4);flex-shrink:0;}
 .agenda-popup-pregunta-row:last-child{margin-bottom:0;}
 .agenda-popup-pregunta{font-size:11.5px;font-weight:700;color:#054C7E;text-transform:uppercase;letter-spacing:.04em;}
 .agenda-popup-botones{display:flex;gap:6px;}
@@ -5844,6 +5868,18 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
 
           <div style="margin-top:10px;font-size:10.5px;color:var(--text-muted);font-style:italic;line-height:1.5">
             Click en cualquier día para ver charlas e inspecciones programadas. Cargar Excel SIG.103-F01 (Charlas) o SIG.103-F02 (Inspecciones) detecta el formato automáticamente.
+          </div>
+
+          <!-- ── Ranking de participación del staff en charlas ── -->
+          <div class="staff-ranking-card" id="staffRankingCard">
+            <div class="staff-ranking-head">
+              <span>🏆 Participación del Staff en Charlas</span>
+              <select id="staffRankingScope" onchange="renderStaffRanking()" class="staff-ranking-select">
+                <option value="mes">Mes mostrado</option>
+                <option value="todo">Acumulado (todo)</option>
+              </select>
+            </div>
+            <div id="staffRankingBody"></div>
           </div>
         </div>
       </section>
@@ -11158,6 +11194,21 @@ const SSOMA_INSP_ABRIL_PRECARGA = (() => {
 // Estado del módulo Agenda
 let agendaMesActual = '2026-04';
 let agendaFiltroTipo = 'todos'; // 'todos' | 'charlas' | 'inspecciones'
+
+// Staff de obra E140 — para registrar participación individual en charlas SST.
+// id estable (no cambia aunque se edite el nombre) para acumular el ranking.
+const STAFF_OBRA = [
+  { id: 'odar',     nombre: 'Jorge Odar',      cargo: 'SSOMA' },
+  { id: 'alvarado', nombre: 'Eder Alvarado',   cargo: 'Ing. Campo' },
+  { id: 'atoche',   nombre: 'Jaime Atoche',    cargo: 'Administrador' },
+  { id: 'rojas',    nombre: 'José Rojas',      cargo: 'Residente' },
+  { id: 'falcon',   nombre: 'Lucero Falcón',   cargo: 'Arq. Producción' },
+  { id: 'tellez',   nombre: 'Ricardo Tellez',  cargo: 'Ing. Producción' },
+  { id: 'ramos',    nombre: 'David Ramos',     cargo: 'Coordinador de arquitectura' },
+  { id: 'urbina',   nombre: 'Dara Urbina',     cargo: 'Arq. Acabados' },
+  { id: 'fong',     nombre: 'Cynthia Fong',    cargo: 'Arq. Acabados' },
+];
+
 let ssomaCapAsistencias = {}; // { 'YYYY-MM-DD_idx': { cumplio, asistio } }
 let ssomaInspRegistros = {};   // { 'YYYY-MM-DD_idx': { cumplio } }
 
@@ -11474,6 +11525,64 @@ function renderAgendaSsoma(){
 
   // Refrescar las tarjetas superiores de SST que dependen de la Agenda y del mes
   try { if(typeof sstRenderTarjetasMensuales === 'function') sstRenderTarjetasMensuales(); } catch(e){ console.warn(e); }
+  // Refrescar el ranking de participación del staff
+  try { if(typeof renderStaffRanking === 'function') renderStaffRanking(); } catch(e){ console.warn(e); }
+}
+
+// ─── RANKING DE PARTICIPACIÓN DEL STAFF EN CHARLAS ───
+// Cuenta, por cada integrante del staff, en cuántas charlas asistió.
+// Scope: 'mes' (mes mostrado en la agenda) o 'todo' (acumulado).
+function renderStaffRanking(){
+  const body = document.getElementById('staffRankingBody');
+  if(!body) return;
+  const scopeSel = document.getElementById('staffRankingScope');
+  const scope = scopeSel ? scopeSel.value : 'mes';
+  const mesFiltro = agendaMesActual; // 'YYYY-MM'
+
+  // Inicializar conteo por persona
+  const conteo = {};
+  STAFF_OBRA.forEach(p => { conteo[p.id] = 0; });
+  let totalCharlasConAsist = 0;
+
+  // Recorrer registros de charlas (key = 'YYYY-MM-DD_idx')
+  Object.keys(ssomaCapAsistencias).forEach(fullKey => {
+    const reg = ssomaCapAsistencias[fullKey];
+    if(!reg || !reg.cumplio) return; // solo charlas cumplidas
+    const mesDeKey = fullKey.slice(0, 7); // 'YYYY-MM'
+    if(scope === 'mes' && mesDeKey !== mesFiltro) return;
+    const asist = Array.isArray(reg.asistentes_staff) ? reg.asistentes_staff : [];
+    if(asist.length > 0) totalCharlasConAsist++;
+    asist.forEach(id => { if(conteo[id] != null) conteo[id]++; });
+  });
+
+  // Ordenar de mayor a menor participación
+  const ranking = STAFF_OBRA.map(p => ({ ...p, n: conteo[p.id] })).sort((a,b) => b.n - a.n);
+  const maxN = ranking.length ? Math.max(...ranking.map(r => r.n)) : 0;
+
+  if(totalCharlasConAsist === 0){
+    body.innerHTML = `<div class="staff-ranking-empty">Aún no hay asistencias de staff registradas ${scope === 'mes' ? 'en este mes' : ''}. Márcalas en el popup de cada charla cumplida.</div>`;
+    return;
+  }
+
+  const filas = ranking.map((r, i) => {
+    const pct = maxN > 0 ? (r.n / maxN * 100) : 0;
+    const medalla = r.n > 0 && i === 0 ? '🥇' : (r.n > 0 && i === 1 ? '🥈' : (r.n > 0 && i === 2 ? '🥉' : ''));
+    const esCero = r.n === 0;
+    return `
+      <div class="staff-rank-row ${esCero ? 'is-zero' : ''}">
+        <div class="staff-rank-pos">${medalla || (i+1)}</div>
+        <div class="staff-rank-info">
+          <div class="staff-rank-nombre">${r.nombre}</div>
+          <div class="staff-rank-cargo">${r.cargo}</div>
+        </div>
+        <div class="staff-rank-bar-wrap"><div class="staff-rank-bar" style="width:${pct}%;"></div></div>
+        <div class="staff-rank-n">${r.n}</div>
+      </div>`;
+  }).join('');
+
+  body.innerHTML = `
+    <div class="staff-rank-sub">${totalCharlasConAsist} charla(s) con asistencia registrada ${scope === 'mes' ? '· mes mostrado' : '· acumulado'}</div>
+    ${filas}`;
 }
 
 function setearKpiAgenda(prefix, pct, sub, meta){
@@ -11531,7 +11640,7 @@ function abrirPopupDia(fechaStr, dia){
   // Estado inicial: copiar valores actuales
   agendaPopupEstado = { mesAno: agendaMesActual, dia, cambios: {} };
   act.charlas.forEach(c => {
-    if(c.registro) agendaPopupEstado.cambios['ch_'+c.idx] = { cumplio: c.registro.cumplio, asistio: c.registro.asistio, cumplio_responsable: c.registro.cumplio_responsable };
+    if(c.registro) agendaPopupEstado.cambios['ch_'+c.idx] = { cumplio: c.registro.cumplio, asistio: c.registro.asistio, cumplio_responsable: c.registro.cumplio_responsable, asistentes_staff: Array.isArray(c.registro.asistentes_staff) ? [...c.registro.asistentes_staff] : [] };
   });
   act.inspecciones.forEach(c => {
     if(c.registro) agendaPopupEstado.cambios['in_'+c.idx] = { cumplio: c.registro.cumplio, cumplio_responsable: c.registro.cumplio_responsable };
@@ -11585,6 +11694,14 @@ function agendaPopupItemHtml(c, tipo){
     ? c.capacitador
     : `${c.inspector || '—'}${c.area ? ' · ' + c.area : ''}`;
 
+  // Asistentes ya marcados para esta charla (array de ids)
+  const asistentesPrev = Array.isArray(reg.asistentes_staff) ? reg.asistentes_staff : [];
+  const staffChecks = STAFF_OBRA.map(p => `
+    <label class="staff-check" title="${p.cargo}">
+      <input type="checkbox" data-key="${k}" data-staff="${p.id}" ${asistentesPrev.includes(p.id) ? 'checked' : ''} onchange="popupToggleStaff('${k}','${p.id}',this.checked)">
+      <span>${p.nombre}</span>
+    </label>`).join('');
+
   const asistioRow = tipo === 'ch' ? `
     <div class="agenda-popup-pregunta-row">
       <div class="agenda-popup-pregunta">¿Asistió Staff?</div>
@@ -11592,6 +11709,10 @@ function agendaPopupItemHtml(c, tipo){
         <button class="agenda-popup-btn-yn btn-yes ${reg.asistio === true ? 'is-selected' : ''}" data-key="${k}" data-campo="asistio" data-valor="true" onclick="popupSelect('${k}','asistio',true)">✓ SÍ</button>
         <button class="agenda-popup-btn-yn btn-no ${reg.asistio === false ? 'is-selected' : ''}" data-key="${k}" data-campo="asistio" data-valor="false" onclick="popupSelect('${k}','asistio',false)">✗ NO</button>
       </div>
+    </div>
+    <div class="staff-list-wrap" data-key="${k}">
+      <div class="staff-list-title">Marca quién del staff asistió <span class="staff-list-hint">(con 1 ya cuenta como cumplido)</span></div>
+      <div class="staff-list-grid">${staffChecks}</div>
     </div>` : '';
 
   // ─── Botón EDITAR (permisos: adm siempre, staff solo si nunca editó esta entrada) ───
@@ -11657,6 +11778,31 @@ function popupSelect(key, campo, valor){
     agendaPopupEstado.cambios[key]['asistio'] = false;
     item.querySelectorAll('.agenda-popup-btn-yn[data-campo="asistio"]').forEach(b => {
       b.classList.toggle('is-selected', b.dataset.valor === 'false');
+    });
+  }
+}
+
+// Marca/desmarca un integrante del staff como asistente a una charla.
+// Regla: si hay 1 o más marcados → asistió = SÍ (100% a nivel gerencia).
+function popupToggleStaff(key, staffId, checked){
+  if(!agendaPopupEstado) return;
+  if(!agendaPopupEstado.cambios[key]) agendaPopupEstado.cambios[key] = {};
+  let arr = Array.isArray(agendaPopupEstado.cambios[key].asistentes_staff)
+    ? [...agendaPopupEstado.cambios[key].asistentes_staff]
+    : [];
+  if(checked){
+    if(!arr.includes(staffId)) arr.push(staffId);
+  } else {
+    arr = arr.filter(x => x !== staffId);
+  }
+  agendaPopupEstado.cambios[key].asistentes_staff = arr;
+
+  // Sincronizar el SÍ/NO de "¿Asistió Staff?": 1+ marcados = SÍ, 0 = sin tocar manual
+  const item = document.querySelector(`.agenda-popup-item[data-key="${key}"]`);
+  if(item && arr.length > 0){
+    agendaPopupEstado.cambios[key].asistio = true;
+    item.querySelectorAll('.agenda-popup-btn-yn[data-campo="asistio"]').forEach(b => {
+      b.classList.toggle('is-selected', b.dataset.valor === 'true');
     });
   }
 }
@@ -11918,6 +12064,7 @@ async function guardarPopupDia(){
         cumplio: !!c.cumplio,
         asistio: c.cumplio ? !!c.asistio : false,
         cumplio_responsable: (c.cumplio_responsable === undefined ? null : !!c.cumplio_responsable),
+        asistentes_staff: (c.cumplio && Array.isArray(c.asistentes_staff)) ? c.asistentes_staff : [],
         fecha_registro: ts,
         registrado_por: usuario
       };
@@ -11952,6 +12099,7 @@ async function ssomaCapGuardarAsistFirestore(key){
     await setDoc(doc(db, 'ssoma_charlas', key), {
       key, cumplio: !!data.cumplio, asistio: !!data.asistio,
       cumplio_responsable: (data.cumplio_responsable == null ? null : !!data.cumplio_responsable),
+      asistentes_staff: Array.isArray(data.asistentes_staff) ? data.asistentes_staff : [],
       registrado_por: data.registrado_por || '—',
       fecha_registro: data.fecha_registro || new Date().toISOString(),
       ts: serverTimestamp()
@@ -11968,7 +12116,7 @@ async function ssomaCapCargarAsistFirestore(){
     snap.forEach(s => {
       const d = s.data();
       if(typeof d.cumplio !== 'undefined' || typeof d.asistio !== 'undefined'){
-        ssomaCapAsistencias[s.id] = { cumplio: !!d.cumplio, asistio: !!d.asistio, cumplio_responsable: (d.cumplio_responsable == null ? null : !!d.cumplio_responsable), registrado_por: d.registrado_por || '—', fecha_registro: d.fecha_registro || null };
+        ssomaCapAsistencias[s.id] = { cumplio: !!d.cumplio, asistio: !!d.asistio, cumplio_responsable: (d.cumplio_responsable == null ? null : !!d.cumplio_responsable), asistentes_staff: Array.isArray(d.asistentes_staff) ? d.asistentes_staff : [], registrado_por: d.registrado_por || '—', fecha_registro: d.fecha_registro || null };
       }
     });
   } catch(e){ console.warn('[E140] Error cargando charlas:', e); }
