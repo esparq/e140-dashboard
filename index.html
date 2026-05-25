@@ -15828,6 +15828,20 @@ let notifSoundEnabled = true;
 let notifInitialized = false;
 let notifLastCronDate = null;           // 'YYYY-MM-DD' última fecha que se corrió cron
 
+// Asuntos "silenciados": dedupKeys de alertas de sistema que el usuario ya marcó leídas.
+// Se borran de Firestore al marcar leídas, y el cron NO las vuelve a crear mientras
+// el asunto siga silenciado. Persiste en localStorage para sobrevivir recargas.
+let notifSilenciados = {};              // { 'pen_vencido_xxx': true, ... }
+try { notifSilenciados = JSON.parse(localStorage.getItem('e140_notif_silenciados') || '{}') || {}; } catch(e){ notifSilenciados = {}; }
+function notifGuardarSilenciados(){
+  try { localStorage.setItem('e140_notif_silenciados', JSON.stringify(notifSilenciados)); } catch(e){}
+}
+function notifSilenciar(dedupKey){
+  if(!dedupKey) return;
+  notifSilenciados[dedupKey] = true;
+  notifGuardarSilenciados();
+}
+
 // Sonido suave embebido (campana corta) — generado vía AudioContext si Audio no funciona
 let notifAudio = null;
 
@@ -15889,10 +15903,10 @@ async function notify(opts){
   // Si tiene dedupKey, revisar si ya existe una notif igual (evita spam y reapariciones)
   if(opts.dedupKey){
     if(opts.forceFromSystem){
+      // Si el usuario ya silenció este asunto (lo marcó leído antes), NO recrear nunca.
+      if(notifSilenciados[opts.dedupKey]) return null;
       // Notificaciones de SISTEMA (predictivas/recurrentes): el dedupKey identifica el
-      // ASUNTO (no el día). Si ya existe una notif para ese asunto y CUALQUIER usuario
-      // la marcó leída, NO la recreamos → no vuelve a "encenderse" la campana.
-      // Si existe pero nadie la leyó aún, tampoco duplicamos (basta la que ya está).
+      // ASUNTO (no el día). Si ya existe una notif para ese asunto, no duplicar.
       const existente = notifsData.find(n => n.dedup_key === opts.dedupKey);
       if(existente) return null;
     } else {
@@ -16418,21 +16432,23 @@ function notifClose(){
 function notifClick(notifId){
   const notif = notifsData.find(n => n.id === notifId);
   if(!notif) return;
-  // Marcar como leída
-  if(!notifEstaLeida(notif)){
-    if(!notif.leida_por) notif.leida_por = {};
-    notif.leida_por[currentSession.usuario] = true;
-    notifMarcarLeidaFirestore(notifId);
-    notifRender();
+  // Guardar enlace antes de borrar
+  const enlace = notif.enlace;
+  // Marcar como leída = BORRAR de verdad (para que no reaparezca)
+  // Si es alerta de sistema, silenciar el asunto para que el cron no la recree
+  if(notif.dedup_key && (notif.origen_usuario === 'sistema')){
+    notifSilenciar(notif.dedup_key);
   }
+  notifEliminarDeFirestore(notifId);
+  notifsData = notifsData.filter(n => n.id !== notifId);
+  notifRender();
   // Navegar al enlace
-  if(notif.enlace && notif.enlace.tab){
+  if(enlace && enlace.tab){
     notifClose();
     if(typeof setTab === 'function'){
-      setTab(notif.enlace.tab);
-      // Si tiene código (instructivo), buscar y resaltar
-      if(notif.enlace.codigo && typeof arqSigBuscarYScroll === 'function'){
-        setTimeout(() => arqSigBuscarYScroll(notif.enlace.codigo), 400);
+      setTab(enlace.tab);
+      if(enlace.codigo && typeof arqSigBuscarYScroll === 'function'){
+        setTimeout(() => arqSigBuscarYScroll(enlace.codigo), 400);
       }
     }
   }
@@ -16440,28 +16456,38 @@ function notifClick(notifId){
 
 async function notifMarkAllRead(){
   if(!currentSession) return;
-  const cambios = [];
+  const aBorrar = [];
   notifsData.forEach(n => {
     if(notifPuedeVer(n) && !notifEstaLeida(n)){
-      if(!n.leida_por) n.leida_por = {};
-      n.leida_por[currentSession.usuario] = true;
-      cambios.push(n.id);
+      // Silenciar asuntos del sistema para que el cron no los recree
+      if(n.dedup_key && n.origen_usuario === 'sistema'){
+        notifSilenciar(n.dedup_key);
+      }
+      aBorrar.push(n.id);
     }
   });
+  // Quitar del array local
+  notifsData = notifsData.filter(n => !aBorrar.includes(n.id));
   notifRender();
-  // Persistir todos en paralelo
-  if(window.E140_DB && cambios.length > 0){
+  // Borrar de Firestore en paralelo
+  if(window.E140_DB && aBorrar.length > 0){
     try {
-      const { db, doc, setDoc } = window.E140_DB;
-      const promesas = cambios.map(id => {
-        const update = {};
-        update[`leida_por.${currentSession.usuario}`] = true;
-        return setDoc(doc(db, 'notificaciones', id), update, { merge: true });
-      });
-      await Promise.all(promesas);
+      const { db, doc, deleteDoc } = window.E140_DB;
+      await Promise.all(aBorrar.map(id => deleteDoc(doc(db, 'notificaciones', id)).catch(()=>{})));
     } catch(err){
-      console.warn('[E140] No se pudo marcar todas como leídas:', err);
+      console.warn('[E140] No se pudieron borrar notificaciones:', err);
     }
+  }
+}
+
+// Borra una notificación de Firestore (al marcarla leída)
+async function notifEliminarDeFirestore(notifId){
+  if(!window.E140_DB) return;
+  try {
+    const { db, doc, deleteDoc } = window.E140_DB;
+    await deleteDoc(doc(db, 'notificaciones', notifId));
+  } catch(err){
+    console.warn('[E140] No se pudo borrar notificación:', err);
   }
 }
 
