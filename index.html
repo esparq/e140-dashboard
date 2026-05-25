@@ -11244,10 +11244,10 @@ function abrirPopupDia(fechaStr, dia){
   // Estado inicial: copiar valores actuales
   agendaPopupEstado = { mesAno: agendaMesActual, dia, cambios: {} };
   act.charlas.forEach(c => {
-    if(c.registro) agendaPopupEstado.cambios['ch_'+c.idx] = { cumplio: c.registro.cumplio, asistio: c.registro.asistio };
+    if(c.registro) agendaPopupEstado.cambios['ch_'+c.idx] = { cumplio: c.registro.cumplio, asistio: c.registro.asistio, cumplio_responsable: c.registro.cumplio_responsable };
   });
   act.inspecciones.forEach(c => {
-    if(c.registro) agendaPopupEstado.cambios['in_'+c.idx] = { cumplio: c.registro.cumplio };
+    if(c.registro) agendaPopupEstado.cambios['in_'+c.idx] = { cumplio: c.registro.cumplio, cumplio_responsable: c.registro.cumplio_responsable };
   });
 
   // Generar items
@@ -11290,6 +11290,8 @@ function agendaPopupItemHtml(c, tipo){
   const k = `${tipo}_${c.idx}`;
   const cumplioYes = reg.cumplio === true ? 'is-selected' : '';
   const cumplioNo  = reg.cumplio === false ? 'is-selected' : '';
+  const respYes = reg.cumplio_responsable === true ? 'is-selected' : '';
+  const respNo  = reg.cumplio_responsable === false ? 'is-selected' : '';
 
   // Sub-info: capacitador o inspector+area
   const subInfo = tipo === 'ch'
@@ -11338,6 +11340,13 @@ function agendaPopupItemHtml(c, tipo){
         <div class="agenda-popup-botones">
           <button class="agenda-popup-btn-yn btn-yes ${cumplioYes}" data-key="${k}" data-campo="cumplio" data-valor="true" onclick="popupSelect('${k}','cumplio',true)">✓ SÍ</button>
           <button class="agenda-popup-btn-yn btn-no ${cumplioNo}" data-key="${k}" data-campo="cumplio" data-valor="false" onclick="popupSelect('${k}','cumplio',false)">✗ NO</button>
+        </div>
+      </div>
+      <div class="agenda-popup-pregunta-row">
+        <div class="agenda-popup-pregunta">¿Lo cumplió el responsable?</div>
+        <div class="agenda-popup-botones">
+          <button class="agenda-popup-btn-yn btn-yes ${respYes}" data-key="${k}" data-campo="cumplio_responsable" data-valor="true" onclick="popupSelect('${k}','cumplio_responsable',true)">✓ SÍ</button>
+          <button class="agenda-popup-btn-yn btn-no ${respNo}" data-key="${k}" data-campo="cumplio_responsable" data-valor="false" onclick="popupSelect('${k}','cumplio_responsable',false)">✗ NO</button>
         </div>
       </div>
       ${asistioRow}
@@ -11621,6 +11630,7 @@ async function guardarPopupDia(){
       ssomaCapAsistencias[fullKey] = {
         cumplio: !!c.cumplio,
         asistio: c.cumplio ? !!c.asistio : false,
+        cumplio_responsable: (c.cumplio_responsable === undefined ? null : !!c.cumplio_responsable),
         fecha_registro: ts,
         registrado_por: usuario
       };
@@ -11628,6 +11638,7 @@ async function guardarPopupDia(){
     } else if(tipo === 'in'){
       ssomaInspRegistros[fullKey] = {
         cumplio: !!c.cumplio,
+        cumplio_responsable: (c.cumplio_responsable === undefined ? null : !!c.cumplio_responsable),
         fecha_registro: ts,
         registrado_por: usuario
       };
@@ -11653,6 +11664,7 @@ async function ssomaCapGuardarAsistFirestore(key){
     if(!data) return;
     await setDoc(doc(db, 'ssoma_charlas', key), {
       key, cumplio: !!data.cumplio, asistio: !!data.asistio,
+      cumplio_responsable: (data.cumplio_responsable == null ? null : !!data.cumplio_responsable),
       registrado_por: data.registrado_por || '—',
       fecha_registro: data.fecha_registro || new Date().toISOString(),
       ts: serverTimestamp()
@@ -11669,7 +11681,7 @@ async function ssomaCapCargarAsistFirestore(){
     snap.forEach(s => {
       const d = s.data();
       if(typeof d.cumplio !== 'undefined' || typeof d.asistio !== 'undefined'){
-        ssomaCapAsistencias[s.id] = { cumplio: !!d.cumplio, asistio: !!d.asistio, registrado_por: d.registrado_por || '—', fecha_registro: d.fecha_registro || null };
+        ssomaCapAsistencias[s.id] = { cumplio: !!d.cumplio, asistio: !!d.asistio, cumplio_responsable: (d.cumplio_responsable == null ? null : !!d.cumplio_responsable), registrado_por: d.registrado_por || '—', fecha_registro: d.fecha_registro || null };
       }
     });
   } catch(e){ console.warn('[E140] Error cargando charlas:', e); }
@@ -11683,6 +11695,7 @@ async function ssomaInspGuardarFirestore(key){
     if(!data) return;
     await setDoc(doc(db, 'ssoma_inspecciones', key), {
       key, cumplio: !!data.cumplio,
+      cumplio_responsable: (data.cumplio_responsable == null ? null : !!data.cumplio_responsable),
       registrado_por: data.registrado_por || '—',
       fecha_registro: data.fecha_registro || new Date().toISOString(),
       ts: serverTimestamp()
@@ -11698,7 +11711,7 @@ async function ssomaInspCargarRegistrosFirestore(){
     ssomaInspRegistros = {};
     snap.forEach(s => {
       const d = s.data();
-      ssomaInspRegistros[s.id] = { cumplio: !!d.cumplio, registrado_por: d.registrado_por || '—', fecha_registro: d.fecha_registro || null };
+      ssomaInspRegistros[s.id] = { cumplio: !!d.cumplio, cumplio_responsable: (d.cumplio_responsable == null ? null : !!d.cumplio_responsable), registrado_por: d.registrado_por || '—', fecha_registro: d.fecha_registro || null };
     });
   } catch(e){ console.warn('[E140] Error cargando inspecciones:', e); }
 }
