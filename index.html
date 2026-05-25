@@ -8419,9 +8419,11 @@ function clearBanners(){
 
 function setSyncState(kind, text, detail){
   const dot = document.getElementById('syncDot');
-  dot.className = 'sync-dot'+(kind==='err'?' err':kind==='warn'?' warn':kind==='offline'?' offline':'');
-  document.getElementById('syncState').textContent = text;
-  if(detail) document.getElementById('syncDetail').textContent = detail;
+  if(dot) dot.className = 'sync-dot'+(kind==='err'?' err':kind==='warn'?' warn':kind==='offline'?' offline':'');
+  const st = document.getElementById('syncState');
+  if(st) st.textContent = text;
+  const dt = document.getElementById('syncDetail');
+  if(detail && dt) dt.textContent = detail;
 }
 
 function toggleHelp(){
