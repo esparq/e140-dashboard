@@ -9823,15 +9823,18 @@ function renderRAreas(){
   let arqNota = 'Pendiente · sin instructivos cargados';
   try {
     if(typeof ARQ_SIG_CATALOGO !== 'undefined' && Array.isArray(ARQ_SIG_CATALOGO) && ARQ_SIG_CATALOGO.length > 0){
-      const total = ARQ_SIG_CATALOGO.length;
+      const activos = (typeof arqSigEstaExcluido === 'function')
+        ? ARQ_SIG_CATALOGO.filter(it => !arqSigEstaExcluido(it.codigo))
+        : ARQ_SIG_CATALOGO;
+      const total = activos.length;
       let revisados = 0;
-      ARQ_SIG_CATALOGO.forEach(it => {
+      activos.forEach(it => {
         const est = (typeof arqSigEstadoRevisionEfectivo === 'function')
           ? arqSigEstadoRevisionEfectivo(it.codigo)
           : null;
         if(est === 'revisado') revisados++;
       });
-      arqPct = (revisados / total) * 100;
+      arqPct = total > 0 ? (revisados / total) * 100 : null;
       arqNota = `${revisados} de ${total} instructivos revisados`;
     }
   } catch(e){ arqPct = null; }
@@ -14337,7 +14340,14 @@ function arqSigComentarioDe(codigo){
 
 function arqSigMapDe(codigo){
   const m = arqSigMapping[codigo] || {};
-  return { partida: m.partida || '', fecha_inicio: m.fecha_inicio || '', frente_padre: m.frente_padre || '' };
+  return { partida: m.partida || '', fecha_inicio: m.fecha_inicio || '', frente_padre: m.frente_padre || '', excluido: m.excluido === true };
+}
+
+// ¿El instructivo está marcado como "No aplica / Excluido"? (se mantiene en el mapeo
+// para trazabilidad, pero sale del listado principal, conteos, predicciones y alertas)
+function arqSigEstaExcluido(codigo){
+  const m = arqSigMapping[codigo];
+  return !!(m && m.excluido === true);
 }
 
 // ─── Lectura del SPI activo desde DATA.weeks[currentWeek].spi ───
@@ -14480,10 +14490,11 @@ function renderArqProcesos(){
   const readonlyBanner = document.getElementById('arqSigReadonly');
   if(readonlyBanner) readonlyBanner.style.display = arqSigPuedeEditar() ? 'none' : 'flex';
 
-  // Conteos
-  const total = ARQ_SIG_CATALOGO.length;
+  // Conteos (los instructivos "No aplica/Excluido" NO se consideran)
+  const catalogoActivo = ARQ_SIG_CATALOGO.filter(it => !arqSigEstaExcluido(it.codigo));
+  const total = catalogoActivo.length;
   let revisados = 0, pendientesRev = 0, enCurso = 0, porIniciarManual = 0, porIniciarAuto = 0, sinMarcar = 0, conComentarios = 0;
-  ARQ_SIG_CATALOGO.forEach(it => {
+  catalogoActivo.forEach(it => {
     const estRev = arqSigEstadoRevisionEfectivo(it.codigo);
     const estObra = arqSigEstadoObraEfectivo(it.codigo);
     if(estRev === 'revisado') revisados++;
@@ -14503,7 +14514,7 @@ function renderArqProcesos(){
 
   const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent = val; };
   set('arqSigTotal', total);
-  set('arqSigTotalStatus', `Rev. promedio: ${(ARQ_SIG_CATALOGO.reduce((s,i)=>s+i.rev,0)/total).toFixed(1)}`);
+  set('arqSigTotalStatus', `Rev. promedio: ${total > 0 ? (catalogoActivo.reduce((s,i)=>s+i.rev,0)/total).toFixed(1) : '0.0'}`);
   set('arqSigRevisados', revisados);
   set('arqSigRevisadosDet', `${total > 0 ? Math.round(revisados/total*100) : 0}% del total`);
   set('arqSigCurso', enCurso);
@@ -14598,6 +14609,9 @@ function arqSigRenderTabla(){
   const busqueda = (arqSigBusqueda || '').toLowerCase().trim();
 
   const items = ARQ_SIG_CATALOGO.filter(it => {
+    // Los marcados "No aplica/Excluido" NO se muestran en el listado principal
+    // (siguen visibles solo en el modal de mapeo, para trazabilidad).
+    if(arqSigEstaExcluido(it.codigo)) return false;
     if(busqueda){
       const txtMatch = (it.codigo + ' ' + it.partida).toLowerCase().includes(busqueda);
       if(!txtMatch) return false;
@@ -15039,27 +15053,30 @@ function arqSigRenderMappingTable(){
     const partidaCls = tienePartida ? '' : 'sig-map-empty';
     const fechaCls = tieneFecha ? '' : 'sig-map-empty';
     const fp = m.frente_padre || '';
+    const excluido = m.excluido === true;
     return `
-      <tr data-codigo="${it.codigo}">
+      <tr data-codigo="${it.codigo}" style="${excluido ? 'opacity:.55;background:#FBF3F4;' : ''}">
         <td style="font-weight:600;color:var(--text-muted);">${idx+1}</td>
-        <td><span class="sig-codigo">${arqSigEscapeHtml(it.codigo)}</span></td>
+        <td><span class="sig-codigo">${arqSigEscapeHtml(it.codigo)}</span>${excluido ? ' <span style="font-size:9px;font-weight:700;color:#922B30;background:#F7DDDE;padding:1px 6px;border-radius:8px;letter-spacing:.03em;">NO APLICA</span>' : ''}</td>
         <td><span class="sig-partida">${arqSigEscapeHtml(it.partida)}</span></td>
         <td>
-          <input type="text" class="${partidaCls}" placeholder="Nombre de la partida en el cronograma…" value="${arqSigEscapeHtml(m.partida || '')}" oninput="arqSigOnChangeMapping('${it.codigo}','partida',this.value)">
+          <input type="text" class="${partidaCls}" placeholder="Nombre de la partida en el cronograma…" value="${arqSigEscapeHtml(m.partida || '')}" oninput="arqSigOnChangeMapping('${it.codigo}','partida',this.value)" ${excluido ? 'disabled' : ''}>
         </td>
         <td>
-          <input type="date" class="${fechaCls}" value="${arqSigEscapeHtml(m.fecha_inicio || '')}" onchange="arqSigOnChangeMapping('${it.codigo}','fecha_inicio',this.value)">
+          <input type="date" class="${fechaCls}" value="${arqSigEscapeHtml(m.fecha_inicio || '')}" onchange="arqSigOnChangeMapping('${it.codigo}','fecha_inicio',this.value)" ${excluido ? 'disabled' : ''}>
         </td>
         <td>
-          <select onchange="arqSigOnChangeMapping('${it.codigo}','frente_padre',this.value)" title="Frente del que depende esta partida (para predicción por SPI)">
+          <select onchange="arqSigOnChangeMapping('${it.codigo}','frente_padre',this.value)" title="Frente del que depende esta partida (para predicción por SPI)" ${excluido ? 'disabled' : ''}>
             <option value="" ${fp==='' ? 'selected' : ''}>— Ninguno —</option>
             <option value="alb" ${fp==='alb' ? 'selected' : ''}>ALB · Albañilería</option>
             <option value="sot" ${fp==='sot' ? 'selected' : ''}>SOT · Casco Sótanos</option>
             <option value="sup" ${fp==='sup' ? 'selected' : ''}>SUP · Casco Superiores</option>
           </select>
         </td>
-        <td style="text-align:center;">
-          <button class="sig-mapping-clear-btn" onclick="arqSigClearMappingRow('${it.codigo}')" title="Limpiar esta fila">✕</button>
+        <td style="text-align:center;white-space:nowrap;">
+          <label style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:${excluido ? '#922B30' : 'var(--text-muted)'};cursor:pointer;" title="Marcar como 'No aplica': se mantiene aquí en el mapeo pero sale del listado, conteos y alertas">
+            <input type="checkbox" ${excluido ? 'checked' : ''} onchange="arqSigToggleExcluido('${it.codigo}',this.checked)" style="cursor:pointer;"> No aplica
+          </label>
         </td>
       </tr>`;
   }).join('');
@@ -15095,6 +15112,22 @@ function arqSigClearMappingRow(codigo){
   arqSigGuardarMappingFirestore(codigo);
   arqSigRenderMappingTable();
   arqSigRenderTabla();
+}
+
+// Marcar/desmarcar un instructivo como "No aplica / Excluido".
+// Se mantiene en el mapeo (trazabilidad) pero sale del listado, conteos y alertas.
+function arqSigToggleExcluido(codigo, excluir){
+  if(!arqSigPuedeEditar()){
+    alert('⛔ Solo los usuarios adm y oficina pueden cambiar esto.');
+    arqSigRenderMappingTable();
+    return;
+  }
+  if(!arqSigMapping[codigo]) arqSigMapping[codigo] = { partida:'', fecha_inicio:'', frente_padre:'' };
+  arqSigMapping[codigo].excluido = !!excluir;
+  arqSigGuardarMappingFirestore(codigo);
+  arqSigRenderMappingTable();  // refresca estilo de la fila (atenuada + badge)
+  arqSigRenderTabla();         // saca/mete del listado principal
+  if(typeof renderArqProcesos === 'function') renderArqProcesos();  // recalcula conteos "X de N"
 }
 
 function arqSigSeedDefaultMapping(){
@@ -15190,8 +15223,9 @@ async function arqSigGuardarMappingFirestore(codigo){
     const tienePartida = m && (m.partida || '').trim().length > 0;
     const tieneFecha = m && (m.fecha_inicio || '').trim().length > 0;
     const tieneFrente = m && (m.frente_padre || '').trim().length > 0;
-    if(!tienePartida && !tieneFecha && !tieneFrente){
-      // Borrar el doc si no tiene contenido
+    const estaExcluido = m && m.excluido === true;
+    if(!tienePartida && !tieneFecha && !tieneFrente && !estaExcluido){
+      // Borrar el doc solo si no tiene NINGÚN contenido (ni exclusión)
       try { await deleteDoc(doc(db, 'arq_procesos_sig_mapping', codigo)); } catch(e){}
     } else {
       const payload = {
@@ -15199,6 +15233,7 @@ async function arqSigGuardarMappingFirestore(codigo){
         partida: (m.partida || '').trim(),
         fecha_inicio: (m.fecha_inicio || '').trim(),
         frente_padre: (m.frente_padre || '').trim(),
+        excluido: estaExcluido,
         editado_por: (currentSession && currentSession.usuario) || '—',
         ultima_edicion: new Date().toISOString(),
         ts: serverTimestamp()
@@ -15467,7 +15502,8 @@ async function loadArqProcesosSigFromFirestore(){
       arqSigMapping[s.id] = {
         partida: d.partida || '',
         fecha_inicio: d.fecha_inicio || '',
-        frente_padre: d.frente_padre || ''
+        frente_padre: d.frente_padre || '',
+        excluido: d.excluido === true
       };
     });
     console.log(`[E140] Instructivos SIG (mapeos) cargados: ${Object.keys(arqSigMapping).length}`);
@@ -15850,6 +15886,8 @@ async function notifEjecutarCron(){
   if(typeof ARQ_SIG_CATALOGO !== 'undefined' && typeof arqSigEstadoObraEfectivo === 'function'){
     ARQ_SIG_CATALOGO.forEach(it => {
       try {
+        // Saltar los marcados "No aplica/Excluido" (no generan alertas)
+        if(typeof arqSigEstaExcluido === 'function' && arqSigEstaExcluido(it.codigo)) return;
         const estObra = arqSigEstadoObraEfectivo(it.codigo);
         const estRev = (typeof arqSigEstadoRevisionEfectivo === 'function')
           ? arqSigEstadoRevisionEfectivo(it.codigo) : null;
