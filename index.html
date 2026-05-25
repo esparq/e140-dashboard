@@ -15607,13 +15607,23 @@ async function notify(opts){
     return null;
   }
 
-  // Si tiene dedupKey, revisar si ya existe una notif reciente igual (evita spam)
+  // Si tiene dedupKey, revisar si ya existe una notif igual (evita spam y reapariciones)
   if(opts.dedupKey){
-    const yaExiste = notifsData.find(n =>
-      n.dedup_key === opts.dedupKey &&
-      (ahora - (n.timestamp_ms || 0)) < 24*3600*1000  // mismo evento en últimas 24h
-    );
-    if(yaExiste) return null;
+    if(opts.forceFromSystem){
+      // Notificaciones de SISTEMA (predictivas/recurrentes): el dedupKey identifica el
+      // ASUNTO (no el día). Si ya existe una notif para ese asunto y CUALQUIER usuario
+      // la marcó leída, NO la recreamos → no vuelve a "encenderse" la campana.
+      // Si existe pero nadie la leyó aún, tampoco duplicamos (basta la que ya está).
+      const existente = notifsData.find(n => n.dedup_key === opts.dedupKey);
+      if(existente) return null;
+    } else {
+      // Eventos puntuales de usuario: dedup por ventana corta (evita doble-clic/spam)
+      const yaExiste = notifsData.find(n =>
+        n.dedup_key === opts.dedupKey &&
+        (ahora - (n.timestamp_ms || 0)) < 24*3600*1000
+      );
+      if(yaExiste) return null;
+    }
   }
 
   const nuevaNotif = {
@@ -15820,7 +15830,7 @@ async function notifEjecutarCron(){
           forceFromSystem: true,
           prioridad: 'alta',
           enlace: { tab:'pendientes', id: p.id },
-          dedupKey: `pen_vencido_${dedupBase}_${hoyStr}`,
+          dedupKey: `pen_vencido_${dedupBase}`,
         });
       } else if(dias <= 3){
         notify({
@@ -15830,7 +15840,7 @@ async function notifEjecutarCron(){
           forceFromSystem: true,
           prioridad: dias === 0 ? 'alta' : 'media',
           enlace: { tab:'pendientes', id: p.id },
-          dedupKey: `pen_porvencer_${dedupBase}_${hoyStr}`,
+          dedupKey: `pen_porvencer_${dedupBase}`,
         });
       }
     });
@@ -15853,7 +15863,7 @@ async function notifEjecutarCron(){
               forceFromSystem: true,
               prioridad: estObra.dias <= 3 ? 'alta' : 'media',
               enlace: { tab:'arq-procesos', codigo: it.codigo },
-              dedupKey: `sig_porini_${it.codigo}_${hoyStr}`,
+              dedupKey: `sig_porini_${it.codigo}`,
             });
           }
         }
@@ -15869,7 +15879,7 @@ async function notifEjecutarCron(){
               forceFromSystem: true,
               prioridad: 'alta',
               enlace: { tab:'arq-procesos', codigo: it.codigo },
-              dedupKey: `sig_vencido_${it.codigo}_${hoyStr}`,
+              dedupKey: `sig_vencido_${it.codigo}`,
             });
           }
         }
@@ -15894,7 +15904,7 @@ async function notifEjecutarCron(){
             forceFromSystem: true,
             prioridad: 'alta',
             enlace: { tab:'arq-procesos' },
-            dedupKey: `spi_critico_${fkey}_${hoyStr}`,
+            dedupKey: `spi_critico_${fkey}`,
           });
         }
       });
