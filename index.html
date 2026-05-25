@@ -3190,6 +3190,38 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
 </div>
 
 <!-- ═══════════════════════════════════════════
+     MODAL CARGA REPORTE MENSUAL SST
+     ═══════════════════════════════════════════ -->
+<div class="kpi-edit-overlay" id="sstFormModal">
+  <div class="kpi-edit-modal" style="max-width:460px;">
+    <div class="kpi-edit-head">
+      <h3>📋 Reporte Mensual SST</h3>
+      <div class="sub">Indicadores ISO 45001 · carga mensual</div>
+    </div>
+    <div class="kpi-edit-body">
+      <input type="hidden" id="sstForm_mes">
+      <label class="kpi-edit-label">IF · Tasa de Frecuencia</label>
+      <input type="number" id="sstForm_if" class="kpi-edit-input" style="font-size:16px;margin-bottom:14px;" placeholder="Ej: 0.00" step="0.01" min="0">
+      <label class="kpi-edit-label">IG · Tasa de Gravedad</label>
+      <input type="number" id="sstForm_ig" class="kpi-edit-input" style="font-size:16px;margin-bottom:14px;" placeholder="Ej: 0.0" step="0.1" min="0">
+      <label class="kpi-edit-label">Trabajadores totales</label>
+      <input type="number" id="sstForm_trab" class="kpi-edit-input" style="font-size:16px;margin-bottom:14px;" placeholder="Ej: 100" min="0">
+      <label class="kpi-edit-label">HH trabajadas acumuladas</label>
+      <input type="number" id="sstForm_hh" class="kpi-edit-input" style="font-size:16px;margin-bottom:14px;" placeholder="Ej: 191333" min="0">
+      <label class="kpi-edit-label">Personal capacitado SSOMA</label>
+      <input type="number" id="sstForm_perscap" class="kpi-edit-input" style="font-size:16px;" placeholder="Ej: 0" min="0">
+      <div class="kpi-edit-actions" style="margin-top:18px;">
+        <span style="font-size:11px;color:var(--text-muted);">% Inspecciones y Charlas salen de la Agenda</span>
+        <div style="display:flex;gap:8px;">
+          <button class="kpi-edit-btn-cancel" onclick="sstCerrarFormulario()">Cancelar</button>
+          <button class="kpi-edit-btn-save" id="sstFormBtnSave" onclick="sstGuardarFormulario()">💾 Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
      MODAL CARGA GESTIÓN AMBIENTAL (mensual)
      ═══════════════════════════════════════════ -->
 <div class="kpi-edit-overlay" id="ambienteFormModal">
@@ -5618,6 +5650,17 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
               <span class="ssoma-hero-meta-lab">Días perdidos</span>
             </div>
           </div>
+        </div>
+
+        <!-- Selector de mes + carga del reporte mensual SST -->
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Reporte mensual:</span>
+            <button onclick="agendaNavegarMes(-1)" class="agenda-nav-btn" title="Mes anterior">‹</button>
+            <div class="agenda-mes-label" id="sstMesLabel">— —</div>
+            <button onclick="agendaNavegarMes(1)" class="agenda-nav-btn" title="Mes siguiente">›</button>
+          </div>
+          <button class="admin-only ssoma-edit-btn agenda-excel-btn" onclick="sstAbrirFormulario()" title="Cargar IF, IG, Trabajadores, HH y Personal Capacitado del mes" style="background:#1E7E4F;color:#fff;border-color:#1E7E4F;">📋 Cargar reporte mensual</button>
         </div>
 
         <!-- Panel KPIs principales -->
@@ -10659,6 +10702,162 @@ let ssomaReporteEditCtx = null; // {tipo, id} cuando se edita un reporte
 const SSOMA_HH_PROMEDIO_TRABAJADOR = 200; // HH/mes por trabajador (8h × 25 días aprox)
 const SSOMA_TRABAJADORES_TOTALES   = 100; // Estimado dinámico (se puede cargar desde personal)
 
+/* ═══════════════════════════════════════════════════════════════════
+   SST — Reporte MENSUAL de las 5 tarjetas (IF, IG, Trabajadores, HH,
+   Personal Capacitado). Firestore: 'ssoma_sst_mensual', doc por mes.
+   Las tarjetas "% Inspecciones" y "Charlas" se calculan de la Agenda.
+   ═══════════════════════════════════════════════════════════════════ */
+let SST_DATA = {};                 // { '2026-04': {if_val, ig_val, trabajadores, hh, personal_cap} }
+let AGENDA_KPIS_MES = null;        // KPIs calculados de la agenda del mes actual
+
+async function sstCargarFirestore(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs } = window.E140_DB;
+    const snap = await getDocs(collection(db, 'ssoma_sst_mensual'));
+    SST_DATA = {};
+    snap.forEach(s => { SST_DATA[s.id] = s.data(); });
+    const n = Object.keys(SST_DATA).length;
+    if(n > 0) console.log(`[E140] ${n} mes(es) de SST mensual cargados`);
+  } catch(e){ console.warn('[E140] Error cargando SST mensual:', e.message || e); }
+}
+
+// Mes que se muestra en SST: usamos el mismo que la Agenda (sincronizado)
+function sstMesActual(){
+  if(typeof agendaMesActual !== 'undefined' && agendaMesActual) return agendaMesActual;
+  const h = new Date(); return `${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}`;
+}
+
+const SST_MESES_TXT = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+
+// Render de las 7 tarjetas superiores (5 del reporte mensual + 2 de la Agenda)
+function sstRenderTarjetasMensuales(){
+  const mes = sstMesActual();
+  const [y, m] = mes.split('-').map(Number);
+  const d = SST_DATA[mes] || null;
+
+  const lbl = document.getElementById('sstMesLabel');
+  if(lbl) lbl.textContent = `${SST_MESES_TXT[m-1]} ${y}`;
+
+  const setTxt = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+
+  // ─── 5 tarjetas del REPORTE MENSUAL ───
+  if(d){
+    const ifVal = d.if_val != null ? Number(d.if_val) : null;
+    const igVal = d.ig_val != null ? Number(d.ig_val) : null;
+    setTxt('ssomaIF', ifVal != null ? ifVal.toFixed(2) : '—');
+    setTxt('ssomaIFDetalle', (d.acc_tp != null && d.hh != null) ? `${d.acc_tp} acc. TP / ${Number(d.hh).toLocaleString('es-PE')} HH` : 'Reporte mensual');
+    setKpiStatus('ssomaIFStatus', ifVal, 5, 'max');
+
+    setTxt('ssomaIG', igVal != null ? igVal.toFixed(1) : '—');
+    setTxt('ssomaIGDetalle', d.dias_perdidos != null ? `${d.dias_perdidos} días perdidos × 10⁶ / HH` : 'Reporte mensual');
+    setKpiStatus('ssomaIGStatus', igVal, 100, 'max');
+
+    setTxt('ssomaTrab', d.trabajadores != null ? Number(d.trabajadores).toLocaleString('es-PE') : '—');
+    setTxt('ssomaHH', d.hh != null ? Number(d.hh).toLocaleString('es-PE') : '—');
+    setTxt('ssomaPersCap', d.personal_cap != null ? Number(d.personal_cap).toLocaleString('es-PE') : '—');
+  } else {
+    ['ssomaIF','ssomaIG','ssomaTrab','ssomaHH','ssomaPersCap'].forEach(id => setTxt(id, '—'));
+    setTxt('ssomaIFDetalle', `Pendiente · cargar reporte de ${SST_MESES_TXT[m-1].toLowerCase()}`);
+    setTxt('ssomaIGDetalle', `Pendiente · cargar reporte de ${SST_MESES_TXT[m-1].toLowerCase()}`);
+    setKpiStatus('ssomaIFStatus', null, 5, 'max');
+    setKpiStatus('ssomaIGStatus', null, 100, 'max');
+  }
+
+  // ─── 2 tarjetas que vienen de la AGENDA del mes ───
+  const k = (AGENDA_KPIS_MES && AGENDA_KPIS_MES.mesAno === mes) ? AGENDA_KPIS_MES : null;
+
+  if(k && k.pctInsp != null){
+    setTxt('ssomaInsp', k.pctInsp.toFixed(0) + '%');
+    setTxt('ssomaInspDetalle', `${k.inspCumpl}/${k.inspHasta} cumplidas (agenda)`);
+    setKpiStatus('ssomaInspStatus', k.pctInsp, 90, 'min');
+  } else {
+    setTxt('ssomaInsp', '—');
+    setTxt('ssomaInspDetalle', 'Sin inspecciones en agenda');
+    setKpiStatus('ssomaInspStatus', null, 90, 'min');
+  }
+
+  if(k){
+    setTxt('ssomaCharlas', k.charlasCumpl != null ? k.charlasCumpl : 0);
+    setTxt('ssomaCharlasDetalle', `${k.charlasCumpl}/${k.charlasHasta} cumplidas · ${k.charlasTotal} programadas (agenda)`);
+    const elSt = document.getElementById('ssomaCharlasStatus');
+    if(elSt){
+      elSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
+      const pct = k.pctCharlas;
+      if(pct == null){ elSt.classList.add('kpi-meta-seguimiento'); elSt.textContent = '—'; }
+      else if(pct >= 90){ elSt.classList.add('kpi-meta-cumple'); elSt.textContent = '✓ Cumple'; }
+      else if(pct >= 75){ elSt.classList.add('kpi-meta-seguimiento'); elSt.textContent = '⚠ En seguimiento'; }
+      else { elSt.classList.add('kpi-meta-nocumple'); elSt.textContent = '✗ Bajo'; }
+    }
+  } else {
+    setTxt('ssomaCharlas', '—');
+    setTxt('ssomaCharlasDetalle', 'Sin charlas en agenda');
+  }
+}
+
+// ─── Formulario de carga mensual SST (adm/staff/ssoma) ───
+function sstAbrirFormulario(){
+  if(typeof puedeEditarSsoma === 'function' && !puedeEditarSsoma()){
+    alert('⛔ Solo adm, staff o el responsable SSOMA pueden cargar el reporte mensual SST.');
+    return;
+  }
+  const mes = sstMesActual();
+  const d = SST_DATA[mes] || {};
+  document.getElementById('sstForm_mes').value = mes;
+  document.getElementById('sstForm_if').value = d.if_val != null ? d.if_val : '';
+  document.getElementById('sstForm_ig').value = d.ig_val != null ? d.ig_val : '';
+  document.getElementById('sstForm_trab').value = d.trabajadores != null ? d.trabajadores : '';
+  document.getElementById('sstForm_hh').value = d.hh != null ? d.hh : '';
+  document.getElementById('sstForm_perscap').value = d.personal_cap != null ? d.personal_cap : '';
+  document.getElementById('sstFormModal').classList.add('show');
+}
+
+function sstCerrarFormulario(){
+  document.getElementById('sstFormModal').classList.remove('show');
+}
+
+async function sstGuardarFormulario(){
+  if(typeof puedeEditarSsoma === 'function' && !puedeEditarSsoma()){ alert('⛔ Sin permisos.'); return; }
+  const mes = document.getElementById('sstForm_mes').value;
+  if(!/^\d{4}-\d{2}$/.test(mes)){ alert('Mes inválido.'); return; }
+  const numOrNull = (id) => {
+    const v = document.getElementById(id).value.trim();
+    if(v === '') return null;
+    const n = parseFloat(v); return isNaN(n) ? null : n;
+  };
+  const registro = {
+    mes,
+    if_val: numOrNull('sstForm_if'),
+    ig_val: numOrNull('sstForm_ig'),
+    trabajadores: numOrNull('sstForm_trab'),
+    hh: numOrNull('sstForm_hh'),
+    personal_cap: numOrNull('sstForm_perscap'),
+    cargado_por: (currentSession && currentSession.usuario) || '—',
+    fecha_carga: new Date().toISOString(),
+  };
+  if(!window.E140_DB){ alert('⚠ Firestore no disponible.'); return; }
+  const btn = document.getElementById('sstFormBtnSave');
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  try {
+    const { db, doc, setDoc } = window.E140_DB;
+    await setDoc(doc(db, 'ssoma_sst_mensual', mes), registro, { merge: true });
+    SST_DATA[mes] = registro;
+    try {
+      if(typeof auditLog === 'function'){
+        auditLog({ modulo:'ssoma', accion:'crear', entidad_id:'sst_'+mes,
+          entidad_nombre:`Reporte SST ${mes}`, detalle:`Indicadores mensuales SST de ${mes} cargados.` });
+      }
+    } catch(e){ console.warn(e); }
+    sstCerrarFormulario();
+    sstRenderTarjetasMensuales();
+    if(typeof showBanner === 'function') showBanner('ok', `✓ Reporte SST de ${mes} guardado.`, true);
+  } catch(e){
+    alert('⚠ Error al guardar: ' + (e.message || e));
+  } finally {
+    btn.textContent = '💾 Guardar'; btn.disabled = false;
+  }
+}
+
 function renderSsomaSST(){
   // Procesar todos los reportes para calcular indicadores
   const reportes = [...ssomaReportesData];
@@ -10722,58 +10921,10 @@ function renderSsomaSST(){
   // ─── Banner sidebar ───
   actualizarBannerSidebarSsoma(diasSinAcc, accTP.length);
 
-  // ─── Cálculo IF y IG ─── (estimación con HH proyectadas)
-  // Calculamos HH como meses transcurridos × trabajadores × HH/mes
-  const mesesTranscurridos = Math.max(1, (hoy.getTime() - PROYECTO_INICIO_SSOMA.getTime()) / (30 * 24 * 60 * 60 * 1000));
-  const hhTrabajadasEstimadas = Math.round(mesesTranscurridos * SSOMA_TRABAJADORES_TOTALES * SSOMA_HH_PROMEDIO_TRABAJADOR);
-
-  // IF = (Acc TP × 1,000,000) / HH
-  const indFrec = hhTrabajadasEstimadas > 0
-    ? (accTP.length * 1000000) / hhTrabajadasEstimadas
-    : 0;
-  // IG = (Días perdidos × 1,000,000) / HH
-  const indGrav = hhTrabajadasEstimadas > 0
-    ? (totalDiasPerdidos * 1000000) / hhTrabajadasEstimadas
-    : 0;
-
-  document.getElementById('ssomaIF').textContent = indFrec.toFixed(2);
-  document.getElementById('ssomaIFDetalle').textContent = `${accTP.length} acc. TP / ${hhTrabajadasEstimadas.toLocaleString('es-PE')} HH`;
-  setKpiStatus('ssomaIFStatus', indFrec, 5, 'max');
-
-  document.getElementById('ssomaIG').textContent = indGrav.toFixed(1);
-  document.getElementById('ssomaIGDetalle').textContent = `${totalDiasPerdidos} días perdidos × 10⁶ / HH`;
-  setKpiStatus('ssomaIGStatus', indGrav, 100, 'max');
-
-  // ─── % Cumplimiento de inspecciones (promedio) ───
-  const promInsp = inspecciones.length > 0
-    ? inspecciones.reduce((s, x) => s + (Number(x.cumplimiento_pct) || 0), 0) / inspecciones.length
-    : null;
-  if(promInsp !== null){
-    document.getElementById('ssomaInsp').textContent = promInsp.toFixed(0) + '%';
-    document.getElementById('ssomaInspDetalle').textContent = `${inspecciones.length} inspección${inspecciones.length === 1 ? '' : 'es'} registrada${inspecciones.length === 1 ? '' : 's'}`;
-    setKpiStatus('ssomaInspStatus', promInsp, 90, 'min');
-  } else {
-    document.getElementById('ssomaInsp').textContent = '—';
-    document.getElementById('ssomaInspDetalle').textContent = 'Sin inspecciones registradas';
-    setKpiStatus('ssomaInspStatus', null, 90, 'min');
-  }
-
-  // ─── Charlas del mes actual ───
-  const ahoraMes = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
-  const charlasMes = charlas.filter(c => (c.fecha || '').startsWith(ahoraMes));
-  document.getElementById('ssomaCharlas').textContent = charlasMes.length;
-  document.getElementById('ssomaCharlasDetalle').textContent = `${charlas.length} charla${charlas.length === 1 ? '' : 's'} acumuladas en el proyecto`;
-  const elCharlasSt = document.getElementById('ssomaCharlasStatus');
-  elCharlasSt.classList.remove('kpi-meta-cumple','kpi-meta-seguimiento','kpi-meta-nocumple');
-  if(charlasMes.length >= 20){ elCharlasSt.classList.add('kpi-meta-cumple'); elCharlasSt.textContent = '✓ Buen ritmo'; }
-  else if(charlasMes.length >= 10){ elCharlasSt.classList.add('kpi-meta-seguimiento'); elCharlasSt.textContent = '⚠ A media'; }
-  else { elCharlasSt.classList.add('kpi-meta-nocumple'); elCharlasSt.textContent = '✗ Bajo'; }
-
-  // ─── Indicadores secundarios ───
-  document.getElementById('ssomaTrab').textContent = SSOMA_TRABAJADORES_TOTALES;
-  document.getElementById('ssomaHH').textContent = hhTrabajadasEstimadas.toLocaleString('es-PE');
-  const totalAsist = charlas.reduce((s, c) => s + (Number(c.asistentes) || 0), 0);
-  document.getElementById('ssomaPersCap').textContent = totalAsist.toLocaleString('es-PE');
+  // ─── Las 7 tarjetas superiores ahora son MENSUALES (5 reporte + 2 agenda) ───
+  // IF, IG, Trabajadores, HH, Personal Capacitado → reporte mensual (SST_DATA)
+  // % Inspecciones y Charlas → calculadas desde la Agenda (AGENDA_KPIS_MES)
+  sstRenderTarjetasMensuales();
 
   // ─── Llenar filtro de meses ───
   llenarFiltroMesSsoma();
@@ -10782,6 +10933,7 @@ function renderSsomaSST(){
   renderSsomaSstHistorial();
 
   // ─── Agenda SSOMA Unificada (Charlas + Inspecciones) ───
+  // (al renderizar, recalcula AGENDA_KPIS_MES y refresca las 2 tarjetas de agenda)
   try { renderAgendaSsoma(); } catch(e){ console.warn('[ssoma-agenda]', e); }
 }
 
@@ -11329,9 +11481,19 @@ function renderAgendaSsoma(){
   const pctSt = kStaffTotal > 0 ? (kStaffSi / kStaffTotal) * 100 : null;
   const pctIn = kInspHasta > 0 ? (kInspCumpl / kInspHasta) * 100 : null;
 
+  // Exponer para las tarjetas mensuales de SST (% Inspecciones y Charlas se alimentan de aquí)
+  AGENDA_KPIS_MES = {
+    mesAno: agendaMesActual,
+    pctCharlas: pctCh, charlasCumpl: kCharlasCumpl, charlasHasta: kCharlasHasta, charlasTotal: kCharlasTotal,
+    pctInsp: pctIn, inspCumpl: kInspCumpl, inspHasta: kInspHasta, inspTotal: kInspTotal
+  };
+
   setearKpiAgenda('agendaKpiCharlas', pctCh, `${kCharlasCumpl}/${kCharlasHasta} cumplidas (${kCharlasTotal} mes)`, 90);
   setearKpiAgenda('agendaKpiStaff',   pctSt, `${kStaffSi}/${kStaffTotal} con staff registradas`, 85);
   setearKpiAgenda('agendaKpiInsp',    pctIn, `${kInspCumpl}/${kInspHasta} cumplidas (${kInspTotal} mes)`, 90);
+
+  // Refrescar las tarjetas superiores de SST que dependen de la Agenda y del mes
+  try { if(typeof sstRenderTarjetasMensuales === 'function') sstRenderTarjetasMensuales(); } catch(e){ console.warn(e); }
 }
 
 function setearKpiAgenda(prefix, pct, sub, meta){
@@ -14175,6 +14337,8 @@ async function loadSsomaReportesFromFirestore(){
       // Cargar indicadores mensuales de Gestión Ambiental (ISO 14001)
       await ambienteCargarFirestore();
       ambienteInicializarMes();
+      // Cargar reporte mensual SST (las 5 tarjetas: IF, IG, trabajadores, HH, personal cap)
+      await sstCargarFirestore();
     } catch(e){ console.warn('[E140] Error cargando agenda SST:', e); }
 
     if(currentTab === 'ssoma-sst'){
