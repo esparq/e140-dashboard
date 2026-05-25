@@ -7210,7 +7210,8 @@ function hitoDiasFaltantes(s){
 
 // Encuentra el próximo hito META (estatus 'proceso' con fecha futura más cercana)
 function hitoProximoMeta(){
-  const enProceso = HITOS_PROYECTO.filter(h => h.estatus === 'proceso' && h.metaFecha);
+  const estatusDe = (typeof hitoEstatusEfectivo === 'function') ? hitoEstatusEfectivo : (h => h.estatus);
+  const enProceso = HITOS_PROYECTO.filter(h => estatusDe(h) === 'proceso' && h.metaFecha);
   // Ordenar por fecha meta ascendente y tomar el primero con dias >= 0; si todos pasaron, el primero
   const conDias = enProceso.map(h => ({...h, dias: hitoDiasFaltantes(h.metaFecha)}));
   const futuros = conDias.filter(h => h.dias >= 0).sort((a,b) => a.dias - b.dias);
@@ -17976,6 +17977,71 @@ function renderCrono(){
 }
 
 // ─────────────────────────────────────────────────────────────
+// Overrides de estatus de hitos guardados en Firestore (col 'hitos_proyecto')
+// { 'INICIO DE CIMENTACIÓN': 'cumplido', ... }. Si no hay override, usa el del código.
+let HITOS_OVERRIDES = {};
+
+// Estatus efectivo de un hito: override de Firestore tiene prioridad sobre el hardcoded
+function hitoEstatusEfectivo(h){
+  if(h && HITOS_OVERRIDES[h.desc]) return HITOS_OVERRIDES[h.desc];
+  return h ? h.estatus : 'proceso';
+}
+
+async function hitosCargarOverrides(){
+  if(!window.E140_DB) return;
+  try {
+    const { db, collection, getDocs } = window.E140_DB;
+    const snap = await getDocs(collection(db, 'hitos_proyecto'));
+    HITOS_OVERRIDES = {};
+    snap.forEach(s => {
+      const d = s.data();
+      if(d && d.desc && d.estatus) HITOS_OVERRIDES[d.desc] = d.estatus;
+    });
+    const n = Object.keys(HITOS_OVERRIDES).length;
+    if(n > 0) console.log(`[E140] ${n} override(s) de hitos cargados`);
+  } catch(e){ console.warn('[E140] Error cargando overrides de hitos:', e.message || e); }
+}
+
+function hitoPuedeEditarEstatus(){
+  return currentSession && (currentSession.usuario === 'adm' || currentSession.usuario === 'residente');
+}
+
+// Alterna el estatus de un hito (cumplido <-> proceso) y lo persiste
+async function hitoToggleEstatus(desc){
+  if(!hitoPuedeEditarEstatus()){
+    alert('⛔ Solo adm y residente pueden cambiar el estatus de los hitos.');
+    return;
+  }
+  const h = HITOS_PROYECTO.find(x => x.desc === desc);
+  if(!h) return;
+  const actual = hitoEstatusEfectivo(h);
+  const nuevo = actual === 'cumplido' ? 'proceso' : 'cumplido';
+  HITOS_OVERRIDES[desc] = nuevo;
+  renderHitosTabla();  // refresco inmediato
+
+  if(window.E140_DB){
+    try {
+      const { db, doc, setDoc, serverTimestamp } = window.E140_DB;
+      // ID seguro a partir de la descripción (sin espacios/caracteres problemáticos)
+      const docId = 'hito_' + desc.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+      await setDoc(doc(db, 'hitos_proyecto', docId), {
+        desc: desc, estatus: nuevo,
+        editado_por: (currentSession && currentSession.usuario) || '—',
+        fecha: new Date().toISOString(), ts: serverTimestamp()
+      }, { merge: true });
+      try {
+        if(typeof auditLog === 'function'){
+          auditLog({ modulo:'operaciones', accion:'editar', entidad_id:docId,
+            entidad_nombre:`Hito: ${desc}`, detalle:`Estatus cambiado a "${nuevo === 'cumplido' ? 'CUMPLIDO' : 'EN PROCESO'}".` });
+        }
+      } catch(e){ console.warn(e); }
+    } catch(e){
+      console.error('[E140] Error guardando estatus de hito:', e);
+      alert('⚠ No se pudo guardar en Firestore: ' + (e.message || e));
+    }
+  }
+}
+
 // Render de la tabla de hitos · usa HITOS_PROYECTO global
 // ─────────────────────────────────────────────────────────────
 function renderHitosTabla(){
@@ -17985,8 +18051,8 @@ function renderHitosTabla(){
 
   // ─── Resumen superior: contadores + próximo hito ───
   const totalHitos = HITOS_PROYECTO.length;
-  const cumplidos = HITOS_PROYECTO.filter(h => h.estatus === 'cumplido').length;
-  const enProceso = HITOS_PROYECTO.filter(h => h.estatus === 'proceso').length;
+  const cumplidos = HITOS_PROYECTO.filter(h => hitoEstatusEfectivo(h) === 'cumplido').length;
+  const enProceso = HITOS_PROYECTO.filter(h => hitoEstatusEfectivo(h) === 'proceso').length;
   const proximo = hitoProximoMeta();
 
   if(resumenEl){
@@ -18001,10 +18067,11 @@ function renderHitosTabla(){
   }
 
   // ─── Tabla con todos los hitos ───
+  const puedeEditarHito = hitoPuedeEditarEstatus();
   const filas = HITOS_PROYECTO.map(h => {
     const diasMeta = hitoDiasFaltantes(h.metaFecha);
     const diasContr = hitoDiasFaltantes(h.contractualFecha);
-    const cumplido = h.estatus === 'cumplido';
+    const cumplido = hitoEstatusEfectivo(h) === 'cumplido';
     const filaBg = cumplido ? '#E7F4EE' : '#FFF9E5';
     const tagBg  = cumplido ? '#2D936C' : '#E07B39';
     const tagTxt = cumplido ? 'CUMPLIDO' : 'EN PROCESO';
@@ -18036,7 +18103,7 @@ function renderHitosTabla(){
           ${subContr}
         </td>
         <td class="td-center" style="padding:9px 10px;">
-          <span style="display:inline-block;background:${tagBg};color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;letter-spacing:.05em">${tagTxt}</span>
+          <span onclick="${puedeEditarHito ? `hitoToggleEstatus('${h.desc.replace(/'/g,"\\'")}')` : ''}" style="display:inline-block;background:${tagBg};color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;letter-spacing:.05em;${puedeEditarHito ? 'cursor:pointer;' : ''}" title="${puedeEditarHito ? 'Clic para cambiar el estatus' : ''}">${tagTxt}${puedeEditarHito ? ' ▾' : ''}</span>
         </td>
       </tr>`;
   }).join('');
@@ -18046,10 +18113,10 @@ function renderHitosTabla(){
       <table style="width:100%;border-collapse:collapse;">
         <thead>
           <tr style="background:linear-gradient(135deg,#3A91C5 0%,#0070B4 100%);color:#fff;">
-            <th style="padding:11px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Descripción</th>
-            <th style="padding:11px 12px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Hito Meta<br><span style="font-size:9px;font-weight:500;opacity:.85">(interno)</span></th>
-            <th style="padding:11px 12px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Hito Contractual<br><span style="font-size:9px;font-weight:500;opacity:.85">(cliente)</span></th>
-            <th style="padding:11px 12px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Estatus</th>
+            <th style="padding:11px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#fff;">Descripción</th>
+            <th style="padding:11px 12px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#fff;">Hito Meta<br><span style="font-size:9px;font-weight:500;opacity:.85;color:#fff;">(interno)</span></th>
+            <th style="padding:11px 12px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#fff;">Hito Contractual<br><span style="font-size:9px;font-weight:500;opacity:.85;color:#fff;">(cliente)</span></th>
+            <th style="padding:11px 12px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#fff;">Estatus</th>
           </tr>
         </thead>
         <tbody>${filas}</tbody>
@@ -21866,6 +21933,9 @@ function cargarFotosFirestoreAsync(){
     loadCapacitacionesFromFirestore();
     loadSsomaReportesFromFirestore();
     loadArqProcesosSigFromFirestore();
+    if(typeof hitosCargarOverrides === 'function'){
+      hitosCargarOverrides().then(() => { try { if(typeof renderHitosTabla === 'function') renderHitosTabla(); } catch(e){} });
+    }
   };
   if(window._E140_FIREBASE_READY){
     ejecutar();
