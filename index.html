@@ -10980,14 +10980,29 @@ let ssomaCapAsistencias = {}; // { 'YYYY-MM-DD_idx': { cumplio, asistio } }
 let ssomaInspRegistros = {};   // { 'YYYY-MM-DD_idx': { cumplio } }
 
 // ─── Inicialización ───
+// Abre en el mes MÁS RECIENTE que tenga datos cargados, sin pasarse del mes actual.
+// Ej: si hoy es mayo → abre mayo si tiene data; si no, abril; si no, marzo; etc.
 function agendaInicializarMes(){
   const hoy = new Date();
   const mesActual = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
-  if(SSOMA_CAP_PROGRAMAS[mesActual] || SSOMA_INSP_PROGRAMAS[mesActual]){
-    agendaMesActual = mesActual;
+
+  // Todos los meses con datos (charlas o inspecciones), orden ascendente 'YYYY-MM'
+  const mesesConData = [...new Set([
+    ...Object.keys(SSOMA_CAP_PROGRAMAS),
+    ...Object.keys(SSOMA_INSP_PROGRAMAS)
+  ])].sort();
+
+  if(mesesConData.length === 0) return; // no hay nada cargado: deja el default
+
+  // Candidatos: meses con data que NO sean posteriores al mes actual
+  const noFuturos = mesesConData.filter(m => m <= mesActual);
+
+  if(noFuturos.length > 0){
+    // El más reciente que no se pasa del mes de hoy (mayo→abril→marzo...)
+    agendaMesActual = noFuturos[noFuturos.length - 1];
   } else {
-    const meses = [...new Set([...Object.keys(SSOMA_CAP_PROGRAMAS), ...Object.keys(SSOMA_INSP_PROGRAMAS)])].sort();
-    if(meses.length > 0) agendaMesActual = meses[meses.length - 1];
+    // Todo lo cargado es futuro respecto a hoy: usar el más antiguo disponible
+    agendaMesActual = mesesConData[0];
   }
 }
 
@@ -13840,7 +13855,7 @@ async function loadSsomaReportesFromFirestore(){
 
     // Cargar agenda SSOMA unificada (charlas + inspecciones)
     try {
-      agendaInicializarMes();
+      // Primero cargar los programas desde Firestore...
       await ssomaCapCargarProgramasFirestore();
       await ssomaCapCargarAsistFirestore();
       await ssomaInspCargarProgramasFirestore();
@@ -13848,6 +13863,9 @@ async function loadSsomaReportesFromFirestore(){
       // Cargar ediciones de contenido (tema/expositor) y aplicarlas a los programas
       await cargarEdicionesFirestore();
       aplicarEdicionesAProgramas();
+      // ...y RECIÉN AHORA inicializar el mes, para que abra en el último mes con data
+      // (si se llama antes, los programas están vacíos y cae al default '2026-04')
+      agendaInicializarMes();
     } catch(e){ console.warn('[E140] Error cargando agenda SST:', e); }
 
     if(currentTab === 'ssoma-sst'){
