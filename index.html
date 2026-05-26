@@ -1660,6 +1660,8 @@ body.role-viewer .admin-only{display:none !important;}
 /* Usuarios técnicos por área: ven los botones de edición de SU área aunque sean viewer */
 body.can-edit-ssoma .ssoma-edit-btn{display:inline-flex !important;}
 body.can-edit-arq .arq-edit-btn{display:inline-flex !important;}
+/* Carga de fotos: roles autorizados (incl. staff) ven el botón aunque sean viewer */
+body.can-upload-fotos .fotos-upload-btn{display:inline-flex !important;}
 
 @media(max-width:540px){
   .login-card{padding:28px 24px 22px;}
@@ -6770,7 +6772,7 @@ button, .btn, a, .sb-item, .clickable{touch-action:manipulation;}
       <section class="section" id="sec-fotos">
         <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
           <span>Panel Fotográfico de la Semana</span>
-          <button class="hdr-btn hdr-btn-primary admin-only" onclick="openFotosModal()" style="background:var(--twitter-blue);color:var(--white);border-color:var(--twitter-blue);padding:7px 14px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">
+          <button class="hdr-btn hdr-btn-primary admin-only fotos-upload-btn" onclick="openFotosModal()" style="background:var(--twitter-blue);color:var(--white);border-color:var(--twitter-blue);padding:7px 14px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">
             <span>📷</span> Cargar Fotos
           </button>
         </div>
@@ -18732,7 +18734,7 @@ function hideLoginScreen(){
 function applySessionToUI(){
   if(!currentSession) return;
   // Aplicar clase de rol al body para que las reglas CSS oculten/muestren
-  document.body.classList.remove('role-admin', 'role-viewer', 'audit-allowed', 'report-allowed', 'can-edit-kpi', 'can-edit-ssoma', 'can-edit-arq');
+  document.body.classList.remove('role-admin', 'role-viewer', 'audit-allowed', 'report-allowed', 'can-edit-kpi', 'can-edit-ssoma', 'can-edit-arq', 'can-upload-fotos');
   document.body.classList.add('role-' + currentSession.rol);
 
   // Permisos por área (usuarios técnicos): muestran los botones de edición de su área
@@ -18741,6 +18743,14 @@ function applySessionToUI(){
   }
   if(typeof puedeEditarArquitectura === 'function' && puedeEditarArquitectura()){
     document.body.classList.add('can-edit-arq');
+  }
+
+  // Carga de fotos del Panel Fotográfico: adm, oficina, residente y staff
+  {
+    const u = currentSession.usuario;
+    if(u === 'adm' || u === 'oficina' || u === 'residente' || u === 'staff'){
+      document.body.classList.add('can-upload-fotos');
+    }
   }
 
   // Solo 'adm' y 'residente' pueden editar manualmente el Avance de Obra (botón ✏)
