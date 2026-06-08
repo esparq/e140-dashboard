@@ -1,471 +1,916 @@
 {
-  "semana": "S38",
-  "corte_fecha": "2026-05-02",
-  "archivos": {
-    "histograma": {
-      "personal_obra": 83,
-      "meta_dimension_ger": 91,
-      "meta_dimension_campo": 91,
-      "meta_ger_sub": 40,
-      "meta_ger_sup": 51,
-      "meta_campo_sub": 40,
-      "meta_campo_sup": 51,
-      "hh_prestamo_total": 7569,
-      "semana": "S38",
-      "promedio_4sem": 73
+  "corte": "02/05/2026",
+  "semNum": 38,
+  "diasTranscurridos": 250,
+  "resumenEjecutivo": [
+    {
+      "color": "green",
+      "text": "Proyecto en <b>ejecución conforme a plazo</b>. Fase de sótanos (casco) cerrando partidas al 100% (verticales y losas). Superiores inicia <b>Sem 37</b>. Albañilería en sótanos avanza al <b>18.5%</b>."
     },
-    "casco_sot": {
-      "partidas": [
-        {
-          "partida": "SOT · Vert-Acero",
-          "pct_prog": 100,
-          "pct_real": 100,
-          "sec_prog_sem": 0,
-          "sec_ejec_sem": 0,
-          "sec_prog_acum": 28,
-          "sec_ejec_acum": 28
-        },
-        {
-          "partida": "SOT · Vert-Concreto",
-          "pct_prog": 100,
-          "pct_real": 100,
-          "sec_prog_sem": 0,
-          "sec_ejec_sem": 0,
-          "sec_prog_acum": 28,
-          "sec_ejec_acum": 28
-        },
-        {
-          "partida": "SOT · Vigas Enc+Acero",
-          "pct_prog": 100,
-          "pct_real": 100,
-          "sec_prog_sem": 0,
-          "sec_ejec_sem": 0,
-          "sec_prog_acum": 28,
-          "sec_ejec_acum": 28
-        },
-        {
-          "partida": "SOT · Losa Encof+Acero",
-          "pct_prog": 100,
-          "pct_real": 100,
-          "sec_prog_sem": 0,
-          "sec_ejec_sem": 0,
-          "sec_prog_acum": 28,
-          "sec_ejec_acum": 28
-        },
-        {
-          "partida": "SOT · Losa Concreto",
-          "pct_prog": 100,
-          "pct_real": 100,
-          "sec_prog_sem": 0,
-          "sec_ejec_sem": 0,
-          "sec_prog_acum": 28,
-          "sec_ejec_acum": 28
-        }
+    {
+      "color": "blue",
+      "text": "MO acumulada: <b>S/ 1,261,048 (19.1% del presupuesto MO F1+F2)</b>. Saldo MO: <b>S/ 5,350,399 (80.9%)</b>. Rentabilidad proyectada total: <b>+33.4%</b>."
+    },
+    {
+      "color": "blue",
+      "text": "Contratación: <b>60.1% de avance</b> (79 ítems), margen de adquisiciones <b>S/ 2,621,904 (16.5%)</b>, rentabilidad total estimada <b>16.4%</b>."
+    },
+    {
+      "color": "orange",
+      "text": "<b>Alerta Cuadrillas</b>: VIGÍAS (-136%), ALMACENERO (-25%), RIGGERS (-10%) excedidos. <b>IIEE</b> rentabilidad negativa (-19.9%)."
+    },
+    {
+      "color": "green",
+      "text": "Adicionales aprobados: <b>20 ítems por S/ 894,602</b> (3.3% del CD). 4 optimizaciones por S/ -18,288. 0 deductivos."
+    },
+    {
+      "color": "blue",
+      "text": "Personal actual: <b>75 trabajadores</b> (pico histórico). Dimensionamiento meta: 86 pax."
+    }
+  ],
+  "kpis": {
+    "contratacionPct": 60.18969522140441,
+    "moPct": 19.1,
+    "utilRentPct": 16.4,
+    "personal": 83,
+    "adicionales": 894602,
+    "rentMOPct": 33.4,
+    "metaPersonalGer": 91,
+    "metaPersonalCampo": 91,
+    "costoDirecto": 26445788.0883562,
+    "margenAdq": 2613721.921299151,
+    "avanceObra": 17.9,
+    "cpi": 3.48,
+    "spiMeta": 0.84,
+    "spiContractual": 1.04,
+    "moConsumida": 1897900,
+    "avanceProgramado": 17.2
+  },
+  "avanceFisico": {
+    "partidas": [
+      {
+        "n": "SOT · Vert-Acero",
+        "prog": 100,
+        "real": 100
+      },
+      {
+        "n": "SOT · Vert-Concreto",
+        "prog": 100,
+        "real": 100
+      },
+      {
+        "n": "SOT · Vigas Enc+Acero",
+        "prog": 100,
+        "real": 100
+      },
+      {
+        "n": "SOT · Losa Encof+Acero",
+        "prog": 100,
+        "real": 100
+      },
+      {
+        "n": "SOT · Losa Concreto",
+        "prog": 100,
+        "real": 100
+      },
+      {
+        "n": "SUP · Vert-Acero",
+        "prog": 9.1,
+        "real": 6.1
+      },
+      {
+        "n": "SUP · Vert-Concreto",
+        "prog": 7.6,
+        "real": 4.5
+      },
+      {
+        "n": "SUP · Vigas Enc+Acero",
+        "prog": 6.1,
+        "real": 3
+      },
+      {
+        "n": "SUP · Losa Enc+Acero",
+        "prog": 4.5,
+        "real": 3
+      },
+      {
+        "n": "SUP · Losa Concreto",
+        "prog": 3,
+        "real": 1.5
+      },
+      {
+        "n": "ALB · Habilitado Solaqueo",
+        "prog": 37,
+        "real": 33.3
+      },
+      {
+        "n": "ALB · Solaqueo",
+        "prog": 33.3,
+        "real": 29.6
+      }
+    ],
+    "frentes": [
+      {
+        "n": "CASCO SÓTANOS",
+        "pct": 100,
+        "status": "ok",
+        "label": "Cerrando",
+        "nota": "SPI Sem: 1.00 · Acum: 1.00"
+      },
+      {
+        "n": "CASCO SUPERIORES",
+        "pct": 3.6,
+        "status": "info",
+        "label": "En ejecución",
+        "nota": "SPI Acum: 0.60"
+      },
+      {
+        "n": "ALBAÑILERÍA",
+        "pct": 31.5,
+        "status": "info",
+        "label": "En ejecución",
+        "nota": "SPI Sem: 0.78 · Acum: 0.89"
+      },
+      {
+        "n": "MUROS ANCLADOS / EXCAV.",
+        "pct": 100,
+        "status": "ok",
+        "label": "Terminado",
+        "nota": "Cerrado en F1. Partidas de anclaje y mov. tierras finalizadas."
+      }
+    ]
+  },
+  "personal": {
+    "evolucion": {
+      "labels": [
+        "S33",
+        "S34",
+        "S35",
+        "S36",
+        "S01",
+        "S05",
+        "S09",
+        "S13",
+        "Actual"
       ],
-      "spi_semanal": 1,
-      "spi_acumulado": 1,
-      "sectores_prog_sem": 0,
-      "sectores_ejec_sem": 0,
-      "sectores_prog_acum": 140,
-      "sectores_ejec_acum": 140,
-      "pct_prog_promedio": 100,
-      "pct_real_promedio": 100
+      "data": [
+        11,
+        19,
+        20,
+        23,
+        31,
+        49,
+        51,
+        46,
+        75
+      ]
     },
-    "casco_sup": {
-      "partidas": [
-        {
-          "partida": "SUP · Vert-Acero",
-          "pct_prog": 9.090909090909092,
-          "pct_real": 6.0606060606060606,
-          "sec_prog_sem": 6,
-          "sec_ejec_sem": 4,
-          "sec_prog_acum": 6,
-          "sec_ejec_acum": 4
-        },
-        {
-          "partida": "SUP · Vert-Concreto",
-          "pct_prog": 7.575757575757576,
-          "pct_real": 4.545454545454546,
-          "sec_prog_sem": 5,
-          "sec_ejec_sem": 3,
-          "sec_prog_acum": 5,
-          "sec_ejec_acum": 3
-        },
-        {
-          "partida": "SUP · Vigas Enc+Acero",
-          "pct_prog": 6.0606060606060606,
-          "pct_real": 3.0303030303030303,
-          "sec_prog_sem": 4,
-          "sec_ejec_sem": 2,
-          "sec_prog_acum": 4,
-          "sec_ejec_acum": 2
-        },
-        {
-          "partida": "SUP · Losa Enc+Acero",
-          "pct_prog": 4.545454545454546,
-          "pct_real": 3.0303030303030303,
-          "sec_prog_sem": 3,
-          "sec_ejec_sem": 2,
-          "sec_prog_acum": 3,
-          "sec_ejec_acum": 2
-        },
-        {
-          "partida": "SUP · Losa Concreto",
-          "pct_prog": 3.0303030303030303,
-          "pct_real": 1.5151515151515151,
-          "sec_prog_sem": 2,
-          "sec_ejec_sem": 1,
-          "sec_prog_acum": 2,
-          "sec_ejec_acum": 1
-        }
+    "hhPrestamo": {
+      "TI": 3515,
+      "HMT": 2177,
+      "BL": 870,
+      "GPLF": 742,
+      "VT": 265,
+      "TOTAL": 7569,
+      "serie": {
+        "labels": [
+          "S30",
+          "S31",
+          "S32",
+          "S33",
+          "S34",
+          "S35"
+        ],
+        "TI": [
+          151.5,
+          705,
+          1047.5,
+          994,
+          617,
+          323
+        ],
+        "HMT": [
+          126,
+          398,
+          547.5,
+          618,
+          487.5,
+          357
+        ],
+        "BL": [
+          357.5,
+          495.5,
+          17,
+          0,
+          0,
+          0
+        ],
+        "GPLF": [
+          0,
+          112.5,
+          234.5,
+          240,
+          155,
+          0
+        ],
+        "VT": [
+          25,
+          206,
+          34,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "dimensionamiento": [
+      {
+        "n": "Subestructura",
+        "ger": 40,
+        "campo": 40
+      },
+      {
+        "n": "Superestructura",
+        "ger": 51,
+        "campo": 51
+      },
+      {
+        "n": "Total meta",
+        "ger": 91,
+        "campo": 91,
+        "total": true
+      },
+      {
+        "n": "Actual (obra)",
+        "actual": 83,
+        "warn": -8
+      }
+    ],
+    "encofradoCuadrilla": {
+      "labels": [
+        "Capataz",
+        "Verticales",
+        "Vigas Fondo",
+        "Vigas Lat.",
+        "Losas Fondo",
+        "Frizos",
+        "Escalera",
+        "Cajones"
       ],
-      "spi_semanal": 0.6,
-      "spi_acumulado": 0.6,
-      "sectores_prog_sem": 20,
-      "sectores_ejec_sem": 12,
-      "sectores_prog_acum": 20,
-      "sectores_ejec_acum": 12,
-      "pct_prog_promedio": 6.0606060606060606,
-      "pct_real_promedio": 3.6363636363636367
-    },
-    "albanileria": {
-      "partidas": [
-        {
-          "partida": "ALB · Habilitado Solaqueo",
-          "pct_prog": 37.03703703703704,
-          "pct_real": 33.33333333333333,
-          "sec_prog_sem": 5,
-          "sec_ejec_sem": 4,
-          "sec_prog_acum": 10,
-          "sec_ejec_acum": 9
-        },
-        {
-          "partida": "ALB · Solaqueo",
-          "pct_prog": 33.33333333333333,
-          "pct_real": 29.629629629629626,
-          "sec_prog_sem": 4,
-          "sec_ejec_sem": 3,
-          "sec_prog_acum": 9,
-          "sec_ejec_acum": 8
-        }
+      "meta": [
+        1,
+        5,
+        3,
+        0,
+        8,
+        3,
+        2,
+        12
       ],
-      "spi_semanal": 0.7777777777777778,
-      "spi_acumulado": 0.8947368421052632,
-      "sectores_prog_sem": 9,
-      "sectores_ejec_sem": 7,
-      "sectores_prog_acum": 19,
-      "sectores_ejec_acum": 17,
-      "pct_prog_promedio": 35.18518518518518,
-      "pct_real_promedio": 31.481481481481477
-    },
-    "adquisiciones": {
-      "costo_directo": 26445788.0883562,
-      "avance_contratacion_pct": 60.18969522140441,
-      "contratado_total": 13303917.327980917,
-      "margen_total": 2613721.921299151,
-      "items_total": 111
-    },
-    "mo": {
-      "cuadrillas": [
-        {
-          "cuadrilla": "CONCRETO",
-          "mo_base": 479526.445388,
-          "mo_meta": 422632.08,
-          "mo_real": 155100,
-          "saldo": 267532.08,
-          "rent_pct": 76.76332695520888
-        },
-        {
-          "cuadrilla": "ENCOFRADO",
-          "mo_base": 899963.8852400001,
-          "mo_meta": 857677.6971428569,
-          "mo_real": 448800,
-          "saldo": 408877.6971428569,
-          "rent_pct": 52.602963414222145
-        },
-        {
-          "cuadrilla": "ACERO",
-          "mo_base": 832140.21058,
-          "mo_meta": 631155.685714286,
-          "mo_real": 289300,
-          "saldo": 341855.68571428605,
-          "rent_pct": 86.00733905544422
-        },
-        {
-          "cuadrilla": "MAESTRO CASCO",
-          "mo_base": 93960,
-          "mo_meta": 84564,
-          "mo_real": 29000,
-          "saldo": 55564,
-          "rent_pct": 76.81755829903977
-        },
-        {
-          "cuadrilla": "TOPÓGRAFO",
-          "mo_base": 169345.0764,
-          "mo_meta": 152410.56876,
-          "mo_real": 70400,
-          "saldo": 82010.56876,
-          "rent_pct": 64.92008868217545
-        },
-        {
-          "cuadrilla": "VIGÍAS",
-          "mo_base": 58900,
-          "mo_meta": 53010,
-          "mo_real": 68200,
-          "saldo": -15190,
-          "rent_pct": -17.543859649122805
-        },
-        {
-          "cuadrilla": "ALMACENERO",
-          "mo_base": 71145,
-          "mo_meta": 64030.5,
-          "mo_real": 35200,
-          "saldo": 28830.5,
-          "rent_pct": 56.137309563411186
-        },
-        {
-          "cuadrilla": "SEGURITOS",
-          "mo_base": 101900,
-          "mo_meta": 91710,
-          "mo_real": 52800,
-          "saldo": 38910,
-          "rent_pct": 53.53832733616836
-        },
-        {
-          "cuadrilla": "IISS",
-          "mo_base": 533171.5368,
-          "mo_meta": 443661.6,
-          "mo_real": 320100,
-          "saldo": 123561.59999999998,
-          "rent_pct": 48.02568822724347
-        },
-        {
-          "cuadrilla": "IIEE",
-          "mo_base": 430558.55789,
-          "mo_meta": 516370.422857143,
-          "mo_real": 380600,
-          "saldo": 135770.42285714298,
-          "rent_pct": 9.674945674380993
-        },
-        {
-          "cuadrilla": "RIGGERS",
-          "mo_base": 83875.84,
-          "mo_meta": 75488.256,
-          "mo_real": 48400,
-          "saldo": 27088.255999999994,
-          "rent_pct": 46.99517763398852
-        }
+      "aprobada": [
+        1,
+        5,
+        3,
+        2,
+        6,
+        2,
+        2,
+        0
       ],
-      "mo_base_costo_directo": 6611447.0225,
-      "saldo_base_costo_directo": 4713547.0225,
-      "mo_base_aprobado": 3754486.5522979996,
-      "mo_real_acumulada": 1897900,
-      "saldo_meta": 1494810.8104742859,
-      "rentabilidad_proyectada": 10.663323873841739
+      "actual": [
+        1,
+        6,
+        4,
+        2,
+        6,
+        4,
+        2,
+        0
+      ]
     },
-    "acero": {
-      "acero_ppto_kg": 588098.7954,
-      "acero_consumido_kg": 285571.6596,
-      "acero_saldo_kg": 302527.1358,
-      "acero_avance_pct": 48.55845001446844,
-      "acero_valor_ppto": 441197.7400089627,
-      "acero_valor_consumido": 214139.61578769438,
-      "acero_valor_saldo": 227058.1242212683,
-      "acero_avance_valor_pct": 48.53597295927768
-    },
-    "arrendamiento": {
-      "f1_contractual_sol": 210270.73200000002,
-      "f1_valorizado_sol": 65120.659999999996,
-      "f1_saldo_sol": 145150.07200000001,
-      "f1_avance_pct": 30.96991168509367,
-      "tipo_cambio_usd": 3.6,
-      "f1_val_setiembre": 2758.17,
-      "f1_val_octubre": 4579.25,
-      "f1_val_noviembre": 5189.750000000001,
-      "f1_val_diciembre": 5997.26,
-      "f1_val_enero": 11008.21,
-      "f1_val_febrero": 35588.02
-    },
-    "kardex": {
-      "costo_total_obra": 3913225.2700000023,
-      "costo_unispan_obra": 3815179.6000000024,
-      "costo_casa_obra": 87788.42,
-      "costo_consumibles_acum": 10257.25,
-      "unispan_cant_ingresos": 41231,
-      "unispan_cant_devoluciones": 9493,
-      "unispan_cant_en_obra": 31724,
-      "unispan_peso_obra_kg": 157060.04,
-      "casa_cant_ingresos": 106,
-      "casa_cant_devoluciones": 6,
-      "casa_cant_en_obra": 112,
-      "casa_peso_obra_kg": 4640.75,
-      "consumibles_cant_acum": 19663,
-      "consumibles_peso_kg": 0,
-      "consumibles_items": 5,
-      "unispan_piezas": 31724,
-      "casa_piezas": 112,
-      "consumibles_unidades": 19663
-    },
-    "adicionales": {
-      "items": [],
-      "especialidades_control": [
-        {
-          "esp_ctrl": "EST",
-          "adic_sol": 51641.538479999996,
-          "adic_usd": 0,
-          "deduc_sol": 0,
-          "items": 6,
-          "neto_sol": 51641.538479999996,
-          "incidencia_pct": 7.404584913838779
-        },
-        {
-          "esp_ctrl": "ARQ",
-          "adic_sol": 610339.6160500001,
-          "adic_usd": 28791.07,
-          "deduc_sol": 0,
-          "items": 6,
-          "neto_sol": 610339.6160500001,
-          "incidencia_pct": 87.51310759403972
-        },
-        {
-          "esp_ctrl": "IIMM",
-          "adic_sol": 0,
-          "adic_usd": 539.26,
-          "deduc_sol": 0,
-          "items": 1,
-          "neto_sol": 0,
-          "incidencia_pct": 0
-        },
-        {
-          "esp_ctrl": "IIEE",
-          "adic_sol": 2078.55,
-          "adic_usd": 378.18,
-          "deduc_sol": 0,
-          "items": 2,
-          "neto_sol": 2078.55,
-          "incidencia_pct": 0.29803139925082256
-        },
-        {
-          "esp_ctrl": "IISS",
-          "adic_sol": 27046.809999999998,
-          "adic_usd": 0,
-          "deduc_sol": 0,
-          "items": 3,
-          "neto_sol": 27046.809999999998,
-          "incidencia_pct": 3.878087430935574
-        },
-        {
-          "esp_ctrl": "PROVISIONALES",
-          "adic_sol": 6320,
-          "adic_usd": 0,
-          "deduc_sol": 0,
-          "items": 1,
-          "neto_sol": 6320,
-          "incidencia_pct": 0.9061886619350982
-        },
-        {
-          "esp_ctrl": "OTROS",
-          "adic_sol": 0,
-          "adic_usd": 3230.9999999999964,
-          "deduc_sol": 0,
-          "items": 2,
-          "neto_sol": 0,
-          "incidencia_pct": 0
-        }
+    "dotacion": 83
+  },
+  "mo": {
+    "acumulado": 1897900,
+    "porcAcumulado": 19.1,
+    "saldo": 1494810.8104742859,
+    "mensual": {
+      "labels": [
+        "AGO-25",
+        "SEP-25",
+        "OCT-25",
+        "NOV-25",
+        "DIC-25",
+        "ENE-26",
+        "FEB-26",
+        "MAR-26"
       ],
-      "especialidades_opt": [
-        {
-          "esp_opt": "EST",
-          "adic_sol": 0,
-          "adic_usd": 0,
-          "deduc_sol": 0,
-          "items": 0,
-          "neto_sol": 0,
-          "incidencia_pct": 0
-        },
-        {
-          "esp_opt": "ARQ",
-          "adic_sol": 0,
-          "adic_usd": 0,
-          "deduc_sol": 6547,
-          "items": 2,
-          "neto_sol": -6547,
-          "incidencia_pct": -40.20741488381022
-        },
-        {
-          "esp_opt": "IIMM",
-          "adic_sol": 0,
-          "adic_usd": 0,
-          "deduc_sol": 0,
-          "items": 0,
-          "neto_sol": 0,
-          "incidencia_pct": 0
-        },
-        {
-          "esp_opt": "IIEE",
-          "adic_sol": 0,
-          "adic_usd": 0,
-          "deduc_sol": 9736.06624268001,
-          "items": 1,
-          "neto_sol": -9736.06624268001,
-          "incidencia_pct": -59.79258511618978
-        },
-        {
-          "esp_opt": "IISS",
-          "adic_sol": 0,
-          "adic_usd": 0,
-          "deduc_sol": 1288.3375,
-          "items": 1,
-          "neto_sol": -1288.3375,
-          "incidencia_pct": -7.912130803859914
-        },
-        {
-          "esp_opt": "PROVISIONALES",
-          "adic_sol": 0,
-          "adic_usd": 0,
-          "deduc_sol": 0,
-          "items": 0,
-          "neto_sol": 0,
-          "incidencia_pct": 0
-        },
-        {
-          "esp_opt": "OTROS",
-          "adic_sol": 0,
-          "adic_usd": 0,
-          "deduc_sol": -1288.3374999999996,
-          "items": 0,
-          "neto_sol": 1288.3374999999996,
-          "incidencia_pct": 7.912130803859911
-        }
+      "data": [
+        50964,
+        117460,
+        157341,
+        136534,
+        145343,
+        211461,
+        224488,
+        214126
       ],
-      "adicionales_sol": 697426.51453,
-      "adicionales_usd": 32939.509999999995,
-      "deductivos_sol": 0,
-      "deductivos_usd": 0,
-      "optimizacion_neta_sol": -16283.06624268001,
-      "optimizacion_neta_usd": -2291.235,
-      "neto_sol": 681143.4482873201,
-      "neto_usd": 30648.274999999994,
-      "cantidad_items": 25,
-      "items_aprobados": 20,
-      "items_pendientes": 1,
-      "control_adic_cantidad": 21,
-      "control_adic_sol": 697426.51453,
-      "control_adic_aprobados": 17,
-      "control_adic_pendientes": 1,
-      "control_deduc_cantidad": 0,
-      "control_deduc_sol": 0,
-      "control_eval_cantidad": 0,
-      "opt_adic_cantidad": 0,
-      "opt_adic_sol": 0,
-      "opt_deduc_cantidad": 4,
-      "opt_deduc_sol": 16283.06624268001,
-      "opt_eval_cantidad": 0
+      "pct": [
+        0.77,
+        2.55,
+        4.93,
+        6.99,
+        9.19,
+        12.39,
+        15.78,
+        19.07
+      ]
+    },
+    "stats": {
+      "ahorroMeta": 355094,
+      "rentProyPct": 10.663323873841739,
+      "semActual": "Semana 13 (Marzo): 46 trab. · S/ 49,508",
+      "promUltimas": "Promedio últimas 4 sem: 50 trab. · S/ 53,532/sem"
+    },
+    "cuadrillas": [
+      {
+        "n": "CONCRETO",
+        "base": 479526.445388,
+        "meta": 422632.08,
+        "real": 155100,
+        "saldo": 267532.08,
+        "rent": 76.76332695520888,
+        "ahorro": 56894.36538799998,
+        "incid": 8.172190315611992
+      },
+      {
+        "n": "ENCOFRADO",
+        "base": 899963.8852400001,
+        "meta": 857677.6971428569,
+        "real": 448800,
+        "saldo": 408877.6971428569,
+        "rent": 52.602963414222145,
+        "ahorro": 42286.1880971432,
+        "incid": 23.647188998366616
+      },
+      {
+        "n": "ACERO",
+        "base": 832140.21058,
+        "meta": 631155.685714286,
+        "real": 289300,
+        "saldo": 341855.68571428605,
+        "rent": 86.00733905544422,
+        "ahorro": 200984.5248657139,
+        "incid": 15.243163496496127
+      },
+      {
+        "n": "MAESTRO CASCO",
+        "base": 93960,
+        "meta": 84564,
+        "real": 29000,
+        "saldo": 55564,
+        "rent": 76.81755829903977,
+        "ahorro": 9396,
+        "incid": 1.5280046367037252
+      },
+      {
+        "n": "TOPÓGRAFO",
+        "base": 169345.0764,
+        "meta": 152410.56876,
+        "real": 70400,
+        "saldo": 82010.56876,
+        "rent": 64.92008868217545,
+        "ahorro": 16934.507639999996,
+        "incid": 3.70936298013594
+      },
+      {
+        "n": "VIGÍAS",
+        "base": 58900,
+        "meta": 53010,
+        "real": 68200,
+        "saldo": -15190,
+        "rent": -17.543859649122805,
+        "ahorro": 5890,
+        "incid": 3.593445387006692
+      },
+      {
+        "n": "ALMACENERO",
+        "base": 71145,
+        "meta": 64030.5,
+        "real": 35200,
+        "saldo": 28830.5,
+        "rent": 56.137309563411186,
+        "ahorro": 7114.5,
+        "incid": 1.85468149006797
+      },
+      {
+        "n": "SEGURITOS",
+        "base": 101900,
+        "meta": 91710,
+        "real": 52800,
+        "saldo": 38910,
+        "rent": 53.53832733616836,
+        "ahorro": 10190,
+        "incid": 2.782022235101955
+      },
+      {
+        "n": "IISS",
+        "base": 533171.5368,
+        "meta": 443661.6,
+        "real": 320100,
+        "saldo": 123561.59999999998,
+        "rent": 48.02568822724347,
+        "ahorro": 89509.93680000002,
+        "incid": 16.8660098003056
+      },
+      {
+        "n": "IIEE",
+        "base": 430558.55789,
+        "meta": 516370.422857143,
+        "real": 380600,
+        "saldo": 135770.42285714298,
+        "rent": 9.674945674380993,
+        "ahorro": -85811.86496714299,
+        "incid": 20.053743611359927
+      },
+      {
+        "n": "RIGGERS",
+        "base": 83875.84,
+        "meta": 75488.256,
+        "real": 48400,
+        "saldo": 27088.255999999994,
+        "rent": 46.99517763398852,
+        "ahorro": 8387.584000000003,
+        "incid": 2.550187048843459
+      }
+    ],
+    "moBaseCostoDirecto": 6611447.0225,
+    "saldoBaseCostoDirecto": 4713547.0225
+  },
+  "adquisiciones": {
+    "subheader": "Fuente: <b>03 · Cuadro de adquisiciones</b> — 74 ítems · S/ 13.27 M contratado · Margen S/ 2.62 M (16.5%)",
+    "porEspecialidad": {
+      "labels": [
+        "EST",
+        "ARQ",
+        "IIEE",
+        "IISS",
+        "IIGG",
+        "ACI",
+        "IIMM",
+        "DACI",
+        "COM",
+        "LEED"
+      ],
+      "contratado": [
+        5762924,
+        4981863,
+        836188,
+        284978,
+        145230,
+        640800,
+        297662,
+        115032,
+        119104,
+        85502
+      ],
+      "margenPct": [
+        16.85,
+        15.63,
+        18.59,
+        30.11,
+        12.93,
+        12.38,
+        14.2,
+        6.88,
+        23.21,
+        11.89
+      ]
+    },
+    "etapas": {
+      "labels": [
+        "SAME",
+        "COMP",
+        "CONTRATO",
+        "NETLOG",
+        "OC",
+        "IMPL. OBRA",
+        "SEGUIM.",
+        "CIERRE"
+      ],
+      "data": [
+        51.4,
+        68.9,
+        40.5,
+        44.6,
+        25.7,
+        13.5,
+        0,
+        0
+      ]
+    },
+    "tipo": {
+      "suministros": 10949392,
+      "subcontratos": 2319888,
+      "cntSum": 57,
+      "cntSc": 17
+    },
+    "responsables": [
+      {
+        "n": "MB",
+        "items": 15,
+        "contract": 2888886,
+        "contratado": 2379264,
+        "margen": 509622,
+        "partPct": 18.2
+      },
+      {
+        "n": "LF",
+        "items": 5,
+        "contract": 1095284,
+        "contratado": 1012093,
+        "margen": 83191,
+        "partPct": 6.9
+      },
+      {
+        "n": "DRS",
+        "items": 33,
+        "contract": 4809797,
+        "contratado": 3969769,
+        "margen": 840028,
+        "partPct": 30.3
+      },
+      {
+        "n": "JR",
+        "items": 7,
+        "contract": 1229178,
+        "contratado": 759358,
+        "margen": 469820,
+        "partPct": 7.7
+      },
+      {
+        "n": "JR/MB",
+        "items": 16,
+        "contract": 5868040,
+        "contratado": 5148797,
+        "margen": 719243,
+        "partPct": 36.9
+      },
+      {
+        "n": "TOTAL",
+        "items": 76,
+        "contract": 15891185,
+        "contratado": 13269280,
+        "margen": 2621904,
+        "partPct": 100,
+        "total": true
+      }
+    ],
+    "rentabilidad": [
+      {
+        "lbl": "Utilidad Contractual",
+        "pct": 6.5,
+        "monto": 1718976,
+        "bg": "var(--alice-blue)",
+        "col": "var(--twitter-blue)"
+      },
+      {
+        "lbl": "Rentabilidad Compras y S/C",
+        "pct": 9.91,
+        "monto": 2621904,
+        "bg": "#E6F4EE",
+        "col": "var(--green)"
+      },
+      {
+        "lbl": "Entrega Anticipada",
+        "pct": 0,
+        "monto": 0,
+        "bg": "var(--alice-blue)",
+        "col": "var(--text-muted)",
+        "dim": true
+      },
+      {
+        "lbl": "Ahorro MO",
+        "pct": 0,
+        "monto": 0,
+        "bg": "var(--alice-blue)",
+        "col": "var(--text-muted)",
+        "dim": true
+      },
+      {
+        "lbl": "TOTAL Utilidad + Rentabilidad",
+        "pct": 16.41,
+        "monto": 4340881,
+        "bg": "var(--twitter-blue)",
+        "col": "var(--white)",
+        "total": true
+      }
+    ],
+    "facturacion": 26445788
+  },
+  "encofrado": {
+    "ingresos": {
+      "labels": [
+        "Ago-20",
+        "Sep-04",
+        "Sep-12",
+        "Sep-20",
+        "Sep-26",
+        "Oct-13",
+        "Oct-21",
+        "Nov-20",
+        "Dic-02",
+        "Dic-27",
+        "Ene-16",
+        "Ene-17",
+        "Ene-20",
+        "Ene-21",
+        "Ene-26"
+      ],
+      "data": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "composicion": [
+      {
+        "lbl": "Encofrado Casa (Propio)",
+        "val": "S/ 87,788 · 4,641 kg",
+        "cls": "v-blue",
+        "bg": "#E6EEF8"
+      },
+      {
+        "lbl": "Consumibles Total",
+        "val": "S/ 10,257 · 19,663 u",
+        "cls": "v-ok",
+        "bg": "#E6F4EE"
+      },
+      {
+        "lbl": "Unispan (Arrendado)",
+        "val": "S/ 33,178 (Comp.) · 2,339.68 m²",
+        "cls": "v-warn",
+        "bg": "#FEF3E8"
+      }
+    ],
+    "nota": "<b style='color:var(--text)'>Alcance arrend. F1:</b> Muro anclado 2,339.68 m² (encof+desenc) · S/ 32,685<br><b style='color:var(--text)'>Mensualidad Unispan:</b> escaleras y accesorios ~S/ 10,200/mes"
+  },
+  "adicionales": {
+    "subheader": "Fuente: <b>10 · Status de Adicionales y Deductivos</b> — 20 Adicionales aprobados · 4 Optimizaciones · 0 Deductivos",
+    "porEspecialidad": {
+      "labels": [
+        "EST",
+        "ARQ",
+        "IIEE",
+        "IISS",
+        "PROVISIONALES"
+      ],
+      "data": [
+        51641.538479999996,
+        610339.6160500001,
+        2078.55,
+        27046.809999999998,
+        6320
+      ],
+      "deduc": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "items": [
+        6,
+        6,
+        2,
+        3,
+        1
+      ],
+      "incid": [
+        7.404584913838779,
+        87.51310759403972,
+        0.29803139925082256,
+        3.878087430935574,
+        0.9061886619350982
+      ]
+    },
+    "top": [
+      {
+        "num": 2,
+        "desc": "Adicionales ARQ",
+        "esp": "ARQ",
+        "monto": 610339.6160500001
+      },
+      {
+        "num": 1,
+        "desc": "Adicionales EST",
+        "esp": "EST",
+        "monto": 51641.538479999996
+      },
+      {
+        "num": 4,
+        "desc": "Adicionales IISS",
+        "esp": "IISS",
+        "monto": 27046.809999999998
+      },
+      {
+        "num": 5,
+        "desc": "Adicionales PROVISIONALES",
+        "esp": "PROVISIONALES",
+        "monto": 6320
+      },
+      {
+        "num": 3,
+        "desc": "Adicionales IIEE",
+        "esp": "IIEE",
+        "monto": 2078.55
+      },
+      {
+        "subtotal": true,
+        "desc": "Subtotal adicionales aprobados",
+        "monto": 697426.51453
+      },
+      {
+        "total": true,
+        "desc": "TOTAL ADICIONALES S/",
+        "monto": 697426.51453,
+        "highlight": true
+      }
+    ],
+    "totalSol": 697426.51453,
+    "totalUsd": 32939.509999999995,
+    "deductivosSol": 0,
+    "netoSol": 681143.4482873201,
+    "optNetaSol": -16283.06624268001,
+    "cantidad": 25,
+    "aprobados": 20,
+    "pendientes": 1,
+    "porEspecialidadOpt": {
+      "labels": [
+        "ARQ",
+        "IIEE",
+        "IISS"
+      ],
+      "adic": [
+        0,
+        0,
+        0
+      ],
+      "deduc": [
+        6547,
+        9736.06624268001,
+        1288.3375
+      ],
+      "items": [
+        2,
+        1,
+        1
+      ],
+      "incid": [
+        -40.20741488381022,
+        -59.79258511618978,
+        -7.912130803859914
+      ]
     }
   },
-  "errores": [],
-  "advertencias": [
-    "Casco SOT concluido 100% (sin archivo) -> de 02_01__Control_de_avance_Casco_SOT_v2_Sem37.xlsx",
-    "Cronograma omitido: dias/avance_plazo son formulas =HOY() cacheadas (no fiables) -> queda como S36"
-  ]
+  "cronograma": {
+    "minis": [
+      {
+        "lbl": "Plazo total",
+        "val": "471 días",
+        "cls": "v-blue"
+      },
+      {
+        "lbl": "Fecha inicio",
+        "val": "11/08/2025",
+        "cls": ""
+      },
+      {
+        "lbl": "Fecha reporte",
+        "val": "18/04/2026",
+        "cls": ""
+      },
+      {
+        "lbl": "Días transcurridos",
+        "val": "250 d (53.1%)",
+        "cls": "v-blue"
+      },
+      {
+        "lbl": "Días restantes",
+        "val": "221 d (46.9%)",
+        "cls": "v-ok"
+      },
+      {
+        "lbl": "Fase actual",
+        "val": "F2 · Cierre Sótanos",
+        "cls": "v-blue"
+      }
+    ]
+  },
+  "fotos": [],
+  "alertas": [
+    {
+      "sev": "red",
+      "icon": "⚠",
+      "titulo": "CUADRILLAS EXCEDIDAS",
+      "texto": "Vigías, Almacenero y Riggers por encima de la meta",
+      "num": "-136% · -25% · -10%"
+    },
+    {
+      "sev": "yellow",
+      "icon": "⚡",
+      "titulo": "IIEE RENTABILIDAD NEGATIVA",
+      "texto": "Mano de obra eléctrica supera el presupuesto meta",
+      "num": "-19.9%"
+    },
+    {
+      "sev": "green",
+      "icon": "✓",
+      "titulo": "SÓTANOS CERRANDO AL 100%",
+      "texto": "Casco verticales + losas completadas en plazo",
+      "num": "100%"
+    }
+  ],
+  "sectores": {
+    "progSem": 29,
+    "ejecSem": 19,
+    "progAcum": 179,
+    "ejecAcum": 169
+  },
+  "spi": {
+    "sot": {
+      "semanal": 1,
+      "acumulado": 1,
+      "pct_real": 100,
+      "pct_prog": 100
+    },
+    "sup": {
+      "semanal": 0.6,
+      "acumulado": 0.6,
+      "pct_real": 3.6363636363636367,
+      "pct_prog": 6.0606060606060606
+    },
+    "alb": {
+      "semanal": 0.7777777777777778,
+      "acumulado": 0.8947368421052632,
+      "pct_real": 31.481481481481477,
+      "pct_prog": 35.18518518518518
+    }
+  },
+  "acero": {
+    "ppto_kg": 588098.7954,
+    "consumido_kg": 285571.6596,
+    "saldo_kg": 302527.1358,
+    "avance_pct": 48.55845001446844,
+    "valor_ppto": 441197.7400089627,
+    "valor_consumido": 214139.61578769438,
+    "valor_saldo": 227058.1242212683,
+    "avance_valor_pct": 48.53597295927768
+  },
+  "arrendamiento": {
+    "f1_contractual_sol": 210270.73200000002,
+    "f1_valorizado_sol": 65120.659999999996,
+    "f1_saldo_sol": 145150.07200000001,
+    "f1_avance_pct": 30.96991168509367,
+    "f1_val_setiembre": 2758.17,
+    "f1_val_octubre": 4579.25,
+    "f1_val_noviembre": 5189.750000000001,
+    "f1_val_diciembre": 5997.26,
+    "f1_val_enero": 11008.21,
+    "f1_val_febrero": 35588.02
+  },
+  "kardex": {
+    "costo_total_obra": 3913225.2700000023,
+    "costo_unispan_obra": 3815179.6000000024,
+    "costo_casa_obra": 87788.42,
+    "costo_consumibles_acum": 10257.25,
+    "unispan_cant_ingresos": 41231,
+    "unispan_cant_devoluciones": 9493,
+    "unispan_cant_en_obra": 31724,
+    "casa_cant_ingresos": 106,
+    "casa_cant_devoluciones": 6,
+    "casa_cant_en_obra": 112,
+    "consumibles_cant_acum": 19663,
+    "consumibles_items": 5
+  },
+  "panelEjecutivo": {
+    "avance": 17.9,
+    "cpi": 3.48,
+    "spiMeta": 0.84,
+    "spiContractual": 1.04,
+    "moConsumida": 1897900,
+    "personal": 83
+  }
 }

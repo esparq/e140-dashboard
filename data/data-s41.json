@@ -1,11 +1,11 @@
 {
-  "corte": "16/05/2026",
-  "semNum": 40,
+  "corte": "23/05/2026",
+  "semNum": 41,
   "diasTranscurridos": 257,
   "resumenEjecutivo": [
     {
       "color": "green",
-      "text": "Proyecto en <b>F2</b>. <b>Casco Sótanos cerrado al 100%</b>; <b>Casco Superiores</b> arranca al <b>11.5%</b> real (SPI sem 0.70 · acum 0.84). <b>Albañilería al 57.4%</b>."
+      "text": "Proyecto en <b>F2</b>. <b>Casco Sótanos cerrado al 100%</b>; <b>Casco Superiores</b> al <b>18.2%</b> real (SPI sem 0.81 · acum 0.92). <b>Albañilería al 66.7%</b>."
     },
     {
       "color": "blue",
@@ -13,34 +13,34 @@
     },
     {
       "color": "blue",
-      "text": "Contratación: <b>61.0% de avance</b> (110 ítems · S/ 13.50 M contratado). Margen de adquisiciones <b>S/ 2,629,069</b>; Util.+Rent. total <b>16.4%</b>."
+      "text": "Contratación: <b>61.9% de avance</b> (110 ítems · S/ 13.63 M contratado). Margen de adquisiciones <b>S/ 2,725,526</b>; Util.+Rent. total <b>16.8%</b>."
     },
     {
       "color": "orange",
-      "text": "<b>Alerta MO</b>: <b>IIEE</b> con meta excedida (ahorro −S/ 85,812 · rent. 9.7%). SPI de superiores aún bajo (0.84 acum)."
+      "text": "<b>Alerta MO</b>: <b>IIEE</b> con meta excedida (ahorro −S/ 85,812 · rent. 9.7%). SPI de superiores en recuperación (0.92 acum)."
     },
     {
       "color": "green",
-      "text": "Adicionales: <b>19 aprobados por S/ 698,616</b> · 1 pendiente · 4 optimizaciones (−S/ 16,283) · 0 deductivos. Neto: <b>S/ 682,333</b>."
+      "text": "Adicionales: <b>20 aprobados por S/ 698,103</b> · 4 optimizaciones (−S/ 16,283) · 0 deductivos. Neto: <b>S/ 681,820</b>."
     },
     {
       "color": "blue",
-      "text": "Personal actual: <b>80 trabajadores</b> · dimensionamiento meta 86 pax (−6)."
+      "text": "Personal actual: <b>81 trabajadores</b> · dimensionamiento meta 86 pax (−5)."
     }
   ],
   "kpis": {
-    "contratacionPct": 60.99,
+    "contratacionPct": 61.85,
     "moPct": 24.56,
-    "utilRentPct": 16.44,
-    "personal": 80,
-    "adicionales": 698616,
+    "utilRentPct": 16.81,
+    "personal": 81,
+    "adicionales": 698103,
     "rentMOPct": 10.67,
     "costoDirecto": 26445788,
-    "margenAdq": 2629069,
-    "avanceObra": 18.3,
-    "avanceProgramado": 18.7,
+    "margenAdq": 2725526,
+    "avanceObra": 18.9,
+    "avanceProgramado": 19.5,
     "cpi": 4.07,
-    "spiMeta": 0.84,
+    "spiMeta": 0.92,
     "spiContractual": 1.04,
     "moConsumida": 1623417,
     "metaPersonalGer": 91,
@@ -75,38 +75,38 @@
       },
       {
         "n": "SUP · Vert-Acero",
-        "prog": 16.7,
-        "real": 13.6
+        "prog": 22.7,
+        "real": 21.2
       },
       {
         "n": "SUP · Vert-Concreto",
-        "prog": 15.2,
-        "real": 12.1
+        "prog": 21.2,
+        "real": 19.7
       },
       {
         "n": "SUP · Vigas",
-        "prog": 13.6,
-        "real": 12.1
+        "prog": 19.7,
+        "real": 18.2
       },
       {
         "n": "SUP · Losa Enc",
-        "prog": 12.1,
-        "real": 10.6
+        "prog": 18.2,
+        "real": 16.7
       },
       {
         "n": "SUP · Losa Conc",
-        "prog": 10.6,
-        "real": 9.1
+        "prog": 16.7,
+        "real": 15.2
       },
       {
         "n": "ALB · Habilitado Solaqueo",
-        "prog": 63,
-        "real": 59.3
+        "prog": 70.4,
+        "real": 66.7
       },
       {
         "n": "ALB · Solaqueo",
-        "prog": 59.3,
-        "real": 55.6
+        "prog": 66.7,
+        "real": 66.7
       }
     ],
     "frentes": [
@@ -119,17 +119,17 @@
       },
       {
         "n": "CASCO SUPERIORES",
-        "pct": 11.5,
+        "pct": 18.2,
         "status": "info",
         "label": "En ejecución",
-        "nota": "Avance real prom. 11.5% · SPI sem 0.70 · acum 0.84. 38 de 45 sectores prog."
+        "nota": "Avance real prom. 18.2% · SPI sem 0.81 · acum 0.92. 60 de 65 sectores prog."
       },
       {
         "n": "ALBAÑILERÍA",
-        "pct": 57.4,
+        "pct": 66.7,
         "status": "info",
         "label": "En ejecución",
-        "nota": "Habilitado 59.3% · Solaqueo 55.6%. SPI acum 0.94 (sótanos)."
+        "nota": "Habilitado 70.4% · Solaqueo 66.7%. SPI acum 0.97 (sótanos)."
       },
       {
         "n": "MUROS ANCLADOS / EXCAV.",
@@ -162,7 +162,7 @@
         73,
         80,
         83,
-        80
+        81
       ]
     },
     "hhPrestamo": {
@@ -242,8 +242,8 @@
       },
       {
         "n": "Actual (obra)",
-        "actual": 80,
-        "warn": -6
+        "actual": 81,
+        "warn": -5
       }
     ],
     "encofradoCuadrilla": {
@@ -288,7 +288,7 @@
         0
       ]
     },
-    "dotacion": 80
+    "dotacion": 81
   },
   "mo": {
     "acumulado": 1623417,
@@ -449,7 +449,7 @@
     ]
   },
   "adquisiciones": {
-    "subheader": "Fuente: <b>03 · Cuadro de adquisiciones</b> — 110 ítems · S/ 13.50 M contratado · Margen S/ 2.63 M (16.4%)",
+    "subheader": "Fuente: <b>03 · Cuadro de adquisiciones</b> — 110 ítems · S/ 13.63 M contratado · Margen S/ 2.73 M (16.8%)",
     "porEspecialidad": {
       "labels": [
         "EST",
@@ -465,7 +465,7 @@
       ],
       "contratado": [
         5762924,
-        5151006,
+        5281621,
         836188,
         284978,
         145230,
@@ -477,7 +477,7 @@
       ],
       "margenPct": [
         16.85,
-        15.11,
+        16.1,
         18.59,
         30.11,
         12.93,
@@ -511,7 +511,7 @@
       ]
     },
     "tipo": {
-      "suministros": 11118535,
+      "suministros": 11249150,
       "subcontratos": 2335991,
       "cntSum": 91,
       "cntSc": 17
@@ -523,7 +523,7 @@
         "contract": 2888886,
         "contratado": 2379264,
         "margen": 509622,
-        "partPct": 17.7
+        "partPct": 17.5
       },
       {
         "n": "LF",
@@ -536,10 +536,10 @@
       {
         "n": "DRS",
         "items": 68,
-        "contract": 4886600,
-        "contratado": 4055106,
-        "margen": 831495,
-        "partPct": 30.1
+        "contract": 5113673,
+        "contratado": 4185721,
+        "margen": 927952,
+        "partPct": 30.8
       },
       {
         "n": "JR",
@@ -547,7 +547,7 @@
         "contract": 1314998,
         "contratado": 843164,
         "margen": 471834,
-        "partPct": 6.3
+        "partPct": 6.2
       },
       {
         "n": "JR/MB",
@@ -555,14 +555,14 @@
         "contract": 5885269,
         "contratado": 5164900,
         "margen": 720370,
-        "partPct": 38.4
+        "partPct": 38
       },
       {
         "n": "TOTAL",
         "items": 110,
-        "contract": 16071038,
-        "contratado": 13454527,
-        "margen": 2616512,
+        "contract": 16298110,
+        "contratado": 13585142,
+        "margen": 2712969,
         "partPct": 100,
         "total": true
       }
@@ -577,8 +577,8 @@
       },
       {
         "lbl": "Rentabilidad Compras y S/C",
-        "pct": 9.94,
-        "monto": 2629069,
+        "pct": 10.31,
+        "monto": 2725526,
         "bg": "#E6F4EE",
         "col": "var(--green)"
       },
@@ -600,8 +600,8 @@
       },
       {
         "lbl": "TOTAL Utilidad + Rentabilidad",
-        "pct": 16.44,
-        "monto": 4348045,
+        "pct": 16.81,
+        "monto": 4444502,
         "bg": "var(--twitter-blue)",
         "col": "var(--white)",
         "total": true
@@ -637,7 +637,7 @@
     "nota": "<b style='color:var(--text)'>⚠ Datos de encofrado no actualizados al corte:</b> Kardex (09) al 03.05 · Arrendamiento (08) Sem38."
   },
   "adicionales": {
-    "subheader": "Fuente: <b>10 · Status de Adicionales y Deductivos</b> (Rev.16.05) — 19 Adicionales aprobados · 1 Pendiente · 4 Optimizaciones · 0 Deductivos",
+    "subheader": "Fuente: <b>10 · Status de Adicionales y Deductivos</b> (Rev.23.05) — 20 Adicionales aprobados · 4 Optimizaciones · 0 Deductivos",
     "porEspecialidad": {
       "labels": [
         "ARQ",
@@ -648,7 +648,7 @@
         "Provisionales"
       ],
       "data": [
-        611529,
+        611016,
         51642,
         27047,
         2079,
@@ -709,15 +709,15 @@
       },
       {
         "num": "",
-        "desc": "Otros adicionales",
+        "desc": "Otros 13 adicionales",
         "esp": "",
-        "monto": 8461
+        "monto": 7948
       },
       {
         "num": "",
-        "desc": "TOTAL ADICIONALES (19)",
+        "desc": "TOTAL ADICIONALES (20)",
         "esp": "",
-        "monto": 698616,
+        "monto": 698103,
         "total": true
       }
     ]
@@ -736,7 +736,7 @@
       },
       {
         "lbl": "Fecha reporte",
-        "val": "16/05/2026",
+        "val": "23/05/2026",
         "cls": ""
       },
       {
@@ -764,12 +764,12 @@
     },
     {
       "n": 2,
-      "desc": "Arranque casco superiores — verticales",
+      "desc": "Casco superiores — verticales y vigas",
       "color": "#509BC9"
     },
     {
       "n": 3,
-      "desc": "Vaciado losa primer nivel superior",
+      "desc": "Vaciado losa nivel superior",
       "color": "#509BC9"
     },
     {
@@ -779,7 +779,7 @@
     },
     {
       "n": 5,
-      "desc": "Avance albañilería sótanos",
+      "desc": "Avance albañilería",
       "color": "#509BC9"
     },
     {
@@ -817,26 +817,26 @@
       "num": "−S/ 85,812"
     },
     {
-      "sev": "yellow",
-      "icon": "⚡",
-      "titulo": "SPI SUPERIORES BAJO",
-      "texto": "Arranque de casco superiores por debajo de lo programado",
-      "num": "0.84 acum"
+      "sev": "green",
+      "icon": "✓",
+      "titulo": "SPI SUPERIORES EN RECUPERACIÓN",
+      "texto": "Casco superiores mejora ritmo respecto a S40",
+      "num": "0.92 acum"
     },
     {
       "sev": "green",
       "icon": "✓",
-      "titulo": "SÓTANOS CERRADOS · ALBAÑILERÍA 57.4%",
-      "texto": "Casco sótanos al 100%; albañilería en avance sostenido",
-      "num": "100% / 57.4%"
+      "titulo": "SÓTANOS CERRADOS · ALBAÑILERÍA 66.7%",
+      "texto": "Casco sótanos al 100%; albañilería avanzando",
+      "num": "100% / 66.7%"
     }
   ],
   "panelEjecutivo": {
-    "avance": 18.3,
+    "avance": 18.9,
     "cpi": 4.07,
-    "spiMeta": 0.84,
+    "spiMeta": 0.92,
     "spiContractual": 1.04,
     "moConsumida": 1623417,
-    "personal": 80
+    "personal": 81
   }
 }
