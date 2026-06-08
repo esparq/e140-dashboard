@@ -25939,7 +25939,7 @@ function v2RenderUtilidadRiesgo(){
       const a = v2GetKpi(wk, 'avance');
       const dS = s != null ? Math.max(0, (1-s)*100) : null;
       const dC = c != null ? Math.max(0, (1-Math.min(c,1))*100) : null;
-      const dA = a != null ? Math.max(0, diasPct - a) : null;
+      const dA = a != null ? Math.max(0, getProgramadoOficial(wk) - a) : null;
       if(dS == null && dC == null && dA == null) return null;
       return w.spi*(dS||0) + w.mo*(dC||0) + w.avance*(dA||0);
     });
