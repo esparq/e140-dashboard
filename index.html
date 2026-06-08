@@ -7826,8 +7826,14 @@ async function loadFromJSONs(){
       weeks[sem] = skeleton;
     }
     if(area === 'legacy'){
-      // JSON legacy: aplica todas las áreas que contenga
-      mergeJsonIntoWeek(weeks[sem], data);
+      // Auto-detección de esquema:
+      //  • Legacy combinado: trae {archivos:{...}} -> conversor mergeJsonIntoWeek
+      //  • Nuevo esquema:    objeto-semana completo (avanceFisico/kpis/semNum/panelEjecutivo) -> aplicación directa
+      if(data && data.archivos){
+        mergeJsonIntoWeek(weeks[sem], data);
+      } else if(data && (data.avanceFisico || data.kpis || data.panelEjecutivo || data.semNum != null)){
+        mergeNewSchemaWeek(weeks[sem], data);
+      }
     } else if(area === 'fotos'){
       // JSON de panel fotográfico independiente
       if(Array.isArray(data.fotos)){
@@ -8346,6 +8352,19 @@ function mergeJsonIntoWeek(week, json){
   if(moRealAcum != null)  week.kpis.moConsumida = moRealAcum;
   // Avance programado del cronograma general (para Curva S)
   week.kpis.avanceProgramado = Math.round(AVANCE_PROGRAMADO_PROYECTO*10)/10;
+}
+
+
+/**
+ * Aplica un JSON ya en ESQUEMA NUEVO (objeto-semana completo) sobre el esqueleto.
+ * El archivo es la fuente autoritativa de la semana: sobrescribe a nivel de bloque
+ * (top-level) las secciones que provee, preservando las que no incluya.
+ * Mantiene una sola vía de carga: data/data-sXX.json (legacy o nuevo, auto-detectado).
+ */
+function mergeNewSchemaWeek(week, data){
+  if(!week || !data || typeof data !== 'object') return;
+  Object.keys(data).forEach(k => { week[k] = data[k]; });
+  if(data.semNum != null) week.semNum = data.semNum;
 }
 
 
@@ -26571,36 +26590,4 @@ function v2RenderAll(){
         deferredPrompt = null;
       });
     } else if(isIOS){
-      // iOS no tiene prompt automático → mostrar instrucciones
-      const overlay = document.getElementById('pwaIosOverlay');
-      if(overlay) overlay.classList.add('show');
-    } else {
-      alert('Para instalar esta app, abre el menú de tu navegador y selecciona "Instalar app" o "Añadir a pantalla de inicio".');
-    }
-  };
-
-  window.pwaDismissBanner = function(){
-    pwaHideBanner();
-    try { localStorage.setItem(dismissedHash, '1'); } catch(e){}
-  };
-
-  window.pwaCloseIosModal = function(){
-    const overlay = document.getElementById('pwaIosOverlay');
-    if(overlay) overlay.classList.remove('show');
-  };
-
-  // ===== Si es iOS y no está instalada, mostrar el banner =====
-  if(isIOS && !isStandalone){
-    pwaShowBannerIfShould();
-  }
-
-  // ===== Atajo: si el usuario abre desde la app instalada, ajustar UI =====
-  if(isStandalone){
-    document.documentElement.classList.add('pwa-standalone');
-  }
-
-})();
-</script>
-
-</body>
-</html>
+      // iOS no tiene prompt 
