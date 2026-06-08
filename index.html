@@ -7958,6 +7958,11 @@ function mergeAreaJsonIntoWeek(week, json, area){
  * Mergea los datos planos de un JSON en la estructura rica de una semana.
  * El JSON tiene forma: { semana, corte_fecha, archivos: {histograma, casco_sot, ...} }
  */
+/* ── AUDITORÍA: avance programado oficial por semana (Curva S · Comité Inmobiliaria) ── */
+const PROGRAMADO_OFICIAL = {S30:17.15,S31:17.15,S32:17.15,S33:17.15,S34:17.15,S35:17.15,S36:17.15,S37:18.75,S38:19.39,S39:20.19,S40:20.99,S41:21.82,S42:23.00};
+function getProgramadoOficial(w){ return (w && PROGRAMADO_OFICIAL[w] != null) ? PROGRAMADO_OFICIAL[w] : 17.15; }
+try{ window.getProgramadoOficial = getProgramadoOficial; window.PROGRAMADO_OFICIAL = PROGRAMADO_OFICIAL; }catch(e){}
+
 function mergeJsonIntoWeek(week, json){
   if(!json || !json.archivos) return;
 
@@ -12149,6 +12154,7 @@ function renderRKpis(d, dPrev){
       // Contexto para MO (necesita costo directo) y avance (necesita programado)
       const ctx = {};
       if(kpi.k === 'moConsumida') ctx.costoDirecto = cur.costoDirecto;
+      if(kpi.k === 'avance') ctx.programado = getProgramadoOficial(DATA.currentWeek);
       // Para personal: usar meta dinámica del histograma si está disponible
       let reglaActual = regla;
       if(kpi.k === 'personal'){
@@ -25832,7 +25838,7 @@ function v2RenderUtilidadRiesgo(){
   
   // Avance programado del cronograma general (TODO: leer dinámicamente del archivo 05)
   // Por ahora hardcoded del cronograma de obra: 17.15%
-  const avanceProgramado = 17.15;
+  const avanceProgramado = getProgramadoOficial(cw);
 
   // Cálculos de desviación (en puntos porcentuales)
   // Desviación SPI: cuánto me aleja de 1.0 (100%). Si SPI > 1 = no hay desviación
