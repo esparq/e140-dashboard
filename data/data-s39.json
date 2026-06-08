@@ -1,0 +1,460 @@
+{
+  "semana": "S39",
+  "corte_fecha": "2026-05-09",
+  "archivos": {
+    "casco_sot": {
+      "partidas": [
+        {
+          "partida": "SOT · Vert-Acero",
+          "pct_prog": 100,
+          "pct_real": 100,
+          "sec_prog_sem": 0,
+          "sec_ejec_sem": 0,
+          "sec_prog_acum": 28,
+          "sec_ejec_acum": 28
+        },
+        {
+          "partida": "SOT · Vert-Concreto",
+          "pct_prog": 100,
+          "pct_real": 100,
+          "sec_prog_sem": 0,
+          "sec_ejec_sem": 0,
+          "sec_prog_acum": 28,
+          "sec_ejec_acum": 28
+        },
+        {
+          "partida": "SOT · Vigas Enc+Acero",
+          "pct_prog": 100,
+          "pct_real": 100,
+          "sec_prog_sem": 0,
+          "sec_ejec_sem": 0,
+          "sec_prog_acum": 28,
+          "sec_ejec_acum": 28
+        },
+        {
+          "partida": "SOT · Losa Encof+Acero",
+          "pct_prog": 100,
+          "pct_real": 100,
+          "sec_prog_sem": 0,
+          "sec_ejec_sem": 0,
+          "sec_prog_acum": 28,
+          "sec_ejec_acum": 28
+        },
+        {
+          "partida": "SOT · Losa Concreto",
+          "pct_prog": 100,
+          "pct_real": 100,
+          "sec_prog_sem": 0,
+          "sec_ejec_sem": 0,
+          "sec_prog_acum": 28,
+          "sec_ejec_acum": 28
+        }
+      ],
+      "spi_semanal": 1,
+      "spi_acumulado": 1,
+      "sectores_prog_sem": 0,
+      "sectores_ejec_sem": 0,
+      "sectores_prog_acum": 140,
+      "sectores_ejec_acum": 140,
+      "pct_prog_promedio": 100,
+      "pct_real_promedio": 100
+    },
+    "casco_sup": {
+      "partidas": [
+        {
+          "partida": "SUP · Vert-Acero",
+          "pct_prog": 12.121212121212121,
+          "pct_real": 10.606060606060606,
+          "sec_prog_sem": 4,
+          "sec_ejec_sem": 3,
+          "sec_prog_acum": 8,
+          "sec_ejec_acum": 7
+        },
+        {
+          "partida": "SUP · Vert-Concreto",
+          "pct_prog": 10.606060606060606,
+          "pct_real": 6.0606060606060606,
+          "sec_prog_sem": 4,
+          "sec_ejec_sem": 1,
+          "sec_prog_acum": 7,
+          "sec_ejec_acum": 4
+        },
+        {
+          "partida": "SUP · Vigas Enc+Acero",
+          "pct_prog": 6.0606060606060606,
+          "pct_real": 6.0606060606060606,
+          "sec_prog_sem": 2,
+          "sec_ejec_sem": 2,
+          "sec_prog_acum": 4,
+          "sec_ejec_acum": 4
+        },
+        {
+          "partida": "SUP · Losa Enc+Acero",
+          "pct_prog": 6.0606060606060606,
+          "pct_real": 6.0606060606060606,
+          "sec_prog_sem": 2,
+          "sec_ejec_sem": 2,
+          "sec_prog_acum": 4,
+          "sec_ejec_acum": 4
+        },
+        {
+          "partida": "SUP · Losa Concreto",
+          "pct_prog": 6.0606060606060606,
+          "pct_real": 4.545454545454546,
+          "sec_prog_sem": 3,
+          "sec_ejec_sem": 2,
+          "sec_prog_acum": 4,
+          "sec_ejec_acum": 3
+        }
+      ],
+      "spi_semanal": 0.6666666666666666,
+      "spi_acumulado": 0.8148148148148148,
+      "sectores_prog_sem": 15,
+      "sectores_ejec_sem": 10,
+      "sectores_prog_acum": 27,
+      "sectores_ejec_acum": 22,
+      "pct_prog_promedio": 8.181818181818183,
+      "pct_real_promedio": 6.666666666666667
+    },
+    "albanileria": {
+      "partidas": [
+        {
+          "partida": "ALB · Habilitado Solaqueo",
+          "pct_prog": 55.55555555555556,
+          "pct_real": 44.44444444444444,
+          "sec_prog_sem": 6,
+          "sec_ejec_sem": 3,
+          "sec_prog_acum": 15,
+          "sec_ejec_acum": 12
+        },
+        {
+          "partida": "ALB · Solaqueo",
+          "pct_prog": 40.74074074074074,
+          "pct_real": 40.74074074074074,
+          "sec_prog_sem": 3,
+          "sec_ejec_sem": 3,
+          "sec_prog_acum": 11,
+          "sec_ejec_acum": 11
+        }
+      ],
+      "spi_semanal": 0.6666666666666666,
+      "spi_acumulado": 0.8846153846153846,
+      "sectores_prog_sem": 9,
+      "sectores_ejec_sem": 6,
+      "sectores_prog_acum": 26,
+      "sectores_ejec_acum": 23,
+      "pct_prog_promedio": 48.14814814814815,
+      "pct_real_promedio": 42.592592592592595
+    },
+    "adquisiciones": {
+      "costo_directo": 26445788.0883562,
+      "avance_contratacion_pct": 60.51420968682051,
+      "contratado_total": 13387723.875980917,
+      "margen_total": 2615735.7811391507,
+      "items_total": 110
+    },
+    "mo": {
+      "cuadrillas": [
+        {
+          "cuadrilla": "CONCRETO",
+          "mo_base": 479526.445388,
+          "mo_meta": 422632.08,
+          "mo_real": 99000,
+          "saldo": 323632.08,
+          "rent_pct": 90.03728382095368
+        },
+        {
+          "cuadrilla": "ENCOFRADO",
+          "mo_base": 899963.8852400001,
+          "mo_meta": 857677.6971428569,
+          "mo_real": 297000,
+          "saldo": 560677.6971428569,
+          "rent_pct": 70.30191961952917
+        },
+        {
+          "cuadrilla": "ACERO",
+          "mo_base": 832140.21058,
+          "mo_meta": 631155.685714286,
+          "mo_real": 187000,
+          "saldo": 444155.68571428605,
+          "rent_pct": 102.21570132096448
+        },
+        {
+          "cuadrilla": "MAESTRO CASCO",
+          "mo_base": 93960,
+          "mo_meta": 84564,
+          "mo_real": 20300,
+          "saldo": 64264,
+          "rent_pct": 87.10562414266117
+        },
+        {
+          "cuadrilla": "TOPÓGRAFO",
+          "mo_base": 169345.0764,
+          "mo_meta": 152410.56876,
+          "mo_real": 57200,
+          "saldo": 95210.56876,
+          "rent_pct": 73.5809053876009
+        },
+        {
+          "cuadrilla": "VIGÍAS",
+          "mo_base": 118575,
+          "mo_meta": 106717.5,
+          "mo_real": 55000,
+          "saldo": 51717.5,
+          "rent_pct": 59.57317216014243
+        },
+        {
+          "cuadrilla": "ALMACENERO",
+          "mo_base": 71145,
+          "mo_meta": 64030.5,
+          "mo_real": 28600,
+          "saldo": 35430.5,
+          "rent_pct": 66.44489735360493
+        },
+        {
+          "cuadrilla": "SEGURITOS",
+          "mo_base": 101900,
+          "mo_meta": 91710,
+          "mo_real": 46200,
+          "saldo": 45510,
+          "rent_pct": 60.7349253080362
+        },
+        {
+          "cuadrilla": "IISS",
+          "mo_base": 533171.5368,
+          "mo_meta": 443661.6,
+          "mo_real": 320100,
+          "saldo": 123561.59999999998,
+          "rent_pct": 48.02568822724347
+        },
+        {
+          "cuadrilla": "IIEE",
+          "mo_base": 430558.55789,
+          "mo_meta": 516370.422857143,
+          "mo_real": 380600,
+          "saldo": 135770.42285714298,
+          "rent_pct": 9.674945674380993
+        },
+        {
+          "cuadrilla": "RIGGERS",
+          "mo_base": 83875.84,
+          "mo_meta": 75488.256,
+          "mo_real": 35200,
+          "saldo": 40288.255999999994,
+          "rent_pct": 64.48134130956741
+        }
+      ],
+      "mo_base_costo_directo": 6611447.0225,
+      "saldo_base_costo_directo": 5085247.0225,
+      "mo_base_aprobado": 3814161.5522979996,
+      "mo_real_acumulada": 1526200,
+      "saldo_meta": 1920218.3104742859,
+      "rentabilidad_proyectada": 10.67030199747013
+    },
+    "acero": {
+      "acero_ppto_kg": 588098.7954,
+      "acero_consumido_kg": 305963.5707,
+      "acero_saldo_kg": 282135.2247,
+      "acero_avance_pct": 52.02587951092409,
+      "acero_valor_ppto": 441197.7400089627,
+      "acero_valor_consumido": 229410.13302907368,
+      "acero_valor_saldo": 211787.606979889,
+      "acero_avance_valor_pct": 51.997123336219566
+    },
+    "arrendamiento": {
+      "f1_contractual_sol": 210270.73200000002,
+      "f1_valorizado_sol": 65120.659999999996,
+      "f1_saldo_sol": 145150.07200000001,
+      "f1_avance_pct": 30.96991168509367,
+      "tipo_cambio_usd": 3.6,
+      "f1_val_setiembre": 2758.17,
+      "f1_val_octubre": 4579.25,
+      "f1_val_noviembre": 5189.750000000001,
+      "f1_val_diciembre": 5997.26,
+      "f1_val_enero": 11008.21,
+      "f1_val_febrero": 35588.02
+    },
+    "kardex": {
+      "costo_total_obra": 3913225.2700000023,
+      "costo_unispan_obra": 3815179.6000000024,
+      "costo_casa_obra": 87788.42,
+      "costo_consumibles_acum": 10257.25,
+      "unispan_cant_ingresos": 41231,
+      "unispan_cant_devoluciones": 9493,
+      "unispan_cant_en_obra": 31724,
+      "unispan_peso_obra_kg": 157060.04,
+      "casa_cant_ingresos": 106,
+      "casa_cant_devoluciones": 6,
+      "casa_cant_en_obra": 112,
+      "casa_peso_obra_kg": 4640.75,
+      "consumibles_cant_acum": 19663,
+      "consumibles_peso_kg": 0,
+      "consumibles_items": 5,
+      "unispan_piezas": 31724,
+      "casa_piezas": 112,
+      "consumibles_unidades": 19663
+    },
+    "adicionales": {
+      "items": [],
+      "especialidades_control": [
+        {
+          "esp_ctrl": "EST",
+          "adic_sol": 51641.538479999996,
+          "adic_usd": 0,
+          "deduc_sol": 0,
+          "items": 6,
+          "neto_sol": 51641.538479999996,
+          "incidencia_pct": 7.3919803013210075
+        },
+        {
+          "esp_ctrl": "ARQ",
+          "adic_sol": 611528.8496,
+          "adic_usd": 28791.07,
+          "deduc_sol": 0,
+          "items": 7,
+          "neto_sol": 611528.8496,
+          "incidencia_pct": 87.5343636728287
+        },
+        {
+          "esp_ctrl": "IIMM",
+          "adic_sol": 0,
+          "adic_usd": 539.26,
+          "deduc_sol": 0,
+          "items": 1,
+          "neto_sol": 0,
+          "incidencia_pct": 0
+        },
+        {
+          "esp_ctrl": "IIEE",
+          "adic_sol": 2078.55,
+          "adic_usd": 378.18,
+          "deduc_sol": 0,
+          "items": 2,
+          "neto_sol": 2078.55,
+          "incidencia_pct": 0.2975240689481253
+        },
+        {
+          "esp_ctrl": "IISS",
+          "adic_sol": 27046.809999999998,
+          "adic_usd": 0,
+          "deduc_sol": 0,
+          "items": 3,
+          "neto_sol": 27046.809999999998,
+          "incidencia_pct": 3.8714858739346387
+        },
+        {
+          "esp_ctrl": "PROVISIONALES",
+          "adic_sol": 6320,
+          "adic_usd": 0,
+          "deduc_sol": 0,
+          "items": 1,
+          "neto_sol": 6320,
+          "incidencia_pct": 0.9046460829675261
+        },
+        {
+          "esp_ctrl": "OTROS",
+          "adic_sol": 0,
+          "adic_usd": 3230.9999999999964,
+          "deduc_sol": 0,
+          "items": 1,
+          "neto_sol": 0,
+          "incidencia_pct": 0
+        }
+      ],
+      "especialidades_opt": [
+        {
+          "esp_opt": "EST",
+          "adic_sol": 0,
+          "adic_usd": 0,
+          "deduc_sol": 0,
+          "items": 0,
+          "neto_sol": 0,
+          "incidencia_pct": 0
+        },
+        {
+          "esp_opt": "ARQ",
+          "adic_sol": 0,
+          "adic_usd": 0,
+          "deduc_sol": 6547,
+          "items": 2,
+          "neto_sol": -6547,
+          "incidencia_pct": -40.20741488381022
+        },
+        {
+          "esp_opt": "IIMM",
+          "adic_sol": 0,
+          "adic_usd": 0,
+          "deduc_sol": 0,
+          "items": 0,
+          "neto_sol": 0,
+          "incidencia_pct": 0
+        },
+        {
+          "esp_opt": "IIEE",
+          "adic_sol": 0,
+          "adic_usd": 0,
+          "deduc_sol": 9736.06624268001,
+          "items": 1,
+          "neto_sol": -9736.06624268001,
+          "incidencia_pct": -59.79258511618978
+        },
+        {
+          "esp_opt": "IISS",
+          "adic_sol": 0,
+          "adic_usd": 0,
+          "deduc_sol": 1288.3375,
+          "items": 1,
+          "neto_sol": -1288.3375,
+          "incidencia_pct": -7.912130803859914
+        },
+        {
+          "esp_opt": "PROVISIONALES",
+          "adic_sol": 0,
+          "adic_usd": 0,
+          "deduc_sol": 0,
+          "items": 0,
+          "neto_sol": 0,
+          "incidencia_pct": 0
+        },
+        {
+          "esp_opt": "OTROS",
+          "adic_sol": 0,
+          "adic_usd": 0,
+          "deduc_sol": -1288.3374999999996,
+          "items": 0,
+          "neto_sol": 1288.3374999999996,
+          "incidencia_pct": 7.912130803859911
+        }
+      ],
+      "adicionales_sol": 698615.7480799999,
+      "adicionales_usd": 32939.509999999995,
+      "deductivos_sol": 0,
+      "deductivos_usd": 0,
+      "optimizacion_neta_sol": -16283.06624268001,
+      "optimizacion_neta_usd": -2291.235,
+      "neto_sol": 682332.68183732,
+      "neto_usd": 30648.274999999994,
+      "cantidad_items": 25,
+      "items_aprobados": 22,
+      "items_pendientes": 1,
+      "control_adic_cantidad": 21,
+      "control_adic_sol": 698615.7480799999,
+      "control_adic_aprobados": 19,
+      "control_adic_pendientes": 1,
+      "control_deduc_cantidad": 0,
+      "control_deduc_sol": 0,
+      "control_eval_cantidad": 0,
+      "opt_adic_cantidad": 0,
+      "opt_adic_sol": 0,
+      "opt_deduc_cantidad": 4,
+      "opt_deduc_sol": 16283.06624268001,
+      "opt_eval_cantidad": 0
+    }
+  },
+  "errores": [],
+  "advertencias": [
+    "01 Histograma sin _DASHBOARD_DATA -> omitido (queda S36)",
+    "Casco SOT concluido 100% (sin archivo) -> de 02_01__Control_de_avance_Casco_SOT_v2_Sem37.xlsx",
+    "Cronograma omitido: dias/avance_plazo son formulas =HOY() cacheadas (no fiables) -> queda como S36"
+  ]
+}

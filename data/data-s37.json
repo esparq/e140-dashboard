@@ -1,0 +1,161 @@
+{
+  "semana": "S37",
+  "corte_fecha": "2026-04-25",
+  "archivos": {
+    "casco_sot": {
+      "partidas": [
+        {
+          "partida": "SOT · Vert-Acero",
+          "pct_prog": 100,
+          "pct_real": 100,
+          "sec_prog_sem": 0,
+          "sec_ejec_sem": 0,
+          "sec_prog_acum": 28,
+          "sec_ejec_acum": 28
+        },
+        {
+          "partida": "SOT · Vert-Concreto",
+          "pct_prog": 100,
+          "pct_real": 100,
+          "sec_prog_sem": 0,
+          "sec_ejec_sem": 0,
+          "sec_prog_acum": 28,
+          "sec_ejec_acum": 28
+        },
+        {
+          "partida": "SOT · Vigas Enc+Acero",
+          "pct_prog": 100,
+          "pct_real": 100,
+          "sec_prog_sem": 0,
+          "sec_ejec_sem": 0,
+          "sec_prog_acum": 28,
+          "sec_ejec_acum": 28
+        },
+        {
+          "partida": "SOT · Losa Encof+Acero",
+          "pct_prog": 100,
+          "pct_real": 100,
+          "sec_prog_sem": 0,
+          "sec_ejec_sem": 0,
+          "sec_prog_acum": 28,
+          "sec_ejec_acum": 28
+        },
+        {
+          "partida": "SOT · Losa Concreto",
+          "pct_prog": 100,
+          "pct_real": 100,
+          "sec_prog_sem": 1,
+          "sec_ejec_sem": 1,
+          "sec_prog_acum": 28,
+          "sec_ejec_acum": 28
+        }
+      ],
+      "spi_semanal": 1,
+      "spi_acumulado": 1,
+      "sectores_prog_sem": 1,
+      "sectores_ejec_sem": 1,
+      "sectores_prog_acum": 140,
+      "sectores_ejec_acum": 140,
+      "pct_prog_promedio": 100,
+      "pct_real_promedio": 100
+    },
+    "casco_sup": {
+      "partidas": [
+        {
+          "partida": "SUP · Vert-Acero",
+          "pct_prog": 9.090909090909092,
+          "pct_real": 6.0606060606060606,
+          "sec_prog_sem": 6,
+          "sec_ejec_sem": 4,
+          "sec_prog_acum": 6,
+          "sec_ejec_acum": 4
+        },
+        {
+          "partida": "SUP · Vert-Concreto",
+          "pct_prog": 7.575757575757576,
+          "pct_real": 4.545454545454546,
+          "sec_prog_sem": 5,
+          "sec_ejec_sem": 3,
+          "sec_prog_acum": 5,
+          "sec_ejec_acum": 3
+        },
+        {
+          "partida": "SUP · Vigas Enc+Acero",
+          "pct_prog": 6.0606060606060606,
+          "pct_real": 3.0303030303030303,
+          "sec_prog_sem": 4,
+          "sec_ejec_sem": 2,
+          "sec_prog_acum": 4,
+          "sec_ejec_acum": 2
+        },
+        {
+          "partida": "SUP · Losa Enc+Acero",
+          "pct_prog": 4.545454545454546,
+          "pct_real": 3.0303030303030303,
+          "sec_prog_sem": 3,
+          "sec_ejec_sem": 2,
+          "sec_prog_acum": 3,
+          "sec_ejec_acum": 2
+        },
+        {
+          "partida": "SUP · Losa Concreto",
+          "pct_prog": 3.0303030303030303,
+          "pct_real": 1.5151515151515151,
+          "sec_prog_sem": 2,
+          "sec_ejec_sem": 1,
+          "sec_prog_acum": 2,
+          "sec_ejec_acum": 1
+        }
+      ],
+      "spi_semanal": 0.6,
+      "spi_acumulado": 0.6,
+      "sectores_prog_sem": 20,
+      "sectores_ejec_sem": 12,
+      "sectores_prog_acum": 20,
+      "sectores_ejec_acum": 12,
+      "pct_prog_promedio": 6.0606060606060606,
+      "pct_real_promedio": 3.6363636363636367
+    },
+    "albanileria": {
+      "partidas": [
+        {
+          "partida": "ALB · Habilitado Solaqueo",
+          "pct_prog": 25.925925925925924,
+          "pct_real": 22.22222222222222,
+          "sec_prog_sem": 4,
+          "sec_ejec_sem": 3,
+          "sec_prog_acum": 7,
+          "sec_ejec_acum": 6
+        },
+        {
+          "partida": "ALB · Solaqueo",
+          "pct_prog": 22.22222222222222,
+          "pct_real": 18.51851851851852,
+          "sec_prog_sem": 4,
+          "sec_ejec_sem": 3,
+          "sec_prog_acum": 6,
+          "sec_ejec_acum": 5
+        }
+      ],
+      "spi_semanal": 0.75,
+      "spi_acumulado": 0.8461538461538461,
+      "sectores_prog_sem": 8,
+      "sectores_ejec_sem": 6,
+      "sectores_prog_acum": 13,
+      "sectores_ejec_acum": 11,
+      "pct_prog_promedio": 24.074074074074073,
+      "pct_real_promedio": 20.37037037037037
+    }
+  },
+  "errores": [],
+  "advertencias": [
+    "01 Histograma sin _DASHBOARD_DATA -> omitido (queda S36)",
+    "03 Adquisiciones sin _DASHBOARD_DATA -> omitido (queda S36)",
+    "06 MO sin _DASHBOARD_DATA -> omitido (queda S36)",
+    "07 Acero sin _DASHBOARD_DATA (o .xlsb) -> omitido (queda S36)",
+    "08 Arrendamiento sin _DASHBOARD_DATA -> omitido (queda S36)",
+    "09 Kardex sin _DASHBOARD_DATA -> omitido (queda S36)",
+    "10 Adicionales sin _DASHBOARD_DATA -> omitido (queda S36)",
+    "Cronograma omitido: dias/avance_plazo son formulas =HOY() cacheadas (no fiables) -> queda como S36"
+  ]
+}
